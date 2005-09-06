@@ -1,7 +1,8 @@
 ARCH=$(shell /bin/arch | sed 's/686/386/')
 PRG=parted2fdisk
-PERLV=5.8.0
-PERLBASE=/usr/lib/perl5/$(PERLV)/$(ARCH)-linux-thread-multi
+PERLV=$(shell perl -v | grep 'perl,' | awk '{print $$4}' | cut -c2-)
+PERLA=$(shell perl -v | grep 'perl,' | awk '{print $$7}')
+PERLBASE=/usr/lib/perl5/$(PERLV)/$(PERLA)
 PERLINC=$(PERLBASE)/CORE
 PERLLIB=$(PERLBASE)/auto/DynaLoader/DynaLoader.a
 SUB=rootfs/sbin

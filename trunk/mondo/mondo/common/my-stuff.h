@@ -139,7 +139,7 @@
 - stuff
 */
 
-#define AUX_VER "2.04_cvs_20050503"
+#define AUX_VER "2.04_berlios"
 
 #define HAVE_MALLOC 1
 

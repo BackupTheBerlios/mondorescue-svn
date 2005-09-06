@@ -1871,7 +1871,7 @@ PrepareBootDiskImage_LILO() {
     echo -en "Making "$disksize"KB boot disk..."
     TurnTgzIntoRdz $MINDI_HOME/rootfs $TMP_ROOT/mindi.rdz $ramdisksize $disksize `du -sk $kernelpath | cut -f1` || Die "Could not turn rootfs into mindi.rdz; are you SURE your kernel supports loopfs?"
     if [ "$ARCH" != "ia64" ] ; then
-        [ "$disksize" != "1722" ] && [ "$disksize" != "2880" ] && Die "PDBI - disksize is $disksize - bad size"
+        [ "$disksize" != "1722" ] && [ "$disksize" != "2880" ] && [ "$disksize" != "5760" ] && Die "PDBI - disksize is $disksize - bad size"
     fi
     echo -en "..."
     imagefile=$imagesdir/mindi-bootroot.$disksize.img
@@ -2025,7 +2025,7 @@ PrepareBootDiskImage_SYSLINUX() {
     [ ! -e "$kernelpath" ] && Die "PBDI - cannot find $kernelpath kernel"
     echo -en "Making "$disksize"KB boot disk..."
     TurnTgzIntoRdz $MINDI_HOME/rootfs $TMP_ROOT/mindi.rdz $ramdisksize $disksize `du -sk $kernelpath | cut -f1` || Die "Could not turn rootfs into mindi.rdz; are you SURE your kernel supports loopfs?"
-    [ "$disksize" != "1722" ] && [ "$disksize" != "2880" ] && Die "PDBI - disksize is $disksize - bad size"
+    [ "$disksize" != "1722" ] && [ "$disksize" != "2880" ] && [ "$disksize" != "5760" ] && Die "PDBI - disksize is $disksize - bad size"
     echo -en "..."
     imagefile=$imagesdir/mindi-bootroot.$disksize.img
     mountpoint=$TMP_ROOT/mountpoint.$$
@@ -2789,10 +2789,10 @@ TurnTgzIntoRdz() {
 ###
     fi
     floppy_modules=""
-    if [ "$disksize" -eq "2880" ] ; then
-	list_of_groovy_mods="$CDROM_MODS `WhichOfTheseModulesAreLoaded "$SCSI_MODS"`"
-    else
+    if [ "$disksize" -lt "2880" ] ; then
 	list_of_groovy_mods="$FLOPPY_MODS `WhichOfTheseModulesAreLoaded "$SCSI_MODS"`"
+    else
+	list_of_groovy_mods="$CDROM_MODS `WhichOfTheseModulesAreLoaded "$SCSI_MODS"`"
     fi
     if [ -e "$MONDO_TMP/start-nfs" ] ; then
 	    cp -a $MONDO_TMP/start-nfs $mountpoint/sbin
@@ -3237,7 +3237,12 @@ else
 	LogIt "Warning! Failed to create 1.72MB boot image. Please reduce your kernel's size"
 	LogIt "if you want to make a 1.72MB floppy floppy disk."
     fi
-    PrepareBootDiskImage_SYSLINUX $imagesdir 2880 $kernelpath $ramdisk_size || Die "Failed to create 2.88MB floppy disk image."
+    if !PrepareBootDiskImage_SYSLINUX $imagesdir 2880 $kernelpath $ramdisk_size ; then
+	    LogIt "Warning! Failed to create 2.88MB floppy disk image."
+	    LogIt "Please reduce your kernel's size"
+	    LogIt "if you want to make a 2.88MB floppy floppy disk."
+    fi
+    PrepareBootDiskImage_SYSLINUX $imagesdir 5760 $kernelpath $ramdisk_size || Die "Failed to create 5.76MB floppy disk image."
 fi
 
 

@@ -1,5 +1,5 @@
 %define _prefix /usr
-%define libversion 2.0x_cvs
+%define libversion 2.0x_berlios
 %define __ln ln
 
 Summary:	A program which a Linux user can utilize to create a rescue/restore CD/tape
@@ -7,7 +7,7 @@ Summary(fr):	Un programme pour les utilisateurs de Linux pour cr�r un CD/tape 
 Summary(it):	Un programma per utenti Linux per creare un CD/tape di rescue
 Summary(sp):	Un programa para los usuarios de Linux por crear una CD/cinta de restoracion/rescate
 Name:		mondo
-Version:	2.04_cvs_20050503
+Version:	2.04_berlios
 Release:	1
 License:	GPL
 Group:		Applications/Archiving
@@ -157,6 +157,9 @@ ldconfig
 %{_includedir}/mondo/*
 
 %changelog
+* Tue Sep 06 2005 Bruno Cornec <bcornec@berlios.de> 2.04_berlios
+- Merge of patches mentionned on mondo ML + ia64 updates
+
 * Tue May 03 2005 Hugo Rabson <hugorabson@msn.com> 2.04_cvs_20050503
 - made mondo more clever about finding its home. Avoids mondo considering
   directories like '/usr/share/doc/momdo' as its home.

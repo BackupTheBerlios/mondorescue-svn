@@ -1,0 +1,66 @@
+#!/bin/bash
+#
+# Creates RPMs packages from SVN repository for local tests
+
+# Adapt to your needs
+BASE=/bruno/mondo
+# Look at opt below if this is dangerous for you or not.
+
+# Should not be modified below
+VER=trunk
+pkg=""
+opt=""
+ARCH=`/bin/arch`
+
+mkdir -p ${BASE}/RPMS
+cd ${BASE}/RPMS
+mkdir -p RPMS SRPMS SPECS SOURCES BUILD
+
+cd ${BASE}/svn
+if [ "$1" = "" ]; then
+	c="mindi mondo"
+else
+	c=$1
+fi
+if [ "`echo $c | grep mindi`" != "" ]; then
+	cd mindi
+	MINDI_VER=`cat $VER/mindi.spec | egrep '^Version:' | cut -d: -f2 | sed "s/ *//"`
+	rm -fr mindi-${MINDI_VER}
+	cp -a $VER mindi-${MINDI_VER}
+	find mindi-${MINDI_VER} -type d -name .svn | xargs rm -rf
+	find mindi-${MINDI_VER} -type f -name '.*.swp' | xargs rm -rf
+	rm -f mindi-${MINDI_VER}/parted2fdisk mindi-${MINDI_VER}/parted2fdisk.c mindi-${MINDI_VER}/rootfs/sbin/parted2fdisk-ia64 
+	mkdir -p ../../RPMS/SOURCES 
+	tar cvfhz ../../RPMS/SOURCES/mindi-${MINDI_VER}.tgz mindi-${MINDI_VER}
+	cp mindi-${MINDI_VER}/mindi.spec ../../RPMS/SPECS/mindi.spec
+	rm -f ${BASE}/../tmp/mindi-*-root
+	cd ..
+	pkg="$pkg ${BASE}/RPMS/RPMS/${ARCH}/mindi-${MINDI_VER}-1.${ARCH}.rpm"
+	# ATTENTION: This could be dangerous for your setup
+	opt="rm -rf /usr/share/mindi ;"
+fi
+if [ "`echo $c | grep  mondo`" != "" ]; then
+	cd mondo
+	MONDO_VER=`cat $VER/mondo.spec | egrep '^Version:' | cut -d: -f2 | sed "s/ *//"`
+	rm -rf mondo-${MONDO_VER}
+	cp -a $VER mondo-${MONDO_VER}
+	cd mondo-${MONDO_VER}
+	echo "Bootstraping mondo ... "
+	./bootstrap
+	find . -type d -name .svn | xargs rm -rf
+	find . -type f -name '.*.swp' | xargs rm -rf
+	cd ..
+	tar cvfhz ../../RPMS/SOURCES/mondo-${MONDO_VER}.tgz mondo-${MONDO_VER}
+	cp mondo-${MONDO_VER}/mondo.spec ../../RPMS/SPECS/mondo.spec
+	rm -f ${BASE}/../tmp/mondo-*-root
+	cd ..
+	pkg="$pkg ${BASE}/RPMS/RPMS/${ARCH}/mondo-${MONDO_VER}-1.${ARCH}.rpm"
+fi
+cd ../RPMS/SPECS
+if [ "`echo $c | grep mindi`" != "" ]; then
+	rpmbuild -ba mindi.spec
+fi
+if [ "`echo $c | grep mondo`" != "" ]; then
+	rpmbuild -ba --without xmondo mondo.spec
+fi
+su - -c "$opt rpm -Uvh --force $pkg"

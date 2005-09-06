@@ -107,14 +107,14 @@ if test x$do_x = xyes ; then
 	XMONDO=xmondo
 	QT_LIBRARY=-lqt
 	AC_PATH_XTRA
-	AC_PATH_KDE
-	KDE_USE_QT(3)
+	dnl AC_PATH_KDE
+	dnl KDE_USE_QT(3)
 else
 	dnl Automake requires all conditionals to be done sometime; if they're not being
 	dnl done by the KDE checks, they're done here.
 	AM_CONDITIONAL(include_ARTS, false)
-	AC_FIND_BZIP2
-	KDE_CHECK_BINUTILS
+	dnl AC_FIND_BZIP2
+	dnl KDE_CHECK_BINUTILS
 	XMONDO=
 	QT_LIBRARY=
 fi

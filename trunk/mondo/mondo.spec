@@ -157,7 +157,7 @@ ldconfig
 %{_includedir}/mondo/*
 
 %changelog
-* Tue Sep 06 2005 Bruno Cornec <bcornec@berlios.de> 2.04_berlios
+* Tue Sep 06 2005 Bruno Cornec <bcornec@users.berlios.de> 2.04_berlios
 - Merge of patches mentionned on mondo ML + ia64 updates
 
 * Tue May 03 2005 Hugo Rabson <hugorabson@msn.com> 2.04_cvs_20050503

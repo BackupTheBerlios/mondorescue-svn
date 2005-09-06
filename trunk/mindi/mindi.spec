@@ -1,7 +1,7 @@
 %define _prefix /usr
 Summary:	Mindi creates emergency boot disks/CDs using your kernel, tools and modules
 Name:		mindi
-Version:	1.04_cvs_20050503
+Version:	1.04_berlios
 Release:	1
 License:	GPL
 Group:		System/Kernel and hardware
@@ -48,7 +48,7 @@ MINDIDIR=$RPM_BUILD_ROOT%{_datadir}/mindi
 #
 # These are installed twice if not removed here
 ( cd $MINDIDIR
-%{__rm} -f CHANGES INSTALL COPYING README TODO README.ia64
+%{__rm} -f CHANGES INSTALL COPYING README TODO README.ia64 README.pxe
 )
 cd $RPM_BUILD_ROOT%{_bindir}
 %{__ln_s} -f %{_datadir}/mindi/mindi .
@@ -73,7 +73,7 @@ chmod +x $MINDIDIR/mindi
 %files
 %defattr(-,root,root,-)
 %config(noreplace) %{_sysconfdir}/mindi/deplist.txt
-%doc CHANGES INSTALL COPYING README TODO README.ia64
+%doc CHANGES INSTALL COPYING README TODO README.ia64 README.pxe
 #%attr(755,root,root) %{_datadir}/mindi/mindi
 
 %{_datadir}/mindi
@@ -82,6 +82,9 @@ chmod +x $MINDIDIR/mindi
 %{_bindir}/parted2fdisk.pl
 
 %changelog
+* Tue Sep 06 2005 Bruno Cornec <bcornec@berlios.de> 1.04_berlios
+- Merge of patches mentionned on mondo ML + ia64 updates
+
 * Tue May 03 2005 Hugo Rabson <hugorabson@msn.com> 1.04_cvs_20050503
 - supports exec-shield
 

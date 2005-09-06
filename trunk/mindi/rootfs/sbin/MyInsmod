@@ -1,0 +1,13 @@
+#!/bin/sh
+
+res=99
+for i in insmod.static insmod busybox ; do
+    if [ "$i" = "busybox" ] ; then
+        $i insmod $*
+    else
+        $i $*
+    fi
+    res=$?
+    [ "$res" -eq "0" ] && exit $res
+done 
+exit $res

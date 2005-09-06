@@ -1,0 +1,81 @@
+#!/bin/sh
+#
+# Autorun script for mondorestore CD  -  Hugo Rabson
+#
+# 05/02
+# - support for non-KDE desktops
+#
+# 04/28/2003
+# - rewrite
+#
+# 11/??/2002
+# - first copy
+#
+# Based on autorun script for the Ark Development Suite
+# Copyright (c) 2002 Bernhard Rosenkraenzer <bero@arklinux.org>
+##################################################################
+
+
+
+
+InBkgd() {
+   cd /
+   sleep 1
+   umount $1 &> /dev/null
+   eject $2 &> /dev/null
+}
+
+
+run_command_as_root() {
+    local command fnam subcom
+
+    subcom="$1"
+    command="xterm -e $subcom"
+    if which kdesux &> /dev/null ; then
+        kdesu +sb -c "$command"
+    else
+        fnam=/tmp/$$.$RANDOM.sh
+        echo -en "echo -en \"\
+To run mondorestore, you need to be root.\n\
+Please enter root's password now to proceed,\n\
+or press <Ctrl>-C to abort installation.\n\"\n\
+su - -c $subcom\n" > $fnam
+        chmod +x $fnam
+        xterm -e "$fnam"
+        rm -f $fnam
+    fi
+}
+
+# ------------------------- main ------------------------- 
+
+if [ -d "`dirname $0`" ]; then
+    cd "`dirname $0`"
+fi
+
+q=`pwd`
+r=`mount | grep $q | tr -s ' ' '\t' | cut -f1`
+
+ps ax | grep mondoarchive | grep -v grep && exit 0
+ps ax | grep mondorestore | grep -v grep && exit 0
+
+mr=`which mondorestore`
+if [ ! "$mr" ] ; then
+    p=$q/usr
+    mr=`find $p -name mondorestore -type f | head -n1`
+    [ ! -x "$mr" ] && mr=`find /mnt/cdrom -name mondorestore -type f | head -n1`
+    if [ -x "$mr" ] ; then
+      old_mr=$mr
+      new_mr=/tmp/$RANDOM.$RANDOM.$RANDOM
+      cp -f $old_mr $new_mr
+      mr=$new_mr
+    fi
+fi
+if [ -x "$mr" ] ; then
+    ls `pwd`/archives/0.afio* && additional="--live-from-cd"
+    cd /
+    umount /mnt/cdrom
+    subcom="$mr $additional"
+    run_command_as_root "$subcom"
+fi
+[ "$new_mr" ] && rm -f $new_mr
+exit $?

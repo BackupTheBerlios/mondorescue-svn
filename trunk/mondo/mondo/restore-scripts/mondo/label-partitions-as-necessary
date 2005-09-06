@@ -1,0 +1,69 @@
+#!/bin/sh
+#
+# 09/05
+# - replaced 'grep -w' with 'grep " $.. "'
+#
+# 06/11
+# - added support for 5th column, for labels
+#
+# 02/02/2003
+# - something
+#
+# mid-2001
+# - first written
+############################################
+
+
+#LogIt() {
+#    echo "$1" >> /dev/stderr
+#}
+
+ 
+read_partition_line() {
+    local tmp label mountpt mountline command format
+    if [ "`echo "$1" | grep "LABEL="`" != "" ] ; then
+	tmp=`echo "$1" | tr -s ' ' '\t' | cut -f1`
+	label=`echo "$tmp" | cut -d'=' -f2`
+	format=`echo "$1" | tr -s ' ' '\t' | cut -f3`
+	mountline=`mount | grep " $label "`
+#	mountpt=`echo "$mountline" | cut -d' ' -f1`
+! 	mountpt=`cat $mountlist | grep " $label " | cut -d' ' -f1`
+        if [ ! "$mountpt" ] ; then
+            LogIt "Not labeling anything as $label because $mountpt is not a mountpoint"
+        elif [ ! "$label" ] ; then
+            LogIt "Not labeling $mountpt as anything because $label is not a label"
+        else
+            command="e2label $mountpt $label"
+            if [ "$format" = "ext2" ] || [ "$format" = "ext3" ] ; then
+                LogIt "Running '$command'"
+                $command
+            else
+                LogIt "I am NOT going to run '$command': the partition is format '$format', which doesn't like e2label anyway"
+            fi
+	fi
+    fi
+}
+
+
+
+# ---------------------------------------------
+
+LogIt "Labeling your drives with e2label"
+if [ "$#" -ne "1" ] ; then
+    LogIt "label-partitions-as-necessary /tmp/mountlist.txt < /tmp/fstab.new" 1
+    exit 1
+fi
+mountlist=$1
+noof_blank_lines=0
+read line
+while [ "$line" != "" ] && [ "$noof_blank_lines" -le "5" ] ; do
+    if [ "$line" = "" ] ; then
+	noof_blank_lines=$(($noof_blank_lines+1))
+    else
+	noof_blank_lines=0
+	read_partition_line "$line"
+    fi
+    read line
+done
+LogIt "Labeling complete."
+exit 0

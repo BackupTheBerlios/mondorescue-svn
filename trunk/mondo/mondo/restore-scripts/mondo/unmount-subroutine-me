@@ -1,0 +1,70 @@
+#!/bin/sh
+
+LogIt "unmount-subroutine-me --- starting" 
+if [ "$#" -ne "0" ] ; then
+    LogIt "unmount-subroutine-me < mountlist" 1
+    exit 1
+fi
+
+
+# ---------------- remount restored partitions R/O -----------
+
+
+failed=""
+succeeded=""
+nonexistent=""
+read incoming
+while [ "$incoming" != "" ] ; do
+    partno=`echo $incoming | cut -d' ' -f1`
+    mountpt=`echo $incoming | cut -d' ' -f2`
+    mounttype=`echo $incoming | cut -d' ' -f3`
+    if [ "$mounttype" = "swap" ] ; then
+	swapoff $partno
+    else
+        umount $partno &> /tmp/unmount.log
+        if [ "$?" -ne "0" ] ; then
+	    if [ "`mount | grep $partno`" = "" ] ; then
+		nonexistent="$nonexistent $partno"
+	    else
+		failed="$failed $partno"
+#                echo "Failed to unmount $partno"
+	    fi
+        else
+	    succeeded="$succeeded $partno"
+#	    echo "$partno unmounted ok."
+	fi
+    fi
+    read incoming
+done
+still_failed=""
+retval=0
+for i in $failed ; do
+    umount $i
+    if [ "$?" -ne "0" ] ; then
+        still_failed="$still_failed $i"
+    else
+	succeeded="$succeeded $i"
+	LogIt "$i unmounted ok on the 2nd attempt." 2
+    fi
+done
+if [ "$still_failed" != "" ]; then
+    if [ "$succeeded" != "" ] ; then
+        LogIt "Warning:$succeeded unmounted ok" 1
+	LogIt "but$still_failed could not be unmounted," 1
+        LogIt "even after 2 attempts." 1
+	retval=1
+    else
+	LogIt "No partitions were unmounted. :-/" 1
+	retval=1
+    fi
+elif [ "$succeeded" != "" ] ; then
+    LogIt "All partitions now unmounted." 3
+    retval=0
+else
+    LogIt "All partitions unmounted.              <-- before you called me. ;-)" 3
+    retval=0
+fi
+
+LogIt "unmount-subroutine-me --- leaving (retval=$retval)"
+exit $retval
+

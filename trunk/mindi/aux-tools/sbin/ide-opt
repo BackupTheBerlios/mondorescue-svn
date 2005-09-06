@@ -1,0 +1,35 @@
+#!/bin/sh
+
+#echo "Optimize access to IDE drives? (Type 'YES' or just press <enter>)"
+#echo "Warning - this can result in filesystem corruption."
+#read response
+#if [ "$response" = "YES" ] || [ "$response" = "yes" ] ; then
+    > /tmp/oid.log
+    echo -e -n "Optimizing IDE drive access..."
+
+    cdrom_lives_here=`cat /tmp/CDROM-LIVES-HERE`
+    if [ "$?" -ne "0" ] ; then
+	echo "I don't know where the CDROM lives. Optimization cancelled."
+	exit 1
+    fi
+
+    for dev in hda hdb hdc hdd hde hdf hdg hdh ; do
+	echo " " > /tmp/oid1.log
+	if [ "$cdrom_lives_here" = "$dev" ] ; then
+# -c 1
+	    hdparm -u 1 -d 1 /dev/$dev > /tmp/oid1.log 2> /dev/null
+	else
+# -X34 -X66
+	    hdparm -u1 -d1 -c1 -m8 -W1 /dev/$dev > /tmp/oid1.log 2> /dev/null
+	fi
+	cat /tmp/oid1.log >> /tmp/oid.log
+    done
+    echo "Done. See /tmp/oid.log for logs."
+#else
+#    echo "Fair enough. I shan't optimize IDE access."
+#fi
+
+echo "'ide-opt' has tried to optimize IDE access. If you saw lots of warnings,"
+echo "optimization failed (not important, really); otherwise, it succeeded."
+
+exit 0

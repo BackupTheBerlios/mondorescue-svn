@@ -1,0 +1,129 @@
+<HTML>
+ <HEAD>
+  <!-- $MVD$:app("MicroVision WebExpress","769") -->
+  <!-- $MVD$:template("","0","0") -->
+  <!-- $MVD$:color("18","840084","Custom #1","0") -->
+  <!-- $MVD$:color("19","e0e0e0","Custom #2","0") -->
+  <!-- $MVD$:color("20","80ff","Orange","1") -->
+  <!-- $MVD$:color("21","ffd6ce","Lavender","1") -->
+  <TITLE>Trying </TITLE>
+  <META NAME="GENERATOR" CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+">
+ <LINK REL="HOME" HREF="index.html" TITLE=" Mondo Rescue and Mindi Linux HOWTO "><LINK REL="UP" HREF="backup.html" TITLE=" Backup "><LINK REL="PREVIOUS" HREF="backup.html" TITLE=" Backup "><LINK REL="NEXT" HREF="backupcommands.html" TITLE=" Backup Command and Options "></HEAD>
+ <BODY BGCOLOR="WHITE" TEXT="BLACK" LINK="BLUE" VLINK="#840084" ALINK="BLUE" CLASS="SECTION">
+  <DIV ALIGN=LEFT>
+  <P ALIGN=LEFT>
+   <TABLE WIDTH="100%" CELLPADDING="0" CELLSPACING="0" BORDER="0" SUMMARY="Header navigation table">
+    <TR>
+     <TD COLSPAN="3" VALIGN=CENTER>
+      <P ALIGN=CENTER>
+       Mondo Rescue and Mindi Linux HOWTO</TD>
+    </TR>
+    <TR>
+     <TD WIDTH="10%" VALIGN=BOTTOM>
+      <P ALIGN=LEFT>
+       <A HREF="backup.html" ACCESSKEY="P">Prev</A></TD>
+     <TD WIDTH="80%" VALIGN=BOTTOM>
+      <P ALIGN=CENTER>
+       Chapter 7. Backup</TD>
+     <TD WIDTH="10%" VALIGN=BOTTOM>
+      <P ALIGN=RIGHT>
+       <A HREF="backupcommands.html" ACCESSKEY="N">Next</A></TD>
+    </TR>
+   </TABLE>
+   <HR ALIGN=LEFT WIDTH="100%" SIZE="2">
+   </P>
+  </DIV>
+  <H1 CLASS="SECTION" ALIGN=LEFT>
+   <A NAME="BACKUPTRYING"></A>7.1. Trying</H1>
+  <P ALIGN=LEFT>
+   Mama does Mondo? Papa does Mondo? Is that a Dean Martin song? Well, 
+   anyway, here is how I backup my system:</P>
+  <UL>
+   <LI CLASS="mvd-P">
+   <P ALIGN=LEFT>
+    Shut down all possible applications (this minimizes any compare 
+    differences following the backup)</P>
+   <LI CLASS="mvd-P">
+   <P ALIGN=LEFT>
+    Type:</P>
+   </UL>
+  <DIV ALIGN=LEFT>
+  <P ALIGN=LEFT>
+   <TABLE WIDTH="100%" CELLPADDING="1" CELLSPACING="2" BORDER="0">
+    <TR>
+     <TD BGCOLOR="#E0E0E0" VALIGN=CENTER><PRE
+        CLASS="PROGRAMLISTING"><FONT
+        COLOR="BLACK">bash# mondoarchive</FONT></TD></TR>
+   </TABLE></P>
+  </DIV>
+  <P ALIGN=LEFT>
+   For most users, that should be enough. :-) Mondoarchive will usually 
+   autodetect your hardware and configure it for you.</P>
+  <P ALIGN=LEFT>
+   If you are a power user (or you like to control every detail of how 
+   Mondo runs) then you may want to look at the command-line switches. 
+   For example:-</P>
+  <DIV ALIGN=LEFT>
+  <P ALIGN=LEFT>
+   <TABLE WIDTH="100%" CELLPADDING="1" CELLSPACING="2" BORDER="0">
+    <TR>
+     <TD BGCOLOR="#E0E0E0" VALIGN=CENTER><PRE
+        CLASS="PROGRAMLISTING"><FONT
+        COLOR="BLACK">bash# mondoarchive -Ow4 -gF -I /home</FONT></TD></TR>
+   </TABLE></P>
+  </DIV>
+  <P ALIGN=LEFT>
+   Cdrecord will tell me where my CD recorder lives, in SCSI terms, 
+   which in my case is '0,0,0'. The call to mondoarchive tells Mondo 
+   that I want to backup everything to a 4x CD-RW drive that has a CD-RW 
+   disk in it. (Use -Oc instead of -Ow if you are using CD-R.)</P>
+  <P ALIGN=LEFT>
+   Please put the first CD-R(W) in the drive now. You will be prompted 
+   to insert CD #2 but you will not be prompted to insert the first 
+   disk. However, if you forget, do not worry: if Mondo fails to write 
+   the first (or any) disk, it will offer to retry, abort or fail.</P>
+  <P ALIGN=LEFT>
+   I run Mondo at the highest compression available ('-9) and then go to 
+   work. I then walk home at lunch (I live right by my workplace), 
+   change CD, eat lunch, and go back to work. When I get home, it has 
+   all been done.</P>
+  <P ALIGN=LEFT>
+   Your mileage may vary. Experiment. Find the speed/compression 
+   compromise that best suits your needs.</P>
+  <P ALIGN=LEFT>
+   If you are using <B>cron</B> then please use -F to make sure that 
+   Mondo does not prompt you to create bootable floppy disks. <B>Cron</B> 
+   does not handle user interaction well because it pipes stdin and 
+   stdout specially. Please consult <B>cron</B>'s manual for more 
+   information. Jesse Keating has written a script for <B>cron</B>/Mondo 
+   users. It is available on the <A HREF="../../docs/docs.html">Documentation</A> page.</P>
+  <DIV ALIGN=LEFT>
+  <P ALIGN=LEFT>
+   <HR ALIGN=LEFT WIDTH="100%" SIZE="2">
+   <TABLE WIDTH="100%" CELLPADDING="0" CELLSPACING="0" BORDER="0" SUMMARY="Footer navigation table">
+    <TR>
+     <TD WIDTH="33%" VALIGN=TOP>
+      <P ALIGN=LEFT>
+       <A HREF="backup.html" ACCESSKEY="P">Prev</A></TD>
+     <TD WIDTH="34%" VALIGN=TOP>
+      <P ALIGN=CENTER>
+       <A HREF="index.html" ACCESSKEY="H">Home</A></TD>
+     <TD WIDTH="33%" VALIGN=TOP>
+      <P ALIGN=RIGHT>
+       <A HREF="backupcommands.html" ACCESSKEY="N">Next</A></TD>
+    </TR>
+    <TR>
+     <TD WIDTH="33%" VALIGN=TOP>
+      <P ALIGN=LEFT>
+       Backup</TD>
+     <TD WIDTH="34%" VALIGN=TOP>
+      <P ALIGN=CENTER>
+       <A HREF="backup.html" ACCESSKEY="U">Up</A></TD>
+     <TD WIDTH="33%" VALIGN=TOP>
+      <P ALIGN=RIGHT>
+       Backup Command and Options</TD>
+    </TR>
+   </TABLE>
+ </BODY>
+</HTML>

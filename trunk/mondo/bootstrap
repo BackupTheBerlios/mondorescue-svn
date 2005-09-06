@@ -1,0 +1,34 @@
+#!/bin/bash
+#
+# Built from scratch
+#
+amv=`automake --version | head -1 | awk '{print $(NF)}'`
+amvmj=`echo $amv | cut -d. -f1`
+amvmn=`echo $amv | cut -d. -f2`
+acv=`autoconf --version | head -1 | awk '{print $(NF)}'`
+acvmj=`echo $acv | cut -d. -f1`
+acvmn=`echo $acv | cut -d. -f2`
+if [ "$acvmj" -lt 2 ]; then
+	echo "Please get a version of autoconf >= 2.59"
+	exit -1
+fi
+if [ "$acvmn" -lt 59 ]; then
+	echo "Please get a version of autoconf >= 2.59"
+	exit -1
+fi
+if [ "$amvmj" -lt 1 ]; then
+	echo "Please get a version of automake >= 1.7"
+	exit -1
+fi
+if [ "$acvmn" -lt 7 ]; then
+	echo "Please get a version of automake >= 1.7"
+	exit -1
+fi
+
+make maintainer-clean >/dev/null 2>&1
+libtoolize -f -c --automake
+aclocal
+autoheader
+automake
+autoconf
+rm -rf autom4te.cache

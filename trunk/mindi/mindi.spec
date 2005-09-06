@@ -8,7 +8,7 @@ Group:		System/Kernel and hardware
 Url:		http://www.mondorescue.org
 Source:		%{name}-%{version}.tgz
 BuildRoot:	%{_tmppath}/%{name}-%{version}
-Requires:	bzip2 >= 0.9, mkisofs, ncurses, binutils, gawk
+Requires:	bzip2 >= 0.9, mkisofs, ncurses, binutils, gawk, dosfstools
 Conflicts:	bonnie++
 Prefix:		%{_prefix}
 Autoreq:	0
@@ -82,7 +82,7 @@ chmod +x $MINDIDIR/mindi
 %{_bindir}/parted2fdisk.pl
 
 %changelog
-* Tue Sep 06 2005 Bruno Cornec <bcornec@berlios.de> 1.04_berlios
+* Tue Sep 06 2005 Bruno Cornec <bcornec@users.berlios.de> 1.04_berlios
 - Merge of patches mentionned on mondo ML + ia64 updates
 
 * Tue May 03 2005 Hugo Rabson <hugorabson@msn.com> 1.04_cvs_20050503

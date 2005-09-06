@@ -2016,7 +2016,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo *bkpinfo, b
           {
             sprintf(bkpinfo->isodir, "/tmp/isodir");
 	    run_program_and_log_output("mkdir -p /tmp/isodir", 5);
-	    sprintf(tmp, "mount %s -t nfs /tmp/isodir", bkpinfo->nfs_mount);
+	    sprintf(tmp, "mount %s -t nfs -o nolock /tmp/isodir", bkpinfo->nfs_mount);
 	    run_program_and_log_output(tmp, 5);
           }
 	if (!is_this_device_mounted(bkpinfo->nfs_mount))

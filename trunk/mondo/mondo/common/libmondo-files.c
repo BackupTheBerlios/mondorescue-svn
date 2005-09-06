@@ -1247,7 +1247,7 @@ store_nfs_config (struct s_bkpinfo *bkpinfo)
   fprintf (fout, "ifconfig lo 127.0.0.1  # config loopback\n");
   fprintf (fout, "ifconfig %s %s; # config client\n", nfs_dev,
 	   nfs_client_ipaddr);
-  fprintf (fout, "# ping -c1 %s; # ping server\n", nfs_server_ipaddr);
+  fprintf (fout, "ping -c1 %s; # ping server\n", nfs_server_ipaddr);
   fprintf (fout, "mount -t nfs -o nolock %s /tmp/isodir\n", bkpinfo->nfs_mount);
   fprintf (fout, "exit 0\n");
   paranoid_fclose (fout);

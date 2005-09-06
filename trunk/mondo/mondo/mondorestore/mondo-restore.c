@@ -3456,7 +3456,7 @@ main(int argc, char*argv[])
 	      log_msg(1, "Mounting nfs dir");
               sprintf(bkpinfo->isodir, "/tmp/isodir");
 	      run_program_and_log_output("mkdir -p /tmp/isodir", 5);
-	      sprintf(tmp, "mount %s -t nfs /tmp/isodir", bkpinfo->nfs_mount);
+	      sprintf(tmp, "mount %s -t nfs -o nolock /tmp/isodir", bkpinfo->nfs_mount);
 	      run_program_and_log_output(tmp, 1);
            }
         }

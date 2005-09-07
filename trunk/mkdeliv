@@ -1,0 +1,28 @@
+#!/bin/bash
+#
+# Deliver RPMs packages and tgz files to BerliOS
+
+. ./rpm-env
+
+tgz=""
+srpms=""
+rpms=""
+
+if [ "$1" = "" ]; then
+	c="mindi mondo"
+else
+	c=$1
+fi
+if [ "`echo $c | grep mindi`" != "" ]; then
+	tgz="$tgz ${TOPDIR}/SOURCES/mindi-${MINDI_VER}.tgz"
+	rpms="$rpms ${TOPDIR}/RPMS/${ARCH}/mindi-${MINDI_VER}-1.${ARCH}.rpm"
+	srpms="$srpms ${TOPDIR}/SRPMS/mindi-${MINDI_VER}-1.src.rpm"
+fi
+if [ "`echo $c | grep  mondo`" != "" ]; then
+	tgz="$tgz ${TOPDIR}/SOURCES/mondo-${MONDO_VER}.tgz"
+	rpms="$rpms ${TOPDIR}/RPMS/${ARCH}/mondo-${MONDO_VER}-1.${ARCH}.rpm"
+	srpms="$srpms ${TOPDIR}/SRPMS/mondo-${MONDO_VER}-1.src.rpm"
+fi
+scp -p ${tgz} ${SVNAUTH}:${DSTDIR}/TGZ
+scp -p ${rpms} ${SVNAUTH}:${DSTDIR}/RPMS
+scp -p ${srpms} ${SVNAUTH}:${DSTDIR}/SRPMS

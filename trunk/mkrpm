@@ -2,26 +2,7 @@
 #
 # Creates RPMs packages from SVN repository for local tests
 
-# Adapt to your needs
-BASE=/bruno/mondo
-# Look at opt below if this is dangerous for you or not.
-
-# Should not be modified below
-VER=trunk
-pkg=""
-opt=""
-ARCH=`/bin/arch`
-
-mkdir -p ${BASE}/RPMS
-TMP=${BASE}/tmp
-mkdir -p ${TMP}
-if [ -f ${HOME}/.rpmmacros ]; then
-	TOPDIR=`grep _topdir ${HOME}/.rpmmacros | awk '{print $2}'`
-else
-	TOPDIR=${BASE}/RPMS
-fi
-cd ${TOPDIR}
-mkdir -p RPMS SRPMS SPECS SOURCES BUILD
+. ./rpm-env
 
 if [ "$1" = "" ]; then
 	c="mindi mondo"
@@ -30,12 +11,12 @@ else
 fi
 if [ "`echo $c | grep mindi`" != "" ]; then
 	cd ${BASE}/svn
-	MINDI_VER=`cat ${VER}/mindi/mindi.spec | egrep '^Version:' | cut -d: -f2 | sed "s/[ 	]*//"`
 	echo "Management of mindi ${MINDI_VER}"
 	rm -fr mindi-${MINDI_VER}
 	cp -a ${VER}/mindi mindi-${MINDI_VER}
 	find mindi-${MINDI_VER} -type d -name .svn | xargs rm -rf
 	find mindi-${MINDI_VER} -type f -name '.*.swp' | xargs rm -rf
+	find mindi-${MINDI_VER} -type f -name '*~' | xargs rm -rf
 	rm -f mindi-${MINDI_VER}/parted2fdisk mindi-${MINDI_VER}/parted2fdisk.c mindi-${MINDI_VER}/rootfs/sbin/parted2fdisk-ia64 
 	mkdir -p ${TOPDIR}/SOURCES 
 	tar cvfhz ${TOPDIR}/SOURCES/mindi-${MINDI_VER}.tgz mindi-${MINDI_VER}
@@ -47,7 +28,7 @@ if [ "`echo $c | grep mindi`" != "" ]; then
 fi
 if [ "`echo $c | grep  mondo`" != "" ]; then
 	cd ${BASE}/svn
-	MONDO_VER=`cat ${VER}/mondo/mondo.spec | egrep '^Version:' | cut -d: -f2 | sed "s/[ 	]*//"`
+	echo "Management of mondo ${MONDO_VER}"
 	rm -rf mondo-${MONDO_VER}
 	cp -a ${VER}/mondo mondo-${MONDO_VER}
 	cd mondo-${MONDO_VER}
@@ -55,6 +36,7 @@ if [ "`echo $c | grep  mondo`" != "" ]; then
 	./bootstrap
 	find . -type d -name .svn | xargs rm -rf
 	find . -type f -name '.*.swp' | xargs rm -rf
+	find . -type f -name '*~' | xargs rm -rf
 	cd ..
 	tar cvfhz ${TOPDIR}/SOURCES/mondo-${MONDO_VER}.tgz mondo-${MONDO_VER}
 	cp mondo-${MONDO_VER}/mondo.spec ${TOPDIR}/SPECS/mondo.spec

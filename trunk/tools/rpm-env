@@ -6,6 +6,7 @@
 export BASE=/bruno/mondo
 export SVNAUTH=bcornec@shell.berlios.de
 export DSTDIR=/home/groups/mondorescue/htdocs
+export FTPURL="ftp.berlios.de /incoming"
 
 # Should not be modified below
 export VER=trunk

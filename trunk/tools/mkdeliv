@@ -26,3 +26,4 @@ fi
 scp -p ${tgz} ${SVNAUTH}:${DSTDIR}/TGZ
 scp -p ${rpms} ${SVNAUTH}:${DSTDIR}/RPMS
 scp -p ${srpms} ${SVNAUTH}:${DSTDIR}/SRPMS
+ncftpput ${FTPURL} ${tgz}

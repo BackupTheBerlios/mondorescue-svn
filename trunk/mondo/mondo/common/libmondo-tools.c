@@ -571,6 +571,7 @@ log_trace (char *o)
  * - Used: @c bkpinfo->cdrw_speed
  * - Used: @c bkpinfo->compression_level
  * - Used: @c bkpinfo->include_paths
+ * - Used: @c bkpinfo->prefix
  * - Used: @c bkpinfo->isodir
  * - Used: @c bkpinfo->manual_cd_tray
  * - Used: @c bkpinfo->make_cd_use_lilo
@@ -982,6 +983,7 @@ reset_bkpinfo (struct s_bkpinfo *bkpinfo)
     { strcpy(bkpinfo->isodir, "/"); }
   else
     { strcpy (bkpinfo->isodir, "/root/images/mondo"); }
+  strcpy (bkpinfo->prefix, "mondorescue");
 
   bkpinfo->scratchdir[0] = '\0';
   bkpinfo->make_filelist = TRUE; // unless -J supplied to mondoarchive

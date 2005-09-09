@@ -697,6 +697,10 @@ process_switches (struct s_bkpinfo *bkpinfo, char flag_val[128][MAX_STR_LEN],
           log_to_screen(tmp);
 	}
     }
+if (flag_set['p'])
+    {
+      strncpy (bkpinfo->prefix, flag_val['p'], MAX_STR_LEN/4);
+    }
 
 
   if (flag_set['d'])
@@ -944,7 +948,7 @@ retrieve_switches_from_command_line (int argc, char *argv[],
     }
   while ((opt =
 	  getopt (argc, argv,
-		  "0123456789A:B:CDE:FHI:J:K:LNOP:QRS:T:VWb:c:d:ef:gik:l:mn:ors:tuw:x:")) !=
+		  "0123456789A:B:CDE:FHI:J:K:LNOP:QRS:T:VWb:c:d:ef:gik:l:mn:op:rs:tuw:x:")) !=
 	 -1)
     {
       if (opt == '?')

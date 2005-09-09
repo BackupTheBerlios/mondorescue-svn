@@ -1661,6 +1661,7 @@ mount_CDROM_here (char *device, char *mountpoint)
  * Sets g_current_media_number once the correct CD is inserted.
  * @param bkpinfo The backup information structure. Fields used:
  * - @c bkpinfo->backup_media_type
+ * - @c bkpinfo->prefix
  * - @c bkpinfo->isodir
  * - @c bkpinfo->media_device
  * - @c bkpinfo->please_dont_eject_when_restoring
@@ -1700,10 +1701,10 @@ insist_on_this_cd_number (struct s_bkpinfo* bkpinfo, int cd_number_i_want)
 // Why unmount and remount again and again?
       if (is_this_device_mounted(MNT_CDROM)) { run_program_and_log_output("umount "MNT_CDROM, 5); }
       system("mkdir -p /tmp/isodir &> /dev/null");
-      sprintf(tmp, "%s/%s/%d.iso", bkpinfo->isodir, bkpinfo->nfs_remote_dir, cd_number_i_want);
+      sprintf(tmp, "%s/%s/%s-%d.iso", bkpinfo->isodir, bkpinfo->nfs_remote_dir, bkpinfo->prefix, cd_number_i_want);
       if (!does_file_exist(tmp))
         {
-	  sprintf(tmp, "/tmp/isodir/%s/%d.iso", bkpinfo->nfs_remote_dir, cd_number_i_want);
+	  sprintf(tmp, "/tmp/isodir/%s/%s-%d.iso", bkpinfo->nfs_remote_dir, bkpinfo->prefix, cd_number_i_want);
 	  if (does_file_exist(tmp))
 	    {
 	      log_msg(1, "FIXME - hacking bkpinfo->isodir from '%s' to /tmp/isodir", bkpinfo->isodir);
@@ -2047,6 +2048,8 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo *bkpinfo, b
                  if (!popup_and_get_string ("ISO size.", "Please enter how big you want each ISO image to be (in megabytes). This should be less than or equal to the size of the CD-R[W]'s you plan to backup to.", sz_size, 16))
                      { log_to_screen ("User has chosen not to backup the PC"); finish(1); }
                  for(i=0; i<=MAX_NOOF_MEDIA; i++) { bkpinfo->media_size[i] = atoi (sz_size); }
+             if (!popup_and_get_string("Prefix.", "Please enter the prefix that will be prepended to your ISO filename.  Example: machine1 to obtain machine1-[1-9]*.iso files", bkpinfo->prefix, MAX_STR_LEN/4))
+	      { log_to_screen("User has chosen not to backup the PC"); finish(1); }
              } else {
                  for (i=0;i<=MAX_NOOF_MEDIA; i++) { bkpinfo->media_size[i] = 650;}
              }

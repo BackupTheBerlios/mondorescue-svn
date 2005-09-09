@@ -1,4 +1,4 @@
-.TH mondoarchive 8 "June 2004" Linux MondoRescue
+.TH mondoarchive 8 "September 2005" Linux MondoRescue
 
 .SH NAME
 mondoarchive \- a backup / disaster\-recovery tool.
@@ -75,6 +75,16 @@ on the best speed for your drive.
 Use CD-R drive as a streaming device, almost like a tape streamer. Use
 write-once disks as backup media.
 .B Experimental.
+
+.TP
+.BI "-p " prefix
+Use 
+.B prefix 
+to generate the name of your ISO images.
+By default, mondoarchive calls images mondorescue-1.iso, mondorescue-2.iso, ...
+Using 
+.B -p machine
+it will call your images machine-1.iso, machine-2.iso, ...
 
 .TP
 .BI "-i "

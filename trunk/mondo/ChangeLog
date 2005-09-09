@@ -1,4 +1,11 @@
-MONDO CHANGES          Hugo Rabson <hugorabson@msn.com>             10/13/2004
+MONDO CHANGES          Hugo Rabson <hugorabson@msn.com>             2005-09-09
+
+
+v2.04_berlios (Bruno Cornec <bcornec@users.berlios.de)
+- Add -p option to generate ISO images file names with prefix. The new default
+  name for ISO images is mondorescue-1.iso, ...
+- Mandrake 2005 support
+- NFS patches (Yann Aubert <technique@alixen.fr>)
 
 
 v2.04

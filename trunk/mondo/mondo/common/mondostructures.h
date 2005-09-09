@@ -443,6 +443,13 @@ struct s_bkpinfo
    */
   char isodir[MAX_STR_LEN/4];
 
+/**
+   * The prefix to put in front of media number
+   * If backup_media_type is @b iso, then this is the prefix for the filename
+   * If backup_media_type is anything else, this is ignored.
+   */
+  char prefix[MAX_STR_LEN/4];
+
   /**
    * The scratch directory to use.
    * This is the "stage" that the CD image is made directly from.

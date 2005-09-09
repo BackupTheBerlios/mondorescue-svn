@@ -1222,6 +1222,7 @@ do_that_final_phase (struct s_bkpinfo *bkpinfo)
  * @param bkpinfo The backup information structure. Fields used:
  * - @c backup_media_type
  * - @c cdrw_speed
+ * - @c prefix
  * - @c isodir
  * - @c media_device
  * - @c scratchdir
@@ -1279,7 +1280,7 @@ hexdump | tr -s ' ' '0' | head -n1"));
       log_msg (1, "Backing up to CD's");
     }
 
-  sprintf (command, "rm -f %s/[1-9]*.iso", bkpinfo->isodir);
+  sprintf (command, "rm -f %s/%s-[1-9]*.iso", bkpinfo->prefix, bkpinfo->isodir);
   paranoid_system (command);
   wipe_archives (bkpinfo->scratchdir);
   mvaddstr_and_log_it (g_currentY++, 74, "Done.");
@@ -1910,7 +1911,7 @@ make_iso_fs (struct s_bkpinfo *bkpinfo, char *destfile)
 // FIXME --- change mkisofs string to MONDO_MKISOFS_REGULAR_SYSLINUX/LILO depending on bkpinfo->make_cd_usE_lilo
 // and add ' .' at end
 #ifdef __IA64__
-              log_msg(1, "IA64 --> lilo");
+              log_msg(1, "IA64 --> elilo");
               res =
                 eval_call_to_make_ISO (bkpinfo,
                     //-b images/mindi-boot.2880.img
@@ -3535,9 +3536,10 @@ write_final_iso_if_necessary (struct s_bkpinfo *bkpinfo)
 
 
 /**
- * Write an ISO image to <tt>[bkpinfo->isodir]/[g_current_media_number].iso</tt>.
+ * Write an ISO image to <tt>[bkpinfo->isodir]/bkpinfo->prefix-[g_current_media_number].iso</tt>.
  * @param bkpinfo The backup information structure. Fields used:
  * - @c backup_media_type
+ * - @c prefix
  * - @c isodir
  * - @c manual_cd_tray
  * - @c media_size
@@ -3622,8 +3624,8 @@ write_iso_and_go_on (struct s_bkpinfo *bkpinfo, bool last_cd)
 	       (long) bkpinfo->media_size[g_current_media_number]);
       log_to_screen (tmp);
     }
-  sprintf (isofile, "%s/%s/%d.iso", bkpinfo->isodir, bkpinfo->nfs_remote_dir,
-	       g_current_media_number);
+  sprintf (isofile, "%s/%s/%s-%d.iso", bkpinfo->isodir, bkpinfo->nfs_remote_dir,
+	       bkpinfo->prefix, g_current_media_number);
   for (that_one_was_ok = FALSE; !that_one_was_ok;)
     {
       res = make_iso_fs (bkpinfo, isofile);

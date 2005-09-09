@@ -965,6 +965,7 @@ verify_biggiefiles_from_stream (struct s_bkpinfo *bkpinfo)
  * Verify the CD indicated by @c g_current_media_number.
  * @param bkpinfo The backup information structure. Fields used:
  * - @c bkpinfo->isodir
+ * - @c bkpinfo->prefix
  * - @c bkpinfo->manual_cd_tray
  * - @c bkpinfo->media_device
  * - @c bkpinfo->nfs_remote_dir
@@ -1002,8 +1003,8 @@ verify_cd_image (struct s_bkpinfo *bkpinfo)
   assert(bkpinfo!=NULL);
 
   sprintf (mountpoint, "%s/cdrom", bkpinfo->tmpdir);
-  sprintf (fname, "%s/%s/%d.iso", bkpinfo->isodir, bkpinfo->nfs_remote_dir,
-	   g_current_media_number);
+  sprintf (fname, "%s/%s/%s-%d.iso", bkpinfo->isodir, bkpinfo->prefix, 
+		  bkpinfo->nfs_remote_dir, g_current_media_number);
 
   mkdir (mountpoint, 1777);
   sync ();

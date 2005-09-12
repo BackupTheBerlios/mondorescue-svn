@@ -7,6 +7,7 @@
 tgz=""
 srpms=""
 rpms=""
+ct=`date "+%Y%m%d"`
 
 if [ "$1" = "" ]; then
 	c="mindi mondo"
@@ -14,12 +15,14 @@ else
 	c=$1
 fi
 if [ "`echo $c | grep mindi`" != "" ]; then
-	tgz="$tgz ${TOPDIR}/SOURCES/mindi-${MINDI_VER}.tgz"
+	cp -a ${TOPDIR}/SOURCES/mindi-${MINDI_VER}.tgz ${TOPDIR}/SOURCES/mindi-${MINDI_VER}-${ct}.tgz
+	tgz="$tgz ${TOPDIR}/SOURCES/mindi-${MINDI_VER}-${ct}.tgz"
 	rpms="$rpms ${TOPDIR}/RPMS/${ARCH}/mindi-${MINDI_VER}-1.${ARCH}.rpm"
 	srpms="$srpms ${TOPDIR}/SRPMS/mindi-${MINDI_VER}-1.src.rpm"
 fi
 if [ "`echo $c | grep  mondo`" != "" ]; then
-	tgz="$tgz ${TOPDIR}/SOURCES/mondo-${MONDO_VER}.tgz"
+	cp -a ${TOPDIR}/SOURCES/mondo-${MONDO_VER}.tgz ${TOPDIR}/SOURCES/mondo-${MONDO_VER}-${ct}.tgz
+	tgz="$tgz ${TOPDIR}/SOURCES/mondo-${MONDO_VER}-${ct}.tgz"
 	rpms="$rpms ${TOPDIR}/RPMS/${ARCH}/mondo-${MONDO_VER}-1.${ARCH}.rpm"
 	srpms="$srpms ${TOPDIR}/SRPMS/mondo-${MONDO_VER}-1.src.rpm"
 fi

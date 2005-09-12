@@ -49,7 +49,7 @@ fi
 MY_FSTAB=/etc/fstab
 FLOPPY_MODS="ide-floppy floppy"
 TAPE_MODS="ht st osst ide-tape ide_tape"
-SCSI_MODS="3c59x 3w-xxxx 53c7,8xx a100u2w aacraid advansys aha152x aha1542 aha1740 aic79xx aic79xx_mod aic7xxx aic7xxx_mod aic7xxx_old AM53C974 atp870u BusLogic cciss cpqfc dmx3191d dpt_i2o dtc eata eata_dma eata_pio fdomain gdth g_NCR5380 ide-scsi ieee1394 imm in2000 initio ips iscsi isp megaraid mptbase mptscsih NCR53c406a ncr53c8xx nsp32 pas16 pci2000 pci2220i pcmcia ppa psi240i qla1280 qlogicfas qlogicfc qlogicisp raw1394 scsi_debug scsi_mod sd_mod seagate sg sim710 sr_mod sym53c416 sym53c8xx sym53c8xx_2 t128 tmscsim u14-34f ultrastor wd7000"
+SCSI_MODS="3c59x 3w-xxxx 53c7,8xx a100u2w a320raid aacraid advansys aha152x aha1542 aha1740 aic79xx aic79xx_mod aic7xxx aic7xxx_mod aic7xxx_old AM53C974 atp870u BusLogic cciss cpqfc dmx3191d dpt_i2o dtc eata eata_dma eata_pio fdomain gdth g_NCR5380 ide-scsi ieee1394 imm in2000 initio ips iscsi isp megaraid mptbase mptscsih NCR53c406a ncr53c8xx nsp32 pas16 pci2000 pci2220i pcmcia ppa psi240i qla1280 qlogicfas qlogicfc qlogicisp raw1394 scsi_debug scsi_mod sd_mod seagate sg sim710 sr_mod sym53c416 sym53c8xx sym53c8xx_2 t128 tmscsim u14-34f ultrastor wd7000"
 
 # ide-probe-mod
 IDE_MODS="ide ide-generic ide-detect ide-mod ide-disk ide-cd ide_cd ide-cs ide-core ide_core libata edd paride ata_piix libata"

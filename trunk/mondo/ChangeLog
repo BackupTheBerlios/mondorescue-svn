@@ -6,6 +6,8 @@ v2.04_berlios (Bruno Cornec <bcornec@users.berlios.de)
   name for ISO images is mondorescue-1.iso, ...
 - Mandrake 2005 support
 - NFS patches (Yann Aubert <technique@alixen.fr>)
+- mondorestore shouldn't now ask final questions with -H 
+  (this is an unattended mode)
 
 
 v2.04

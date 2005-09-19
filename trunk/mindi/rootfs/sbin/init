@@ -624,10 +624,18 @@ fi
 if [ "`cat /tmp/mondo-restore.cfg | grep "tape"`" ] || [ "`cat /tmp/mondo-restore.cfg | grep udev`" ] ; then
     HandleTape
 else
-	if [ "`cat /proc/cmdline | grep -i "pxe"`" ] ; then
+	if [ "`cat /proc/cmdline | grep -i pxe`" ] ; then
 		LogIt "PXE boot found"
-		LogIt "Mounting NFS image 1.iso on /mnt/cdrom in loopback"
-		losetup /dev/loop7 /tmp/isodir/1.iso
+		imgname="mondorescue"
+		if [ "`cat /proc/cmdline | grep -i prefix`" ] ; then
+			for i in "`cat /proc/cmdline`" do
+				if [ "`echo $i | grep -i prefix`" ] ; then
+					imgname=`echo $i | cut -d'=' -f2`
+				fi
+			done
+		fi
+		LogIt "Mounting NFS image $imgname.iso on /mnt/cdrom in loopback"
+		losetup /dev/loop7 /tmp/isodir/$imgname.iso
 		mount -t iso9660 /dev/loop7 /mnt/cdrom
 		# Simulate a local CD
 		echo "/mnt/cdrom" > /tmp/CDROM-LIVES-HERE

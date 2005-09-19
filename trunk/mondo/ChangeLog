@@ -3,7 +3,8 @@ MONDO CHANGES          Hugo Rabson <hugorabson@msn.com>             2005-09-09
 
 v2.04_berlios (Bruno Cornec <bcornec@users.berlios.de)
 - Add -p option to generate ISO images file names with prefix. The new default
-  name for ISO images is mondorescue-1.iso, ...
+  name for ISO images is mondorescue-1.iso, ... For PXE environment, you have
+  to use the prefix option on the command line (read README.pxe)
 - Mandrake 2005 support
 - NFS patches (Yann Aubert <technique@alixen.fr>)
 - mondorestore shouldn't now ask final questions with -H 

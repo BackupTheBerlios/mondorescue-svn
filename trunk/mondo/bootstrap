@@ -32,3 +32,4 @@ autoheader
 automake
 autoconf
 rm -rf autom4te.cache
+./mksvnversion

@@ -1,5 +1,5 @@
 /* my-stuff.h
-   $Id: my-stuff.h,v 1.8 2004/06/21 20:20:36 hugo Exp $
+   $Id$
 .
 
 
@@ -417,7 +417,7 @@ extern void _mondo_assert_fail (const char *file, const char *function, int line
 /**
  * Free @p x and set it to NULL.
  */
-#define paranoid_free(x) {free(x); x=NULL;}
+#define paranoid_free(x) {if (x != NULL) free(x); x=NULL;}
 
 /**
  * Free variables and call finish(@p x).

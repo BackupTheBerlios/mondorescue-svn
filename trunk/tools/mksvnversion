@@ -27,11 +27,6 @@ const char* svn_version(void) {
 EOF
 
 #
-# Patches the file needing that release reference
-#
-perl -pi -e "s/^Release:.*$/Release:	${rel}" $TOOLHOME/../*/*spec
-
-#
 # return the release
 #
 echo ${rel}

@@ -1,3 +1,6 @@
+#
+# $Id$
+#
 %define _prefix /usr
 %define libversion 2.0x_berlios
 %define __ln ln

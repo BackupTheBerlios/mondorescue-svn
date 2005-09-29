@@ -1,3 +1,6 @@
+#
+# $Id$
+#
 %define _prefix /usr/local
 Summary:	A program that creates emergency boot disks/CDs using your kernel, tools and modules.
 Name:		mindi-kernel

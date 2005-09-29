@@ -1,9 +1,0 @@
-########################################################
-# $Id$
-########################################################
-#
-# on every build, record the working copy revision string
-#
-echo -n 'const char* svn_version(void) { const char* SVN_Version = "' > svn_version.c
-svnversion -n .. >> svn_version.c
-echo '"; return SVN_Version; }'   >> svn_version.c

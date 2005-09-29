@@ -1,3 +1,6 @@
+#
+# $Id$
+#
 %define _prefix /usr
 Summary:	Mindi creates emergency boot disks/CDs using your kernel, tools and modules
 Name:		mindi

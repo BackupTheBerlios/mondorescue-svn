@@ -1,9 +1,12 @@
 #!/bin/bash
 #
 # Creates RPMs environment from SVN repository
+#
+# $Id$
+#
 
 # Adapt to your needs
-export BASE=/bruno/mondo
+export BASE=${HOME}/mondo
 export SVNAUTH=bcornec@shell.berlios.de
 export DSTDIR=/home/groups/ftp/pub/mondorescue
 export FTPURL="ftp.berlios.de /incoming"

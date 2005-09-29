@@ -1,8 +1,21 @@
 #!/bin/bash
 #
 # Creates RPMs packages from SVN repository for local tests
+#
+# $Id$
+#
 
-. ./rpm-env
+dname=`dirname $0`
+prem=`echo $dname |cut -c1`
+if [ ${prem} == "/" ]; then
+	export TOOLHOME=$dname
+else
+	export TOOLHOME=${PWD}/$dname
+fi
+
+. $TOOLHOME/rpm-env
+
+rev=`$TOOLHOME/mksvnversion`
 
 if [ "$1" = "" ]; then
 	c="mindi mondo"
@@ -22,7 +35,7 @@ if [ "`echo $c | grep mindi`" != "" ]; then
 	tar cvfhz ${TOPDIR}/SOURCES/mindi-${MINDI_VER}.tgz mindi-${MINDI_VER}
 	cp mindi-${MINDI_VER}/mindi.spec ${TOPDIR}/SPECS/mindi.spec
 	rm -f ${TMP}/mindi-*-root
-	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mindi-${MINDI_VER}-1.${ARCH}.rpm"
+	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mindi-${MINDI_VER}-${rev}.${ARCH}.rpm"
 	# ATTENTION: This could be dangerous for your setup
 	opt="rm -rf /usr/share/mindi ;"
 fi
@@ -41,7 +54,7 @@ if [ "`echo $c | grep  mondo`" != "" ]; then
 	tar cvfhz ${TOPDIR}/SOURCES/mondo-${MONDO_VER}.tgz mondo-${MONDO_VER}
 	cp mondo-${MONDO_VER}/mondo.spec ${TOPDIR}/SPECS/mondo.spec
 	rm -f ${TMP}/mondo-*-root
-	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mondo-${MONDO_VER}-1.${ARCH}.rpm"
+	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mondo-${MONDO_VER}-${rev}.${ARCH}.rpm"
 fi
 cd ${TOPDIR}/SPECS
 if [ "`echo $c | grep mindi`" != "" ]; then

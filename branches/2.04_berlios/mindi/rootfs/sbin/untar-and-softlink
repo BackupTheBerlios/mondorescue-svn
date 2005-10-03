@@ -1,0 +1,56 @@
+#!/bin/sh
+
+Die() {
+    echo "Fatal error! $1" >> /dev/stderr
+    exit 1
+}
+
+
+# ---------------------- main ----------------------
+
+mountpoint=/mnt/floppy
+[ -e "/tmp/CDROM-LIVES-HERE" ] && mountpoint=/mnt/cdrom/images
+[ "$#" -eq "3" ] || Die "untar-and-softlink <tarball> <untar_to> <softlink_to>"
+diskno=$1
+untar_path=$2
+softlink_path=$3
+tarball=$mountpoint/$diskno.tar.gz
+if [ -e "/tmp/CDROM-LIVES-HERE" ] ; then
+    [ -e "$tarball" ] || LogIt "Can't find CD's $tarball" 1
+else
+    while [ ! -f "$tarball" ] ; do
+	echo -e -n "Please insert data (floppy) disk #$diskno and press ENTER."
+	read line
+	mount /dev/fd0 -t ext2 -o ro $mountpoint
+	[ -f "$tarball" ] || umount $mountpoint ; # unmount if tarball not on disk
+	echo -en "Working..."
+    done
+fi
+
+[ -e "$mountpoint/LAST-DISK" ] && cp -f $mountpoint/LAST-DISK /
+old_pwd=`pwd`
+cd $untar_path
+counter=0
+for fname in `tar -zxvf $tarball` ; do
+    [ -e "$softlink_path/$fname" ] && continue
+    mkdir -p $softlink_path/$fname 2> /dev/null
+    if [ ! -d "$untar_path/$fname" ] ; then
+        rmdir $softlink_path/$fname 2> /dev/null
+        ln -sf $untar_path/$fname $softlink_path/$fname
+        sync;sync;sync
+    fi
+    counter=$(($counter+1))
+    [ "$(($counter % 4))" -eq "0" ] && echo -en "\r\t\t\t\t\t\t\t\\"
+    [ "$(($counter % 4))" -eq "1" ] && echo -en "\r\t\t\t\t\t\t\t|"
+    [ "$(($counter % 4))" -eq "2" ] && echo -en "\r\t\t\t\t\t\t\t/"
+    [ "$(($counter % 4))" -eq "3" ] && echo -en "\r\t\t\t\t\t\t\t-"
+done
+cd $old_pwd
+echo -e -n "\r"
+[ ! -e "/tmp/CDROM-LIVES-HERE" ] && umount $mountpoint
+sleep 1
+if [ ! -e "/tmp/CDROM-LIVES-HERE" -a -f "/LAST-DISK" ] ; then
+    echo -en "Please remove the last data disk and press ENTER."
+    read line
+fi
+exit 0

@@ -1,0 +1,107 @@
+<HTML>
+ <HEAD>
+  <!-- $MVD$:app("MicroVision WebExpress","769") -->
+  <!-- $MVD$:template("","0","0") -->
+  <!-- $MVD$:color("18","840084","Custom #1","0") -->
+  <!-- $MVD$:color("19","e0e0e0","Custom #2","0") -->
+  <!-- $MVD$:color("20","80ff","Orange","1") -->
+  <!-- $MVD$:color("21","ffd6ce","Lavender","1") -->
+  <TITLE>Writing the Test CD image </TITLE>
+  <META NAME="GENERATOR" CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+">
+ <LINK REL="HOME" HREF="index.html" TITLE=" Mondo Rescue and Mindi Linux HOWTO "><LINK REL="UP" HREF="testingmindi.html" TITLE=" Testing Mindi "><LINK REL="PREVIOUS" HREF="makeminditestcd.html" TITLE=" Making a Test CD "><LINK REL="NEXT" HREF="backup.html" TITLE=" Backup "></HEAD>
+ <BODY BGCOLOR="WHITE" TEXT="BLACK" LINK="BLUE" VLINK="#840084" ALINK="BLUE" CLASS="SECTION">
+  <DIV ALIGN=LEFT>
+  <P ALIGN=LEFT>
+   <TABLE WIDTH="100%" CELLPADDING="0" CELLSPACING="0" BORDER="0" SUMMARY="Header navigation table">
+    <TR>
+     <TD COLSPAN="3" VALIGN=CENTER>
+      <P ALIGN=CENTER>
+       Mondo Rescue and Mindi Linux HOWTO</TD>
+    </TR>
+    <TR>
+     <TD WIDTH="10%" VALIGN=BOTTOM>
+      <P ALIGN=LEFT>
+       <A HREF="makeminditestcd.html" ACCESSKEY="P">Prev</A></TD>
+     <TD WIDTH="80%" VALIGN=BOTTOM>
+      <P ALIGN=CENTER>
+       Chapter 6. Testing Mindi</TD>
+     <TD WIDTH="10%" VALIGN=BOTTOM>
+      <P ALIGN=RIGHT>
+       <A HREF="backup.html" ACCESSKEY="N">Next</A></TD>
+    </TR>
+   </TABLE>
+   <HR ALIGN=LEFT WIDTH="100%" SIZE="2">
+   </P>
+  </DIV>
+  <H1 CLASS="SECTION" ALIGN=LEFT>
+   <A NAME="WRITINGMINDITESTCD"></A>6.2. Writing the Test CD image</H1>
+  <P ALIGN=LEFT>
+   Use the cdrecord application to write the CD image:</P>
+  <DIV ALIGN=LEFT>
+  <P ALIGN=LEFT>
+   <TABLE WIDTH="100%" CELLPADDING="1" CELLSPACING="2" BORDER="0">
+    <TR>
+     <TD BGCOLOR="#E0E0E0" VALIGN=CENTER><PRE
+        CLASS="PROGRAMLISTING"><FONT
+        COLOR="BLACK">bash# cd /root/images/mindi</FONT><BR><FONT
+        COLOR="BLACK">bash# cdrecord -scanbus </FONT></TD></TR>
+   </TABLE></P>
+  </DIV>
+  <P ALIGN=LEFT>
+   The output of the above call to cdrecord will tell you your CD 
+   writer's node. It is usually '0,0,0'. Choose one of the following 
+   calls to write the CD, depending on whether the disk in the drive is 
+   a CD-R or a CD-RW. Please replace 'x,x,x' with your writer's node. 
+   For further information, type 'man cdrecord&quot; from a Linux 
+   command line.</P>
+  <P ALIGN=LEFT>
+   If writing to a CD-RW Drive/Disc:</P>
+  <DIV ALIGN=LEFT>
+  <P ALIGN=LEFT>
+   <TABLE WIDTH="100%" CELLPADDING="1" CELLSPACING="2" BORDER="0">
+    <TR>
+     <TD BGCOLOR="#E0E0E0" VALIGN=CENTER><PRE
+        CLASS="PROGRAMLISTING"><FONT
+        COLOR="BLACK">bash# cdrecord -blank fast dev=x,x,x speed=4 mindi.iso (for CD-RW) </FONT></TD></TR>
+   </TABLE></P>
+  </DIV>
+  <P ALIGN=LEFT>
+   If writing to a CD-R Drive/Disc:</P>
+  <DIV ALIGN=LEFT>
+  <P ALIGN=LEFT>
+   <TABLE WIDTH="100%" CELLPADDING="1" CELLSPACING="2" BORDER="0">
+    <TR>
+     <TD BGCOLOR="#E0E0E0" VALIGN=CENTER><PRE
+        CLASS="PROGRAMLISTING"><FONT
+        COLOR="BLACK">bash# cdrecord dev=x,x,x speed=4 mindi.iso (for CD-R) </FONT></TD></TR>
+   </TABLE></P>
+  </DIV><DIV ALIGN=LEFT>
+  <P ALIGN=LEFT>
+   <HR ALIGN=LEFT WIDTH="100%" SIZE="2">
+   <TABLE WIDTH="100%" CELLPADDING="0" CELLSPACING="0" BORDER="0" SUMMARY="Footer navigation table">
+    <TR>
+     <TD WIDTH="33%" VALIGN=TOP>
+      <P ALIGN=LEFT>
+       <A HREF="makeminditestcd.html" ACCESSKEY="P">Prev</A></TD>
+     <TD WIDTH="34%" VALIGN=TOP>
+      <P ALIGN=CENTER>
+       <A HREF="index.html" ACCESSKEY="H">Home</A></TD>
+     <TD WIDTH="33%" VALIGN=TOP>
+      <P ALIGN=RIGHT>
+       <A HREF="backup.html" ACCESSKEY="N">Next</A></TD>
+    </TR>
+    <TR>
+     <TD WIDTH="33%" VALIGN=TOP>
+      <P ALIGN=LEFT>
+       Making a Test CD</TD>
+     <TD WIDTH="34%" VALIGN=TOP>
+      <P ALIGN=CENTER>
+       <A HREF="testingmindi.html" ACCESSKEY="U">Up</A></TD>
+     <TD WIDTH="33%" VALIGN=TOP>
+      <P ALIGN=RIGHT>
+       Backup</TD>
+    </TR>
+   </TABLE>
+ </BODY>
+</HTML>

@@ -1,0 +1,43 @@
+#!/bin/bash
+#
+# Deliver RPMs packages and tgz files to BerliOS
+#
+# $Id$
+#
+
+dname=`dirname $0`
+prem=`echo $dname |cut -c1`
+if [ ${prem} == "/" ]; then
+        export TOOLHOME=$dname
+else
+	export TOOLHOME=${PWD}/$dname
+fi
+
+. $TOOLHOME/rpm-env
+
+tgz=""
+srpms=""
+rpms=""
+rev=`$TOOLHOME/mksvnversion`
+
+if [ "$1" = "" ]; then
+	c="mindi mondo"
+else
+	c=$1
+fi
+if [ "`echo $c | grep mindi`" != "" ]; then
+	cp -a ${TOPDIR}/SOURCES/mindi-${MINDI_VER}.tgz ${TOPDIR}/SOURCES/mindi-${MINDI_VER}-r${rev}.tgz
+	tgz="$tgz ${TOPDIR}/SOURCES/mindi-${MINDI_VER}-r${rev}.tgz"
+	rpms="$rpms ${TOPDIR}/RPMS/${ARCH}/mindi-${MINDI_VER}-${rev}.${ARCH}.rpm"
+	srpms="$srpms ${TOPDIR}/SRPMS/mindi-${MINDI_VER}-${rev}.src.rpm"
+fi
+if [ "`echo $c | grep  mondo`" != "" ]; then
+	cp -a ${TOPDIR}/SOURCES/mondo-${MONDO_VER}.tgz ${TOPDIR}/SOURCES/mondo-${MONDO_VER}-r${rev}.tgz
+	tgz="$tgz ${TOPDIR}/SOURCES/mondo-${MONDO_VER}-r${rev}.tgz"
+	rpms="$rpms ${TOPDIR}/RPMS/${ARCH}/mondo-${MONDO_VER}-${rev}.${ARCH}.rpm"
+	srpms="$srpms ${TOPDIR}/SRPMS/mondo-${MONDO_VER}-${rev}.src.rpm"
+fi
+scp -p ${tgz} ${SVNAUTH}:${DSTDIR}/TGZ
+scp -p ${rpms} ${SVNAUTH}:${DSTDIR}/RPMS
+scp -p ${srpms} ${SVNAUTH}:${DSTDIR}/SRPMS
+ncftpput ${FTPURL} ${tgz}

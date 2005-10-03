@@ -1,0 +1,108 @@
+#!/bin/sh
+
+
+MOUNTPT=/tmp/mojo-jojo-iso
+
+Die() {
+    echo "$1" >> /dev/stderr
+    exit 1
+}
+
+
+mount_iso_for_me() {
+    [ -e "$1/$2.iso" ] || Die "ISO #$2 not found at $1. Terminating."
+    mount $1/$2.iso -o loop,ro $MOUNTPT || Die "Cannot mount ISO $isoloc/$isono"
+}
+
+
+
+trap_me_here() {
+    i=1
+    while [ "$i" -le "50" ] ; do
+        umount $isoloc/$i.iso 2> /dev/null
+        i=$(($i+1))
+    done
+    echo "Terminating in reponse to a signal caught by the OS"
+    exit 1
+}
+
+
+
+process_this_cd() {
+    local restorepath res
+    isono=$1
+    restorepath=$2
+
+    find $MOUNTPT/archives | grep "slice-" > /dev/null || Die "No bigfiles at $MOUNTPT"
+    mkdir -p $restorepath
+    cd $restorepath
+    for slicename in `find $MOUNTPT/archives | grep "slice-" | sort` ; do
+#        echo -en "Slice = $slicename    \r"
+        echo -en "."
+        if echo "$slicename" | grep "slice-[0-9]*.00000\.dat" 2> /dev/null; then
+            CHECKSUM=`cat $slicename | head -n1 | cut -f1`
+            OUTFNAME=`cat $slicename | head -n1 | cut -f2`
+            OUTFNAME=`echo "$restorepath/$OUTFNAME" | tr -s '/' '/'`
+            echo "Now restoring $OUTFNAME"
+            [ "$OUTFNAME" ] || Die "No filename?! WTF?"
+            rm -f "$OUTFNAME" 2> /dev/null
+            mkdir -p "$OUTFNAME" 2> /dev/null
+            rmdir "$OUTFNAME" 2> /dev/null
+            > "$OUTFNAME" || Die "Cannot write to $OUTFNAME"
+        elif [ ! -s "$slicename" ] ; then
+            echo "Finished restoring $OUTFNAME"
+            res=`md5sum "$OUTFNAME" | cut -d' ' -f1`
+#            echo "Orig=$CHECKSUM. Disk=$res"
+            if [ "$CHECKSUM" != "$res" ] ; then
+                echo "Warning - checksums do not match"
+            fi
+            CHECKSUM=""
+            OUTFNAME=""
+        else
+            [ "$OUTFNAME" = "" ] && Die "No filename to write to! Are you sure you inserted the _first_ ISO to begin with?"
+            if echo "$slicename" | grep "bz2" > /dev/null ; then
+                bzip2 -dc $slicename >> "$OUTFNAME" || Die "Failed to decompress slice $slicename"
+            elif echo "$slicename" | grep "lzo" > /dev/null ; then
+                lzop -dc $slicename >> "$OUTFNAME" || Die "Failed to decompress slice $slicename"
+            else
+                cat $slicename >> "$OUTFNAME" || Die "Failed to decompress slice $slicename"
+            fi
+        fi
+    done
+}
+
+
+
+
+# ------------------- main ------------------- 
+
+trap trap_me_here SIGTERM SIGHUP SIGQUIT SIGKILL SIGABRT SIGINT
+[ "$#" -eq "1" ] || Die "restore-bigfiles-from-iso <location of ISOs> --- e.g. /storage/ISOs"
+isoloc=$1
+mkdir -p $MOUNTPT
+isono=1
+OUTFNAME=""
+CHECKSUM=""
+
+def="/RESTORED"
+echo -en "Restore path (default is '$def') --> "
+read restorepath
+[ "$restorepath" ] || restorepath=$def
+while [ ! -e "$isoloc/$isono.iso" ] ; do
+    echo "Skipping CD #$isono (does not exist)"
+    isono=$(($isono+1))
+    [ "$isono" -gt "50" ] && Die "Ran out of ISOs to try"
+done
+while [ -e "$isoloc/$isono.iso" ] ; do
+    echo "Processing CD #$isono"
+    mount_iso_for_me $isoloc $isono
+    process_this_cd $isono $restorepath
+    umount $isoloc/$isono.iso || Die "Unable to unmount ISO $isono"
+    isono=$(($isono+1))
+done
+echo "OK, done."
+exit 0
+
+
+
+

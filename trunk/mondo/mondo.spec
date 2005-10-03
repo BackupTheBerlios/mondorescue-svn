@@ -10,7 +10,7 @@ Summary(fr):	Un programme pour les utilisateurs de Linux pour cr�r un CD/tape 
 Summary(it):	Un programma per utenti Linux per creare un CD/tape di rescue
 Summary(sp):	Un programa para los usuarios de Linux por crear una CD/cinta de restoracion/rescate
 Name:		mondo
-Version:	2.04_berlios
+Version:	2.05_berlios
 Release:	1
 License:	GPL
 Group:		Applications/Archiving
@@ -160,8 +160,12 @@ ldconfig
 %{_includedir}/mondo/*
 
 %changelog
+* Tue Oct 06 2005 Bruno Cornec <bcornec@users.berlios.de> 2.05_berlios
+- Memory management revision
+
 * Tue Sep 06 2005 Bruno Cornec <bcornec@users.berlios.de> 2.04_berlios
 - Merge of patches mentionned on mondo ML + ia64 updates
+- Option -p added
 
 * Tue May 03 2005 Hugo Rabson <hugorabson@msn.com> 2.04_cvs_20050503
 - made mondo more clever about finding its home. Avoids mondo considering

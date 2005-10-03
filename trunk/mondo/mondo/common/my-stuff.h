@@ -139,7 +139,7 @@
 - stuff
 */
 
-#define AUX_VER "2.04_berlios"
+#define AUX_VER "2.05_berlios"
 
 #define HAVE_MALLOC 1
 
@@ -525,5 +525,8 @@ extern void _mondo_assert_fail (const char *file, const char *function, int line
 
 #define FREELOADER // You're not a paying customer
 #define DEFAULT_MR_LOGLEVEL 4
+
+/* Required for the use of asprintf */
+#define _GNU_SOURCE
 
 #endif /* _MY_STUFF_H_ */

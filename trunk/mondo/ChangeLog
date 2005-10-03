@@ -1,6 +1,12 @@
 MONDO CHANGES          Hugo Rabson <hugorabson@msn.com>             2005-09-09
 
 
+v2.05_berlios (Bruno Cornec <bcornec@users.berlios.de)
+- indent on source files
+- asprintf used instead of malloc_string + sprintf/strcpy/strcat without 
+  verifications. Optimisations on memory consumption (allocate only size
+  needed + remove memory leaks)
+
 v2.04_berlios (Bruno Cornec <bcornec@users.berlios.de)
 - Add -p option to generate ISO images file names with prefix. The new default
   name for ISO images is mondorescue-1.iso, ... For PXE environment, you have

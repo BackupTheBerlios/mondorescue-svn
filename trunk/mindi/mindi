@@ -28,7 +28,7 @@ MINDI_VERSION=1.04_berlios
 EXTRA_SPACE=24576         ; # increase if you run out of ramdisk space
 IA64_BOOT_SIZE=8192       ; # size of the ia64 boot disk
 TMP_ROOT=/tmp
-WRITE_BOOT_FLOPPIES="yes" ; # do you want to be propted to write floppy images
+WRITE_BOOT_FLOPPIES="yes" ; # do you want to be prompted to write floppy images
 PROMPT_WRITE_BOOT_FLOPPIES="yes"
     # do you want to be prompted to write
     # floppy images out to floppy disks?

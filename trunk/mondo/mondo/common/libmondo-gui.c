@@ -1,5 +1,5 @@
 /* libmondo-gui.c
- * $Id: libmondo-gui.c,v 1.2 2004/06/10 15:29:12 hugo Exp $
+ * $Id$
  */
 
 /**
@@ -9,13 +9,7 @@
  */
 
 #ifdef _XWIN
-    #include "X-specific.c"
+#include "X-specific.c"
 #else
-    #include "newt-specific.c"
+#include "newt-specific.c"
 #endif
-
-
-
-
-
-

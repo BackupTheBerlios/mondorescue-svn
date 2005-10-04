@@ -39,8 +39,6 @@ bool g_sigpipe = FALSE;
  */
 pid_t g_mastermind_pid = 0;
 
-
-
 /**
  * Command line with which @c buffer was invoked.
  */

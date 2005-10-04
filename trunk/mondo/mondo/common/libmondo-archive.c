@@ -1,169 +1,7 @@
-/* libmondo-archive.c
-   $Id$
+/* $Id$
 
 subroutines to handle the archiving of files
 
-
-
-07/14
-- moved all ACL, xattr stuff here from libmondo-filelist.c
-
-07/12
-- when trying to find boot loader, look for /boot's /dev, not just /'s dev
-
-07/10
-- better detection of changed files
-- added ACL, xattr support for afio
-
-06/17
-- backup with partimagehack if NTFS device; dd, if non-NTFS device
-
-06/14
-- use mondorescue.iso instead of mindi.iso
-
-04/28
-- cleaned up if/then architecture-specific stuff re: CD-R(W)s
-
-04/03
-- added star support
-
-03/12
-- modified offer_to_write_floppies() to support dual-disk boot/root thing
-
-01/20/2004
-- reformat dvd twice if necessary
-
-12/01/2003
-- added pause_for_N_seconds(5, "Letting DVD drive settle");
-
-11/23
-- added #define DVDRWFORMAT
-
-11/20
-- use --no-emul-boot -b isolinux.bin instead of -b mindi-boot.2880.img
-
-10/23
-- wipe DVD at start, whether or not disk is DVD-RW; this is
-  just a test, to see why dvd+rw-format followed by growiosfs
-  locks up the drive
-- use the singlethreaded make_afioballs_and_images_OLD()
-  instead of the multithreaded make_afioballs_and_images()
-  if backing up to tape
-
-10/21
-- if backing up to dvd, look for relevant tools;
-  abort if missing
-
-10/15
-- UI tweaks
-
-10/10
-- eject/inject DVD after wiping it
-
-09/27
-- pause_and_ask_for_cdr() will now blank DVD if necessary
-
-09/26
-- proper reporting of media type in displayed strings
-  (i.e. DVD if DVD, CD if CD, etc.)
-  
-09/25
-- add DVD support
-
-09/23
-- malloc/free global strings in new subroutines - malloc_libmondo_global_strings()
-  and free_libmondo_global_strings() - which are in libmondo-tools.c
-
-09/15
-- changed a bunch of char[MAX_STR_LEN]'s to char*; malloc; free;
-
-09/14
-- cosmetic bug re: call to 'which dvdrecord'
-
-09/09
-- copy `locate isolinux.bin | tail -n1` to CD before calling mkisfso
-  if file is missing (in which case, bug in Mindi.pl!)
-- reduced noof_threads from 3 to 2
-- fixed cosmetic bug in make_slices_and_images()
-
-09/02
-- fixed cosmetic bug in verify_data()
-
-05/01 - 08/31
-- added partimagehack hooks
-- make twice as many archives at once as before 
-- fixed syntax error re: system(xxx,FALSE)
-- unmount CD-ROM before burning (necessary for RH8/9)
-- only ask for new media if sensible
-- fixed mondoarchive -Vi multi-CD verify bug (Tom Mortell)
-- use single-threaded make_afioballs_and_images() if FreeBSD
-- fixed bug on line 476 (Joshua Oreman)
-- re-enabled the pause, for people w/ weird CD-ROM drives
-- added Joshua Oreman's FreeBSD patches
-- don't listen to please_dont_eject_when_restoring
-  ...after all, we're not restoring :)
-
-04/01 - 04/30
-- cleaned up archive_this_fileset()
-- decreased ARCH_THREADS from 3 to 2
-- pause_and_ask_for_cd() --- calls retract_CD_tray_and_defeat_autorun()
-- call assert() and log_OS_error() in various places
-- cleaned up code a bit
-- increased ARCH_THREADS from 2 to 3
-- misc clean-up (Tom Mortell)
-
-03/15/2003
-- fixed problem w/ multi-ISO verify cycle (Tom Mortell)
-
-11/01 - 12/31/2002
-- removed references to make_afioballs_and_images_OLD()
-- added some error-checking to make_afioballs_in_background
-- make_iso_and_go_on() now copies Mondo's autorun file to CD
-- set scratchdir dir to 1744 when burning CD
-- cleaned up code a bit
-- in call_mindi_...(), gracefully handle the user's input
-  if they specify the boot loader but not the boot device
-- offer to abort if GRUB is boot loader and /dev/md* is
-  the boot device (bug in grub-install)
-- if boot loader is R then write RAW as bootloader.name
-- multithreaded make_afioballs_and_images()
-- fixed slice_up_file_etc() for 0-compression users
-- line 1198: added call to is_this_file_compressed() to stop
-  slice_up_file_etc() from compressing files which are
-  already compressed
-- other hackery related to the above enhancement
-- afio no longer forcibly compresses all files (i.e. I dropped
-  the -U following suggestions from users); let's see if
-  it works :)
-
-10/01 - 10/31
-- mondoarchive (with no parameters) wasn't working
-  if user said yes when asked if BurnProof drive; FIXED
-- if manual CD tray and writing to ISO's then prompt
-  for each & every new CD
-- moved a lot of subroutines here
-  from mondo-archive.c and mondo-floppies.c
-
-09/01 - 09/30
-- if CD not burned OK then don't try to verify
-- change 64k to TAPE_BLOCK_SIZE
-- run_program_and_log_output() now takes boolean operator to specify
-  whether it will log its activities in the event of _success_
-- orig_vfy_flag_val added to write_iso_and_go_on, to restore bkpinfo->verify_data's
-  value if altered by verify_cd_image()
-
-08/01 - 08/31
-- use data structure to store the fname, checksum, mods & perms of each bigfile
-  ... biggiestruct :)
-- bigger tmp[]'s in a few places
-- cleaned up the (user-friendly) counting of biggiefiles a bit
-- if media_size[N]<=0 then catch it & abort, unless it's tape,
-  in which case, allow it
-- cleaned up a lot of log_it() calls
-- fixed NULL filename-related bug in can_we_fit_these_files_on_media()
-- deleted can_we_fit.....() subroutine because it was causing problems
-  --- moved its code into the one subroutine which called it
-- created [08/01/2002]
 */
 
 /**
@@ -351,7 +189,7 @@ extern int g_tape_buffer_size_MB;
 
 int
 archive_this_fileset_with_star(struct s_bkpinfo *bkpinfo, char *filelist,
-						   char *fname, int setno)
+							   char *fname, int setno)
 {
 	int retval = 0;
 	unsigned int res = 0;
@@ -395,13 +233,13 @@ archive_this_fileset_with_star(struct s_bkpinfo *bkpinfo, char *filelist,
 		res = system(command);
 		asprintf(&tmp, "%s", last_line_of_file(MONDO_LOGFILE));
 		log_msg(1, "res=%d; tmp='%s'", res, tmp);
-		paranoid_free(tmp);
 		if (bkpinfo->use_star && (res == 254 || res == 65024)
 			&& strstr(tmp, "star: Processed all possible files")
 			&& tries > 0) {
 			log_msg(1, "Star returned nonfatal error");
 			res = 0;
 		}
+		paranoid_free(tmp);
 		if (res) {
 			log_OS_error(command);
 			p = strstr(command, "-acl ");
@@ -416,6 +254,8 @@ archive_this_fileset_with_star(struct s_bkpinfo *bkpinfo, char *filelist,
 			}
 		}
 	}
+	paranoid_free(command);
+
 	retval += res;
 	if (retval) {
 		log_msg(3, "Failed to write set %d", setno);
@@ -424,8 +264,6 @@ archive_this_fileset_with_star(struct s_bkpinfo *bkpinfo, char *filelist,
 				tries);
 	}
 
-	paranoid_free(command);
-	paranoid_free(tmp);
 	return (retval);
 }
 
@@ -474,11 +312,11 @@ archive_this_fileset(struct s_bkpinfo *bkpinfo, char *filelist,
 
 	if (!does_file_exist(filelist)) {
 		asprintf(&tmp,
-			 "(archive_this_fileset) - filelist %s does not exist",
-			 filelist);
+				 "(archive_this_fileset) - filelist %s does not exist",
+				 filelist);
 		log_to_screen(tmp);
 		paranoid_free(tmp)
-		return (1);
+			return (1);
 	}
 	asprintf(&tmp, "echo hi > %s 2> /dev/null", fname);
 	if (system(tmp)) {
@@ -487,7 +325,7 @@ archive_this_fileset(struct s_bkpinfo *bkpinfo, char *filelist,
 	paranoid_free(tmp)
 
 
-	if (bkpinfo->compression_level > 0) {
+		if (bkpinfo->compression_level > 0) {
 		asprintf(&tmp, "%s/do-not-compress-these", g_mondo_home);
 		//       -b %ld, TAPE_BLOCK_SIZE
 		asprintf(&zipparams, "-Z -P %s -G %d -T 3k", bkpinfo->zip_exe,
@@ -495,8 +333,9 @@ archive_this_fileset(struct s_bkpinfo *bkpinfo, char *filelist,
 		if (does_file_exist(tmp)) {
 			asprintf(&tmp1, "%s -E %s", zipparams, tmp);
 			paranoid_free(zipparams)
-			zipparams = tmp1;
+				zipparams = tmp1;
 		} else {
+			asprintf(&zipparams, "%s", "");
 			log_msg(3, "%s not found. Cannot exclude zipfiles, etc.", tmp);
 		}
 		paranoid_free(tmp)
@@ -540,6 +379,8 @@ archive_this_fileset(struct s_bkpinfo *bkpinfo, char *filelist,
 			sleep(3);
 		}
 	}
+	paranoid_free(command);
+
 	retval += res;
 	if (retval) {
 		log_msg(3, "Failed to write set %d", setno);
@@ -563,13 +404,8 @@ archive_this_fileset(struct s_bkpinfo *bkpinfo, char *filelist,
 			}
 		}
 	}
-	paranoid_free(command);
 	return (retval);
 }
-
-
-
-
 
 
 /**
@@ -616,13 +452,14 @@ int backup_data(struct s_bkpinfo *bkpinfo)
       if (run_program_and_log_output(tmp, 2))
         { fatal_error("Failed to count filelist.full"); }
 */
-	asprintf(&tmp, "gzip -9 %s/archives/filelist.full", bkpinfo->scratchdir);
+	asprintf(&tmp, "gzip -9 %s/archives/filelist.full",
+			 bkpinfo->scratchdir);
 	if (run_program_and_log_output(tmp, 2)) {
 		fatal_error("Failed to gzip filelist.full");
 	}
 	paranoid_free(tmp);
 	asprintf(&tmp, "cp -f %s/archives/*list*.gz %s", bkpinfo->scratchdir,
-			bkpinfo->tmpdir);
+			 bkpinfo->tmpdir);
 	if (run_program_and_log_output(tmp, 2)) {
 		fatal_error("Failed to copy to tmpdir");
 	}
@@ -658,8 +495,6 @@ int backup_data(struct s_bkpinfo *bkpinfo)
 	}
 	return (retval);
 }
-
-
 
 
 /**
@@ -723,15 +558,16 @@ int call_mindi_to_supply_boot_disks(struct s_bkpinfo *bkpinfo)
 	assert(bkpinfo != NULL);
 
 	asprintf(&tmp,
-			"echo \"%s\" | tr -s ' ' '\n' | grep -x \"/dev/.*\" | tr -s '\n' ' ' | awk '{print $0\"\\n\";}'",
-			bkpinfo->exclude_paths);
-	asprintf(&devs_to_exclude, call_program_and_get_last_line_of_output(tmp));
+			 "echo \"%s\" | tr -s ' ' '\n' | grep -x \"/dev/.*\" | tr -s '\n' ' ' | awk '{print $0\"\\n\";}'",
+			 bkpinfo->exclude_paths);
+	asprintf(&devs_to_exclude,
+			 call_program_and_get_last_line_of_output(tmp));
 	paranoid_free(tmp);
 	asprintf(&tmp, "devs_to_exclude = '%s'", devs_to_exclude);
 	log_msg(2, tmp);
 	paranoid_free(tmp);
 	mvaddstr_and_log_it(g_currentY, 0,
-				"Calling MINDI to create boot+data disks");
+						"Calling MINDI to create boot+data disks");
 	asprintf(&tmp, "%s/filelist.full", bkpinfo->tmpdir);
 	if (!does_file_exist(tmp)) {
 		paranoid_free(tmp);
@@ -776,7 +612,7 @@ int call_mindi_to_supply_boot_disks(struct s_bkpinfo *bkpinfo)
 	} else {
 		asprintf(&cd_recovery_sz, "no");
 	}
-	/* BCO: shared between LILO/ELILO */
+	/* Field shared between LILO/ELILO */
 	if (bkpinfo->make_cd_use_lilo) {
 		asprintf(&use_lilo_sz, "yes");
 	} else {
@@ -789,28 +625,28 @@ int call_mindi_to_supply_boot_disks(struct s_bkpinfo *bkpinfo)
 
 #ifdef __FreeBSD__
 		asprintf(&bootdev, call_program_and_get_last_line_of_output
-			   ("mount | grep ' /boot ' | head -1 | cut -d' ' -f1 | sed 's/\\([0-9]\\).*/\\1/'"));
+				 ("mount | grep ' /boot ' | head -1 | cut -d' ' -f1 | sed 's/\\([0-9]\\).*/\\1/'"));
 		if (!bootdev[0]) {
 			paranoid_free(bootdev);
 			asprintf(&bootdev, call_program_and_get_last_line_of_output
-				   ("mount | grep ' / ' | head -1 | cut -d' ' -f1 | sed 's/\\([0-9]\\).*/\\1/'"));
+					 ("mount | grep ' / ' | head -1 | cut -d' ' -f1 | sed 's/\\([0-9]\\).*/\\1/'"));
 		}
 #else
 		asprintf(&bootdev, call_program_and_get_last_line_of_output
-			   ("mount | grep ' /boot ' | head -1 | cut -d' ' -f1 | sed 's/[0-9].*//'"));
+				 ("mount | grep ' /boot ' | head -1 | cut -d' ' -f1 | sed 's/[0-9].*//'"));
 		if (strstr(bootdev, "/dev/cciss/")) {
 			paranoid_free(bootdev);
 			asprintf(&bootdev, call_program_and_get_last_line_of_output
-				   ("mount | grep ' /boot ' | head -1 | cut -d' ' -f1 | cut -dp -f1"));
+					 ("mount | grep ' /boot ' | head -1 | cut -d' ' -f1 | cut -dp -f1"));
 		}
 		if (!bootdev[0]) {
 			paranoid_free(bootdev);
 			asprintf(&bootdev, call_program_and_get_last_line_of_output
-				   ("mount | grep ' / ' | head -1 | cut -d' ' -f1 | sed 's/[0-9].*//'"));
+					 ("mount | grep ' / ' | head -1 | cut -d' ' -f1 | sed 's/[0-9].*//'"));
 			if (strstr(bootdev, "/dev/cciss/")) {
 				paranoid_free(bootdev);
 				asprintf(&bootdev, call_program_and_get_last_line_of_output
-					   ("mount | grep ' / ' | head -1 | cut -d' ' -f1 | cut -dp -f1"));
+						 ("mount | grep ' / ' | head -1 | cut -d' ' -f1 | cut -dp -f1"));
 			}
 		}
 #endif
@@ -820,7 +656,7 @@ int call_mindi_to_supply_boot_disks(struct s_bkpinfo *bkpinfo)
 			ch = 'U';
 		if (bkpinfo->boot_loader != '\0') {
 			asprintf(&tmp, "User specified boot loader. It is '%c'.",
-					bkpinfo->boot_loader);
+					 bkpinfo->boot_loader);
 			log_msg(2, tmp);
 			paranoid_free(tmp);
 		} else {
@@ -828,7 +664,7 @@ int call_mindi_to_supply_boot_disks(struct s_bkpinfo *bkpinfo)
 		}
 		if (bkpinfo->boot_device[0] != '\0') {
 			asprintf(&tmp, "User specified boot device. It is '%s'.",
-					bkpinfo->boot_device);
+					 bkpinfo->boot_device);
 			log_msg(2, tmp);
 			paranoid_free(tmp);
 		} else {
@@ -848,13 +684,13 @@ int call_mindi_to_supply_boot_disks(struct s_bkpinfo *bkpinfo)
 		   && bkpinfo->boot_loader != 'R' && !bkpinfo->nonbootable_backup)
 	{
 		fatal_error
-			("Please specify your boot loader and device, e.g. -l GRUB -f /dev/hda. Type 'man mondoarchive' to read the manual.");
+			("Please specify your boot loader and device, e.g. -l GRUB -f /dev/hda.\nType 'man mondoarchive' to read the manual.");
 	}
 	if (bkpinfo->boot_loader == 'L') {
 		asprintf(&bootldr_str, "LILO");
 		if (!does_file_exist("/etc/lilo.conf")) {
 			fatal_error
-				("The de facto standard location for your boot loader's config file is /etc/lilo.conf but I cannot find it there. What is wrong with your Linux distribution?");
+				("The de facto standard location for your boot loader's config file is /etc/lilo.conf.\nBut I cannot find it there. What is wrong with your Linux distribution?");
 		}
 	} else if (bkpinfo->boot_loader == 'G') {
 		asprintf(&bootldr_str, "GRUB");
@@ -871,11 +707,11 @@ int call_mindi_to_supply_boot_disks(struct s_bkpinfo *bkpinfo)
 		}
 		if (!does_file_exist("/etc/grub.conf")) {
 			fatal_error
-				("The de facto standard location for your boot loader's config file is /etc/grub.conf but I cannot find it there. What is wrong with your Linux distribution? Try 'ln -s /boot/grub/menu.lst /etc/grub.conf'...");
+				("The de facto standard location for your boot loader's config file is /etc/grub.conf.\nBut I cannot find it there. What is wrong with your Linux distribution?\nTry 'ln -s /boot/grub/menu.lst /etc/grub.conf'...");
 		}
 	} else if (bkpinfo->boot_loader == 'E') {
 		asprintf(&bootldr_str, "ELILO");
-		/* BCO: fix it for SuSE, Debian, Mandrake, ... */
+		/* BERLIOS: fix it for SuSE, Debian, Mandrake, ... */
 		if (!does_file_exist("/etc/elilo.conf")
 			&& does_file_exist("/boot/efi/efi/redhat/elilo.conf")) {
 			run_program_and_log_output
@@ -884,7 +720,7 @@ int call_mindi_to_supply_boot_disks(struct s_bkpinfo *bkpinfo)
 		}
 		if (!does_file_exist("/etc/elilo.conf")) {
 			fatal_error
-				("The de facto mondo standard location for your boot loader's config file is /etc/elilo.conf but I cannot find it there. What is wrong with your Linux distribution? Try finding it under /boot/efi and do 'ln -s /boot/efi/..../elilo.conf /etc/elilo.conf'");
+				("The de facto mondo standard location for your boot loader's config file is /etc/elilo.conf\nBut I cannot find it there. What is wrong with your Linux distribution?\nTry finding it under /boot/efi and do 'ln -s /boot/efi/..../elilo.conf /etc/elilo.conf'");
 		}
 	} else if (bkpinfo->boot_loader == 'R') {
 		asprintf(&bootldr_str, "RAW");
@@ -902,7 +738,7 @@ int call_mindi_to_supply_boot_disks(struct s_bkpinfo *bkpinfo)
 		asprintf(&bootldr_str, "unknown");
 	}
 	asprintf(&tmp, "Your boot loader is %s and it boots from %s",
-			bootldr_str, bkpinfo->boot_device);
+			 bootldr_str, bkpinfo->boot_device);
 	log_to_screen(tmp);
 	paranoid_free(tmp);
 	asprintf(&tmp, "%s/BOOTLOADER.DEVICE", bkpinfo->tmpdir);
@@ -981,12 +817,12 @@ int call_mindi_to_supply_boot_disks(struct s_bkpinfo *bkpinfo)
 	paranoid_free(command);
 
 	asprintf(&tmp, "BTW, I'm telling Mindi your kernel is '%s'",
-			bkpinfo->kernel_path);
+			 bkpinfo->kernel_path);
 	log_to_screen(tmp);
 	paranoid_free(tmp);
 
 	log_msg(1, "lines_in_filelist = %ld", lines_in_filelist);
-	
+
 	// Watch it! This next line adds a parameter...
 	if (bkpinfo->nonbootable_backup) {
 		asprintf(&tmp, " NONBOOTABLE");
@@ -998,28 +834,27 @@ int call_mindi_to_supply_boot_disks(struct s_bkpinfo *bkpinfo)
 /*	   "mindi --custom 2=%s 3=%s/images 4=\"%s\" 5=\"%s\" \
 6=\"%s\" 7=%ld 8=\"%s\" 9=\"%s\" 10=\"%s\" \
 11=\"%s\" 12=%s 13=%ld 14=\"%s\" 15=\"%s\" 16=\"%s\" 17=\"%s\" 18=%ld 19=%d",*/
-			"mindi --custom %s %s/images \"%s\" \"%s\" \
+			 "mindi --custom %s %s/images \"%s\" \"%s\" \
 \"%s\" %ld \"%s\" \"%s\" \"%s\" \
-\"%s\" %s %ld \"%s\" \"%s\" \"%s\" \"%s\" %ld %d %s", 
-			bkpinfo->tmpdir,	// parameter #2
-			bkpinfo->scratchdir,	// parameter #3
-			bkpinfo->kernel_path,	// parameter #4
-			tape_device,		// parameter #5
-			tape_size_sz,		// parameter #6
-			lines_in_filelist,	// parameter #7 (INT)
-			use_lzo_sz,			// parameter #8
-			cd_recovery_sz,		// parameter #9
-			bkpinfo->image_devs,	// parameter #10
-			broken_bios_sz,		// parameter #11
-			last_filelist_number,	// parameter #12 (STRING)
-			estimated_total_noof_slices,	// parameter #13 (INT)
-			devs_to_exclude,	// parameter #14
-			use_comp_sz,		// parameter #15
-			use_lilo_sz,		// parameter #16
-			use_star_sz,		// parameter #17
-			bkpinfo->internal_tape_block_size,	// parameter #18 (LONG)
-			bkpinfo->differential,	// parameter #19 (INT)
-			tmp);	
+\"%s\" %s %ld \"%s\" \"%s\" \"%s\" \"%s\" %ld %d %s", bkpinfo->tmpdir,	// parameter #2
+			 bkpinfo->scratchdir,	// parameter #3
+			 bkpinfo->kernel_path,	// parameter #4
+			 tape_device,		// parameter #5
+			 tape_size_sz,		// parameter #6
+			 lines_in_filelist,	// parameter #7 (INT)
+			 use_lzo_sz,		// parameter #8
+			 cd_recovery_sz,	// parameter #9
+			 bkpinfo->image_devs,	// parameter #10
+			 broken_bios_sz,	// parameter #11
+			 last_filelist_number,	// parameter #12 (STRING)
+			 estimated_total_noof_slices,	// parameter #13 (INT)
+			 devs_to_exclude,	// parameter #14
+			 use_comp_sz,		// parameter #15
+			 use_lilo_sz,		// parameter #16
+			 use_star_sz,		// parameter #17
+			 bkpinfo->internal_tape_block_size,	// parameter #18 (LONG)
+			 bkpinfo->differential,	// parameter #19 (INT)
+			 tmp);
 	paranoid_free(tmp);
 	paranoid_free(tape_size_sz);
 	paranoid_free(use_lzo_sz);
@@ -1037,7 +872,7 @@ int call_mindi_to_supply_boot_disks(struct s_bkpinfo *bkpinfo)
 	//  popup_and_OK("Pausing");
 
 	res = run_program_and_log_to_screen(command,
-					  "Generating boot+data disks");
+										"Generating boot+data disks");
 	paranoid_free(command);
 
 	if (bkpinfo->nonbootable_backup) {
@@ -1051,28 +886,28 @@ int call_mindi_to_supply_boot_disks(struct s_bkpinfo *bkpinfo)
 		paranoid_free(command);
 
 		asprintf(&command,
-			"cp -f %s/images/mindi.iso /root/images/mindi/mondorescue.iso",
-				bkpinfo->scratchdir);
+				 "cp -f %s/images/mindi.iso /root/images/mindi/mondorescue.iso",
+				 bkpinfo->scratchdir);
 		log_msg(2, command);
 		run_program_and_log_output(command, FALSE);
 		paranoid_free(command);
 
 		if (bkpinfo->nonbootable_backup) {
 			asprintf(&command, "cp -f %s/all.tar.gz %s/images",
-					bkpinfo->tmpdir, bkpinfo->scratchdir);
+					 bkpinfo->tmpdir, bkpinfo->scratchdir);
 			if (system(command)) {
 				fatal_error("Unable to create temporary duff tarball");
-			paranoid_free(command);
+				paranoid_free(command);
 			}
 		}
 		asprintf(&command, "cp -f %s/mindi-*oot*.img %s/images",
-				bkpinfo->tmpdir, bkpinfo->scratchdir);
+				 bkpinfo->tmpdir, bkpinfo->scratchdir);
 		log_msg(2, command);
 		run_program_and_log_output(command, FALSE);
 		paranoid_free(command);
 
-		asprintf(&tmp, "cp -f %s/images/all.tar.gz %s", 
-				bkpinfo->scratchdir, bkpinfo->tmpdir);
+		asprintf(&tmp, "cp -f %s/images/all.tar.gz %s",
+				 bkpinfo->scratchdir, bkpinfo->tmpdir);
 		if (system(tmp)) {
 			fatal_error("Cannot find all.tar.gz in tmpdir");
 		}
@@ -1086,7 +921,7 @@ int call_mindi_to_supply_boot_disks(struct s_bkpinfo *bkpinfo)
 	} else {
 		log_to_screen("Mindi failed to create your boot+data disks.");
 		asprintf(&command, "cat %s | grep \"Fatal error\"",
-				"/var/log/mindi.log");
+				 "/var/log/mindi.log");
 		asprintf(&tmp, call_program_and_get_last_line_of_output(command));
 		paranoid_free(command);
 		if (strlen(tmp) > 1) {
@@ -1096,7 +931,6 @@ int call_mindi_to_supply_boot_disks(struct s_bkpinfo *bkpinfo)
 	}
 	return (res);
 }
-
 
 
 /**
@@ -1159,7 +993,7 @@ void *create_afio_files_in_background(void *inbuf)
 	bkpinfo = (struct s_bkpinfo *) (inbuf + BKPINFO_LOC_OFFSET);
 
 	asprintf(&archiving_filelist_fname, FILELIST_FNAME_RAW_SZ,
-			bkpinfo->tmpdir, 0L);
+			 bkpinfo->tmpdir, 0L);
 	archiving_set_no = 0;
 	while (does_file_exist(archiving_filelist_fname)) {
 		paranoid_free(archiving_filelist_fname);
@@ -1184,23 +1018,23 @@ void *create_afio_files_in_background(void *inbuf)
 
 		/* backup this set of files */
 		asprintf(&archiving_afioball_fname, AFIOBALL_FNAME_RAW_SZ,
-				bkpinfo->tmpdir, archiving_set_no, bkpinfo->zip_suffix);
+				 bkpinfo->tmpdir, archiving_set_no, bkpinfo->zip_suffix);
 		asprintf(&archiving_filelist_fname, FILELIST_FNAME_RAW_SZ,
-				bkpinfo->tmpdir, archiving_set_no);
+				 bkpinfo->tmpdir, archiving_set_no);
 		if (!does_file_exist(archiving_filelist_fname)) {
 			log_msg(3,
-				"%s[%d:%d] - well, I would archive %d, except that it doesn't exist. I'll stop now.",
-				FORTY_SPACES, getpid(), this_thread_no,
-				archiving_set_no);
+					"%s[%d:%d] - well, I would archive %d, except that it doesn't exist. I'll stop now.",
+					FORTY_SPACES, getpid(), this_thread_no,
+					archiving_set_no);
 			paranoid_free(archiving_filelist_fname);
 			paranoid_free(archiving_afioball_fname);
 			break;
 		}
 
 		asprintf(&tmp, AFIOBALL_FNAME_RAW_SZ, bkpinfo->tmpdir,
-				archiving_set_no - ARCH_BUFFER_NUM, bkpinfo->zip_suffix);
+				 archiving_set_no - ARCH_BUFFER_NUM, bkpinfo->zip_suffix);
 		if (does_file_exist(tmp)) {
-			log_msg(4, "%s[%d:%d] - waiting for storer", 
+			log_msg(4, "%s[%d:%d] - waiting for storer",
 					FORTY_SPACES, getpid(), this_thread_no);
 			while (does_file_exist(tmp)) {
 				sleep(1);
@@ -1212,9 +1046,9 @@ void *create_afio_files_in_background(void *inbuf)
 		log_msg(4, "%s[%d:%d] - EXATing %d...", FORTY_SPACES, getpid(),
 				this_thread_no, archiving_set_no);
 		asprintf(&curr_xattr_list_fname, XATTR_LIST_FNAME_RAW_SZ,
-				bkpinfo->tmpdir, archiving_set_no);
+				 bkpinfo->tmpdir, archiving_set_no);
 		asprintf(&curr_acl_list_fname, ACL_LIST_FNAME_RAW_SZ,
-				bkpinfo->tmpdir, archiving_set_no);
+				 bkpinfo->tmpdir, archiving_set_no);
 		get_fattr_list(archiving_filelist_fname, curr_xattr_list_fname);
 		paranoid_free(curr_xattr_list_fname);
 		get_acl_list(archiving_filelist_fname, curr_acl_list_fname);
@@ -1223,16 +1057,16 @@ void *create_afio_files_in_background(void *inbuf)
 		log_msg(4, "%s[%d:%d] - archiving %d...", FORTY_SPACES, getpid(),
 				this_thread_no, archiving_set_no);
 		res = archive_this_fileset(bkpinfo, archiving_filelist_fname,
-						 archiving_afioball_fname,
-						 archiving_set_no);
+								   archiving_afioball_fname,
+								   archiving_set_no);
 		paranoid_free(archiving_afioball_fname);
 		paranoid_free(archiving_filelist_fname);
 		retval += res;
 
 		if (res) {
 			asprintf(&tmp,
-					"Errors occurred while archiving set %ld. Please review logs.",
-					archiving_set_no);
+					 "Errors occurred while archiving set %ld. Please review logs.",
+					 archiving_set_no);
 			log_to_screen(tmp);
 			paranoid_free(tmp);
 		}
@@ -1269,9 +1103,6 @@ void *create_afio_files_in_background(void *inbuf)
 }
 
 
-
-
-
 /**
  * Finalize the backup.
  * For streaming backups, this writes the closing block
@@ -1295,13 +1126,11 @@ int do_that_final_phase(struct s_bkpinfo *bkpinfo)
 						"Writing any remaining data to media         ");
 
 	log_msg(1, "Closing tape/CD ... ");
-	if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type))
+	if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
 		/* write tape/cdstream */
-	{
 		closeout_tape(bkpinfo);
-	} else
+	} else {
 		/* write final ISO */
-	{
 		res = write_final_iso_if_necessary(bkpinfo);
 		retval += res;
 		if (res) {
@@ -1358,7 +1187,7 @@ int do_that_initial_phase(struct s_bkpinfo *bkpinfo)
 if=/dev/urandom bs=16 count=1 2> /dev/null | \
 hexdump | tr -s ' ' '0' | head -n1"));
 	strip_spaces(g_serial_string);
-	asprintf(&tmp, "%s...word.",g_serial_string);
+	asprintf(&tmp, "%s...word.", g_serial_string);
 	paranoid_free(g_serial_string);
 	g_serial_string = tmp;
 	log_msg(2, "g_serial_string = '%s'", g_serial_string);
@@ -1388,16 +1217,16 @@ hexdump | tr -s ' ' '0' | head -n1"));
 	paranoid_free(data_disks_file);
 
 	asprintf(&command, "rm -f %s/%s-[1-9]*.iso", bkpinfo->prefix,
-			bkpinfo->isodir);
+			 bkpinfo->isodir);
 	paranoid_system(command);
 	paranoid_free(command);
 	wipe_archives(bkpinfo->scratchdir);
 	mvaddstr_and_log_it(g_currentY++, 74, "Done.");
 	if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
 		write_header_block_to_stream(0, "start-of-tape",
-						 BLK_START_OF_TAPE);
+									 BLK_START_OF_TAPE);
 		write_header_block_to_stream(0, "start-of-backup",
-						 BLK_START_OF_BACKUP);
+									 BLK_START_OF_BACKUP);
 	}
 	return (retval);
 }
@@ -1433,7 +1262,6 @@ int format_disk_SUB(char *cmd, char *title)
 	assert_string_is_neither_NULL_nor_zerolength(cmd);
 	assert_string_is_neither_NULL_nor_zerolength(title);
 
-	malloc_string(command);
 #ifdef __FreeBSD__
 /* Ugh. FreeBSD fdformat prints out this pretty progress indicator that's
    impossible to parse. It looks like
@@ -1449,11 +1277,11 @@ int format_disk_SUB(char *cmd, char *title)
 		return (run_program_and_log_to_screen(cmd, title));
 	}
 /* if not Debian then go ahead & use fdformat */
-	asprintf(&tempfile,"%s",
-		   call_program_and_get_last_line_of_output
-		   ("mktemp -q /tmp/mondo.XXXXXXXX"));
-	asprintf(&command, "%s >> %s 2>> %s; rm -f %s", cmd, tempfile, tempfile,
-			tempfile);
+	asprintf(&tempfile, "%s",
+			 call_program_and_get_last_line_of_output
+			 ("mktemp -q /tmp/mondo.XXXXXXXX"));
+	asprintf(&command, "%s >> %s 2>> %s; rm -f %s", cmd, tempfile,
+			 tempfile, tempfile);
 	log_msg(3, command);
 	open_evalcall_form(title);
 	if (!(pin = popen(command, "r"))) {
@@ -1465,6 +1293,8 @@ int format_disk_SUB(char *cmd, char *title)
 	} else {
 		maxtracks = 80;
 	}
+	paranoid_free(command);
+
 	for (sleep(1); does_file_exist(tempfile); sleep(1)) {
 		trackno = get_trackno_from_logfile(tempfile);
 		if (trackno < 0 || trackno > 80) {
@@ -1486,10 +1316,10 @@ int format_disk_SUB(char *cmd, char *title)
 		log_OS_error("Unable to pclose");
 	}
 	unlink(tempfile);
-	paranoid_free(command);
 	paranoid_free(tempfile);
 	return (res);
 }
+
 
 /**
  * Wrapper around @c format_disk_SUB().
@@ -1533,6 +1363,7 @@ int format_disk(char *device)
 	paranoid_free(command);
 	return (res);
 }
+
 
 /**
  * Get the <tt>N</tt>th bit of @c array.
@@ -1631,10 +1462,10 @@ int make_afioballs_and_images(struct s_bkpinfo *bkpinfo)
 	log_to_screen("Archiving regular files");
 	log_msg(5, "Go, Shorty. It's your birthday.");
 	open_progress_form("Backing up filesystem",
-			   "I am backing up your live filesystem now.",
-			   "Please wait. This may take a couple of hours.",
-			   "Working...",
-			   get_last_filelist_number(bkpinfo) + 1);
+					   "I am backing up your live filesystem now.",
+					   "Please wait. This may take a couple of hours.",
+					   "Working...",
+					   get_last_filelist_number(bkpinfo) + 1);
 
 	log_msg(5, "We're gonna party like it's your birthday.");
 
@@ -1653,11 +1484,12 @@ int make_afioballs_and_images(struct s_bkpinfo *bkpinfo)
 		(*p_archival_threads_running)++;
 		if ((res =
 			 pthread_create(&archival_thread[noof_threads], NULL,
-					create_afio_files_in_background,
-					(void *) transfer_block))) {
+							create_afio_files_in_background,
+							(void *) transfer_block))) {
 			fatal_error("Unable to create an archival thread");
 		}
 	}
+	paranoid_free(transfer_block);
 
 	log_msg(8, "About to enter while() loop");
 	while (!done_storing) {
@@ -1667,16 +1499,18 @@ int make_afioballs_and_images(struct s_bkpinfo *bkpinfo)
 		if (*p_archival_threads_running == 0
 			&& *p_last_set_archived == storing_set_no - 1) {
 			log_msg(2,
-				"No archival threads are running. The last stored set was %d and I'm looking for %d. Take off your make-up; the party's over... :-)",
-				*p_last_set_archived, storing_set_no);
+					"No archival threads are running. The last stored set was %d and I'm looking for %d. Take off your make-up; the party's over... :-)",
+					*p_last_set_archived, storing_set_no);
 			done_storing = TRUE;
-		} else if (!get_bit_N_of_array(p_list_of_fileset_flags, storing_set_no)) {
+		} else
+			if (!get_bit_N_of_array
+				(p_list_of_fileset_flags, storing_set_no)) {
 			misc_counter_that_is_not_important =
 				(misc_counter_that_is_not_important + 1) % 5;
 			/* BERLIOS: media_usage_comment was NOT initialized !!! */
 			/* maybe : */
 			asprintf(&media_usage_comment, "%s",
-				   percent_media_full_comment(bkpinfo));
+					 percent_media_full_comment(bkpinfo));
 			if (!misc_counter_that_is_not_important) {
 				update_progress_form(media_usage_comment);
 			}
@@ -1685,13 +1519,13 @@ int make_afioballs_and_images(struct s_bkpinfo *bkpinfo)
 		} else {
 			// store set N
 			asprintf(&storing_filelist_fname, FILELIST_FNAME_RAW_SZ,
-					bkpinfo->tmpdir, storing_set_no);
+					 bkpinfo->tmpdir, storing_set_no);
 			asprintf(&storing_afioball_fname, AFIOBALL_FNAME_RAW_SZ,
-					bkpinfo->tmpdir, storing_set_no, bkpinfo->zip_suffix);
+					 bkpinfo->tmpdir, storing_set_no, bkpinfo->zip_suffix);
 			asprintf(&curr_xattr_list_fname, XATTR_LIST_FNAME_RAW_SZ,
-					bkpinfo->tmpdir, storing_set_no);
+					 bkpinfo->tmpdir, storing_set_no);
 			asprintf(&curr_acl_list_fname, ACL_LIST_FNAME_RAW_SZ,
-					bkpinfo->tmpdir, storing_set_no);
+					 bkpinfo->tmpdir, storing_set_no);
 
 			log_msg(2, "Storing set %d", storing_set_no);
 			while (!does_file_exist(storing_filelist_fname)
@@ -1702,28 +1536,26 @@ int make_afioballs_and_images(struct s_bkpinfo *bkpinfo)
 				sleep(5);
 			}
 			asprintf(&media_usage_comment, "%s",
-				   percent_media_full_comment(bkpinfo));
+					 percent_media_full_comment(bkpinfo));
 			/* copy to CD (scratchdir) ... and an actual CD-R if necessary */
 			if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
 				register_in_tape_catalog(fileset, storing_set_no, -1,
-							 storing_afioball_fname);
+										 storing_afioball_fname);
 				maintain_collection_of_recent_archives(bkpinfo->tmpdir,
-									   storing_afioball_fname);
+													   storing_afioball_fname);
 				iamhere("Writing EXAT files");
-				res +=
-					write_EXAT_files_to_tape(bkpinfo,
-								 curr_xattr_list_fname,
-								 curr_acl_list_fname);
+				res += write_EXAT_files_to_tape(bkpinfo,
+												curr_xattr_list_fname,
+												curr_acl_list_fname);
 				// archives themselves
 				res +=
 					move_files_to_stream(bkpinfo, storing_afioball_fname,
-								 NULL);
+										 NULL);
 			} else {
-				res =
-					move_files_to_cd(bkpinfo, storing_filelist_fname,
-							 curr_xattr_list_fname,
-							 curr_acl_list_fname,
-							 storing_afioball_fname, NULL);
+				res = move_files_to_cd(bkpinfo, storing_filelist_fname,
+									   curr_xattr_list_fname,
+									   curr_acl_list_fname,
+									   storing_afioball_fname, NULL);
 			}
 			paranoid_free(storing_filelist_fname);
 			paranoid_free(storing_afioball_fname);
@@ -1736,11 +1568,12 @@ int make_afioballs_and_images(struct s_bkpinfo *bkpinfo)
 
 			if (res) {
 				asprintf(&tmp,
-						"Failed to add archive %ld's files to CD dir\n",
-						storing_set_no);
+						 "Failed to add archive %ld's files to CD dir\n",
+						 storing_set_no);
 				log_to_screen(tmp);
 				paranoid_free(tmp);
-				fatal_error("Is your hard disk full? If not, please send the author the logfile.");
+				fatal_error
+					("Is your hard disk full? If not, please send the author the logfile.");
 			}
 			storing_set_no++;
 			//      sleep(2);
@@ -1756,13 +1589,14 @@ int make_afioballs_and_images(struct s_bkpinfo *bkpinfo)
 	del_semvalue();
 	log_msg(2, "Done.");
 	if (retval) {
-		asprintf(&tmp, "Your regular files have been archived (with errors).");
+		asprintf(&tmp,
+				 "Your regular files have been archived (with errors).");
 	} else {
-		asprintf(&tmp, "Your regular files have been archived successfully");
+		asprintf(&tmp,
+				 "Your regular files have been archived successfully");
 	}
 	log_to_screen(tmp);
 	paranoid_free(tmp);
-	paranoid_free(transfer_block);
 	paranoid_free(result_str);
 	return (retval);
 }
@@ -1778,8 +1612,6 @@ void pause_for_N_seconds(int how_long, char *msg)
 	}
 	close_evalcall_form();
 }
-
-
 
 
 /**
@@ -1850,10 +1682,10 @@ int make_iso_fs(struct s_bkpinfo *bkpinfo, char *destfile)
 
 	if (bkpinfo->call_before_iso[0] != '\0') {
 		asprintf(&message_to_screen, "Running pre-ISO call for CD#%d",
-				g_current_media_number);
+				 g_current_media_number);
 		res = eval_call_to_make_ISO(bkpinfo, bkpinfo->call_before_iso,
-						  destfile, g_current_media_number,
-						  MONDO_LOGFILE, message_to_screen);
+									destfile, g_current_media_number,
+									MONDO_LOGFILE, message_to_screen);
 		if (res) {
 			log_to_screen("%s...failed", message_to_screen);
 		} else {
@@ -1867,20 +1699,19 @@ int make_iso_fs(struct s_bkpinfo *bkpinfo, char *destfile)
 		log_msg(2, "bkpinfo->call_make_iso = %s", bkpinfo->call_make_iso);
 		asprintf(&tmp, "%s/archives/NOT-THE-LAST", bkpinfo->scratchdir);
 		asprintf(&message_to_screen, "Making an ISO (%s #%d)",
-				media_descriptor_string(bkpinfo->backup_media_type),
-				g_current_media_number);
+				 media_descriptor_string(bkpinfo->backup_media_type),
+				 g_current_media_number);
 
 		/* if g_current_media_number >= 2 then pause & ask */
-		pause_and_ask_for_cdr(2, &cd_is_mountable);	
+		pause_and_ask_for_cdr(2, &cd_is_mountable);
 		if (retval) {
 			log_to_screen
 				("Serious error(s) occurred already. I shan't try to write to media.");
 		} else {
-			res =
-				eval_call_to_make_ISO(bkpinfo, bkpinfo->call_make_iso,
-							  bkpinfo->scratchdir,
-							  g_current_media_number,
-							  MONDO_LOGFILE, message_to_screen);
+			res = eval_call_to_make_ISO(bkpinfo, bkpinfo->call_make_iso,
+										bkpinfo->scratchdir,
+										g_current_media_number,
+										MONDO_LOGFILE, message_to_screen);
 			if (res) {
 				log_to_screen("%s...failed to write", message_to_screen);
 			} else {
@@ -1895,8 +1726,8 @@ int make_iso_fs(struct s_bkpinfo *bkpinfo, char *destfile)
 			retval += res;
 #ifdef DVDRWFORMAT
 			asprintf(&tmp,
-					"cat %s | tail -n8 | grep \"blank=full.*dvd-compat.*DAO\"",
-					MONDO_LOGFILE);
+					 "cat %s | tail -n8 | grep \"blank=full.*dvd-compat.*DAO\"",
+					 MONDO_LOGFILE);
 			if (g_backup_media_type == dvd
 				&& (res || !run_program_and_log_output(tmp, 1))) {
 				log_to_screen
@@ -1912,18 +1743,17 @@ int make_iso_fs(struct s_bkpinfo *bkpinfo, char *destfile)
 					inject_device(bkpinfo->media_device);
 				}
 				pause_for_N_seconds(5, "Letting DVD drive settle");
-				asprintf(&sz_blank_disk, "dvd+rw-format %s", bkpinfo->media_device);
+				asprintf(&sz_blank_disk, "dvd+rw-format %s",
+						 bkpinfo->media_device);
 				log_msg(3, "sz_blank_disk = '%s'", sz_blank_disk);
-				res =
-					run_external_binary_with_percentage_indicator_NEW
+				res = run_external_binary_with_percentage_indicator_NEW
 					("Blanking DVD disk", sz_blank_disk);
 				if (res) {
 					log_to_screen
 						("Warning - format failed. (Was it a DVD-R?) Sleeping for 5 seconds to take a breath...");
 					pause_for_N_seconds(5,
 										"Letting DVD drive settle... and trying again.");
-					res =
-						run_external_binary_with_percentage_indicator_NEW
+					res = run_external_binary_with_percentage_indicator_NEW
 						("Blanking DVD disk", sz_blank_disk);
 					if (res) {
 						log_to_screen("Format failed a second time.");
@@ -1967,20 +1797,19 @@ int make_iso_fs(struct s_bkpinfo *bkpinfo, char *destfile)
 		paranoid_free(message_to_screen);
 	} else {
 		asprintf(&message_to_screen, "Running mkisofs to make %s #%d",
-				media_descriptor_string(bkpinfo->backup_media_type),
-				g_current_media_number);
+				 media_descriptor_string(bkpinfo->backup_media_type),
+				 g_current_media_number);
 		log_msg(1, message_to_screen);
 		asprintf(&result_sz, "Call to mkisofs to make ISO (%s #%d) ",
-				media_descriptor_string(bkpinfo->backup_media_type),
-				g_current_media_number);
+				 media_descriptor_string(bkpinfo->backup_media_type),
+				 g_current_media_number);
 		if (bkpinfo->nonbootable_backup) {
 			log_msg(1, "Making nonbootable backup");
 // FIXME --- change mkisofs string to MONDO_MKISOFS_NONBOOTABLE and add ' .' at end
-			res =
-				eval_call_to_make_ISO(bkpinfo,
-									  "mkisofs -o _ISO_ -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL -V _CD#_ .",
-									  destfile, g_current_media_number,
-									  MONDO_LOGFILE, message_to_screen);
+			res = eval_call_to_make_ISO(bkpinfo,
+										"mkisofs -o _ISO_ -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL -V _CD#_ .",
+										destfile, g_current_media_number,
+										MONDO_LOGFILE, message_to_screen);
 		} else {
 			log_msg(1, "Making bootable backup");
 
@@ -2009,21 +1838,22 @@ int make_iso_fs(struct s_bkpinfo *bkpinfo, char *destfile)
 // FIXME --- change mkisofs string to MONDO_MKISOFS_REGULAR_SYSLINUX/LILO depending on bkpinfo->make_cd_usE_lilo
 // and add ' .' at end
 				log_msg(1, "Non-ia64 --> lilo");
-				res =
-					eval_call_to_make_ISO(bkpinfo,
-										  "mkisofs -b images/mindi-bootroot.2880.img -c boot.cat -o _ISO_ -J -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL -V _CD#_ .",
-										  destfile, g_current_media_number,
-										  MONDO_LOGFILE,
-										  message_to_screen);
+				res = eval_call_to_make_ISO(bkpinfo,
+											"mkisofs -b images/mindi-bootroot.2880.img -c boot.cat -o _ISO_ -J -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL -V _CD#_ .",
+											destfile,
+											g_current_media_number,
+											MONDO_LOGFILE,
+											message_to_screen);
 #endif
 			} else {
 				log_msg(1, "make_cd_use_lilo = FALSE");
 				log_msg(1, "Isolinux");
 				res = eval_call_to_make_ISO(bkpinfo,
-										  "mkisofs -no-emul-boot -b isolinux.bin -boot-load-size 4 -boot-info-table -c boot.cat -o _ISO_ -J -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL -V _CD#_ .",
-										  destfile, g_current_media_number,
-										  MONDO_LOGFILE,
-										  message_to_screen);
+											"mkisofs -no-emul-boot -b isolinux.bin -boot-load-size 4 -boot-info-table -c boot.cat -o _ISO_ -J -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL -V _CD#_ .",
+											destfile,
+											g_current_media_number,
+											MONDO_LOGFILE,
+											message_to_screen);
 			}
 		}
 		if (res) {
@@ -2051,12 +1881,12 @@ int make_iso_fs(struct s_bkpinfo *bkpinfo, char *destfile)
 	if (bkpinfo->call_burn_iso[0] != '\0') {
 		log_msg(2, "bkpinfo->call_burn_iso = %s", bkpinfo->call_burn_iso);
 		asprintf(&message_to_screen, "Burning %s #%d",
-				media_descriptor_string(bkpinfo->backup_media_type),
-				g_current_media_number);
+				 media_descriptor_string(bkpinfo->backup_media_type),
+				 g_current_media_number);
 		pause_and_ask_for_cdr(2, &cd_is_mountable);
 		res = eval_call_to_make_ISO(bkpinfo, bkpinfo->call_burn_iso,
-								  destfile, g_current_media_number,
-								  MONDO_LOGFILE, message_to_screen);
+									destfile, g_current_media_number,
+									MONDO_LOGFILE, message_to_screen);
 		if (res) {
 			log_to_screen("%s...failed", message_to_screen);
 		} else {
@@ -2068,11 +1898,11 @@ int make_iso_fs(struct s_bkpinfo *bkpinfo, char *destfile)
 
 	if (bkpinfo->call_after_iso[0] != '\0') {
 		asprintf(&message_to_screen, "Running post-ISO call (%s #%d)",
-				media_descriptor_string(bkpinfo->backup_media_type),
-				g_current_media_number);
+				 media_descriptor_string(bkpinfo->backup_media_type),
+				 g_current_media_number);
 		res = eval_call_to_make_ISO(bkpinfo, bkpinfo->call_after_iso,
-								  destfile, g_current_media_number,
-								  MONDO_LOGFILE, message_to_screen);
+									destfile, g_current_media_number,
+									MONDO_LOGFILE, message_to_screen);
 		if (res) {
 			log_to_screen("%s...failed", message_to_screen);
 		} else {
@@ -2096,10 +1926,11 @@ bool is_dev_an_NTFS_dev(char *bigfile_fname)
 	char *tmp;
 	char *command;
 	asprintf(&command,
-			"dd if=%s bs=512 count=1 2> /dev/null | strings | head -n1",
-			bigfile_fname);
+			 "dd if=%s bs=512 count=1 2> /dev/null | strings | head -n1",
+			 bigfile_fname);
 	log_msg(1, "command = '%s'", command);
-	asprintf(&tmp, "%s", call_program_and_get_last_line_of_output(command));
+	asprintf(&tmp, "%s",
+			 call_program_and_get_last_line_of_output(command));
 	log_msg(1, "--> tmp = '%s'", tmp);
 	paranoid_free(command);
 	if (strstr(tmp, "NTFS")) {
@@ -2138,7 +1969,7 @@ make_slices_and_images(struct s_bkpinfo *bkpinfo, char *biggielist_fname)
 
 	/*@ buffers ******************************************** */
 	char *tmp;
-	char *bigfile_fname;
+	char *bigfile_fname = NULL;
 	char *sz_devfile;
 	char *partimagehack_fifo = NULL;
 	/*@ long *********************************************** */
@@ -2149,6 +1980,7 @@ make_slices_and_images(struct s_bkpinfo *bkpinfo, char *biggielist_fname)
 	/*@ int ************************************************ */
 	int retval = 0;
 	int res = 0;
+	int n = 0;
 	pid_t pid;
 	FILE *ftmp = NULL;
 	bool delete_when_done;
@@ -2159,7 +1991,6 @@ make_slices_and_images(struct s_bkpinfo *bkpinfo, char *biggielist_fname)
 	assert(bkpinfo != NULL);
 	assert_string_is_neither_NULL_nor_zerolength(biggielist_fname);
 
-	malloc_string(bigfile_fname);
 	estimated_total_noof_slices =
 		size_of_all_biggiefiles_K(bkpinfo) / bkpinfo->optimal_set_size + 1;
 
@@ -2183,8 +2014,9 @@ make_slices_and_images(struct s_bkpinfo *bkpinfo, char *biggielist_fname)
 		log_OS_error("Unable to openin biggielist");
 		return (1);
 	}
-	for (fgets(bigfile_fname, MAX_STR_LEN, fin); !feof(fin);
-		 fgets(bigfile_fname, MAX_STR_LEN, fin), biggie_file_number++) {
+	for (getline(&bigfile_fname, (size_t) & n, fin); !feof(fin);
+		 getline(&bigfile_fname, (size_t) & n, fin),
+		 biggie_file_number++) {
 		use_partimagehack = FALSE;
 		if (bigfile_fname[strlen(bigfile_fname) - 1] < 32) {
 			bigfile_fname[strlen(bigfile_fname) - 1] = '\0';
@@ -2196,7 +2028,7 @@ make_slices_and_images(struct s_bkpinfo *bkpinfo, char *biggielist_fname)
 			ftmp = fopen(bigfile_fname, "w");
 			paranoid_fclose(ftmp);
 			asprintf(&tmp, "bigfile %s was deleted - creating a dummy",
-					bigfile_fname);
+					 bigfile_fname);
 			delete_when_done = TRUE;
 		} else {
 			// Call partimagehack if it's a /dev entry (i.e. a partition to be imaged)
@@ -2209,8 +2041,8 @@ make_slices_and_images(struct s_bkpinfo *bkpinfo, char *biggielist_fname)
 						"Calling partimagehack in background because %s is an NTFS partition",
 						bigfile_fname);
 				asprintf(&sz_devfile, "/tmp/%d.%d.000",
-						(int) (random() % 32768),
-						(int) (random() % 32768));
+						 (int) (random() % 32768),
+						 (int) (random() % 32768));
 				mkfifo(sz_devfile, 0x770);
 				partimagehack_fifo = sz_devfile;
 				switch (pid = fork()) {
@@ -2228,7 +2060,7 @@ make_slices_and_images(struct s_bkpinfo *bkpinfo, char *biggielist_fname)
 							"feed_into_partimage() called in background --- pid=%ld",
 							(long int) (pid));
 
-				paranoid_free(sz_devfile);
+					paranoid_free(sz_devfile);
 				}
 			}
 			// Otherwise, use good old 'dd' and 'bzip2'
@@ -2247,8 +2079,8 @@ make_slices_and_images(struct s_bkpinfo *bkpinfo, char *biggielist_fname)
 											 BLK_START_A_NORMBIGGIE);
 			}
 			res = slice_up_file_etc(bkpinfo, bigfile_fname,
-								  partimagehack_fifo, biggie_file_number,
-								  noof_biggie_files, use_partimagehack);
+									partimagehack_fifo, biggie_file_number,
+									noof_biggie_files, use_partimagehack);
 			if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
 				write_header_block_to_stream(0,
 											 calc_checksum_of_file
@@ -2282,16 +2114,15 @@ make_slices_and_images(struct s_bkpinfo *bkpinfo, char *biggielist_fname)
 #endif
 	}
 	paranoid_free(tmp);
+	paranoid_free(bigfile_fname);
+	paranoid_fclose(fin);
+
 	log_msg(1, "Finished backing up bigfiles");
 	log_msg(1, "estimated slices = %ld; actual slices = %ld",
 			estimated_total_noof_slices, g_current_progress);
 	close_progress_form();
-	paranoid_fclose(fin);
-	paranoid_free(bigfile_fname);
 	return (retval);
 }
-
-
 
 
 /**
@@ -2315,8 +2146,8 @@ int make_afioballs_and_images_OLD(struct s_bkpinfo *bkpinfo)
 	char *media_usage_comment;
 
 	/* BERLIOS: Useless ?
-	asprintf(&tmp, "%s/archives/filelist.full", bkpinfo->scratchdir);
-	*/
+	   asprintf(&tmp, "%s/archives/filelist.full", bkpinfo->scratchdir);
+	 */
 
 	log_to_screen("Archiving regular files");
 
@@ -2327,35 +2158,36 @@ int make_afioballs_and_images_OLD(struct s_bkpinfo *bkpinfo)
 					   get_last_filelist_number(bkpinfo) + 1);
 
 	asprintf(&curr_filelist_fname, FILELIST_FNAME_RAW_SZ, bkpinfo->tmpdir,
-			0L);
+			 0L);
 
 	curr_set_no = 0;
 	while (does_file_exist(curr_filelist_fname)) {
 		/* backup this set of files */
 		asprintf(&curr_afioball_fname, AFIOBALL_FNAME_RAW_SZ,
-				bkpinfo->tmpdir, curr_set_no, bkpinfo->zip_suffix);
+				 bkpinfo->tmpdir, curr_set_no, bkpinfo->zip_suffix);
 
 		log_msg(1, "EXAT'g set %ld", curr_set_no);
 		asprintf(&curr_xattr_list_fname, XATTR_LIST_FNAME_RAW_SZ,
-				bkpinfo->tmpdir, curr_set_no);
+				 bkpinfo->tmpdir, curr_set_no);
 		asprintf(&curr_acl_list_fname, ACL_LIST_FNAME_RAW_SZ,
-				bkpinfo->tmpdir, curr_set_no);
+				 bkpinfo->tmpdir, curr_set_no);
 		get_fattr_list(curr_filelist_fname, curr_xattr_list_fname);
 		get_acl_list(curr_filelist_fname, curr_acl_list_fname);
 
 		log_msg(1, "Archiving set %ld", curr_set_no);
 		res = archive_this_fileset(bkpinfo, curr_filelist_fname,
-								 curr_afioball_fname, curr_set_no);
+								   curr_afioball_fname, curr_set_no);
 		retval += res;
 		if (res) {
 			asprintf(&tmp,
-					"Errors occurred while archiving set %ld. Perhaps your live filesystem changed?",
-					curr_set_no);
+					 "Errors occurred while archiving set %ld. Perhaps your live filesystem changed?",
+					 curr_set_no);
 			log_to_screen(tmp);
 			paranoid_free(tmp);
 		}
 
-		asprintf(&media_usage_comment, "%s", percent_media_full_comment(bkpinfo));
+		asprintf(&media_usage_comment, "%s",
+				 percent_media_full_comment(bkpinfo));
 
 		/* copy to CD (scratchdir) ... and an actual CD-R if necessary */
 		if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
@@ -2365,14 +2197,14 @@ int make_afioballs_and_images_OLD(struct s_bkpinfo *bkpinfo)
 												   curr_afioball_fname);
 			iamhere("Writing EXAT files");
 			res += write_EXAT_files_to_tape(bkpinfo, curr_xattr_list_fname,
-										 curr_acl_list_fname);
+											curr_acl_list_fname);
 			// archives themselves
 			res = move_files_to_stream(bkpinfo, curr_afioball_fname, NULL);
 		} else {
 			res = move_files_to_cd(bkpinfo, curr_filelist_fname,
-								 curr_xattr_list_fname,
-								 curr_acl_list_fname, curr_afioball_fname,
-								 NULL);
+								   curr_xattr_list_fname,
+								   curr_acl_list_fname,
+								   curr_afioball_fname, NULL);
 		}
 		retval += res;
 		g_current_progress++;
@@ -2381,7 +2213,7 @@ int make_afioballs_and_images_OLD(struct s_bkpinfo *bkpinfo)
 
 		if (res) {
 			asprintf(&tmp, "Failed to add archive %ld's files to CD dir\n",
-					curr_set_no);
+					 curr_set_no);
 			log_to_screen(tmp);
 			paranoid_free(tmp);
 			fatal_error
@@ -2397,11 +2229,13 @@ int make_afioballs_and_images_OLD(struct s_bkpinfo *bkpinfo)
 	paranoid_free(curr_filelist_fname);
 	close_progress_form();
 	if (retval) {
-		log_to_screen("Your regular files have been archived (with errors).");
+		log_to_screen
+			("Your regular files have been archived (with errors).");
 	} else {
-		log_to_screen("Your regular files have been archived successfully.");
+		log_to_screen
+			("Your regular files have been archived successfully.");
 	}
-	return(retval);
+	return (retval);
 }
 
 /* @} - end of LLarchiveGroup */
@@ -2479,14 +2313,16 @@ int make_those_slices_phase(struct s_bkpinfo *bkpinfo)
 	/* slice big files */
 	mvaddstr_and_log_it(g_currentY, 0,
 						"Archiving large files to media           ");
-	asprintf(&biggielist, "%s/archives/biggielist.txt", bkpinfo->scratchdir);
+	asprintf(&biggielist, "%s/archives/biggielist.txt",
+			 bkpinfo->scratchdir);
 	asprintf(&xattr_fname, XATTR_BIGGLST_FNAME_RAW_SZ, bkpinfo->tmpdir);
 	asprintf(&acl_fname, ACL_BIGGLST_FNAME_RAW_SZ, bkpinfo->tmpdir);
 
 	asprintf(&command, "cp %s/biggielist.txt %s", bkpinfo->tmpdir,
-			biggielist);
+			 biggielist);
 	paranoid_system(command);
 	paranoid_free(command);
+
 	asprintf(&blah, "biggielist = %s", biggielist);
 	log_msg(2, blah);
 	paranoid_free(blah);
@@ -2498,10 +2334,12 @@ int make_those_slices_phase(struct s_bkpinfo *bkpinfo)
 	get_fattr_list(biggielist, xattr_fname);
 	get_acl_list(biggielist, acl_fname);
 	asprintf(&command, "cp %s %s/archives/", xattr_fname,
-			bkpinfo->scratchdir);
+			 bkpinfo->scratchdir);
 	paranoid_system(command);
 	paranoid_free(command);
-	asprintf(&command, "cp %s %s/archives/", acl_fname, bkpinfo->scratchdir);
+
+	asprintf(&command, "cp %s %s/archives/", acl_fname,
+			 bkpinfo->scratchdir);
 	paranoid_system(command);
 	paranoid_free(command);
 
@@ -2513,8 +2351,10 @@ int make_those_slices_phase(struct s_bkpinfo *bkpinfo)
 	}
 	paranoid_free(xattr_fname);
 	paranoid_free(acl_fname);
+
 	res = make_slices_and_images(bkpinfo, biggielist);
 	paranoid_free(biggielist);
+
 	if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
 		write_header_block_to_stream(0, "end-of-biggiefiles",
 									 BLK_STOP_BIGGIEFILES);
@@ -2528,7 +2368,6 @@ int make_those_slices_phase(struct s_bkpinfo *bkpinfo)
 	}
 	return (retval);
 }
-
 
 
 /**
@@ -2576,7 +2415,6 @@ int _move_files_to_cd(struct s_bkpinfo *bkpinfo, char *files_to_add, ...)
 	long long would_occupy;
 
 	assert(bkpinfo != NULL);
-	tmp = malloc(1200);
 	would_occupy = space_occupied_by_cd(bkpinfo->scratchdir);
 	va_start(ap, files_to_add);	// initialize the variable arguments
 	for (cf = files_to_add; cf != NULL; cf = va_arg(ap, char *)) {
@@ -2601,7 +2439,7 @@ int _move_files_to_cd(struct s_bkpinfo *bkpinfo, char *files_to_add, ...)
 	}
 	if (would_occupy / 1024 > bkpinfo->media_size[g_current_media_number]) {
 		/* FALSE because this is not the last CD we'll write */
-		res = write_iso_and_go_on(bkpinfo, FALSE);	
+		res = write_iso_and_go_on(bkpinfo, FALSE);
 		retval += res;
 		if (res) {
 			log_msg(1, "WARNING - write_iso_and_go_on returned an error");
@@ -2616,7 +2454,7 @@ int _move_files_to_cd(struct s_bkpinfo *bkpinfo, char *files_to_add, ...)
 		asprintf(&curr_file, "%s", cf);
 
 		asprintf(&tmp, "mv -f %s %s/archives/", curr_file,
-				bkpinfo->scratchdir);
+				 bkpinfo->scratchdir);
 		res = run_program_and_log_output(tmp, 5);
 		retval += res;
 		if (res) {
@@ -2638,12 +2476,6 @@ int _move_files_to_cd(struct s_bkpinfo *bkpinfo, char *files_to_add, ...)
 }
 
 /* @} - end of LLarchiveGroup */
-
-
-
-
-
-
 
 
 /**
@@ -2715,6 +2547,7 @@ int offer_to_write_floppies(struct s_bkpinfo *bkpinfo, char *imagesdir)
 		}
 		res += write_image_to_floppy(bootdisk_dev, tmp);
 		paranoid_free(tmp);
+
 		if (ask_me_OK_or_cancel("About to write 1.44MB mfsroot disk")) {
 			log_to_screen("Writing mfsroot floppy");
 			if (format_first) {
@@ -2750,10 +2583,6 @@ int offer_to_write_floppies(struct s_bkpinfo *bkpinfo, char *imagesdir)
 			if (format_first) {
 				format_disk(datadisk_dev);
 			}
-			/*
-			   asprintf(&tmp, "cat %s > %s", bootdisk_file, datadisk_dev);
-			   res += run_external_binary_with_percentage_indicator_NEW("Writing boot floppy", tmp);
-			 */
 			res += write_image_to_floppy(datadisk_dev, bootdisk_file);
 			if (ask_me_OK_or_cancel("About to write root disk")) {
 				log_to_screen("Writing root floppy");
@@ -2805,8 +2634,6 @@ int offer_to_write_floppies(struct s_bkpinfo *bkpinfo, char *imagesdir)
 }
 
 
-
-
 /**
  * Wrapper around @c offer_to_write_floppies().
  * @param bkpinfo The backup information structure. Used only
@@ -2838,7 +2665,7 @@ offer_to_write_boot_floppies_to_physical_disks(struct s_bkpinfo *bkpinfo)
 			mvaddstr_and_log_it(g_currentY++, 74, "No Imgs");
 			if (does_file_exist("/root/images/mindi/mondorescue.iso")) {
 				popup_and_OK
-					("Boot+data floppy creation failed. However, FYI, you may burn /root/images/mindi/mondorescue.iso to a CD and boot from that instead if you wish.");
+					("Boot+data floppy creation failed.\nHowever, you may burn /root/images/mindi/mondorescue.iso to a CD\nand boot from that instead if you wish.");
 				res++;
 			}
 		} else {
@@ -2852,8 +2679,6 @@ offer_to_write_boot_floppies_to_physical_disks(struct s_bkpinfo *bkpinfo)
 
 	return (res);
 }
-
-
 
 
 /**
@@ -2944,7 +2769,6 @@ _move_files_to_stream(struct s_bkpinfo *bkpinfo, char *files_to_add, ...)
 /* @} - end of LLarchiveGroup */
 
 
-
 /**
  * @addtogroup utilityGroup
  * @{
@@ -2999,7 +2823,6 @@ interrogate_disk_currently_in_cdrw_drive(char *cdrw_dev, bool keep_looping)
 }
 
 
-
 /**
  * Asks the user to put a CD-R(W) in the drive.
  * @param ask_for_one_if_more_than_this (unused)
@@ -3028,8 +2851,8 @@ pause_and_ask_for_cdr(int ask_for_one_if_more_than_this, bool * pmountable)
 	malloc_string(cdrw_dev);
 
 	asprintf(&szmsg, "I am about to burn %s #%d",
-			media_descriptor_string(g_backup_media_type),
-			g_current_media_number);
+			 media_descriptor_string(g_backup_media_type),
+			 g_current_media_number);
 	log_to_screen(szmsg);
 	paranoid_free(szmsg);
 	if (g_current_media_number < ask_for_one_if_more_than_this) {
@@ -3037,7 +2860,7 @@ pause_and_ask_for_cdr(int ask_for_one_if_more_than_this, bool * pmountable)
 	}
 	log_to_screen("Scanning CD-ROM drive...");
 	asprintf(&mtpt, "/tmp/cd.mtpt.%ld.%ld", (long int) random(),
-			(long int) random());
+			 (long int) random());
 	make_hole_for_dir(mtpt);
 
   gotos_make_me_puke:
@@ -3055,7 +2878,8 @@ pause_and_ask_for_cdr(int ask_for_one_if_more_than_this, bool * pmountable)
 		asprintf(&szunmount, "umount %s", mtpt);
 		cd_number = -1;
 		asprintf(&tmp, "mount %s %s", cdrom_dev, mtpt);
-		if ((attempt_to_mount_returned_this = run_program_and_log_output(tmp, 1))) {
+		if ((attempt_to_mount_returned_this =
+			 run_program_and_log_output(tmp, 1))) {
 			log_msg(4, "Failed to mount %s at %s", cdrom_dev, mtpt);
 			log_to_screen("If there's a CD/DVD in the drive, it's blank.");
 			asprintf(&our_serial_str, "%s", "");
@@ -3070,8 +2894,10 @@ pause_and_ask_for_cdr(int ask_for_one_if_more_than_this, bool * pmountable)
 			   log_to_screen("Confirmed. There is a blank CD/DVD in the drive.");
 			   }
 			 */
-		} else if (!does_file_exist(szcdno) || !does_file_exist(szserfname)) {
-			log_to_screen("%s has data on it but it's probably not a Mondo CD.",
+		} else if (!does_file_exist(szcdno)
+				   || !does_file_exist(szserfname)) {
+			log_to_screen
+				("%s has data on it but it's probably not a Mondo CD.",
 				 media_descriptor_string(g_backup_media_type));
 			asprintf(&our_serial_str, "%s", "");
 		} else {
@@ -3080,7 +2906,7 @@ pause_and_ask_for_cdr(int ask_for_one_if_more_than_this, bool * pmountable)
 			cd_number = atoi(last_line_of_file(szcdno));
 			asprintf(&tmp1, "cat %s 2> /dev/null", szserfname);
 			asprintf(&our_serial_str, "%s",
-				   call_program_and_get_last_line_of_output(tmp1));
+					 call_program_and_get_last_line_of_output(tmp1));
 			paranoid_free(tmp1);
 			// FIXME - should be able to use last_line_of_file(), surely?
 		}
@@ -3134,10 +2960,10 @@ pause_and_ask_for_cdr(int ask_for_one_if_more_than_this, bool * pmountable)
 	if (!ok_go_ahead_burn_it) {
 		eject_device(cdrom_dev);
 		asprintf(&tmp,
-				"I am about to burn %s #%d of the backup set. Please insert %s and press Enter.",
-				media_descriptor_string(g_backup_media_type),
-				g_current_media_number,
-				media_descriptor_string(g_backup_media_type));
+				 "I am about to burn %s #%d of the backup set. Please insert %s and press Enter.",
+				 media_descriptor_string(g_backup_media_type),
+				 g_current_media_number,
+				 media_descriptor_string(g_backup_media_type));
 		popup_and_OK(tmp);
 		paranoid_free(tmp);
 		goto gotos_make_me_puke;
@@ -3162,7 +2988,6 @@ pause_and_ask_for_cdr(int ask_for_one_if_more_than_this, bool * pmountable)
 	}
 
 }
-
 
 
 /**
@@ -3192,7 +3017,6 @@ void set_bit_N_of_array(char *array, int N, bool true_or_false)
 }
 
 /* @} - end of utilityGroup */
-
 
 
 /**
@@ -3250,6 +3074,7 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
 	/*@ int ******************************************************** */
 	int retval = 0;
 	int res = 0;
+	int n = 0;
 
 	/*@ structures ************************************************** */
 	struct s_filename_and_lstat_info biggiestruct;
@@ -3257,8 +3082,6 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
 
 	assert(bkpinfo != NULL);
 	assert_string_is_neither_NULL_nor_zerolength(biggie_filename);
-
-	malloc_string(checksum_line);
 
 	biggiestruct.for_backward_compatibility = '\n';
 	biggiestruct.use_partimagehack = use_partimagehack;
@@ -3278,7 +3101,7 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
 	}
 	if (partimagehack_fifo) {
 		file_to_openin = partimagehack_fifo;
-		strcpy(checksum_line, "IGNORE");
+		asprintf(&checksum_line, "IGNORE");
 		log_msg(2,
 				"Not calculating checksum for %s: it would take too long",
 				biggie_filename);
@@ -3291,7 +3114,7 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
 			return (1);
 		}
 		paranoid_free(command);
-		(void) fgets(checksum_line, MAX_STR_LEN, fin);
+		(void) getline(&checksum_line, (size_t) & n, fin);
 		pclose(fin);
 	}
 	lstat(biggie_filename, &biggiestruct.properties);
@@ -3306,7 +3129,8 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
 	strcpy(biggiestruct.checksum, checksum_line);
 	paranoid_free(checksum_line);
 
-	asprintf(&tmp, "%s", slice_fname(biggie_file_number, 0, bkpinfo->tmpdir, ""));
+	asprintf(&tmp, "%s",
+			 slice_fname(biggie_file_number, 0, bkpinfo->tmpdir, ""));
 	fout = fopen(tmp, "w");
 	paranoid_free(tmp);
 	(void) fwrite((void *) &biggiestruct, 1, sizeof(biggiestruct), fout);
@@ -3318,7 +3142,7 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
 	if (!(fin = fopen(file_to_openin, "r"))) {
 		log_OS_error("Unable to openin biggie_filename");
 		asprintf(&tmp, "Cannot archive bigfile '%s': not found",
-				biggie_filename);
+				 biggie_filename);
 		log_to_screen(tmp);
 		paranoid_free(tmp);
 
@@ -3327,19 +3151,21 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
 	}
 	if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
 		res = move_files_to_stream(bkpinfo,
-								 slice_fname(biggie_file_number, 0,
-											 bkpinfo->tmpdir, ""), NULL);
+								   slice_fname(biggie_file_number, 0,
+											   bkpinfo->tmpdir, ""), NULL);
 	} else {
 		res = move_files_to_cd(bkpinfo,
-							 slice_fname(biggie_file_number, 0, bkpinfo->tmpdir, ""), 
-							 NULL);
+							   slice_fname(biggie_file_number, 0,
+										   bkpinfo->tmpdir, ""), NULL);
 	}
 	i = bkpinfo->optimal_set_size / 256;
 	for (slice_num = 1; !finished; slice_num++) {
 		asprintf(&curr_slice_fname_uncompressed, "%s",
-			   slice_fname(biggie_file_number, slice_num, bkpinfo->tmpdir, ""));
+				 slice_fname(biggie_file_number, slice_num,
+							 bkpinfo->tmpdir, ""));
 		asprintf(&curr_slice_fname_compressed, "%s",
-			   slice_fname(biggie_file_number, slice_num, bkpinfo->tmpdir, suffix));
+				 slice_fname(biggie_file_number, slice_num,
+							 bkpinfo->tmpdir, suffix));
 
 		asprintf(&tmp, "%s", percent_media_full_comment(bkpinfo));
 		update_progress_form(tmp);
@@ -3381,8 +3207,8 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
 			}
 			if (should_I_compress_slices && bkpinfo->compression_level > 0) {
 				asprintf(&command, "%s -%d %s", bkpinfo->zip_exe,
-						bkpinfo->compression_level,
-						curr_slice_fname_uncompressed);
+						 bkpinfo->compression_level,
+						 curr_slice_fname_uncompressed);
 				log_msg(2, command);
 				if ((res = system(command))) {
 					log_OS_error(command);
@@ -3390,10 +3216,10 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
 				//              did_I_compress_slice = TRUE;
 			} else {
 				/* BERLIOS: Useless 
-				asprintf(&command, "mv %s %s 2>> %s",
-						curr_slice_fname_uncompressed,
-						curr_slice_fname_compressed, MONDO_LOGFILE);
-				*/
+				   asprintf(&command, "mv %s %s 2>> %s",
+				   curr_slice_fname_uncompressed,
+				   curr_slice_fname_compressed, MONDO_LOGFILE);
+				 */
 				res = 0;		// don't do it :)
 				//              did_I_compress_slice = FALSE;
 			}
@@ -3410,9 +3236,9 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
 				asprintf(&tmp, "Problem with slice # %ld", slice_num);
 			} else {
 				asprintf(&tmp,
-						"%s - Bigfile #%ld, slice #%ld compressed OK          ",
-						biggie_filename, biggie_file_number + 1,
-						slice_num);
+						 "%s - Bigfile #%ld, slice #%ld compressed OK          ",
+						 biggie_filename, biggie_file_number + 1,
+						 slice_num);
 			}
 #ifndef _XWIN
 			if (!g_text_mode) {
@@ -3430,7 +3256,8 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
 		} else {				/* if i==0 then ... */
 
 			finished = TRUE;
-			asprintf(&file_to_archive, "%s", curr_slice_fname_uncompressed);
+			asprintf(&file_to_archive, "%s",
+					 curr_slice_fname_uncompressed);
 			if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
 				break;
 			}
@@ -3449,8 +3276,8 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
 		retval += res;
 		if (res) {
 			asprintf(&tmp,
-					"Failed to add slice %ld of bigfile %ld to scratchdir",
-					slice_num, biggie_file_number + 1);
+					 "Failed to add slice %ld of bigfile %ld to scratchdir",
+					 slice_num, biggie_file_number + 1);
 			log_to_screen(tmp);
 			paranoid_free(tmp);
 			fatal_error
@@ -3462,9 +3289,11 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
 	paranoid_free(suffix);
 	paranoid_fclose(fin);
 	if (retval) {
-		asprintf(&tmp, "Sliced bigfile #%ld...FAILED", biggie_file_number + 1);
+		asprintf(&tmp, "Sliced bigfile #%ld...FAILED",
+				 biggie_file_number + 1);
 	} else {
-		asprintf(&tmp, "Sliced bigfile #%ld...OK!", biggie_file_number + 1);
+		asprintf(&tmp, "Sliced bigfile #%ld...OK!",
+				 biggie_file_number + 1);
 	}
 	log_msg(1, tmp);
 	paranoid_free(tmp);
@@ -3497,7 +3326,8 @@ void wipe_archives(char *d)
 	run_program_and_log_output(tmp, FALSE);
 	paranoid_free(tmp);
 
-	asprintf(&tmp, "find %s -name '*list.[0-9]*' -exec rm -f '{}' \\;", dir);
+	asprintf(&tmp, "find %s -name '*list.[0-9]*' -exec rm -f '{}' \\;",
+			 dir);
 	run_program_and_log_output(tmp, FALSE);
 	paranoid_free(tmp);
 
@@ -3551,8 +3381,8 @@ int write_final_iso_if_necessary(struct s_bkpinfo *bkpinfo)
 	asprintf(&tmp, "Writing the final ISO");
 	log_msg(2, tmp);
 	/* BERLIOS: that function seems strange to me
-	center_string(tmp, 80);
-	*/
+	   center_string(tmp, 80);
+	 */
 #ifndef _XWIN
 	if (!g_text_mode) {
 		newtPushHelpLine(tmp);
@@ -3623,21 +3453,23 @@ int write_iso_and_go_on(struct s_bkpinfo *bkpinfo, bool last_cd)
 
 	/* label the ISO with its number */
 
-	asprintf(&cdno_fname, "%s/archives/THIS-CD-NUMBER", bkpinfo->scratchdir);
+	asprintf(&cdno_fname, "%s/archives/THIS-CD-NUMBER",
+			 bkpinfo->scratchdir);
 	fout = fopen(cdno_fname, "w");
 	fprintf(fout, "%d", g_current_media_number);
 	paranoid_fclose(fout);
 	paranoid_free(cdno_fname);
 
 	asprintf(&tmp, "cp -f %s/autorun %s/", g_mondo_home,
-			bkpinfo->scratchdir);
+			 bkpinfo->scratchdir);
 	if (run_program_and_log_output(tmp, FALSE)) {
 		log_msg(2, "Warning - unable to copy autorun to scratchdir");
 	}
 	paranoid_free(tmp);
 
 	/* last CD or not? Label accordingly */
-	asprintf(&lastcd_fname, "%s/archives/NOT-THE-LAST", bkpinfo->scratchdir);
+	asprintf(&lastcd_fname, "%s/archives/NOT-THE-LAST",
+			 bkpinfo->scratchdir);
 	if (last_cd) {
 		unlink(lastcd_fname);
 		log_msg(2,
@@ -3653,15 +3485,15 @@ int write_iso_and_go_on(struct s_bkpinfo *bkpinfo, bool last_cd)
 	if (space_occupied_by_cd(bkpinfo->scratchdir) / 1024 >
 		bkpinfo->media_size[g_current_media_number]) {
 		asprintf(&tmp,
-				"Warning! CD is too big. It occupies %ld KB, which is more than the %ld KB allowed.",
-				(long) space_occupied_by_cd(bkpinfo->scratchdir),
-				(long) bkpinfo->media_size[g_current_media_number]);
+				 "Warning! CD is too big. It occupies %ld KB, which is more than the %ld KB allowed.",
+				 (long) space_occupied_by_cd(bkpinfo->scratchdir),
+				 (long) bkpinfo->media_size[g_current_media_number]);
 		log_to_screen(tmp);
 		paranoid_free(tmp);
 	}
 	asprintf(&isofile, "%s/%s/%s-%d.iso", bkpinfo->isodir,
-			bkpinfo->nfs_remote_dir, bkpinfo->prefix,
-			g_current_media_number);
+			 bkpinfo->nfs_remote_dir, bkpinfo->prefix,
+			 g_current_media_number);
 	for (that_one_was_ok = FALSE; !that_one_was_ok;) {
 		res = make_iso_fs(bkpinfo, isofile);
 		if (g_current_media_number == 1 && !res
@@ -3688,8 +3520,8 @@ int write_iso_and_go_on(struct s_bkpinfo *bkpinfo, bool last_cd)
 			that_one_was_ok = TRUE;
 		} else {
 			asprintf(&tmp, "Failed to burn %s #%d. Retry?",
-					media_descriptor_string(bkpinfo->backup_media_type),
-					g_current_media_number);
+					 media_descriptor_string(bkpinfo->backup_media_type),
+					 g_current_media_number);
 			res = ask_me_yes_or_no(tmp);
 			paranoid_free(tmp);
 			if (!res) {
@@ -3720,10 +3552,10 @@ int write_iso_and_go_on(struct s_bkpinfo *bkpinfo, bool last_cd)
 	}
 	wipe_archives(bkpinfo->scratchdir);
 	asprintf(&tmp, "rm -Rf %s/images/*gz %s/images/*data*img",
-			bkpinfo->scratchdir, bkpinfo->scratchdir);
+			 bkpinfo->scratchdir, bkpinfo->scratchdir);
 	if (system(tmp)) {
 		log_msg(2,
-			 "Error occurred when I tried to delete the redundant IMGs and GZs");
+				"Error occurred when I tried to delete the redundant IMGs and GZs");
 	}
 	paranoid_free(tmp);
 
@@ -3794,9 +3626,10 @@ int verify_data(struct s_bkpinfo *bkpinfo)
 			retval += res;
 			if (res) {
 				asprintf(&tmp,
-						"Warnings/errors were reported while checking %s #%d",
-						media_descriptor_string(bkpinfo->backup_media_type),
-						g_current_media_number);
+						 "Warnings/errors were reported while checking %s #%d",
+						 media_descriptor_string(bkpinfo->
+												 backup_media_type),
+						 g_current_media_number);
 				log_to_screen(tmp);
 				paranoid_free(tmp);
 
@@ -3809,14 +3642,14 @@ int verify_data(struct s_bkpinfo *bkpinfo)
 	  system (tmp);
 */
 		asprintf(&tmp,
-				"cat %s | grep \"afio: \" | sed 's/afio: //' | grep -vx \"/dev/.*\" >> /tmp/changed.files",
-				MONDO_LOGFILE);
+				 "cat %s | grep \"afio: \" | sed 's/afio: //' | grep -vx \"/dev/.*\" >> /tmp/changed.files",
+				 MONDO_LOGFILE);
 		system(tmp);
 		paranoid_free(tmp);
 
 		asprintf(&tmp,
-				"cat %s | grep \"star: \" | sed 's/star: //' | grep -vx \"/dev/.*\" >> /tmp/changed.files",
-				MONDO_LOGFILE);
+				 "cat %s | grep \"star: \" | sed 's/star: //' | grep -vx \"/dev/.*\" >> /tmp/changed.files",
+				 MONDO_LOGFILE);
 		system(tmp);
 		paranoid_free(tmp);
 
@@ -3922,7 +3755,6 @@ int write_image_to_floppy_SUB(char *device, char *datafile)
 	close_evalcall_form();
 	return (res);
 }
-
 
 
 /**

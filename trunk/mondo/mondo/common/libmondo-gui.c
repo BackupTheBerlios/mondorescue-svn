@@ -1,6 +1,4 @@
-/* libmondo-gui.c
- * $Id$
- */
+/* $Id$ */
 
 /**
  * @file

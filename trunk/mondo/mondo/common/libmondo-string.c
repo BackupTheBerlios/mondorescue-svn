@@ -65,7 +65,6 @@ char *build_partition_name(char *partition, const char *drive, int partno)
 }
 
 
-
 /**
  * Pad a string on both sides so it appears centered.
  * @param in_out The string to be center-padded (modified).
@@ -100,8 +99,6 @@ void center_string(char *in_out, int width)
 }
 
 
-
-
 inline void turn_wildcard_chars_into_literal_chars(char *sout, char *sin)
 {
 	char *p, *q;
@@ -115,7 +112,6 @@ inline void turn_wildcard_chars_into_literal_chars(char *sout, char *sin)
 }
 
 
-
 /*
  * Add commas every third place in @p input.
  * @param input The string to commarize.
@@ -126,12 +122,12 @@ char *commarize(char *input)
 {
 	char *pos_w_commas;
 	static char output[MAX_STR_LEN];
-	char tmp[MAX_STR_LEN];
+	char *tmp;
 	int j;
 
 	assert(input != NULL);
 
-	strcpy(tmp, input);
+	asprintf(tmp, "%s", input);
 	if (strlen(tmp) > 6) {
 		asprintf(&pos_w_commas, "%s", tmp);
 		j = (int) strlen(pos_w_commas);
@@ -150,6 +146,7 @@ char *commarize(char *input)
 	}
 	strcpy(output, pos_w_commas);
 	paranoid_free(pos_w_commas);
+	paranoid_free(tmp);
 	return (output);
 }
 
@@ -168,17 +165,14 @@ char *disklist_entry_to_string(struct list_of_disks *disklist, int lino)
 {
 
 	/*@ buffers ********************************************************** */
-	static char output[MAX_STR_LEN];
+	char *output;
 
 	assert(disklist != NULL);
 
-	sprintf(output, "%-24s %8d", disklist->el[lino].device,
-			disklist->el[lino].index);
+	asprintf(&output, "%-24s %8d", disklist->el[lino].device,
+			 disklist->el[lino].index);
 	return (output);
 }
-
-
-
 
 
 /**
@@ -213,6 +207,7 @@ long friendly_sizestr_to_sizelong(char *incoming)
 	tmp[i] = '\0';
 	outval = atol(tmp);
 	paranoid_free(tmp);
+
 	if (ch == 'g' || ch == 'G') {
 		outval = outval * 1024;
 	} else if (ch == 'k' || ch == 'K') {
@@ -562,8 +557,6 @@ int special_dot_char(int i)
 }
 
 
-
-
 /**
  * Wrap @p flaws_str across three lines. The first two are no more than 74 characters wide.
  * @param flaws_str The original string to split.
@@ -613,7 +606,6 @@ spread_flaws_across_three_lines(char *flaws_str, char *flaws_str_A,
 		return (TRUE);
 	}
 }
-
 
 
 /**
@@ -850,8 +842,6 @@ char *turn_raid_level_number_to_string(int raid_level)
 
 	/*@ buffer ********************************************************** */
 	char *output;
-
-
 
 	if (raid_level >= 0) {
 		asprintf(&output, " RAID %-2d ", raid_level);

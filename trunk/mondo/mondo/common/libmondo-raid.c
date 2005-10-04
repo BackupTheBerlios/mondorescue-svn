@@ -1,5 +1,5 @@
-/* subroutines for handling RAID
-   $Id$
+/* $Id$
+   subroutines for handling RAID
 */
 
 /**
@@ -47,9 +47,12 @@ bool is_this_raid_personality_registered(int raidno)
 	int res;
 
 	if (raidno == -1) {
-		asprintf(&command, "cat /proc/mdstat | grep \"linear\" > /dev/null 2> /dev/null");
+		asprintf(&command,
+				 "cat /proc/mdstat | grep \"linear\" > /dev/null 2> /dev/null");
 	} else {
-		asprintf(&command, "cat /proc/mdstat | grep \"raid%d\" > /dev/null 2> /dev/null", raidno);
+		asprintf(&command,
+				 "cat /proc/mdstat | grep \"raid%d\" > /dev/null 2> /dev/null",
+				 raidno);
 	}
 	log_it("Is raid %d registered? Command = '%s'", raidno, command);
 	res = system(command);
@@ -61,6 +64,7 @@ bool is_this_raid_personality_registered(int raidno)
 	}
 #endif
 }
+
 
 /**
  * Search for @p device in @p disklist.
@@ -377,8 +381,9 @@ void save_raidrec_to_file(struct
  */
 int get_next_raidtab_line(FILE * fin, char *label, char *value)
 {
-	char *incoming;
+	char *incoming = NULL;
 	char *p;
+	size_t n = 0;
 
 	assert(fin != NULL);
 	assert(label != NULL);
@@ -389,9 +394,8 @@ int get_next_raidtab_line(FILE * fin, char *label, char *value)
 		return (1);
 	}
 
-	malloc_string(incoming);
-	for (fgets(incoming, MAX_STR_LEN - 1, fin); !feof(fin);
-		 fgets(incoming, MAX_STR_LEN - 1, fin)) {
+	for (getline(&incoming, &n, fin); !feof(fin);
+		 getline(&incoming, &n, fin)) {
 		strip_spaces(incoming);
 		p = strchr(incoming, ' ');
 		if (strlen(incoming) < 3 || incoming[0] == '#' || !p) {
@@ -554,26 +558,22 @@ int load_raidtab_into_raidlist(struct raidlist_itself *raidlist,
 	int items;
 	int v;
 
-	malloc_string(label);
-	malloc_string(value);
 	assert(raidlist != NULL);
 	assert_string_is_neither_NULL_nor_zerolength(fname);
 
 	if (length_of_file(fname) < 5) {
 		log_it("Raidtab is very small or non-existent. Ignoring it.");
 		raidlist->entries = 0;
-		paranoid_free(label);
-		paranoid_free(value);
 		return (0);
 	}
 	if (!(fin = fopen(fname, "r"))) {
 		log_it("Cannot open raidtab");
-		paranoid_free(label);
-		paranoid_free(value);
 		return (1);
 	}
 	items = 0;
 	log_it("Loading raidtab...");
+	malloc_string(label);
+	malloc_string(value);
 	get_next_raidtab_line(fin, label, value);
 	while (!feof(fin)) {
 		log_msg(1, "Looking for raid record #%d", items);
@@ -670,8 +670,8 @@ process_raidtab_line(FILE * fin,
 		}
 		if (!disklist) {
 			asprintf(&tmp,
-					"Ignoring '%s %s' pair of disk %s", labelB, valueB,
-					label);
+					 "Ignoring '%s %s' pair of disk %s", labelB, valueB,
+					 label);
 			log_it(tmp);
 			paranoid_free(tmp);
 		} else {
@@ -903,10 +903,11 @@ int read_mdstat(struct s_mdstat *mdstat, char *mdstat_file)
 	FILE *fin;
 	char *tmp;
 	char *stub;
-	char *incoming;
+	char *incoming = NULL;
 	char *raid_devname;
 	char *p, *q, *r;
 	int diskno;
+	size_t n = 0;
 
 	malloc_string(incoming);
 	if (!(fin = fopen(mdstat_file, "r"))) {
@@ -914,8 +915,8 @@ int read_mdstat(struct s_mdstat *mdstat, char *mdstat_file)
 		return (1);
 	}
 	mdstat->entries = 0;
-	for (fgets(incoming, MAX_STR_LEN - 1, fin); !feof(fin);
-		 fgets(incoming, MAX_STR_LEN - 1, fin)) {
+	for (getline(&incoming, &n, fin); !feof(fin);
+		 getline(&incoming, &n, fin)) {
 		p = incoming;
 		if (*p != 'm' && *(p + 1) == 'm') {
 			p++;
@@ -963,11 +964,14 @@ int read_mdstat(struct s_mdstat *mdstat, char *mdstat_file)
 			}
 			asprintf(&tmp, "/dev/%s", stub);
 			paranoid_free(stub);
+
 			log_msg(8, "/dev/md%d : disk#%d : %s (%d)",
 					mdstat->el[mdstat->entries].md, diskno, tmp,
 					mdstat->el[mdstat->entries].disks.el[diskno].index);
-			strcpy(mdstat->el[mdstat->entries].disks.el[diskno].device, tmp);
+			strcpy(mdstat->el[mdstat->entries].disks.el[diskno].device,
+				   tmp);
 			paranoid_free(tmp);
+
 			while (*p != ' ' && *p) {
 				p++;
 			}
@@ -978,13 +982,13 @@ int read_mdstat(struct s_mdstat *mdstat, char *mdstat_file)
 		mdstat->el[mdstat->entries].disks.entries = diskno;
 // next line --- skip it
 		if (!feof(fin)) {
-			fgets(incoming, MAX_STR_LEN - 1, fin);
+			getline(&incoming, &n, fin);
 		} else {
 			continue;
 		}
 // next line --- the 'progress' line
 		if (!feof(fin)) {
-			fgets(incoming, MAX_STR_LEN - 1, fin);
+			getline(&incoming, &n, fin);
 		} else {
 			continue;
 		}
@@ -1039,7 +1043,6 @@ int create_raidtab_from_mdstat(char *raidtab_fname, char *mdstat_fname)
 	retval += save_raidlist_to_raidtab(raidlist, raidtab_fname);
 	return (retval);
 }
-
 
 
 /* @} - end of raidGroup */

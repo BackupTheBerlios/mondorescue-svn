@@ -1,14 +1,8 @@
-/* X-specific.c
-
+/* $Id$
 
 - subroutines which do display-type things
   and use the Qt library to do them
 
-10/04
-- took out the newt-related subroutines
-
-09/12
-- created
 */
 
 
@@ -21,8 +15,6 @@
 #include "libmondo-fork-EXT.h"
 #include "libmondo-gui-EXT.h"
 #include "lib-common-externs.h"
-
-
 
 
 char err_log_lines[NOOF_ERR_LINES][MAX_STR_LEN],

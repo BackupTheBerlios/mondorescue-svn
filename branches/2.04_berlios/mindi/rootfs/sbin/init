@@ -628,7 +628,7 @@ else
 		LogIt "PXE boot found"
 		imgname="mondorescue"
 		if [ "`cat /proc/cmdline | grep -i prefix`" ] ; then
-			for i in "`cat /proc/cmdline`" do
+			for i in "`cat /proc/cmdline`" ; do
 				if [ "`echo $i | grep -i prefix`" ] ; then
 					imgname=`echo $i | cut -d'=' -f2`
 				fi

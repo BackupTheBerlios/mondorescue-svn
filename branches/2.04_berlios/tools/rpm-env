@@ -12,7 +12,7 @@ export DSTDIR=/home/groups/ftp/pub/mondorescue
 export FTPURL="ftp.berlios.de /incoming"
 
 # Should not be modified below
-export VER=trunk
+export VER=branches/2.04_berlios
 export pkg=""
 export opt=""
 export ARCH=`rpm --showrc | egrep "^build arch" | awk '{print $4}'`

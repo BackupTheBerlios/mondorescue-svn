@@ -1,3 +1,17 @@
+TODO:
+
+- add encryption option (so that the archives will be encrypted)
+- remove mktemp command
+- remove goto
+- remove strcat, strcpy, sprintf
+- manage all memory dynamically (remove MAX_STR_LEN,...)
+- find safe equivalent to fread
+
+
+
+
+Old version:
+
 MONDO TODO            Hugo Rabson <hugorabson@msn.com>              07/04/2004
 
 
@@ -20,157 +34,3 @@ Other ideas
 Documentation
 - thoroughly document each script & its function, in the source code
 - flowchart everything; save in PostScript & publish on web
-
-
-TASKS PROCESSED
-- write a TODO file :-)
-- write a CHANGES file
-- proper command-line switches
-- more switches/options
-- make switches and '--help' user-friendly
-- make it possible to burn CDs straight from script, if user wants to
-  (using the '--call-after-iso <call>' switch)
-- well, implement some, to start with :-) <-- command-line switches
-- make it possible to write to CDRW disks directly from script, 
-  prompting for disk change <-- using '--call-make-iso <call>' switch
-- clean up the scripts, esp. mondo-archive, its "MakeTarballsAndImages" 
-  routine and the main loop
-- release a stable copy w/no known bugs & declare v0.90 (it's about time)
-  ...well, one problem reported w/user's BASH but I'm working on that ;)
-- rewrite filelist splitter (parallelize it)
-	- MakeAllFilelists &
-	- while [ "`ps MakeAllFilelists`' is running ] || [ "filelist.N+1" exists ] ; do
-		WaitForFilelist N
-		MakeSet N
-	  done
-- directly support CDRs in kernel and scripts (?)
-	- to burn a CD after creating the ISO image, use
-        --call-after-iso "cdrecord ... ; eject /dev/cdrom" etc.
-	- I'm not sure if the kernel has all the necessary features compiled
-	  into it; I'm looking into it.
-- write a 'man' page <----- type 'mondo-archive --help'
-- verify ISO archives against filesystem, to make sure there's no corruption
-- verify ISO filelists against original filelist, to make sure all files were
-  backed up that should have been, and none were backed up that shouldn't
-- parallelized filelist-creation and -tarballing, to improve speed
-- added --verify option, to give LOTS more confidence in archives
-- mailing list? <----- now possible, thanks to SourceForge (underway)
-- write a proper README / quickstart file
-- better self-checking for prep-me
-- make kernel modular; include modules in tarball, to be put on CD
-- multi-volume backup/restore <-- works well! :-) [v0.916]
-- easier installation from tarball
-- faster code, esp. 'set-chopper'
-- proper '--help' thingy
-- better mondo-archive and mondo-restore progress reports
-- offer to restore MBRs for user
-- give user the option of _not_ wiping all hard drives
-- let user choose which files to restore (e.g. restore-me /mnt/dos)
-- finally, Mondo uses SYSLINUX instead of COMMAND.COM (thanks, Steve Pitts)
-- hack user's restored lilo.conf and fstab to reflect the mountlist, if the
-  user has modified it;
-- let user amend mountlist semi-automatically to reflect larger/smaller hard
-  drives than original (useful for moving files from one hard drive to another)
-  ...part of check-mountlist-sanity
-- mondo-restore ----- edit mountlist (using pico)
-- Mondo now uses afio instead of tar
-- mondo-archive now much more sensible when sending info between processes
-- make Mondo distro-independent
-- save&restore all boot sectors automatically (MBRs remaining optional)
-- release RPMs and tarballs at same time
-- mondo-restore --- verify disk copy after extracting from archive
-- chop large files into blocks; reassemble them at restore-time
-- MD5 checksum for every file, inc. chopped-up files
-- remove '[' from overhead-list; put list of required packages on web page
-- make sure user knows --skip-spacetest is AT OWN RISK
-- replace instances of 'cat | grep' with just plain 'grep'
-- concatenate all fileset lists; compare to original filelist.full
-- compare mode: nondestructive comparison of filesystem with Rescue CD
-- better verify-progress feedback [Verifying 5/107]
-- hdX2,3,4 layout now works OK at backup and restore time! W00H00! :-)
-- fix Win98 boot sector kludge problem
-- speed up mondo-checksum (thanks, Fabrice!)
-- to save some time & space, do not pad the ISO image
-- build and burn CDs with one command
-- support CDRW drives
-- support SCSI hard drives
-- write straight to CD-R by calling mondo-archive w/correct params
-- use optional 2nd floppy to support extras modules, inc. SCSI hard drives
-- only let Mondo run as root
-- recompile kernel + modules for i386
-- added ReiserFS support
-- amalgamated the Mondo RPMs/TGZs into a single ball
-- let user incorporate their own kernel and tools (thanks to Mindi!)
-- Linux 2.4 kernel support
-- add XFS support
-- add ext3 support
-- add JFS support
-- add ReiserFS support
-- give comprehensive restore-time feedback (not just '%done')
-- pipe mkisofs to cdrecord, saving a lot of disk space & some time
-- add Windows ME and Windows 2000 support (VFAT only)
-- make the SRPM recompile Mondo's C programs
-- RAID support
-- make it possible to use an NFS-mounted partition as scratch/iso dir
-- write a proper manual
-- add Red Hat LABEL support (/etc/fstab)
-- record '%age full' of each partition at backup-time
-- newt/ncurses interface would be cool
-- implement user-friendly mountlist editor
-- progress screen (mondo-tarme)
-- check that the partitions will fit on the hard drives
-- verify ISO after creating if (if user uses '--verify')
-- verify CD after burning if (if user uses '--verify')
-- support parallel-port CD writers
-- support tape drives
-- test with Red Hat 7.2
-- incremental/differential backup mode
-- add GRUB support
-- make it possible to backup and restore partitions of an unknown type
-- incorporate busybox-0.60-2
-- put data disks on tape, so that tape users only need 1 floppy + tape
-- text mode
-- add "NFS" boot option
-- drop trailing slashes from all params of --exclude-path
-- add Petris :)
-- Tab-format fstab after 'hacking' it
-- Interactive Mode should let the user choose which partitions to format
-- add an "exclude path?" dialog to Interactive Mode
-- re-enable CD verification
-- if creation/format fails, go back to mountlist editor
-- let user choose which partitions to format
-- port mondo-archive entirely to C
-- if -E /dev/xxx then exclude _device_ from mountlist but don't exclude
-  /dev file from filelist
-- rewrite the "is tape there?" test: if 'V' then RO test; if 'O' then RW test
-- allow mondorestore to be used to restore to live filesystems
-- add /proc/cpuinfo to logfile
-- enable Ctrl-C --> abort in mondoarchive and mindi
-- write a 'man' page
-- test w/multiple tapes
-- an easy-to-use interface to Mondo-archive which does a lot of the
-  fiddly configurating for you
-- if Compare Mode then popup list of /tmp/changed.files
-- only zero drive /dev/hdXn if /dev/hdX1 is being prepped
-- if differential backup then disable nuke at restore-time
-- write X-based front end to mondoarchive/mondorestore (XMondo)
-- added partimagehack to Mondo (freeloader - you know who you are - please
-  quit being a dick)
-- put serial# on each CD/tape
-- give Mondo+Mindi a CVS
-- add parted
-- Ian Mortimer's spec patches
-- encourage -X
-
-
-ABANDONED
-- detect size of CDR automatically (I don't know how)
-- allow user to choose archive engine besides tar (e.g. star, cpio)
-  ...tar sucked; star _really_ sucked; cpio, forget it; I chose afio in the end
-  because it was the only engine which I knew would work. I've used it for
-  years w/o any problems. Tar has been nothing but a headache.
-- split up mondo-archive's functionality into separate scripts, so that it will
-  be possible to backup files, do something else, then archive it, etc.etc. 
-  ...too much trouble; no incentive to do it; no-one asked me to :)
-- pseudocode
-  ...why bother? If bash scripts are too complicated for you, try COBOL...

@@ -127,7 +127,7 @@ char *commarize(char *input)
 
 	assert(input != NULL);
 
-	asprintf(tmp, "%s", input);
+	asprintf(&tmp, "%s", input);
 	if (strlen(tmp) > 6) {
 		asprintf(&pos_w_commas, "%s", tmp);
 		j = (int) strlen(pos_w_commas);
@@ -249,7 +249,7 @@ char *leftpad_string(char *incoming, int width)
 	assert(incoming != NULL);
 	assert(width > 2);
 
-	asprintf(output, "%s", incoming);
+	asprintf(&output, "%s", incoming);
 	for (i = (int) strlen(output); i < width; i++) {
 		output[i] = ' ';
 	}

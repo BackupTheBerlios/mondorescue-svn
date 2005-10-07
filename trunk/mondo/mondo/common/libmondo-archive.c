@@ -994,7 +994,7 @@ void *create_afio_files_in_background(void *inbuf)
 
 	asprintf(&archiving_filelist_fname, FILELIST_FNAME_RAW_SZ,
 			 bkpinfo->tmpdir, 0L);
-	archiving_set_no = 0;
+	archiving_set_no = 0L;
 	while (does_file_exist(archiving_filelist_fname)) {
 		paranoid_free(archiving_filelist_fname);
 		if (g_exiting) {
@@ -1980,7 +1980,7 @@ make_slices_and_images(struct s_bkpinfo *bkpinfo, char *biggielist_fname)
 	/*@ int ************************************************ */
 	int retval = 0;
 	int res = 0;
-	int n = 0;
+	size_t n = 0;
 	pid_t pid;
 	FILE *ftmp = NULL;
 	bool delete_when_done;
@@ -2014,8 +2014,8 @@ make_slices_and_images(struct s_bkpinfo *bkpinfo, char *biggielist_fname)
 		log_OS_error("Unable to openin biggielist");
 		return (1);
 	}
-	for (getline(&bigfile_fname, (size_t) & n, fin); !feof(fin);
-		 getline(&bigfile_fname, (size_t) & n, fin),
+	for (getline(&bigfile_fname, &n, fin); !feof(fin);
+		 getline(&bigfile_fname, &n, fin),
 		 biggie_file_number++) {
 		use_partimagehack = FALSE;
 		if (bigfile_fname[strlen(bigfile_fname) - 1] < 32) {
@@ -3045,7 +3045,7 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
 {
 
 	/*@ buffers ************************************************** */
-	char *tmp, *checksum_line, *command;
+	char *tmp, *checksum_line = NULL, *command;
 	char *tempblock;
 	char *curr_slice_fname_uncompressed;
 	char *curr_slice_fname_compressed;
@@ -3074,7 +3074,7 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
 	/*@ int ******************************************************** */
 	int retval = 0;
 	int res = 0;
-	int n = 0;
+	size_t n = 0;
 
 	/*@ structures ************************************************** */
 	struct s_filename_and_lstat_info biggiestruct;
@@ -3114,7 +3114,7 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
 			return (1);
 		}
 		paranoid_free(command);
-		(void) getline(&checksum_line, (size_t) & n, fin);
+		(void) getline(&checksum_line, &n, fin);
 		pclose(fin);
 	}
 	lstat(biggie_filename, &biggiestruct.properties);

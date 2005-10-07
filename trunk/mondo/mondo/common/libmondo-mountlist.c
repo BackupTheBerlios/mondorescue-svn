@@ -913,7 +913,7 @@ int load_mountlist(struct mountlist_itself *mountlist, char *fname)
 
 	int items;
 	int j;
-	int n = 0;
+	size_t n = 0;
 
 	assert(mountlist != NULL);
 	assert_string_is_neither_NULL_nor_zerolength(fname);

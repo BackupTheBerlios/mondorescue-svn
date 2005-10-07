@@ -402,7 +402,7 @@ int verify_a_tarball(struct s_bkpinfo *bkpinfo, char *tarball_fname)
 	/*@ pointers ******************************************************* */
 	FILE *pin;
 
-	int n = 0;
+	size_t n = 0;
 
 	/*@ long *********************************************************** */
 	long diffs = 0;
@@ -457,7 +457,7 @@ int verify_a_tarball(struct s_bkpinfo *bkpinfo, char *tarball_fname)
 		pin = popen(command, "r");
 		if (pin) {
 			for (getline(&tmp, &n, pin); !feof(pin);
-				 fgets(&tmp, &n, pin)) {
+				 getline(&tmp, &n, pin)) {
 				if (bkpinfo->use_star) {
 					if (!strstr(tmp, "diffopts=")) {
 						while (strlen(tmp) > 0

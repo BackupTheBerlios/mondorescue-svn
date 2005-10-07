@@ -27,13 +27,13 @@ else
 fi
 if [ "`echo $c | grep mindi`" != "" ]; then
 	cp -a ${TOPDIR}/SOURCES/mindi-${MINDI_VER}.tgz ${TOPDIR}/SOURCES/mindi-${MINDI_VER}-r${rev}.tgz
-	tgz="$tgz ${TOPDIR}/SOURCES/mindi-${MINDI_VER}-r${rev}.tgz"
+	tgz="$tgz ${TOPDIR}/SOURCES/mindi-${MINDI_VER}-r${rev}.tgz ${TOPDIR}/SOURCES/mindi-${MINDI_VER}-r${rev}.tar.bz2"
 	rpms="$rpms ${TOPDIR}/RPMS/${ARCH}/mindi-${MINDI_VER}-${rev}.${ARCH}.rpm"
 	srpms="$srpms ${TOPDIR}/SRPMS/mindi-${MINDI_VER}-${rev}.src.rpm"
 fi
 if [ "`echo $c | grep  mondo`" != "" ]; then
 	cp -a ${TOPDIR}/SOURCES/mondo-${MONDO_VER}.tgz ${TOPDIR}/SOURCES/mondo-${MONDO_VER}-r${rev}.tgz
-	tgz="$tgz ${TOPDIR}/SOURCES/mondo-${MONDO_VER}-r${rev}.tgz"
+	tgz="$tgz ${TOPDIR}/SOURCES/mondo-${MONDO_VER}-r${rev}.tgz ${TOPDIR}/SOURCES/mondo-${MONDO_VER}-r${rev}.tar.bz2"
 	rpms="$rpms ${TOPDIR}/RPMS/${ARCH}/mondo-${MONDO_VER}-${rev}.${ARCH}.rpm"
 	srpms="$srpms ${TOPDIR}/SRPMS/mondo-${MONDO_VER}-${rev}.src.rpm"
 fi

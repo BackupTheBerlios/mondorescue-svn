@@ -33,7 +33,8 @@ if [ "`echo $c | grep mindi`" != "" ]; then
 	rm -f mindi-${MINDI_VER}/parted2fdisk mindi-${MINDI_VER}/parted2fdisk.c mindi-${MINDI_VER}/rootfs/sbin/parted2fdisk-ia64 
 	mkdir -p ${TOPDIR}/SOURCES 
 	tar cvfhz ${TOPDIR}/SOURCES/mindi-${MINDI_VER}.tgz mindi-${MINDI_VER}
-	sed "s/^Release:..*/Release:	${rev}/" mindi-${MINDI_VER}/mindi.spec > ${TOPDIR}/SPECS/mindi.spec
+	tar cvfhj ${TOPDIR}/SOURCES/mindi-${MINDI_VER}.tar.bz2 mindi-${MINDI_VER}
+	sed "s/^%define mrel..*/%define mrel	${rev}/" mindi-${MINDI_VER}/mindi.spec > ${TOPDIR}/SPECS/mindi.spec
 	rm -f ${TMP}/mindi-*-root
 	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mindi-${MINDI_VER}-${rev}.${ARCH}.rpm"
 	# ATTENTION: This could be dangerous for your setup
@@ -52,7 +53,8 @@ if [ "`echo $c | grep  mondo`" != "" ]; then
 	find . -type f -name '*~' | xargs rm -rf
 	cd ..
 	tar cvfhz ${TOPDIR}/SOURCES/mondo-${MONDO_VER}.tgz mondo-${MONDO_VER}
-	sed "s/^Release:..*/Release:	${rev}/" mondo-${MONDO_VER}/mondo.spec > ${TOPDIR}/SPECS/mondo.spec
+	tar cvfhj ${TOPDIR}/SOURCES/mondo-${MONDO_VER}.tar.bz2 mondo-${MONDO_VER}
+	sed "s/^%define mrel..*/%define mrel	${rev}/" mondo-${MONDO_VER}/mondo.spec > ${TOPDIR}/SPECS/mondo.spec
 	rm -f ${TMP}/mondo-*-root
 	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mondo-${MONDO_VER}-${rev}.${ARCH}.rpm"
 fi

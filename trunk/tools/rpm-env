@@ -21,12 +21,12 @@ mkdir -p ${BASE}/RPMS
 export TMP=${BASE}/tmp
 mkdir -p ${TMP}
 if [ -f ${HOME}/.rpmmacros ]; then
-	export TOPDIR=`grep _topdir ${HOME}/.rpmmacros | awk '{print $2}'`
+	export TOPDIR=`egrep '^%_topdir' ${HOME}/.rpmmacros | awk '{print $2}'`
 else
 	export TOPDIR=${BASE}/RPMS
 fi
 cd ${TOPDIR}
 mkdir -p RPMS SRPMS SPECS SOURCES BUILD
 
-export MINDI_VER=`cat ${BASE}/svn/${VER}/mindi/mindi.spec | egrep '^Version:' | cut -d: -f2 | sed "s/[ 	]*//"`
-export MONDO_VER=`cat ${BASE}/svn/${VER}/mondo/mondo.spec | egrep '^Version:' | cut -d: -f2 | sed "s/[ 	]*//"`
+export MINDI_VER=`cat ${BASE}/svn/${VER}/mindi/mindi.spec | egrep '^%define version' | awk '{print $3}' | sed "s/[ 	]*//"`
+export MONDO_VER=`cat ${BASE}/svn/${VER}/mondo/mondo.spec | egrep '^%define version' | awk '{print $3}' | sed "s/[ 	]*//"`

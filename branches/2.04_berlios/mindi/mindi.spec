@@ -1,21 +1,46 @@
 #
 # $Id$
 #
-%define _prefix /usr
+%define is_mandriva %(test -e /etc/mandriva-release && echo 1 || echo 0)
+%define is_mandrake %(test -e /etc/mandrake-release && echo 1 || echo 0)
+%define is_suse %(test -e /etc/SuSE-release && echo 1 || echo 0)
+%define is_fedora %(test -e /etc/fedora-release && echo 1 || echo 0)
+%define is_redhat %(test -e /etc/redhat-release && echo 1 || echo 0)
+
+%define name	mindi
+%define version	1.04_berlios
+%define mrel	1
+
+%if %is_redhat
+%define release	%{mrel}
+%define	src		%{name}-%{version}.tgz
+Autoreq:	0
+%endif
+
+%if %is_mandrake
+%define release	%{mrel}mdk
+%define	src		%{name}-%{version}.tar.bz2
+Autoreqprov: no
+%endif
+
+%if %is_mandriva
+%define release	%{mrel}mdk
+%define	src		%{name}-%{version}.tar.bz2
+Autoreqprov: no
+%endif
+
 Summary:	Mindi creates emergency boot disks/CDs using your kernel, tools and modules
-Name:		mindi
-Version:	1.04_berlios
-Release:	1
+Name:		%name
+Version:	%version
+Release:	%release
 License:	GPL
 Group:		System/Kernel and hardware
-Url:		http://www.mondorescue.org
-Source:		%{name}-%{version}.tgz
+Url:		http://mondorescue.berlios.de
+Source:		%{src}
 BuildRoot:	%{_tmppath}/%{name}-%{version}
-Requires:	bzip2 >= 0.9, mkisofs, ncurses, binutils, gawk, dosfstools
+Requires:	bzip2 >= 0.9, mkisofs, ncurses, binutils, gawk, dosfstools,afio
 # Not on all systems
 #Conflicts:	bonnie++
-Prefix:		%{_prefix}
-Autoreq:	0
 
 %description
 Mindi takes your kernel, modules, tools and libraries, and puts them on N
@@ -24,23 +49,27 @@ and do system maintenance - e.g. format partitions, backup/restore data,
 verify packages, etc.
 
 %prep
-%setup 
+%{__rm}  -rf $RPM_BUILD_ROOT
+%setup -n %name-%{version}
 
 %build
 %ifarch ia64
-make -f Makefile.parted2fdisk clean
-make -f Makefile.parted2fdisk
+%{__make} -f Makefile.parted2fdisk clean
+%{__make} -f Makefile.parted2fdisk
 %endif
 
 %install
-%{__rm} -Rf /usr/local/share/mindi
+export DONT_RELINK=1
+
 %{__rm} -rf $RPM_BUILD_ROOT
 MINDIDIR=$RPM_BUILD_ROOT%{_datadir}/mindi
-%{__mkdir_p} $MINDIDIR $RPM_BUILD_ROOT%{_bindir} $RPM_BUILD_ROOT%{_sysconfdir}/mindi
+
+%{__mkdir_p} $MINDIDIR $RPM_BUILD_ROOT%{_bindir} $RPM_BUILD_ROOT%{_sysconfdir}/mindi $RPM_BUILD_ROOT%{_sbindir}
 %{__mv} deplist.txt $RPM_BUILD_ROOT%{_sysconfdir}/mindi/
 %{__cp} -af * $MINDIDIR
+
 %ifarch ia64
-	make -f Makefile.parted2fdisk DEST=${MINDIDIR}/ install
+	%{__make} -f Makefile.parted2fdisk DEST=${MINDIDIR}/ install
 	%{__mv} $MINDIDIR/rootfs/bin/busybox-ia64 $MINDIDIR/rootfs/bin/busybox
 	%{__mv} $MINDIDIR/rootfs/sbin/parted2fdisk-ia64 $MINDIDIR/rootfs/sbin/parted2fdisk
 %else
@@ -49,16 +78,22 @@ MINDIDIR=$RPM_BUILD_ROOT%{_datadir}/mindi
 	%{__ln_s} fdisk $MINDIDIR/rootfs/sbin/parted2fdisk
 %endif
 %{__rm} -f $MINDIDIR/rootfs/bin/busybox-ia64 $MINDIDIR/rootfs/sbin/parted2fdisk-ia64 $MINDIDIR/rootfs/bin/busybox-i386 $MINDIDIR/rootfs/bin/busybox-i386.net
+
 #
 # These are installed twice if not removed here
+#
 ( cd $MINDIDIR
 %{__rm} -f CHANGES INSTALL COPYING README TODO README.ia64 README.pxe
 )
-cd $RPM_BUILD_ROOT%{_bindir}
-%{__ln_s} -f %{_datadir}/mindi/mindi .
-%{__ln_s} -f %{_datadir}/mindi/parted2fdisk.pl .
-%{__ln_s} -f %{_datadir}/mindi/analyze-my-lvm .
-chmod +x $MINDIDIR/mindi
+
+# Symlinks
+
+cd $RPM_BUILD_ROOT%{_sbindir}
+%{__ln_s} -f ${_sbindir}/mindi/mindi .
+%{__ln_s} -f ${_sbindir}/mindi/analyze-my-lvm .
+%ifarch ia64
+%{__ln_s} -f ${_sbindir}/mindi/parted2fdisk.pl .
+%endif
 
 %clean
 %{__rm} -rf $RPM_BUILD_ROOT
@@ -75,19 +110,25 @@ chmod +x $MINDIDIR/mindi
 %endif
 
 %files
-%defattr(-,root,root,-)
+%defattr(644,root,root,755)
 %config(noreplace) %{_sysconfdir}/mindi/deplist.txt
 %doc CHANGES INSTALL COPYING README TODO README.ia64 README.pxe
-#%attr(755,root,root) %{_datadir}/mindi/mindi
-
+%attr(755,-,-) %{_sbindir}/mindi
+%attr(755,-,-) %{_sbindir}/analyze-my-lvm
 %{_datadir}/mindi
-%{_bindir}/analyze-my-lvm
-%{_bindir}/mindi
-%{_bindir}/parted2fdisk.pl
+%attr(755,-,-) %{_datadir}/mindi/analyze-my-lvm
+%attr(755,-,-) %{_datadir}/mindi/mindi
+%ifarch ia64
+%attr(755,-,-) %{_datadir}/mindi/parted2fdisk.pl
+%endif
+%attr(755,-,-) %{_datadir}/mindi/aux-tools/sbin/*
+%attr(755,-,-) %{_datadir}/mindi/rootfs/bin/*
+%attr(755,-,-) %{_datadir}/mindi/rootfs/sbin/*
 
 %changelog
 * Tue Sep 06 2005 Bruno Cornec <bcornec@users.berlios.de> 1.04_berlios
 - Merge of patches mentionned on mondo ML + ia64 updates
+- Fix bugs when called alone
 
 * Tue May 03 2005 Hugo Rabson <hugorabson@msn.com> 1.04_cvs_20050503
 - supports exec-shield

@@ -261,7 +261,6 @@ void
 
 		/*@ end vars **************************************************** */
 
-		tmp = malloc(MAX_NEWT_COMMENT_LEN);
 		set_signals(FALSE);		// link to external func
 		g_exiting = TRUE;
 		log_msg(1, "Fatal error received - '%s'", error_string);
@@ -269,7 +268,6 @@ void
 		if (getpid() == g_mastermind_pid) {
 			log_msg(2, "mastermind %d is exiting", (int) getpid());
 			kill(g_main_pid, SIGTERM);
-			paranoid_free(tmp);
 			finish(1);
 		}
 
@@ -277,7 +275,6 @@ void
 			if (g_mastermind_pid != 0 && getpid() != g_mastermind_pid) {
 				log_msg(2, "non-m/m %d is exiting", (int) getpid());
 				kill(g_main_pid, SIGTERM);
-				paranoid_free(tmp);
 				finish(1);
 			}
 		}
@@ -285,7 +282,6 @@ void
 		log_msg(3, "OK, I think I'm the main PID.");
 		if (already_exiting) {
 			log_msg(3, "...I'm already exiting. Give me time, Julian!");
-			paranoid_free(tmp);
 			finish(1);
 		}
 
@@ -296,13 +292,14 @@ void
 		kill_anything_like_this("tmp.mondo");
 		kill_anything_like_this("partimagehack");
 		sync();
-		sprintf(tmp, "umount %s", g_tmpfs_mountpt);
+		asprintf(&tmp, "umount %s", g_tmpfs_mountpt);
 		chdir("/");
 		for (i = 0; i < 10 && run_program_and_log_output(tmp, 5); i++) {
 			log_msg(2, "Waiting for child processes to terminate");
 			sleep(1);
 			run_program_and_log_output(tmp, 5);
 		}
+		paranoid_free(tmp);
 
 		if (g_erase_tmpdir_and_scratchdir[0]) {
 			run_program_and_log_output(g_erase_tmpdir_and_scratchdir, 5);
@@ -348,7 +345,6 @@ void
 		if (!g_main_pid) {
 			log_msg(3, "FYI - g_main_pid is blank");
 		}
-		paranoid_free(tmp);
 		finish(254);
 	}
 
@@ -418,21 +414,17 @@ void
 		/*@ int ************************************************************** */
 		int i = 0;
 
-		malloc_string(command);
-		malloc_string(tmp);
 		assert_string_is_neither_NULL_nor_zerolength(filename);
 		assert(grep_for_me != NULL);
 
 		if (!does_file_exist(filename)) {
-			paranoid_free(command);
-			paranoid_free(tmp);
 			return;
 		}
 		if (grep_for_me[0] != '\0') {
-			sprintf(command, "cat %s | grep \"%s\" | tail -n%d", filename,
+			asprintf(&command, "cat %s | grep \"%s\" | tail -n%d", filename,
 					grep_for_me, g_noof_log_lines);
 		} else {
-			sprintf(command, "cat %s | tail -n%d", filename,
+			asprintf(&command, "cat %s | tail -n%d", filename,
 					g_noof_log_lines);
 		}
 		fin = popen(command, "r");
@@ -446,8 +438,9 @@ void
 								 fin);
 					strip_spaces(err_log_lines[i]);
 					if (!strncmp(err_log_lines[i], "root:", 5)) {
-						strcpy(tmp, err_log_lines[i] + 6);
+						asprintf(&tmp, "%s", err_log_lines[i] + 6);
 						strcpy(err_log_lines[i], tmp);
+						paranoid_free(tmp);
 					}
 					if (feof(fin)) {
 						break;
@@ -458,7 +451,6 @@ void
 		}
 		refresh_log_screen();
 		paranoid_free(command);
-		paranoid_free(tmp);
 	}
 
 
@@ -478,12 +470,13 @@ void
 		/*@ buffers ********************************************************** */
 		char *output;
 
-		malloc_string(output);
 
 		va_start(args, fmt);
-		vsprintf(output, fmt, args);
+		vasprintf(&output, fmt, args);
 		log_msg(0, output);
-		output[80] = '\0';
+		if (strlen(output > 80)) {
+			output[80] = '\0';
+		}
 		va_end(args);
 		i = (int) strlen(output);
 		if (i > 0 && output[i - 1] < 32) {

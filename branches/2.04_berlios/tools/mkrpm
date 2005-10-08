@@ -16,13 +16,6 @@ fi
 . $TOOLHOME/rpm-env
 
 rev=`$TOOLHOME/mksvnversion`
-if [ -e /etc/mandriva-release ]; then
-		suf=mdk
-elif [ -e /etc/mandrake-release ]; then
-		suf=mdk
-else
-		suf=""
-fi
 
 if [ "$1" = "" ]; then
 	c="mindi mondo"

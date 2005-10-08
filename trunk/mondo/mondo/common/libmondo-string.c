@@ -121,7 +121,7 @@ inline void turn_wildcard_chars_into_literal_chars(char *sout, char *sin)
 char *commarize(char *input)
 {
 	char *pos_w_commas;
-	static char output[MAX_STR_LEN];
+	char *output;
 	char *tmp;
 	int j;
 
@@ -144,7 +144,7 @@ char *commarize(char *input)
 	} else {
 		asprintf(&pos_w_commas, "%s", tmp);
 	}
-	strcpy(output, pos_w_commas);
+	asprintf(&output, "%s", pos_w_commas);
 	paranoid_free(pos_w_commas);
 	paranoid_free(tmp);
 	return (output);

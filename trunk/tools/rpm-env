@@ -30,3 +30,11 @@ mkdir -p RPMS SRPMS SPECS SOURCES BUILD
 
 export MINDI_VER=`cat ${BASE}/svn/${VER}/mindi/mindi.spec | egrep '^%define version' | awk '{print $3}' | sed "s/[ 	]*//"`
 export MONDO_VER=`cat ${BASE}/svn/${VER}/mondo/mondo.spec | egrep '^%define version' | awk '{print $3}' | sed "s/[ 	]*//"`
+
+if [ -e /etc/mandriva-release ]; then
+		export suf=mdk
+elif [ -e /etc/mandrake-release ]; then
+		export suf=mdk
+else
+		export suf=""
+fi

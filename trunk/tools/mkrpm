@@ -36,7 +36,7 @@ if [ "`echo $c | grep mindi`" != "" ]; then
 	tar cvfhj ${TOPDIR}/SOURCES/mindi-${MINDI_VER}.tar.bz2 mindi-${MINDI_VER}
 	sed "s/^%define mrel..*/%define mrel	${rev}/" mindi-${MINDI_VER}/mindi.spec > ${TOPDIR}/SPECS/mindi.spec
 	rm -f ${TMP}/mindi-*-root
-	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mindi-${MINDI_VER}-${rev}.${ARCH}.rpm"
+	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mindi-${MINDI_VER}-${rev}${suf}.${ARCH}.rpm"
 	# ATTENTION: This could be dangerous for your setup
 	opt="rm -rf /usr/share/mindi ;"
 fi
@@ -56,7 +56,7 @@ if [ "`echo $c | grep  mondo`" != "" ]; then
 	tar cvfhj ${TOPDIR}/SOURCES/mondo-${MONDO_VER}.tar.bz2 mondo-${MONDO_VER}
 	sed "s/^%define mrel..*/%define mrel	${rev}/" mondo-${MONDO_VER}/mondo.spec > ${TOPDIR}/SPECS/mondo.spec
 	rm -f ${TMP}/mondo-*-root
-	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mondo-${MONDO_VER}-${rev}.${ARCH}.rpm"
+	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mondo-${MONDO_VER}-${rev}${suf}.${ARCH}.rpm"
 fi
 cd ${TOPDIR}/SPECS
 if [ "`echo $c | grep mindi`" != "" ]; then

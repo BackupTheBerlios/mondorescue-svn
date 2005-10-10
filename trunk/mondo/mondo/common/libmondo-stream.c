@@ -1635,10 +1635,9 @@ int write_file_to_stream_from_file(struct s_bkpinfo *bkpinfo, char *infile)
 			bytes_to_read = TAPE_BLOCK_SIZE;
 		}
 		(void) fread(datablock, 1, (size_t) bytes_to_read, fin);
-		g_tape_posK +=
-			fwrite(datablock, 1, /*bytes_to_read */ 
-				   (size_t) TAPE_BLOCK_SIZE,
-				   g_tape_stream) / 1024;
+		g_tape_posK += fwrite(datablock, 1,	/*bytes_to_read */
+							  (size_t) TAPE_BLOCK_SIZE,
+							  g_tape_stream) / 1024;
 		if (g_sigpipe) {
 			iamhere("Sigpipe occurred recently. I'll start a new tape.");
 			fclose(fin);

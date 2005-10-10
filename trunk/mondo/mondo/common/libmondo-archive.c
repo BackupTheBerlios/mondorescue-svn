@@ -2015,8 +2015,7 @@ make_slices_and_images(struct s_bkpinfo *bkpinfo, char *biggielist_fname)
 		return (1);
 	}
 	for (getline(&bigfile_fname, &n, fin); !feof(fin);
-		 getline(&bigfile_fname, &n, fin),
-		 biggie_file_number++) {
+		 getline(&bigfile_fname, &n, fin), biggie_file_number++) {
 		use_partimagehack = FALSE;
 		if (bigfile_fname[strlen(bigfile_fname) - 1] < 32) {
 			bigfile_fname[strlen(bigfile_fname) - 1] = '\0';

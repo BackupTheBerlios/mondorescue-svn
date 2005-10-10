@@ -206,9 +206,9 @@
 
 #if defined(DEBUG) && !__cplusplus
 int count;
-char trace_log[255];		/*buffer for logging */
+char trace_log[255];			/*buffer for logging */
 char *trace_log_ptr;
-#endif /* DEBUG */
+#endif							/* DEBUG */
 
 #define IA64_BOOT_SIZE "8192"	/* Should be coherent with mindi */
 
@@ -239,7 +239,8 @@ char *trace_log_ptr;
 
 #undef assert
 
-extern void _mondo_assert_fail (const char *file, const char *function, int line, const char *exp);
+extern void _mondo_assert_fail(const char *file, const char *function,
+							   int line, const char *exp);
 
 /**
  * An assert macro that calls _mondo_assert_fail() when it fails.
@@ -250,57 +251,57 @@ extern void _mondo_assert_fail (const char *file, const char *function, int line
 #define assert(exp) ((exp)?((void)0):_mondo_assert_fail(__FILE__, __FUNCTION__, __LINE__, #exp))
 #endif
 
-#define CRC_M16	0xA001		///< Mask for crc16.
-#define	CRC_MTT	0x1021		///< Mask for crc-ccitt.
+#define CRC_M16	0xA001			///< Mask for crc16.
+#define	CRC_MTT	0x1021			///< Mask for crc-ccitt.
 
-#define FALSE 0			///< The ubiquitous FALSE macro.
-#define TRUE 1			///< The even more ubiquitous TRUE macro.
+#define FALSE 0					///< The ubiquitous FALSE macro.
+#define TRUE 1					///< The even more ubiquitous TRUE macro.
 
-#define SCREEN_LENGTH 25	        ///< The default size of the screen.
-#define NOOF_ERR_LINES 6	        ///< The number of lines of log output to keep at the bottom of the screen.
+#define SCREEN_LENGTH 25		///< The default size of the screen.
+#define NOOF_ERR_LINES 6		///< The number of lines of log output to keep at the bottom of the screen.
 #define ARBITRARY_MAXIMUM 500	///< The maximum number of items showing at once in the mountlist or filelist editor.
-#define MAX_TAPECATALOG_ENTRIES 4096 ///< The maximum number of entries in the tape catalog.
-#define MAX_STR_LEN 380		///< The maximum length of almost all @p char buffers in Mondo.
+#define MAX_TAPECATALOG_ENTRIES 4096	///< The maximum number of entries in the tape catalog.
+#define MAX_STR_LEN 380			///< The maximum length of almost all @p char buffers in Mondo.
 #define MAXIMUM_RAID_DEVS 32	///< The maximum number of RAID devices in the raidlist.
-#define MAXIMUM_ADDITIONAL_RAID_VARS 32 ///< The maximum number of additional RAID variables per RAID device in the raidlist.
-#define MAXIMUM_DISKS_PER_RAID_DEV 32 ///< The maximum number of disks per RAID device in the raidtab.
+#define MAXIMUM_ADDITIONAL_RAID_VARS 32	///< The maximum number of additional RAID variables per RAID device in the raidlist.
+#define MAXIMUM_DISKS_PER_RAID_DEV 32	///< The maximum number of disks per RAID device in the raidtab.
 
-#define RAIDTAB_FNAME "/etc/raidtab" ///< The filename of the raidtab file, at least on Linux.
+#define RAIDTAB_FNAME "/etc/raidtab"	///< The filename of the raidtab file, at least on Linux.
 
-#define BLK_START_OF_BACKUP     1 ///< Marker block: start a backup.
-#define BLK_START_OF_TAPE       2 ///< Marker block: start a tape.
-#define BLK_START_AFIOBALLS	10 ///< Marker block: start the afioball section.
-#define BLK_STOP_AFIOBALLS	19 ///< Marker block: stop the afioball section.
-#define BLK_START_AN_AFIO_OR_SLICE    	20 ///< Marker block: start an afioball or a slice.
-#define BLK_STOP_AN_AFIO_OR_SLICE	29 ///< Marker block: stop an afioball or a slice.
-#define BLK_START_BIGGIEFILES	30 ///< Marker block: start the biggiefile section.
-#define BLK_STOP_BIGGIEFILES	39 ///< Marker block: stop the biggiefile section.
-#define BLK_START_A_NORMBIGGIE	40 ///< Marker block: start a normal biggiefile.
-#define BLK_START_A_PIHBIGGIE	41 ///< Marker block: start a partimagehack'd biggiefile
-#define BLK_START_EXTENDED_ATTRIBUTES 45 ///< Marker block: start xattr/acl info
-#define BLK_STOP_EXTENDED_ATTRIBUTES 46 ///< Marker block: stop xattr/acl info
+#define BLK_START_OF_BACKUP     1	///< Marker block: start a backup.
+#define BLK_START_OF_TAPE       2	///< Marker block: start a tape.
+#define BLK_START_AFIOBALLS	10	///< Marker block: start the afioball section.
+#define BLK_STOP_AFIOBALLS	19	///< Marker block: stop the afioball section.
+#define BLK_START_AN_AFIO_OR_SLICE    	20	///< Marker block: start an afioball or a slice.
+#define BLK_STOP_AN_AFIO_OR_SLICE	29	///< Marker block: stop an afioball or a slice.
+#define BLK_START_BIGGIEFILES	30	///< Marker block: start the biggiefile section.
+#define BLK_STOP_BIGGIEFILES	39	///< Marker block: stop the biggiefile section.
+#define BLK_START_A_NORMBIGGIE	40	///< Marker block: start a normal biggiefile.
+#define BLK_START_A_PIHBIGGIE	41	///< Marker block: start a partimagehack'd biggiefile
+#define BLK_START_EXTENDED_ATTRIBUTES 45	///< Marker block: start xattr/acl info
+#define BLK_STOP_EXTENDED_ATTRIBUTES 46	///< Marker block: stop xattr/acl info
 #define BLK_START_EXAT_FILE     47
 #define BLK_STOP_EXAT_FILE      48
-#define BLK_STOP_A_BIGGIE	59 ///< Marker block: stop a biggiefile.
-#define BLK_START_FILE          80 ///< Marker block: start a file (non-afio or slice).
-#define BLK_STOP_FILE           89 ///< Marker block: stop a file (non-afio or slice).
-#define BLK_END_OF_TAPE         100 ///< Marker block: end of tape.
-#define BLK_END_OF_BACKUP       101 ///< Marker block: end of backup.
-#define BLK_ABORTED_BACKUP      102 ///< Marker block: backup was aborted.
+#define BLK_STOP_A_BIGGIE	59	///< Marker block: stop a biggiefile.
+#define BLK_START_FILE          80	///< Marker block: start a file (non-afio or slice).
+#define BLK_STOP_FILE           89	///< Marker block: stop a file (non-afio or slice).
+#define BLK_END_OF_TAPE         100	///< Marker block: end of tape.
+#define BLK_END_OF_BACKUP       101	///< Marker block: end of backup.
+#define BLK_ABORTED_BACKUP      102	///< Marker block: backup was aborted.
 
 /// The external tape blocksize.
 #ifdef EXTTAPE
-  #define TAPE_BLOCK_SIZE (long)EXTTAPE
+#define TAPE_BLOCK_SIZE (long)EXTTAPE
 #else
-  #define TAPE_BLOCK_SIZE 131072L	/* was 8192; 06/2002-->65536; 11/2002-->131072 */
+#define TAPE_BLOCK_SIZE 131072L	/* was 8192; 06/2002-->65536; 11/2002-->131072 */
 #endif
 
-  #define DEFAULT_INTERNAL_TAPE_BLOCK_SIZE 32768 // Nov 2003?
+#define DEFAULT_INTERNAL_TAPE_BLOCK_SIZE 32768	// Nov 2003?
 
 
 
 
-#define SLICE_SIZE 4096		///< The size of a slice of a biggiefile.
+#define SLICE_SIZE 4096			///< The size of a slice of a biggiefile.
 
 
 
@@ -348,12 +349,12 @@ extern void _mondo_assert_fail (const char *file, const char *function, int line
 
 /**
  * @c growisofs command to generate a bootable DVD using LILO, except for the directory to image.
- */ // -b images/mindi-boot.2880.img
+	 */// -b images/mindi-boot.2880.img
 #define MONDO_GROWISOFS_REGULAR_ELILO     "growisofs -use-the-force-luke -no-emul-boot -b images/mindi-boot.2880.img -c boot.cat -J -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL -V _CD#_ -v"
 
 /**
  * @c growisofs command to generate a bootable DVD using LILO, except for the directory to image.
- */ // -b images/mindi-boot.2880.img
+	 */// -b images/mindi-boot.2880.img
 #define MONDO_GROWISOFS_REGULAR_LILO     "growisofs -no-emul-boot -b isolinux.bin -c boot.cat -J -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL -V _CD#_ -v"
 
 /**
@@ -459,23 +460,23 @@ extern void _mondo_assert_fail (const char *file, const char *function, int line
 /** @def MKE2FS_OR_NEWFS @c mke2fs or @c newfs, depending on the OS. */
 /** @def CP_BIN The GNU @c cp binary to use. */
 #ifdef __FreeBSD__
-  #define VANILLA_SCSI_CDROM	"/dev/cd0"
-  #define VANILLA_SCSI_TAPE	"/dev/sa0"
-  #define DONT_KNOW_HOW_TO_EVALUATE_THIS_DEVICE_TYPE	"/dev/vinum/"
-  #define RAID_DEVICE_STUB	DONT_KNOW_HOW_TO_EVALUATE_THIS_DEVICE_TYPE
-  #define SANE_FORMATS		"swap image msdosfs nfs ntfs raid lvm ffs ufs ext2fs"
-  #define ALT_TAPE		"/dev/ast0"
-  #define MKE2FS_OR_NEWFS	"newfs"
-  #define CP_BIN		"gcp"
+#define VANILLA_SCSI_CDROM	"/dev/cd0"
+#define VANILLA_SCSI_TAPE	"/dev/sa0"
+#define DONT_KNOW_HOW_TO_EVALUATE_THIS_DEVICE_TYPE	"/dev/vinum/"
+#define RAID_DEVICE_STUB	DONT_KNOW_HOW_TO_EVALUATE_THIS_DEVICE_TYPE
+#define SANE_FORMATS		"swap image msdosfs nfs ntfs raid lvm ffs ufs ext2fs"
+#define ALT_TAPE		"/dev/ast0"
+#define MKE2FS_OR_NEWFS	"newfs"
+#define CP_BIN		"gcp"
 #else
-  #define VANILLA_SCSI_CDROM	"/dev/scd0"
-  #define VANILLA_SCSI_TAPE	"/dev/st0"
-  #define DONT_KNOW_HOW_TO_EVALUATE_THIS_DEVICE_TYPE	"/dev/md"
-  #define RAID_DEVICE_STUB	DONT_KNOW_HOW_TO_EVALUATE_THIS_DEVICE_TYPE
-  #define SANE_FORMATS		"swap image vfat ext2 ext3 xfs vfs jfs reiserfs dos minix coda nfs ntfs hpfs raid lvm"
-  #define ALT_TAPE		"/dev/ht0"
-  #define MKE2FS_OR_NEWFS	"mke2fs"
-  #define CP_BIN		"cp"
+#define VANILLA_SCSI_CDROM	"/dev/scd0"
+#define VANILLA_SCSI_TAPE	"/dev/st0"
+#define DONT_KNOW_HOW_TO_EVALUATE_THIS_DEVICE_TYPE	"/dev/md"
+#define RAID_DEVICE_STUB	DONT_KNOW_HOW_TO_EVALUATE_THIS_DEVICE_TYPE
+#define SANE_FORMATS		"swap image vfat ext2 ext3 xfs vfs jfs reiserfs dos minix coda nfs ntfs hpfs raid lvm"
+#define ALT_TAPE		"/dev/ht0"
+#define MKE2FS_OR_NEWFS	"mke2fs"
+#define CP_BIN		"cp"
 #endif
 
 
@@ -495,10 +496,10 @@ extern void _mondo_assert_fail (const char *file, const char *function, int line
  * The first argument (%s) is the tempdir and the second (%d) is the filelist number.
  */
 #define AFIOBALL_FNAME_RAW_SZ (bkpinfo->use_star)?"%s/tmpfs/%ld.star.%s":"%s/tmpfs/%ld.afio.%s"
-#define ARCH_THREADS 2 ///< The number of simultaneous threads running afio in the background.
-#define ARCH_BUFFER_NUM (ARCH_THREADS*4) // Number of permissible queued afio files
-#define FORTY_SPACES "                                         " ///< 40 spaces.
-#define PPCFG_RAMDISK_SIZE 250 ///< Size of the tmpfs, in megabytes, to attempt to mount (to speed up Mondo).
+#define ARCH_THREADS 2			///< The number of simultaneous threads running afio in the background.
+#define ARCH_BUFFER_NUM (ARCH_THREADS*4)	// Number of permissible queued afio files
+#define FORTY_SPACES "                                         "	///< 40 spaces.
+#define PPCFG_RAMDISK_SIZE 250	///< Size of the tmpfs, in megabytes, to attempt to mount (to speed up Mondo).
 
 #define DO_MBR_PLEASE "/tmp/DO-MBR-PLEASE"
 
@@ -513,20 +514,20 @@ extern void _mondo_assert_fail (const char *file, const char *function, int line
  */
 #define log_msg(level, format, args...) log_debug_msg(level, __FILE__, __FUNCTION__, __LINE__, format, ## args)
 
-#define DEFAULT_DVD_DISK_SIZE 4380 ///< The default size (in MB) of a DVD disk, unless the user says otherwise.
+#define DEFAULT_DVD_DISK_SIZE 4380	///< The default size (in MB) of a DVD disk, unless the user says otherwise.
 
-#define DEFAULT_DEBUG_LEVEL 4 ///< By default, don't log messages with a loglevel higher than this.
+#define DEFAULT_DEBUG_LEVEL 4	///< By default, don't log messages with a loglevel higher than this.
 
-#define SZ_PARTIMAGE_VOLSIZE "1048576" // was 4096
+#define SZ_PARTIMAGE_VOLSIZE "1048576"	// was 4096
 #define PARTIMAGE_PARAMS "-z0 -V" SZ_PARTIMAGE_VOLSIZE " -o -b -d -g1"
 
 #define MNT_CDROM "/mnt/cdrom"
 #define MNT_FLOPPY "/mnt/floppy"
 
-#define FREELOADER // You're not a paying customer
+#define FREELOADER				// You're not a paying customer
 #define DEFAULT_MR_LOGLEVEL 4
 
 /* Required for the use of asprintf */
 #define _GNU_SOURCE
 
-#endif /* _MY_STUFF_H_ */
+#endif							/* _MY_STUFF_H_ */

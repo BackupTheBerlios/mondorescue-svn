@@ -1,5 +1,5 @@
 /* libmondo.h
- * $Id: libmondo.h,v 1.2 2004/06/10 15:29:12 hugo Exp $
+ * $Id$
  */
 
 
@@ -16,4 +16,3 @@
 #include "libmondo-tools-EXT.h"
 #include "libmondo-verify-EXT.h"
 #include "libmondo-fifo-EXT.h"
-

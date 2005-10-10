@@ -121,7 +121,7 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 			}
 			if (device_copies > 1) {
 				asprintf(&tmp, " %s %s's.", number_to_text(device_copies),
-						device);
+						 device);
 				if (!strstr(flaws_str, tmp)) {
 					log_it(tmp);
 					strcat(flaws_str, tmp);
@@ -183,7 +183,6 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 					" %s has both DD and PC-style partitions.", drive);
 			return ++res;		// fatal error
 		}
-
 		// BERLIOS : useless ? asprintf(&mountpoint, mountlist->el[pos].mountpoint);
 		if (pos > 0 && !npos) {
 			asprintf(&device, "%ss%d", drive, curr_part_no);
@@ -198,7 +197,7 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 				} else if (curr_part_no > 5
 						   || (curr_part_no <= 4 && prev_part_no > 0)) {
 					asprintf(&tmp, " Gap between %ss%d and %d.", drive,
-							prev_part_no, curr_part_no);
+							 prev_part_no, curr_part_no);
 					log_it(tmp);
 					strcat(flaws_str, tmp);
 					paranoid_free(tmp);
@@ -225,7 +224,7 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 			}
 			if (device_copies > 1) {
 				asprintf(&tmp, " %s %s's.", number_to_text(device_copies),
-						device);
+						 device);
 				if (!strstr(flaws_str, tmp)) {
 					log_it(tmp);
 					strcat(flaws_str, tmp);
@@ -267,7 +266,8 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 		} else {
 			/* Check subpartitions */
 			for (cur_sp_no = 'a'; cur_sp_no < 'z'; ++cur_sp_no) {
-				asprintf(&device, "%ss%d%c", drive, curr_part_no, cur_sp_no);
+				asprintf(&device, "%ss%d%c", drive, curr_part_no,
+						 cur_sp_no);
 				pos = find_device_in_mountlist(mountlist, device);
 				if (pos < 0) {
 					continue;
@@ -275,7 +275,8 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 				// BERLIOS : useless ? asprintf(&mountpoint, mountlist->el[pos].mountpoint);
 				/* is it too big? */
 				if (curr_part_no > 'h') {
-					asprintf(&tmp, " Can only have up to 'h' in disklabel.");
+					asprintf(&tmp,
+							 " Can only have up to 'h' in disklabel.");
 					log_it(tmp);
 					strcat(flaws_str, tmp);
 					paranoid_free(tmp);
@@ -290,7 +291,7 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 				}
 				if (device_copies > 1) {
 					asprintf(&tmp, " %s %s's.",
-							number_to_text(device_copies), device);
+							 number_to_text(device_copies), device);
 					if (!strstr(flaws_str, tmp)) {
 						log_it(tmp);
 						strcat(flaws_str, tmp);
@@ -344,16 +345,16 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 	if (amount_allocated > physical_drive_size)	// Used to be +1, but what if you're 1 MB too high?
 	{
 		asprintf(&tmp, " %ld MB over-allocated on %s.",
-				amount_allocated - physical_drive_size, drive);
+				 amount_allocated - physical_drive_size, drive);
 		log_it(tmp);
 		strcat(flaws_str, tmp);
 		paranoid_free(tmp);
 		res++;
 	} else if (amount_allocated < physical_drive_size - 1) {	/* NOT AN ERROR, JUST A WARNING :-) */
 		asprintf(&tmp, " %ld MB unallocated on %s.",
-				physical_drive_size - amount_allocated, drive);
+				 physical_drive_size - amount_allocated, drive);
 		log_it(tmp);
-	   	strcat(flaws_str, tmp);
+		strcat(flaws_str, tmp);
 		paranoid_free(tmp);
 	}
 	if (res) {
@@ -406,7 +407,7 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 		res++;
 		log_msg(1, tmp);
 		paranoid_free(tmp);
-		return(FALSE);
+		return (FALSE);
 	} else {
 		asprintf(&tmp, "%s is %ld MB", drive, physical_drive_size);
 		log_it(tmp);
@@ -438,7 +439,7 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 			} else if (curr_part_no > 5
 					   || (curr_part_no <= 4 && prev_part_no > 0)) {
 				asprintf(&tmp, " Gap between %s%d and %d.", drive,
-						prev_part_no, curr_part_no);
+						 prev_part_no, curr_part_no);
 				log_it(tmp);
 				strcat(flaws_str, tmp);
 				paranoid_free(tmp);
@@ -465,7 +466,7 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 		}
 		if (device_copies > 1) {
 			asprintf(&tmp, " %s %s's.", number_to_text(device_copies),
-					device);
+					 device);
 			if (!strstr(flaws_str, tmp)) {
 				log_it(tmp);
 				strcat(flaws_str, tmp);
@@ -511,14 +512,14 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 	/* Over-allocated the disk? Unallocated space on disk? */
 	if (amount_allocated > physical_drive_size + 1) {
 		asprintf(&tmp, " %ld MB over-allocated on %s.",
-				amount_allocated - physical_drive_size, drive);
+				 amount_allocated - physical_drive_size, drive);
 		log_it(tmp);
 		strcat(flaws_str, tmp);
 		paranoid_free(tmp);
 		res++;
 	} else if (amount_allocated < physical_drive_size - 1) {	/* NOT AN ERROR, JUST A WARNING :-) */
 		asprintf(&tmp, " %ld MB unallocated on %s.",
-				physical_drive_size - amount_allocated, drive);
+				 physical_drive_size - amount_allocated, drive);
 		log_it(tmp);
 		strcat(flaws_str, tmp);
 		paranoid_free(tmp);
@@ -577,7 +578,7 @@ evaluate_mountlist(struct mountlist_itself *mountlist, char *flaws_str_A,
 			(drivelist->el[i].device,
 			 DONT_KNOW_HOW_TO_EVALUATE_THIS_DEVICE_TYPE)) {
 			asprintf(&tmp, " Not evaluating %s (I don't know how yet)",
-					drivelist->el[i].device);
+					 drivelist->el[i].device);
 			log_it(tmp);
 		} else {
 			asprintf(&tmp, "");
@@ -667,7 +668,7 @@ look_for_duplicate_mountpoints(struct mountlist_itself *mountlist,
 		if (copies > 1 && last_copy == currline
 			&& strcmp(curr_mountpoint, "raid")) {
 			asprintf(&tmp, " %s %s's.", number_to_text(copies),
-					curr_mountpoint);
+					 curr_mountpoint);
 			strcat(flaws_str, tmp);
 			log_it(tmp);
 			paranoid_free(tmp);
@@ -706,7 +707,7 @@ look_for_weird_formats(struct mountlist_itself *mountlist, char *flaws_str)
 		if (!strstr(SANE_FORMATS, format_sz)
 			&& strcmp(mountlist->el[i].mountpoint, "image") != 0) {
 			asprintf(&tmp, " %s has unknown format.",
-					mountlist->el[i].device);
+					 mountlist->el[i].device);
 			log_it(tmp);
 			strcat(flaws_str, tmp);
 			paranoid_free(tmp);
@@ -759,8 +760,8 @@ make_list_of_drives_in_mountlist(struct mountlist_itself *mountlist,
 		asprintf(&drive, mountlist->el[lino].device);
 		if (!strncmp(drive, RAID_DEVICE_STUB, strlen(RAID_DEVICE_STUB))) {
 			asprintf(&tmp,
-					"Not putting %s in list of drives: it's a virtual drive",
-					drive);
+					 "Not putting %s in list of drives: it's a virtual drive",
+					 drive);
 			log_msg(8, tmp);
 			paranoid_free(tmp);
 			continue;
@@ -769,8 +770,8 @@ make_list_of_drives_in_mountlist(struct mountlist_itself *mountlist,
 		size = mountlist->el[lino].size;
 		if (size == 0) {
 			asprintf(&tmp,
-					"Not putting %s in list of drives: it has zero size (maybe an LVM volume)",
-					drive);
+					 "Not putting %s in list of drives: it has zero size (maybe an LVM volume)",
+					 drive);
 			log_msg(8, tmp);
 			paranoid_free(tmp);
 			continue;
@@ -788,8 +789,8 @@ make_list_of_drives_in_mountlist(struct mountlist_itself *mountlist,
 */
 
 		asprintf(&tmp,
-				"Putting %s with size %lli in list of drives",
-				drive, size);
+				 "Putting %s with size %lli in list of drives",
+				 drive, size);
 		log_msg(8, tmp);
 		paranoid_free(tmp);
 
@@ -819,10 +820,8 @@ make_list_of_drives_in_mountlist(struct mountlist_itself *mountlist,
  * @param raidlist The raidlist to examine.
  */
 void make_list_of_unallocated_raid_partitions(struct mountlist_itself
-											  *output_list,
-											  struct mountlist_itself
-											  *mountlist,
-											  struct raidlist_itself
+											  *output_list, struct mountlist_itself
+											  *mountlist, struct raidlist_itself
 											  *raidlist)
 {
 
@@ -852,8 +851,8 @@ void make_list_of_unallocated_raid_partitions(struct mountlist_itself
 					   (void *) &mountlist->el[i],
 					   sizeof(struct mountlist_line));
 				asprintf(&tmp,
-						"%s is available; user may choose to add it to raid device",
-						output_list->el[items - 1].device);
+						 "%s is available; user may choose to add it to raid device",
+						 output_list->el[items - 1].device);
 				log_it(tmp);
 				paranoid_free(tmp);
 			}
@@ -971,8 +970,8 @@ int load_mountlist(struct mountlist_itself *mountlist, char *fname)
 			if (j < items) {
 				strcat(mountlist->el[items].device, "_dup");
 				asprintf(&tmp,
-						"Duplicate entry in mountlist - renaming to %s",
-						mountlist->el[items].device);
+						 "Duplicate entry in mountlist - renaming to %s",
+						 mountlist->el[items].device);
 				log_it(tmp);
 				paranoid_free(tmp);
 			}
@@ -992,11 +991,12 @@ int load_mountlist(struct mountlist_itself *mountlist, char *fname)
 			paranoid_free(tmp);
 
 			asprintf(&tmp,
-					"%s %s %s %lld %s",
-					mountlist->el[items].device,
-					mountlist->el[items].mountpoint,
-					mountlist->el[items].format,
-					mountlist->el[items].size, mountlist->el[items].label);
+					 "%s %s %s %lld %s",
+					 mountlist->el[items].device,
+					 mountlist->el[items].mountpoint,
+					 mountlist->el[items].format,
+					 mountlist->el[items].size,
+					 mountlist->el[items].label);
 
 			log_it(tmp);
 			paranoid_free(tmp);

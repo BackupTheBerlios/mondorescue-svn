@@ -73,8 +73,8 @@ generate_list_of_changed_files(char *changedfiles_fname,
 
 	log_msg(1, "Now scanning log file for 'afio: ' stuff");
 	asprintf(&command,
-			"cat %s | grep \"afio: \" | sed 's/afio: //' | grep -vx \"/dev/.*\" >> %s",
-			stderr_fname, afio_found_changes);
+			 "cat %s | grep \"afio: \" | sed 's/afio: //' | grep -vx \"/dev/.*\" >> %s",
+			 stderr_fname, afio_found_changes);
 	log_msg(2, command);
 	res = system(command);
 	paranoid_free(command);
@@ -84,8 +84,8 @@ generate_list_of_changed_files(char *changedfiles_fname,
 
 	log_msg(1, "Now scanning log file for 'star: ' stuff");
 	asprintf(&command,
-			"cat %s | grep \"star: \" | sed 's/star: //' | grep -vx \"/dev/.*\" >> %s",
-			stderr_fname, afio_found_changes);
+			 "cat %s | grep \"star: \" | sed 's/star: //' | grep -vx \"/dev/.*\" >> %s",
+			 stderr_fname, afio_found_changes);
 	log_msg(2, command);
 	res = system(command);
 	paranoid_free(command);
@@ -95,9 +95,9 @@ generate_list_of_changed_files(char *changedfiles_fname,
 //  exclude_nonexistent_files (afio_found_changes);
 	afio_diffs = count_lines_in_file(afio_found_changes);
 	asprintf(&command,
-			"cat %s %s %s | sort | uniq -c | awk '{ if ($1==\"2\") {print $2;};}' | grep -v \"incheckentry xwait()\" > %s",
-			ignorefiles_fname, afio_found_changes, afio_found_changes,
-			changedfiles_fname);
+			 "cat %s %s %s | sort | uniq -c | awk '{ if ($1==\"2\") {print $2;};}' | grep -v \"incheckentry xwait()\" > %s",
+			 ignorefiles_fname, afio_found_changes, afio_found_changes,
+			 changedfiles_fname);
 	log_msg(2, command);
 	paranoid_system(command);
 	paranoid_free(command);
@@ -149,14 +149,14 @@ int verify_afioballs_on_CD(struct s_bkpinfo *bkpinfo, char *mountpoint)
 		} else {
 			retval++;
 			asprintf(&tmp, "Warning - missing set(s) between %d and %d\n",
-					g_last_afioball_number, set_number - 1);
+					 g_last_afioball_number, set_number - 1);
 			log_to_screen(tmp);
 			paranoid_free(tmp);
 		}
 	}
 	asprintf(&tmp, "Verifying %s #%d's tarballs",
-			media_descriptor_string(bkpinfo->backup_media_type),
-			g_current_media_number);
+			 media_descriptor_string(bkpinfo->backup_media_type),
+			 g_current_media_number);
 	open_evalcall_form(tmp);
 	paranoid_free(tmp);
 
@@ -176,7 +176,7 @@ int verify_afioballs_on_CD(struct s_bkpinfo *bkpinfo, char *mountpoint)
 		retval +=
 			verify_an_afioball_from_CD(bkpinfo,
 									   vfy_tball_fname(bkpinfo, mountpoint,
-									   set_number));
+													   set_number));
 	}
 	g_last_afioball_number = set_number - 1;
 	close_evalcall_form();
@@ -252,8 +252,8 @@ int verify_all_slices_on_CD(struct s_bkpinfo *bkpinfo, char *mtpt)
 
 	iamhere("before vsbf");
 	asprintf(&tmp, "Verifying %s#%d's big files",
-			media_descriptor_string(bkpinfo->backup_media_type),
-			g_current_media_number);
+			 media_descriptor_string(bkpinfo->backup_media_type),
+			 g_current_media_number);
 	open_evalcall_form(tmp);
 	paranoid_free(tmp);
 	iamhere("after vsbf");
@@ -292,7 +292,7 @@ int verify_all_slices_on_CD(struct s_bkpinfo *bkpinfo, char *mtpt)
 				paranoid_fclose(fin);
 			}
 			asprintf(&tmp, "%s/%s", bkpinfo->restore_path,
-					biggiestruct.filename);
+					 biggiestruct.filename);
 			log_msg(2, "Opening biggiefile #%ld - '%s'", bigfile_num, tmp);
 			if (!(forig = fopen(tmp, "r"))) {
 				log_msg(2, "Failed to open bigfile. Darn.");
@@ -313,13 +313,13 @@ int verify_all_slices_on_CD(struct s_bkpinfo *bkpinfo, char *mtpt)
 					g_current_media_number, bigfile_num, slice_num);
 			if (bkpinfo->compression_level > 0) {
 				asprintf(&command, "cat %s | %s -dc 2>> %s",
-						slice_fname(bigfile_num, slice_num, mountpoint,
-									bkpinfo->zip_suffix), sz_exe,
-						MONDO_LOGFILE);
+						 slice_fname(bigfile_num, slice_num, mountpoint,
+									 bkpinfo->zip_suffix), sz_exe,
+						 MONDO_LOGFILE);
 			} else {
 				asprintf(&command, "cat %s",
-						slice_fname(bigfile_num, slice_num, mountpoint,
-									bkpinfo->zip_suffix));
+						 slice_fname(bigfile_num, slice_num, mountpoint,
+									 bkpinfo->zip_suffix));
 			}
 			if ((pin = popen(command, "r"))) {
 				res = 0;
@@ -436,14 +436,14 @@ int verify_a_tarball(struct s_bkpinfo *bkpinfo, char *tarball_fname)
 		bkpinfo->use_star = TRUE;
 		if (strstr(tarball_fname, ".bz2"))
 			asprintf(&command,
-					"star -diff diffopts=mode,size,data file=%s %s >> %s 2>> %s",
-					tarball_fname,
-					(strstr(tarball_fname, ".bz2")) ? "-bz" : " ", outlog,
-					outlog);
+					 "star -diff diffopts=mode,size,data file=%s %s >> %s 2>> %s",
+					 tarball_fname,
+					 (strstr(tarball_fname, ".bz2")) ? "-bz" : " ", outlog,
+					 outlog);
 	} else {
 		bkpinfo->use_star = FALSE;
 		asprintf(&command, "afio -r -P %s -Z %s >> %s 2>> %s",
-				bkpinfo->zip_exe, tarball_fname, outlog, outlog);
+				 bkpinfo->zip_exe, tarball_fname, outlog, outlog);
 	}
 	log_msg(6, "command=%s", command);
 	paranoid_system(command);
@@ -453,7 +453,7 @@ int verify_a_tarball(struct s_bkpinfo *bkpinfo, char *tarball_fname)
 		asprintf(&command, "cat %s >> %s", outlog, MONDO_LOGFILE);
 	} else {
 		asprintf(&command, "cat %s | cut -d':' -f%d | sort | uniq", outlog,
-				(bkpinfo->use_star) ? 1 : 2);
+				 (bkpinfo->use_star) ? 1 : 2);
 		pin = popen(command, "r");
 		if (pin) {
 			for (getline(&tmp, &n, pin); !feof(pin);
@@ -568,16 +568,17 @@ verify_an_afioball_from_stream(struct s_bkpinfo *bkpinfo, char *orig_fname,
 
 	asprintf(&tarball_fname, "%s/tmpfs/temporary-%s", bkpinfo->tmpdir, p);
 	/* BERLIOS : useless
-	asprintf(&tmp, "Temporarily copying file from tape to '%s'",
-			tarball_fname);
-	log_it(tmp); 
-	paranoid_free(tmp);
-	*/
+	   asprintf(&tmp, "Temporarily copying file from tape to '%s'",
+	   tarball_fname);
+	   log_it(tmp); 
+	   paranoid_free(tmp);
+	 */
 	read_file_from_stream_to_file(bkpinfo, tarball_fname, size);
 	res = verify_a_tarball(bkpinfo, tarball_fname);
 	if (res) {
 		asprintf(&tmp,
-				"Afioball '%s' no longer matches your live filesystem", p);
+				 "Afioball '%s' no longer matches your live filesystem",
+				 p);
 		log_msg(0, tmp);
 		paranoid_free(tmp);
 		retval++;
@@ -631,21 +632,26 @@ verify_a_biggiefile_from_stream(struct s_bkpinfo *bkpinfo,
 	}
 	asprintf(&test_file, "%s/temporary-%s", bkpinfo->tmpdir, p);
 	/* BERLIOS: useless
-	asprintf(&tmp,
-			"Temporarily copying biggiefile %s's slices from tape to '%s'",
-			p, test_file);
-	log_it(tmp); 
-	paranoid_free(tmp);
-	*/
-	for (res = read_header_block_from_stream(&slice_siz, slice_fnam, &ctrl_chr);
+	   asprintf(&tmp,
+	   "Temporarily copying biggiefile %s's slices from tape to '%s'",
+	   p, test_file);
+	   log_it(tmp); 
+	   paranoid_free(tmp);
+	 */
+	for (res =
+		 read_header_block_from_stream(&slice_siz, slice_fnam, &ctrl_chr);
 		 ctrl_chr != BLK_STOP_A_BIGGIE;
-		 res = read_header_block_from_stream(&slice_siz, slice_fnam, &ctrl_chr)) {
+		 res =
+		 read_header_block_from_stream(&slice_siz, slice_fnam,
+									   &ctrl_chr)) {
 		if (ctrl_chr != BLK_START_AN_AFIO_OR_SLICE) {
 			wrong_marker(BLK_START_AN_AFIO_OR_SLICE, ctrl_chr);
 		}
 		res = read_file_from_stream_to_file(bkpinfo, test_file, slice_siz);
 		unlink(test_file);
-		res = read_header_block_from_stream(&slice_siz, slice_fnam, &ctrl_chr);
+		res =
+			read_header_block_from_stream(&slice_siz, slice_fnam,
+										  &ctrl_chr);
 		if (ctrl_chr != BLK_STOP_AN_AFIO_OR_SLICE) {
 			log_msg(2, "test_file = %s", test_file);
 			wrong_marker(BLK_STOP_AN_AFIO_OR_SLICE, ctrl_chr);
@@ -662,17 +668,17 @@ verify_a_biggiefile_from_stream(struct s_bkpinfo *bkpinfo,
 		asprintf(&orig_cksum, calc_checksum_of_file(biggie_fname));
 		if (strcmp(biggie_cksum, orig_cksum)) {
 			asprintf(&tmp, "orig cksum=%s; curr cksum=%s", biggie_cksum,
-					orig_cksum);
+					 orig_cksum);
 			log_msg(2, tmp);
 			paranoid_free(tmp);
 
 			asprintf(&tmp, "%s has changed on live filesystem",
-					biggie_fname);
+					 biggie_fname);
 			log_to_screen(tmp);
 			paranoid_free(tmp);
 
 			asprintf(&tmp, "echo \"%s\" >> /tmp/biggies.changed",
-					biggie_fname);
+					 biggie_fname);
 			system(tmp);
 			paranoid_free(tmp);
 		}
@@ -714,9 +720,9 @@ int verify_afioballs_from_stream(struct s_bkpinfo *bkpinfo)
 	malloc_string(fname);
 
 	asprintf(&curr_xattr_list_fname, XATTR_BIGGLST_FNAME_RAW_SZ,
-			bkpinfo->tmpdir);
+			 bkpinfo->tmpdir);
 	asprintf(&curr_acl_list_fname, ACL_BIGGLST_FNAME_RAW_SZ,
-			bkpinfo->tmpdir);
+			 bkpinfo->tmpdir);
 	log_to_screen("Verifying regular archives on tape");
 	total_afioballs = get_last_filelist_number(bkpinfo) + 1;
 	open_progress_form("Verifying filesystem",
@@ -744,9 +750,9 @@ int verify_afioballs_from_stream(struct s_bkpinfo *bkpinfo)
 		 ctrl_chr != BLK_STOP_AFIOBALLS;
 		 res = read_header_block_from_stream(&size, fname, &ctrl_chr)) {
 		asprintf(&curr_xattr_list_fname, XATTR_LIST_FNAME_RAW_SZ,
-				bkpinfo->tmpdir, current_afioball_number);
+				 bkpinfo->tmpdir, current_afioball_number);
 		asprintf(&curr_acl_list_fname, ACL_LIST_FNAME_RAW_SZ,
-				bkpinfo->tmpdir, current_afioball_number);
+				 bkpinfo->tmpdir, current_afioball_number);
 		if (ctrl_chr == BLK_START_EXTENDED_ATTRIBUTES) {
 			iamhere("Reading EXAT files from tape");
 			res =
@@ -768,7 +774,7 @@ int verify_afioballs_from_stream(struct s_bkpinfo *bkpinfo)
 		res = verify_an_afioball_from_stream(bkpinfo, fname, size);
 		if (res) {
 			asprintf(&tmp, "Afioball %ld differs from live filesystem",
-					current_afioball_number);
+					 current_afioball_number);
 			log_to_screen(tmp);
 			paranoid_free(tmp);
 		}
@@ -823,16 +829,16 @@ int verify_biggiefiles_from_stream(struct s_bkpinfo *bkpinfo)
 	malloc_string(orig_fname);
 
 	asprintf(&curr_xattr_list_fname, XATTR_BIGGLST_FNAME_RAW_SZ,
-			bkpinfo->tmpdir);
+			 bkpinfo->tmpdir);
 	asprintf(&curr_acl_list_fname, ACL_BIGGLST_FNAME_RAW_SZ,
-			bkpinfo->tmpdir);
+			 bkpinfo->tmpdir);
 	asprintf(&comment, "Verifying all bigfiles.");
 	log_to_screen(comment);
 	/*
-	asprintf(&tmp, "%s/biggielist.txt", bkpinfo->tmpdir);
-	noof_biggiefiles = count_lines_in_file (tmp); // pointless
-	paranoid_free(tmp);
-	*/
+	   asprintf(&tmp, "%s/biggielist.txt", bkpinfo->tmpdir);
+	   noof_biggiefiles = count_lines_in_file (tmp); // pointless
+	   paranoid_free(tmp);
+	 */
 	res = read_header_block_from_stream(&size, orig_fname, &ctrl_chr);
 	if (ctrl_chr != BLK_START_BIGGIEFILES) {
 		if (ctrl_chr == BLK_START_EXTENDED_ATTRIBUTES) {
@@ -871,12 +877,14 @@ int verify_biggiefiles_from_stream(struct s_bkpinfo *bkpinfo)
 			p++;
 		}
 		asprintf(&comment, "Verifying bigfile #%ld (%ld K)",
-				current_biggiefile_number, (long) size >> 10);
+				 current_biggiefile_number, (long) size >> 10);
 		update_progress_form(comment);
 		paranoid_free(comment);
 
-		asprintf(&logical_fname, "%s/%s", bkpinfo->restore_path, orig_fname);
-		res = verify_a_biggiefile_from_stream(bkpinfo, logical_fname, size);
+		asprintf(&logical_fname, "%s/%s", bkpinfo->restore_path,
+				 orig_fname);
+		res =
+			verify_a_biggiefile_from_stream(bkpinfo, logical_fname, size);
 		paranoid_free(logical_fname);
 		retval += res;
 		current_biggiefile_number++;
@@ -928,14 +936,14 @@ int verify_cd_image(struct s_bkpinfo *bkpinfo)
 
 	asprintf(&mountpoint, "%s/cdrom", bkpinfo->tmpdir);
 	asprintf(&fname, "%s/%s/%s-%d.iso", bkpinfo->isodir, bkpinfo->prefix,
-			bkpinfo->nfs_remote_dir, g_current_media_number);
+			 bkpinfo->nfs_remote_dir, g_current_media_number);
 
 	mkdir(mountpoint, 1777);
 	sync();
 	if (!does_file_exist(fname)) {
 		asprintf(&tmp,
-				"%s not found; assuming you backed up to CD; verifying CD...",
-				fname);
+				 "%s not found; assuming you backed up to CD; verifying CD...",
+				 fname);
 		log_msg(2, tmp);
 		paranoid_free(tmp);
 
@@ -956,7 +964,7 @@ int verify_cd_image(struct s_bkpinfo *bkpinfo)
 		mddevice = make_vn(fname);
 		if (ret) {
 			asprintf(&tmp, "make_vn of %s failed; unable to verify ISO\n",
-					fname);
+					 fname);
 			log_to_screen(tmp);
 			paranoid_free(tmp);
 			return (1);
@@ -964,11 +972,11 @@ int verify_cd_image(struct s_bkpinfo *bkpinfo)
 		asprintf(&command, "mount_cd9660 %s %s", mddevice, mountpoint);
 #else
 		asprintf(&command, "mount -o loop,ro -t iso9660 %s %s", fname,
-				mountpoint);
+				 mountpoint);
 #endif
 		if (run_program_and_log_output(command, FALSE)) {
 			asprintf(&tmp, "%s failed; unable to mount ISO image\n",
-					command);
+					 command);
 			log_to_screen(tmp);
 			paranoid_free(tmp);
 			return (1);
@@ -1007,7 +1015,8 @@ int verify_cd_image(struct s_bkpinfo *bkpinfo)
 	if (system(command))
 #endif
 	{
-		asprintf(&tmp, "%s failed; unable to unmount ISO image\n", command);
+		asprintf(&tmp, "%s failed; unable to unmount ISO image\n",
+				 command);
 		log_to_screen(tmp);
 		paranoid_free(tmp);
 		retval++;
@@ -1072,11 +1081,11 @@ int verify_tape_backups(struct s_bkpinfo *bkpinfo)
 	paranoid_system
 		("rm -f /tmp/biggies.changed /tmp/changed.files.[0-9]* 2> /dev/null");
 	asprintf(&changed_files_fname, "/tmp/changed.files.%d",
-			(int) (random() % 32767));
+			 (int) (random() % 32767));
 	asprintf(&tmp,
-			"cat %s | grep -x \"%s:.*\" | cut -d'\"' -f2 | sort -u | awk '{print \"/\"$0;};' | tr -s '/' '/' | grep -v \"(total of\" | grep -v \"incheckentry.*xwait\" | grep -vx \"/afio:.*\" | grep -vx \"dev/.*\"  > %s",
-			MONDO_LOGFILE, (bkpinfo->use_star) ? "star" : "afio",
-			changed_files_fname);
+			 "cat %s | grep -x \"%s:.*\" | cut -d'\"' -f2 | sort -u | awk '{print \"/\"$0;};' | tr -s '/' '/' | grep -v \"(total of\" | grep -v \"incheckentry.*xwait\" | grep -vx \"/afio:.*\" | grep -vx \"dev/.*\"  > %s",
+			 MONDO_LOGFILE, (bkpinfo->use_star) ? "star" : "afio",
+			 changed_files_fname);
 	log_msg(2, "Running command to derive list of changed files");
 	log_msg(2, tmp);
 	if (system(tmp)) {
@@ -1098,13 +1107,13 @@ int verify_tape_backups(struct s_bkpinfo *bkpinfo)
 	diffs = count_lines_in_file(changed_files_fname);
 	if (diffs > 0) {
 		asprintf(&tmp, "cp -f %s %s", changed_files_fname,
-				"/tmp/changed.files");
+				 "/tmp/changed.files");
 		run_program_and_log_output(tmp, FALSE);
 		paranoid_free(tmp);
 
 		asprintf(&tmp,
-				"%ld files differed from live filesystem; type less %s or less %s to see",
-				diffs, changed_files_fname, "/tmp/changed.files");
+				 "%ld files differed from live filesystem; type less %s or less %s to see",
+				 diffs, changed_files_fname, "/tmp/changed.files");
 		log_msg(0, tmp);
 		paranoid_free(tmp);
 
@@ -1137,11 +1146,11 @@ char *vfy_tball_fname(struct s_bkpinfo *bkpinfo, char *mountpoint,
 	assert(bkpinfo != NULL);
 	assert_string_is_neither_NULL_nor_zerolength(mountpoint);
 	asprintf(&output, "%s/archives/%d.star.%s", mountpoint, setno,
-			bkpinfo->zip_suffix);
+			 bkpinfo->zip_suffix);
 	if (!does_file_exist(output)) {
 		paranoid_free(output);
 		asprintf(&output, "%s/archives/%d.afio.%s", mountpoint, setno,
-				bkpinfo->zip_suffix);
+				 bkpinfo->zip_suffix);
 	}
 	return (output);
 }

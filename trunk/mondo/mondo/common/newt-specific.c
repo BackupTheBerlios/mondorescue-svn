@@ -111,14 +111,14 @@ extern "C" {
  * @param prompt The question to ask the user.
  * @return TRUE for yes; FALSE for no.
  */
-	 bool ask_me_yes_or_no(char *prompt) {
+	bool ask_me_yes_or_no(char *prompt) {
 
 		/*@ buffers ********************************************************** */
 		char *tmp = NULL;
 		int i;
 		size_t n = 0;
 
-		assert_string_is_neither_NULL_nor_zerolength(prompt);
+		 assert_string_is_neither_NULL_nor_zerolength(prompt);
 
 		if (g_text_mode) {
 			while (1) {
@@ -220,29 +220,29 @@ extern "C" {
 /**
  * Close the currently opened progress form.
  */
-void
- close_progress_form() {
-	if (g_text_mode) {
-		return;
+	void
+	 close_progress_form() {
+		if (g_text_mode) {
+			return;
+		}
+		if (g_current_progress == -999) {
+			log_msg(2,
+					"Trying to close the progress form when it ain't open!");
+			return;
+		}
+		g_current_progress = g_maximum_progress;
+		update_progress_form("Complete");
+		sleep(1);
+		if (g_text_mode) {
+			log_msg(2, "Closing progress form");
+			return;
+		}
+		newtPopHelpLine();
+		newtFormDestroy(g_progressForm);
+		newtPopWindow();
+		g_progressForm = NULL;
+		g_current_progress = -999;
 	}
-	if (g_current_progress == -999) {
-		log_msg(2,
-				"Trying to close the progress form when it ain't open!");
-		return;
-	}
-	g_current_progress = g_maximum_progress;
-	update_progress_form("Complete");
-	sleep(1);
-	if (g_text_mode) {
-		log_msg(2, "Closing progress form");
-		return;
-	}
-	newtPopHelpLine();
-	newtFormDestroy(g_progressForm);
-	newtPopWindow();
-	g_progressForm = NULL;
-	g_current_progress = -999;
-}
 
 
 /**
@@ -421,11 +421,11 @@ void
 			return;
 		}
 		if (grep_for_me[0] != '\0') {
-			asprintf(&command, "cat %s | grep \"%s\" | tail -n%d", filename,
-					grep_for_me, g_noof_log_lines);
+			asprintf(&command, "cat %s | grep \"%s\" | tail -n%d",
+					 filename, grep_for_me, g_noof_log_lines);
 		} else {
 			asprintf(&command, "cat %s | tail -n%d", filename,
-					g_noof_log_lines);
+					 g_noof_log_lines);
 		}
 		fin = popen(command, "r");
 		if (!fin) {
@@ -1201,7 +1201,8 @@ void
 			{ none, cdr, cdrw, dvd, tape, cdstream, udev, nfs, iso };
 		static char *possible_responses[] =
 			{ "none", "cdr", "cdrw", "dvd", "tape", "cdstream", "udev",
-"nfs", "iso", NULL };
+			"nfs", "iso", NULL
+		};
 		char *outstr;
 		t_bkptype backup_type;
 		int i;

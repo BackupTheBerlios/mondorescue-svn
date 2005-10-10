@@ -1858,7 +1858,7 @@ long save_filelist_entries_in_common(char *needles_list_fname,
 				retval++;
 			}
 		}
-	paranoid_free(fname);
+		paranoid_free(fname);
 	}
 	paranoid_fclose(fout);
 	paranoid_fclose(fin);

@@ -701,9 +701,9 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 					   hstrerror(h_errno));
 				retval++;
 			} else {
-				strcpy(ip_address, inet_ntoa
-					   ((struct in_addr)
-						*((struct in_addr *) hent->h_addr)));
+				strcpy(ip_address, inet_ntoa((struct in_addr)
+											 *((struct in_addr *) hent->
+											   h_addr)));
 				strcat(ip_address, strchr(bkpinfo->nfs_mount, ':'));
 				strcpy(bkpinfo->nfs_mount, ip_address);
 			}

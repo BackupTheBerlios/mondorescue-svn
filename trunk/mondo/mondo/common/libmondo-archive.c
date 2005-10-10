@@ -335,7 +335,7 @@ archive_this_fileset(struct s_bkpinfo *bkpinfo, char *filelist,
 			paranoid_free(zipparams)
 				zipparams = tmp1;
 		} else {
-			asprintf(&zipparams, "%s", "");
+			asprintf(&zipparams, "");
 			log_msg(3, "%s not found. Cannot exclude zipfiles, etc.", tmp);
 		}
 		paranoid_free(tmp)
@@ -994,7 +994,7 @@ void *create_afio_files_in_background(void *inbuf)
 
 	asprintf(&archiving_filelist_fname, FILELIST_FNAME_RAW_SZ,
 			 bkpinfo->tmpdir, 0L);
-	archiving_set_no = 0L;
+	archiving_set_no = 0;
 	while (does_file_exist(archiving_filelist_fname)) {
 		paranoid_free(archiving_filelist_fname);
 		if (g_exiting) {
@@ -1489,7 +1489,6 @@ int make_afioballs_and_images(struct s_bkpinfo *bkpinfo)
 			fatal_error("Unable to create an archival thread");
 		}
 	}
-	paranoid_free(transfer_block);
 
 	log_msg(8, "About to enter while() loop");
 	while (!done_storing) {
@@ -1597,6 +1596,7 @@ int make_afioballs_and_images(struct s_bkpinfo *bkpinfo)
 	}
 	log_to_screen(tmp);
 	paranoid_free(tmp);
+	paranoid_free(transfer_block);
 	paranoid_free(result_str);
 	return (retval);
 }

@@ -1,5 +1,5 @@
 /* libmondo-stream.h
- * $Id: libmondo-stream.h,v 1.2 2004/06/10 15:29:12 hugo Exp $
+ * $Id$
  */
 
 

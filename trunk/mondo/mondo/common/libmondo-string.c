@@ -121,7 +121,7 @@ inline void turn_wildcard_chars_into_literal_chars(char *sout, char *sin)
 char *commarize(char *input)
 {
 	char *pos_w_commas;
-	char *output;
+	static char output[MAX_STR_LEN];
 	char *tmp;
 	int j;
 
@@ -144,7 +144,7 @@ char *commarize(char *input)
 	} else {
 		asprintf(&pos_w_commas, "%s", tmp);
 	}
-	asprintf(&output, "%s", pos_w_commas);
+	strcpy(output, pos_w_commas);
 	paranoid_free(pos_w_commas);
 	paranoid_free(tmp);
 	return (output);
@@ -249,7 +249,7 @@ char *leftpad_string(char *incoming, int width)
 	assert(incoming != NULL);
 	assert(width > 2);
 
-	asprintf(&output, "%s", incoming);
+	asprintf(output, "%s", incoming);
 	for (i = (int) strlen(output); i < width; i++) {
 		output[i] = ' ';
 	}
@@ -706,6 +706,7 @@ void strip_spaces(char *in_out)
 {
 	/*@ buffers ***************************************************** */
 	char *tmp;
+	char *tmp1;
 
 	/*@ pointers **************************************************** */
 	char *p;
@@ -737,9 +738,9 @@ void strip_spaces(char *in_out)
 			} else if (in_out[i] == 9) {
 				in_out[i++] = ' ';
 			} else if (in_out[i] == '\r') {
-				paranoid_free(tmp);
-				asprintf(&tmp, "%s", in_out + i);
-				strcpy(in_out, tmp);
+				asprintf(&tmp1, "%s", in_out + i);
+				strcpy(in_out, tmp1);
+				paranoid_free(tmp1);
 				i = -1;
 				continue;
 			} else if (in_out[i] == '\t') {

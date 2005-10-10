@@ -4,7 +4,7 @@
     begin                : Fri Apr 19 2002
     copyright            : (C) 2002 by Stan Benoit
     email                : troff@nakedsoul.org
-    cvsid                : $Id: mondostructures.h,v 1.3 2004/06/17 08:49:06 hugo Exp $
+    cvsid                : $Id$
  ***************************************************************************/
 
 /***************************************************************************

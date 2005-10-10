@@ -474,7 +474,7 @@ void
 		va_start(args, fmt);
 		vasprintf(&output, fmt, args);
 		log_msg(0, output);
-		if (strlen(output > 80)) {
+		if (strlen(output) > 80) {
 			output[80] = '\0';
 		}
 		va_end(args);

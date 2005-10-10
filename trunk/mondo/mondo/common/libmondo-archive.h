@@ -1,5 +1,5 @@
 /* libmondo-archive.h
- * $Id: libmondo-archive.h,v 1.3 2004/06/17 08:49:06 hugo Exp $
+ * $Id$
  */
 
 int archive_this_fileset (struct s_bkpinfo *bkpinfo, char *filelist, char *fname, int setno);

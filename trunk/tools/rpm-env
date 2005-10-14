@@ -32,9 +32,29 @@ export MINDI_VER=`cat ${BASE}/svn/${VER}/mindi/mindi.spec | egrep '^%define vers
 export MONDO_VER=`cat ${BASE}/svn/${VER}/mondo/mondo.spec | egrep '^%define version' | awk '{print $3}' | sed "s/[ 	]*//"`
 
 if [ -e /etc/mandriva-release ]; then
-		export suf=mdk
+	export ddir="mandriva"
+	export dver=`cat /etc/mandriva-release | awk '{print $4}'`
+	export suf="${dver}mdk"
 elif [ -e /etc/mandrake-release ]; then
-		export suf=mdk
+	export ddir="mandrake"
+	export dver=`cat /etc/mandrake-release | awk '{print $3}'`
+	export suf="${dver}mdk"
+elif [ -e /etc/redhat-release ]; then
+	if [ `grep -q Enterprise /etc/redhat-release` ]; then
+		export ddir="rhel"
+		export dver=`cat /etc/redhat-release | awk '{print $7}'`
+	else
+		export ddir="redhat"
+		export dver=`cat /etc/redhat-release | awk '{print $5}'`
+	fi
+elif [ -e /etc/SuSE-release ]; then
+	export ddir="suse"
+	export dver=`cat /etc/SuSE-release | head -1 | awk '{print $3}'`
 else
-		export suf=""
+	export dver=""
+	export ddir="generic"
+fi
+
+if [ _"$suf" = _"" ]; then
+	export suf="${ddir}${dver}"
 fi

@@ -39,7 +39,8 @@ if [ "`echo $c | grep  mondo`" != "" ]; then
 	rpms="$rpms ${TOPDIR}/RPMS/${ARCH}/mondo-${MONDO_VER}-${rev}${suf}.${ARCH}.rpm"
 	srpms="$srpms ${TOPDIR}/SRPMS/mondo-${MONDO_VER}-${rev}${suf}.src.rpm"
 fi
-scp -p ${tgz} ${SVNAUTH}:${DSTDIR}/TGZ
-scp -p ${rpms} ${SVNAUTH}:${DSTDIR}/RPMS
-scp -p ${srpms} ${SVNAUTH}:${DSTDIR}/SRPMS
+scp -p ${tgz} ${SVNAUTH}:${DSTDIR}/src
+ssh ${SVNAUTH} "mkdir -p ${DSTDIR}/${ddir}/${dver}"
+scp -p ${rpms} ${SVNAUTH}:${DSTDIR}/${ddir}/${dver}
+scp -p ${srpms} ${SVNAUTH}:${DSTDIR}/${ddir}/${dver}
 ncftpput ${FTPURL} ${tgz}

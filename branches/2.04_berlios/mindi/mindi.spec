@@ -12,27 +12,27 @@
 %define mrel	1
 
 %if %is_redhat
-%define release	%{mrel}
 %define	src		%{name}-%{version}.tgz
+Group:			Applications/Archiving
 Autoreq:	0
 %endif
 
 %if %is_mandrake
-%define release	%{mrel}mdk
 %define	src		%{name}-%{version}.tar.bz2
+Group:			Archiving/Backup
 Autoreqprov: no
 %endif
 
 %if %is_mandriva
-%define release	%{mrel}mdk
 %define	src		%{name}-%{version}.tar.bz2
+Group:			Archiving/Backup
 Autoreqprov: no
 %endif
 
 Summary:	Mindi creates emergency boot disks/CDs using your kernel, tools and modules
 Name:		%name
 Version:	%version
-Release:	%release
+Release:	%mrel
 License:	GPL
 Group:		System/Kernel and hardware
 Url:		http://mondorescue.berlios.de

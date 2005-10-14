@@ -12,18 +12,23 @@
 %define mrel	1
 
 %if %is_redhat
-%define release	%{mrel}
 %define src		%{name}-%{version}.tgz
 Group:			Applications/Archiving
 Autoreq:		0
 %endif
 
 %if %is_mandrake
-%define release	%{mrel}mdk
 %define src		%{name}-%{version}.tar.bz2
 Group:			Archiving/Backup
 Autoreqprov:	no
 %endif
+
+%if %is_mandriva
+%define src		%{name}-%{version}.tar.bz2
+Group:			Archiving/Backup
+Autoreqprov:	no
+%endif
+
 
 Summary:	A program which a Linux user can utilize to create a rescue/restore CD/tape
 Summary(fr):	Un programme pour les utilisateurs de Linux pour cr�r un CD/tape de sauvegarde/restauration
@@ -37,7 +42,7 @@ Release:	1
 
 Name:		%{name}
 Version:	%{version}
-Release:	%{release}
+Release:	%{mrel}
 >>>>>>> .merge-right.r54
 License:	GPL
 Url:		http://mondorescue.berlios.de

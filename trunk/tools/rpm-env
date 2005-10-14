@@ -40,7 +40,8 @@ elif [ -e /etc/mandrake-release ]; then
 	export dver=`cat /etc/mandrake-release | awk '{print $3}'`
 	export suf="${dver}mdk"
 elif [ -e /etc/redhat-release ]; then
-	if [ `grep -q Enterprise /etc/redhat-release` ]; then
+	grep -q Enterprise /etc/redhat-release
+	if [ $? -eq 0 ]; then
 		export ddir="rhel"
 		export dver=`cat /etc/redhat-release | awk '{print $7}'`
 	else

@@ -925,7 +925,7 @@ int call_mindi_to_supply_boot_disks(struct s_bkpinfo *bkpinfo)
 		asprintf(&tmp, call_program_and_get_last_line_of_output(command));
 		paranoid_free(command);
 		if (strlen(tmp) > 1) {
-			log_to_screen(tmp);
+			popup_and_OK(tmp);
 		}
 		paranoid_free(tmp);
 	}

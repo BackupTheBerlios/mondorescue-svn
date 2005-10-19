@@ -38,7 +38,7 @@ Group:		System/Kernel and hardware
 Url:		http://mondorescue.berlios.de
 Source:		%{src}
 BuildRoot:	%{_tmppath}/%{name}-%{version}
-Requires:	bzip2 >= 0.9, mkisofs, ncurses, binutils, gawk, dosfstools,afio
+Requires:	bzip2 >= 0.9, mkisofs, ncurses, binutils, gawk, dosfstools, afio, which
 # Not on all systems
 #Conflicts:	bonnie++
 

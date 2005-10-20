@@ -2260,18 +2260,14 @@ ProcessLDD() {
     main_fname=$1
     read incoming
     while [ "$incoming" != "" ] ; do
-	incoming=`echo "$incoming" | tr -s ' ' '\t'`
-	i=`echo "$incoming" | cut -f2`
-	if [ "$i" = "=>" ] ; then
-# was cut -f1,3
-	    for fname in `echo "$incoming" | cut -f1,3` ; do
-		fname=`LocateFile $fname`
-		for f in $fname ; do
-		    [ -e "$f" ] && echo $f
-		done
-	    done
-	fi
-	read incoming
+        incoming=`echo "$incoming" | sed '/[[:blank:]]*.*[[:blank:]]*=>[[:blank:]]*(.*/d ; s/[[:blank:]]*\(.*\)[[:blank:]]*=>[[:blank:]]*\/.*/\1/ ; s/[[:blank:]]*\(\/.*\)[[:blank:]]*(.*/\1/'`
+        for fname in `echo "$incoming"` ; do
+            fname=`LocateFile $fname`
+            for f in $fname ; do
+                [ -e "$f" ] && echo $f
+            done
+        done
+        read incoming
     done
 }
 

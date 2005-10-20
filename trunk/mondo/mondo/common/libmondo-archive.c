@@ -1216,8 +1216,8 @@ hexdump | tr -s ' ' '0' | head -n1"));
 	}
 	paranoid_free(data_disks_file);
 
-	asprintf(&command, "rm -f %s/%s-[1-9]*.iso", bkpinfo->prefix,
-			 bkpinfo->isodir);
+	asprintf(&command, "rm -f %s/%s/%s-[1-9]*.iso", bkpinfo->isodir,
+		         bkpinfo->nfs_remote_dir, bkpinfo->prefix);
 	paranoid_system(command);
 	paranoid_free(command);
 	wipe_archives(bkpinfo->scratchdir);

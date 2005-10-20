@@ -94,6 +94,7 @@ extern "C" {
 	 g_xmondo_stdout[MAX_NEWT_COMMENT_LEN];	///< .... @bug Unneeded w/current XMondo.
 	bool g_called_by_xmondo = FALSE;	///< @bug Unneeded w/current XMondo.
 	char *g_erase_tmpdir_and_scratchdir;	///< The command to run to erase the tmpdir and scratchdir at the end of Mondo.
+char *g_selfmounted_isodir; ///< Holds the NFS mountpoint if mounted via mondoarchive.
 
 /* @} - end of globalGroup */
 
@@ -256,11 +257,13 @@ extern "C" {
 		char fatalstr[MAX_NEWT_COMMENT_LEN] =
 			"-------FATAL ERROR---------";
 		char *tmp;
+		char *command;
 		static bool already_exiting = FALSE;
 		int i;
 
 		/*@ end vars **************************************************** */
 
+		malloc_string(command);
 		set_signals(FALSE);		// link to external func
 		g_exiting = TRUE;
 		log_msg(1, "Fatal error received - '%s'", error_string);
@@ -303,6 +306,13 @@ extern "C" {
 
 		if (g_erase_tmpdir_and_scratchdir[0]) {
 			run_program_and_log_output(g_erase_tmpdir_and_scratchdir, 5);
+		}
+
+		if (g_selfmounted_isodir) {
+		  asprintf(&command, "umount %s", g_selfmounted_isodir);
+		  run_program_and_log_output(command, 5);
+		  asprintf(&command, "rmdir %s", g_selfmounted_isodir);
+		  run_program_and_log_output(command, 5);
 		}
 
 		if (!g_text_mode) {
@@ -358,8 +368,10 @@ extern "C" {
  */
 	void
 	 finish(int signal) {
-
-		/*  if (signal==0) { popup_and_OK("Please press <enter> to quit."); } */
+	        char *command;
+	        malloc_string(command);
+		
+	        /*  if (signal==0) { popup_and_OK("Please press <enter> to quit."); } */
 
 		/* newtPopHelpLine(); */
 
@@ -370,6 +382,12 @@ extern "C" {
 								   FALSE);
 		if (g_erase_tmpdir_and_scratchdir) {
 			run_program_and_log_output(g_erase_tmpdir_and_scratchdir, 1);
+		}
+		if (g_selfmounted_isodir) {
+		  asprintf(&command, "umount %s", g_selfmounted_isodir);
+		  run_program_and_log_output(command, 1);
+		  asprintf(&command, "rmdir %s", g_selfmounted_isodir);
+		  run_program_and_log_output(command, 1);
 		}
 //  iamhere("foo");
 		/* system("clear"); */

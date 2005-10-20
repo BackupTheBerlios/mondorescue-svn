@@ -711,6 +711,7 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 				strcpy(bkpinfo->nfs_mount, ip_address);
 			}
 		}
+		store_nfs_config (bkpinfo);
 	}
 
 	log_it("Finished processing incoming params");

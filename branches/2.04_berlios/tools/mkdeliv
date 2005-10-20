@@ -39,8 +39,11 @@ if [ "`echo $c | grep  mondo`" != "" ]; then
 	rpms="$rpms ${TOPDIR}/RPMS/${ARCH}/mondo-${MONDO_VER}-${rev}.${suf}.${ARCH}.rpm"
 	srpms="$srpms ${TOPDIR}/SRPMS/mondo-${MONDO_VER}-${rev}.${suf}.src.rpm"
 fi
+echo "Sources delivery to ${SVNAUTH}:${DSTDIR}/src"
 scp -p ${tgz} ${SVNAUTH}:${DSTDIR}/src
 ssh ${SVNAUTH} "mkdir -p ${DSTDIR}/${ddir}/${dver}"
+echo "Packages delivery to {SVNAUTH}:${DSTDIR}/${ddir}/${dver}"
 scp -p ${rpms} ${SVNAUTH}:${DSTDIR}/${ddir}/${dver}
 scp -p ${srpms} ${SVNAUTH}:${DSTDIR}/${ddir}/${dver}
+echo "Sources delivery to {FTPURL}"
 ncftpput ${FTPURL} ${tgz}

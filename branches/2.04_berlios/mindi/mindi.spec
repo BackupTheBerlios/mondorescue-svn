@@ -89,10 +89,10 @@ MINDIDIR=$RPM_BUILD_ROOT%{_datadir}/mindi
 # Symlinks
 
 cd $RPM_BUILD_ROOT%{_sbindir}
-%{__ln_s} -f ${_sbindir}/mindi/mindi .
-%{__ln_s} -f ${_sbindir}/mindi/analyze-my-lvm .
+%{__ln_s} -f ${_datadir}/mindi/mindi .
+%{__ln_s} -f ${_datadir}/mindi/analyze-my-lvm .
 %ifarch ia64
-%{__ln_s} -f ${_sbindir}/mindi/parted2fdisk.pl .
+%{__ln_s} -f ${_datadir}/mindi/parted2fdisk.pl .
 %endif
 
 %clean

@@ -128,11 +128,11 @@ con cintas y NFS, tambien.
 %{_mandir}/*
 %{_libdir}/*
 
-%{!?_without_xmondo:%files xmondo}
-%{!?_without_xmondo:%{_sbindir}/xmondo}
-%{!?_without_xmondo:%{_libdir}/libXmondo-%{libversion}.so}
-%{!?_without_xmondo:%{_libdir}/libXmondo.so}
-%{!?_without_xmondo:%{_datadir}/mondo/mondo.png}
+#%{!?_without_xmondo:%files xmondo}
+#%{!?_without_xmondo:%{_sbindir}/xmondo}
+#%{!?_without_xmondo:%{_libdir}/libXmondo-%{libversion}.so}
+#%{!?_without_xmondo:%{_libdir}/libXmondo.so}
+#%{!?_without_xmondo:%{_datadir}/mondo/mondo.png}
 
 %changelog
 * Tue Sep 06 2005 Bruno Cornec <bcornec@users.berlios.de> 2.04_berlios

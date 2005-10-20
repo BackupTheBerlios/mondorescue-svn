@@ -7,7 +7,7 @@ copyright : (C) 2002 Mondo  Hugo Rabson
 email     : Hugo Rabson <hugorabson@msn.com>
 edited by : by Stan Benoit 4/2002
 email     : troff@nakedsoul.org
-cvsid     : $Id: mondo-prep.c,v 1.14 2004/06/21 20:20:36 hugo Exp $
+cvsid     : $Id$
 ***************************************************************************/
 
 /***************************************************************************
@@ -180,7 +180,7 @@ cvsid     : $Id: mondo-prep.c,v 1.14 2004/06/21 20:20:36 hugo Exp $
 #define ARCHIVES_PATH MNT_CDROM"/archives"
 #define MONDO_WAS_HERE "MONDOWOZEREMONDOWOZEREMONDOWOZEREhahahaMOJOJOJO"
 
-//static char cvsid[] = "$Id: mondo-prep.c,v 1.14 2004/06/21 20:20:36 hugo Exp $";
+//static char cvsid[] = "$Id$";
 
 extern char *g_mountlist_fname;
 extern long g_current_progress, g_maximum_progress;
@@ -1540,6 +1540,7 @@ int partition_drive(struct mountlist_itself *mountlist, char *drivename)
 		}
 #endif
 
+#ifndef __IA64__
 		if (current_devno == 5 && previous_devno == 4) {
 			log_to_screen("You must leave at least one partition spare as the Extended partition.");
 			paranoid_free(device_str);
@@ -1547,6 +1548,7 @@ int partition_drive(struct mountlist_itself *mountlist, char *drivename)
 			paranoid_free(tmp);
 			return (1);
 		}
+#endif
 
 		retval += partition_device(pout_to_fdisk, drivename, current_devno, previous_devno, format, partsize);
 

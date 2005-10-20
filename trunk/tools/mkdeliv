@@ -42,7 +42,7 @@ fi
 echo "Sources delivery to ${SVNAUTH}:${DSTDIR}/src"
 scp -p ${tgz} ${SVNAUTH}:${DSTDIR}/src
 ssh ${SVNAUTH} "mkdir -p ${DSTDIR}/${ddir}/${dver}"
-echo "Packages delivery to {SVNAUTH}:${DSTDIR}/${ddir}/${dver}"
+echo "Packages delivery to ${SVNAUTH}:${DSTDIR}/${ddir}/${dver}"
 scp -p ${rpms} ${SVNAUTH}:${DSTDIR}/${ddir}/${dver}
 scp -p ${srpms} ${SVNAUTH}:${DSTDIR}/${ddir}/${dver}
 echo "Sources delivery to {FTPURL}"

@@ -833,7 +833,13 @@ int format_device(char *device, char *format)
 #ifdef __FreeBSD__
 		sprintf(program, "newfs_msdos -F 32 %s", device);
 #else
+#ifdef __IA64__
+		/* For EFI partitions take fat16 
+		 * as we want to make small ones */
+		sprintf(program, "mkfs -t %s -F 16 %s", format, device);
+#else
 		sprintf(program, "mkfs -t %s -F 32 %s", format, device);
+#endif
 #endif
 		res = run_program_and_log_output(program, FALSE);
 		if (g_fprep) { fprintf(g_fprep, "%s\n", program); }

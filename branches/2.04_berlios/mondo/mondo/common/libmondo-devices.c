@@ -1,5 +1,5 @@
 /* libmondo-devices.c                 Subroutines for handling devices
-   $Id: libmondo-devices.c,v 1.26 2004/06/21 20:20:36 hugo Exp $
+   $Id$
 .
 
 
@@ -251,7 +251,7 @@
 #endif
 
 /*@unused@*/
-//static char cvsid[] = "$Id: libmondo-devices.c,v 1.26 2004/06/21 20:20:36 hugo Exp $";
+//static char cvsid[] = "$Id$";
 
 extern int g_current_media_number;
 extern double g_kernel_version;
@@ -2668,11 +2668,24 @@ char *which_partition_format(const char *drive)
   static char output[4];
   char *tmp;
   char *command;
+  char *fdisk;
+  struct stat buf;
     
   malloc_string(tmp);
   malloc_string(command);
+  malloc_string(fdisk);
   log_msg(0, "Looking for partition table format type");
-  sprintf(command, "fdisk -l %s | grep 'EFI GPT'", drive);
+// BERLIOS: Do that temporarily: we need to put back parted2fdisk everywhere
+#ifdef __IA64__
+  sprintf(fdisk, "/usr/local/bin/fdisk");
+  if (stat(fdisk, &buf) != 0) {
+#endif
+	  sprintf(fdisk, "/sbin/fdisk");
+#ifdef __IA64__
+  }
+#endif
+  log_msg(1, "Using %s",fdisk);
+  sprintf(command, "%s -l %s | grep 'EFI GPT'", fdisk, drive);
   strcpy(tmp, call_program_and_get_last_line_of_output(command));
   if (strstr(tmp,"GPT") == NULL) {
 	  strcpy(output,"MBR");
@@ -2682,6 +2695,7 @@ char *which_partition_format(const char *drive)
   log_msg(0, "Found %s partition table format type",output);
   paranoid_free(command);
   paranoid_free(tmp);
+  paranoid_free(fdisk);
   return(output);
 }
 

@@ -93,14 +93,16 @@ if [ "$res" -ne "0" ]; then
     cat /tmp/fakv.log
     exit 1
 fi
-LogIt "Fixing the boot block of $device with ms-sys" 2
-ms-sys -w $device 2> /tmp/fakv.log > /dev/null
-res=$?
-retval=$(($retval+$res))
-if [ "$res" -ne "0" ]; then
-    LogIt "Errors occurred while fixing the boot block of $device!" 1
-    cat /tmp/fakv.log
-    exit 1
+if [ "`arch`" != "ia64" ] ; then
+	LogIt "Fixing the boot block of $device with ms-sys" 2
+	ms-sys -w $device 2> /tmp/fakv.log > /dev/null
+	res=$?
+	retval=$(($retval+$res))
+	if [ "$res" -ne "0" ]; then
+    		LogIt "Errors occurred while fixing the boot block of $device!" 1
+    		cat /tmp/fakv.log
+    		exit 1
+	fi
 fi
 [ ! -e "/mnt/tmpK" ] && mkdir /mnt/tmpK
 mount $device -t vfat /mnt/tmpK || Die "Can't mount device $device"

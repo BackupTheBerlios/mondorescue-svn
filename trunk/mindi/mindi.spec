@@ -113,17 +113,15 @@ cd $RPM_BUILD_ROOT%{_sbindir}
 %defattr(644,root,root,755)
 %config(noreplace) %{_sysconfdir}/mindi/deplist.txt
 %doc CHANGES INSTALL COPYING README TODO README.ia64 README.pxe
-%attr(755,-,-) %{_sbindir}/mindi
-%attr(755,-,-) %{_sbindir}/analyze-my-lvm
+%attr(755,root,root) %{_sbindir}/mindi
+%attr(755,root,root) %{_sbindir}/analyze-my-lvm
 %{_datadir}/mindi
-%attr(755,-,-) %{_datadir}/mindi/analyze-my-lvm
-%attr(755,-,-) %{_datadir}/mindi/mindi
-%ifarch ia64
-%attr(755,-,-) %{_datadir}/mindi/parted2fdisk.pl
-%endif
-%attr(755,-,-) %{_datadir}/mindi/aux-tools/sbin/*
-%attr(755,-,-) %{_datadir}/mindi/rootfs/bin/*
-%attr(755,-,-) %{_datadir}/mindi/rootfs/sbin/*
+%attr(755,root,root) %{_datadir}/mindi/analyze-my-lvm
+%attr(755,root,root) %{_datadir}/mindi/mindi
+%attr(755,root,root) %{_datadir}/mindi/parted2fdisk.pl
+%attr(755,root,root) %{_datadir}/mindi/aux-tools/sbin/*
+%attr(755,root,root) %{_datadir}/mindi/rootfs/bin/*
+%attr(755,root,root) %{_datadir}/mindi/rootfs/sbin/*
 
 %changelog
 * Tue Sep 06 2005 Bruno Cornec <bcornec@users.berlios.de> 1.04_berlios

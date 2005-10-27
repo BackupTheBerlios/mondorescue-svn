@@ -30,6 +30,8 @@ my $part;
 my $wpart;
 my $start = "";
 my $end = "";
+my $cylstart;
+my $cylend;
 my %start;
 my %end;
 my %type;
@@ -122,9 +124,9 @@ if ($arch =~ /^ia64/) {
 	if ($type ne "msdos") {
 		print FLOG "Not an msdos type of disk label\n";
 		if ($args =~ /-l/) {
-			fdisk_list($device,undef,\%start,\%end);
+			fdisk_list($device,undef,\%start,\%end, 1);
 		} elsif ($args =~ /-s/) {
-			fdisk_list($device,$wpart,\%start,\%end);
+			fdisk_list($device,$wpart,\%start,\%end, 1);
 		} elsif (($args =~ /-/) and ($fake == 0)) {
 			printf FLOG "Option not supported ($args) ...\n";
 			printf FLOG "Please report to the author\n";
@@ -135,14 +137,14 @@ if ($arch =~ /^ia64/) {
 			print FLOG "Translating fdisk command to parted\n";
 			while ($i = <STDIN>) {
 				if ($i =~ /^p$/) {
-					fdisk_list($device,undef,\%start,\%end);
+					fdisk_list($device,undef,\%start,\%end, 1);
 				}
 				elsif ($i =~ /^n$/) {
-					fdisk_list($device,undef,\%start,\%end);
+					fdisk_list($device,undef,\%start,\%end, 0);
 					if ($type ne "gpt") {
 						print FLOG "Forcing GPT type of disk label\n";
 						print FLOG "mklabel gpt\n";
-						system "$parted -s $device mklabel gpt\n" if ($fake != 0);
+						system "$parted -s $device mklabel gpt\n" if ($fake == 0);
 						$type = "gpt";
 					}
 					$l = <STDIN>;
@@ -157,56 +159,62 @@ if ($arch =~ /^ia64/) {
 						next;
 					}
 					chomp($part);
-					$start = <STDIN>;
-					chomp($start);
-					if ((not (defined $start)) || ($start eq "")) {
+					$cylstart = <STDIN>;
+					chomp($cylstart);
+					if ((not (defined $cylstart)) || ($cylstart eq "")) {
 						if (defined $start{$part-1}) {
-							$start = scalar $end{$part-1} + 0.001;
-							print FLOG "no start cyl given for creation... assuming the following $start\n";
+							# in MB => cyl
+							$cylstart = sprintf("%d",$end{$part-1}*1048576/$un + 1);
+							print FLOG "no start cyl given for creation... assuming the following $cylstart\n";
 						} else {
 							print FLOG "no start cyl given for creation... assuming the following 1\n";
-							$start = 1;
+							$cylstart = 1;
 						}
 					}
-					$start = 1 if ($start < 1);
-					print FLOG "start cyl : $start\n";
-					$un = get_un($device);
+					$cylstart = 1 if ($cylstart < 1);
+					print FLOG "start cyl : $cylstart\n";
+					$un = get_un($device, "", 0);
 					# parted needs MB
-					$start = $start * $un / 1048576;
+					if ($cylstart == 1) {
+						$start = 0.01;
+					} else {
+						$start = $cylstart* $un / 1048576 +0.001;
+					}
 					# this is a size in B/KB/MB/GB
+
 					$endmax = get_max($device);
-					$end = <STDIN>;
-					chomp($end);
-					if ((not (defined $end)) || ($end eq "")) {
+					$cylend = <STDIN>;
+					chomp($cylend);
+					if ((not (defined $cylend)) || ($cylend eq "")) {
 						print FLOG "no end cyl given for creation... assuming full disk)\n";
-						$end = $endmax;
+						$cylend = $endmax;
 					}
 					# Handles end syntaxes (+, K, M, ...)
 					# to give cylinders
-					if ($end =~ /^\+/) {
-						$end =~ s/^\+//;
-						if ($end =~ /K$/) {
-							$end =~ s/K$//;
-							$end *= 1000;
-						} elsif ($end =~ /M$/) {
-							$end =~ s/M$//;
-							$end *= 1000000;
-						} elsif ($end =~ /G$/) {
-							$end =~ s/G$//;
-							$end *= 1000000000;
+					if ($cylend =~ /^\+/) {
+						$cylend =~ s/^\+//;
+						if ($cylend =~ /K$/) {
+							$cylend =~ s/K$//;
+							$cylend *= 1024;
+						} elsif ($cylend =~ /M$/) {
+							$cylend =~ s/M$//;
+							$cylend *= 1048576;
+						} elsif ($cylend =~ /G$/) {
+							$cylend =~ s/G$//;
+							$cylend *= 1073741824;
 						}
 						# This gives the number of cyl
-						$end /= $un;
-						$end = sprintf("%d",$end);
-						$end += $start - 0.001;
+						$cylend /= $un;
+						$cylend = sprintf("%d",$cylend);
+						$cylend += $cylstart - 0.001;
 						# We now have the end cyl
 					}
-					print FLOG "end cyl : $end\n";
+					$cylend = $endmax if ($cylend > $endmax); 
+					print FLOG "end cyl : $cylend\n";
 					# parted needs MB
-					$end = $end * $un / 1048576;
-					$end = $endmax if ($end > $endmax); 
-					print FLOG "n $l $part => mkpart primary $start $end\n";
-					system "$parted -s $device mkpart primary ext2 $start $end\n" if ($fake != 0);
+					$end = $cylend * $un / 1048576;
+					print FLOG "n $l $part $cylstart $cylend => mkpart primary $start $end\n";
+					system "$parted -s $device mkpart primary ext2 $start $end\n" if ($fake == 0);
 				}
 				elsif ($i =~ /^d$/) {
 					$part = <STDIN>;
@@ -216,8 +224,8 @@ if ($arch =~ /^ia64/) {
 					}
 					chomp($part);
 					print FLOG "d $part => rm $part\n";
-					system "$parted -s $device rm $part\n" if ($fake != 0);
-					get_parted($device,undef,\%start,\%end,undef,undef);
+					system "$parted -s $device rm $part\n" if ($fake == 0);
+					get_parted($device,undef,\%start,\%end,undef);
 				}
 				elsif ($i =~ /^w$/) {
 					print FLOG "w => quit\n";
@@ -239,8 +247,8 @@ if ($arch =~ /^ia64/) {
 						print FLOG "no partition number given for $l... please report to the author\n";
 						next;
 					}
-					print FLOG "t $part => mkfs $part $pnum{$l}\n";
-					system "$parted -s $device mkfs $part $pnum{$l}\n" if ($fake != 0);
+					print FLOG "t $part $l => mkfs $part $pnum{$l}\n";
+					system "$parted -s $device mkfs $part $pnum{$l}\n" if ($fake == 0);
 				}
 				elsif ($i =~ /^a$/) {
 					$part = <STDIN>;
@@ -250,7 +258,7 @@ if ($arch =~ /^ia64/) {
 					}
 					chomp($part);
 					print FLOG "a $part => set $part boot on\n";
-					system "$parted -s $device set $part boot on\n" if ($fake != 0);
+					system "$parted -s $device set $part boot on\n" if ($fake == 0);
 				}
 				elsif ($i =~ /^q$/) {
 					print FLOG "q => quit\n";
@@ -340,6 +348,7 @@ my $device = shift;
 my $wpart = shift;
 my $start = shift;
 my $end = shift;
+my $verbose = shift;
 
 my $un;
 my $endmax;
@@ -388,8 +397,10 @@ $part,
 # Keep Fdisk headers
 #
 # this will return bytes
-$un = get_un ($device,$wpart);
+$un = get_un ($device,$wpart,$verbose);
+
 $endmax = get_max($device);
+
 # This will return MB
 get_parted ($device,$start,$end,\%type,\%flags);
 
@@ -406,34 +417,36 @@ while (($n,$d) = each %type) {
 	$length = sprintf("%d",($mend-$mstart+1)*$un/1024);
 	$pid = $pid{$type{$n}};
 	$cmt = $cmt{$type{$n}};
-	print FLOG "$part - $mstart - $mend - $length\n";
+	#print FLOG "$part - $mstart - $mend - $length\n";
 
-	if (not (defined $wpart)) {
-		if (length($part) > 13) {
-			open(STDOUT2,">&STDOUT") || die "Unable to open STDOUT2";
-			select(STDOUT2);
-			write;
-			open(FLOG2,">&FLOG") || die "Unable to open FLOG2";
-			select(FLOG2);
-			write;
-			select(STDOUT);
-			close(FLOG2);
-			close(STDOUT2);
+	if ($verbose == 1) {
+		if (not (defined $wpart)) {
+			if (length($part) > 13) {
+				open(STDOUT2,">&STDOUT") || die "Unable to open STDOUT2";
+				select(STDOUT2);
+				write;
+				open(FLOG2,">&FLOG") || die "Unable to open FLOG2";
+				select(FLOG2);
+				write;
+				select(STDOUT);
+				close(FLOG2);
+				close(STDOUT2);
+			} else {
+				open(STDOUT1,">&STDOUT") || die "Unable to open STDOUT1";
+				select(STDOUT1);
+				write;
+				open(FLOG1,">&FLOG") || die "Unable to open FLOG1";
+				select(FLOG1);
+				write;
+				select(STDOUT);
+				close(FLOG1);
+				close(STDOUT1);
+			}
 		} else {
-			open(STDOUT1,">&STDOUT") || die "Unable to open STDOUT1";
-			select(STDOUT1);
-			write;
-			open(FLOG1,">&FLOG") || die "Unable to open FLOG1";
-			select(FLOG1);
-			write;
-			select(STDOUT);
-			close(FLOG1);
-			close(STDOUT1);
+			# manage the -s option of fdisk here
+			print "$length\n" if ($part eq $wpart);
+			print FLOG "$part has $length KBytes\n" if ($part eq $wpart);
 		}
-	} else {
-		# manage the -s option of fdisk here
-		print "$length\n" if ($part eq $wpart);
-		print FLOG "$part has $length KBytes\n" if ($part eq $wpart);
 	}
 }
 close(FDISK);
@@ -469,12 +482,13 @@ sub get_un {
 
 my $device = shift;
 my $wpart = shift;
+my $verbose = shift;
 my $un = 0;
 my $foo;
 
 open (FDISK, "$fdisk -l $device |") || die "Unable to read from $fdisk";
 while (<FDISK>) {
-	print if (($_ !~ /^\/dev\//) and (not (defined $wpart)));
+	print if (($_ !~ /^\/dev\//) and (not (defined $wpart)) and ($verbose == 1));
 	if ($_ =~ /^Units/) {
 		($foo, $un , $foo) = split /=/;
 		$un =~ s/[A-z\s=]//g;

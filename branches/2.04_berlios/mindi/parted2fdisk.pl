@@ -1,7 +1,9 @@
 #!/usr/bin/perl -w
 #
+# $Id$
+#
 # parted2fdisk: fdisk like interface for parted 
-# [developped for mindi/mondo http://www.mondorescue.org]
+# [developped for mindi/mondo http://mondorescue.berlios.de]
 #
 # Aims to be architecture independant (i386/ia64)
 # Tested on RHAS 2.1 ia64 - Mandrake 9.0 ia64 - RHAS 3.0 ia64
@@ -33,6 +35,7 @@ my %end;
 my %type;
 my %flags;
 my $arch;
+my $fake = 0;
 
 # Determine on which arch we're running
 if (defined ($ENV{ARCH})) {
@@ -56,6 +59,7 @@ my $un;
 my $type;
 my $args = "";
 my $device = "";
+my $endmax = "";
 
 if ($#ARGV < 0) {
 	printf FLOG "No arguments given exiting ...\n";
@@ -103,6 +107,11 @@ if ($args =~ /-s/) {
 	$device =~ s/[0-9]+$//;
 }
 
+if ($args =~ /-n/) {
+	print FLOG "Fake mode. Nothing will be really done\n";
+	$fake = 1;
+}
+
 print FLOG "Called with device $device and arg $args\n";
 
 if ($arch =~ /^ia64/) {
@@ -116,7 +125,7 @@ if ($arch =~ /^ia64/) {
 			fdisk_list($device,undef,\%start,\%end);
 		} elsif ($args =~ /-s/) {
 			fdisk_list($device,$wpart,\%start,\%end);
-		} elsif ($args =~ /-/) {
+		} elsif (($args =~ /-/) and ($fake == 0)) {
 			printf FLOG "Option not supported ($args) ...\n";
 			printf FLOG "Please report to the author\n";
 			mysyn();
@@ -133,7 +142,7 @@ if ($arch =~ /^ia64/) {
 					if ($type ne "gpt") {
 						print FLOG "Forcing GPT type of disk label\n";
 						print FLOG "mklabel gpt\n";
-						system "$parted -s $device mklabel gpt\n";
+						system "$parted -s $device mklabel gpt\n" if ($fake != 0);
 						$type = "gpt";
 					}
 					$l = <STDIN>;
@@ -159,15 +168,21 @@ if ($arch =~ /^ia64/) {
 							$start = 1;
 						}
 					}
+					$start = 1 if ($start < 1);
 					print FLOG "start cyl : $start\n";
+					$un = get_un($device);
+					# parted needs MB
+					$start = $start * $un / 1048576;
+					# this is a size in B/KB/MB/GB
+					$endmax = get_max($device);
 					$end = <STDIN>;
 					chomp($end);
 					if ((not (defined $end)) || ($end eq "")) {
 						print FLOG "no end cyl given for creation... assuming full disk)\n";
-						$end = get_max($device);
+						$end = $endmax;
 					}
-					$un = get_un($device);
 					# Handles end syntaxes (+, K, M, ...)
+					# to give cylinders
 					if ($end =~ /^\+/) {
 						$end =~ s/^\+//;
 						if ($end =~ /K$/) {
@@ -180,13 +195,18 @@ if ($arch =~ /^ia64/) {
 							$end =~ s/G$//;
 							$end *= 1000000000;
 						}
+						# This gives the number of cyl
 						$end /= $un;
-						$end = int($end)+1;
+						$end = sprintf("%d",$end);
 						$end += $start - 0.001;
+						# We now have the end cyl
 					}
 					print FLOG "end cyl : $end\n";
-					print FLOG "n $l $part $start $end => mkpart primary $start $end\n";
-					system "$parted -s $device mkpart primary ext2 $start $end\n";
+					# parted needs MB
+					$end = $end * $un / 1048576;
+					$end = $endmax if ($end > $endmax); 
+					print FLOG "n $l $part => mkpart primary $start $end\n";
+					system "$parted -s $device mkpart primary ext2 $start $end\n" if ($fake != 0);
 				}
 				elsif ($i =~ /^d$/) {
 					$part = <STDIN>;
@@ -196,7 +216,7 @@ if ($arch =~ /^ia64/) {
 					}
 					chomp($part);
 					print FLOG "d $part => rm $part\n";
-					system "$parted -s $device rm $part\n";
+					system "$parted -s $device rm $part\n" if ($fake != 0);
 					get_parted($device,undef,\%start,\%end,undef,undef);
 				}
 				elsif ($i =~ /^w$/) {
@@ -220,7 +240,7 @@ if ($arch =~ /^ia64/) {
 						next;
 					}
 					print FLOG "t $part => mkfs $part $pnum{$l}\n";
-					system "$parted -s $device mkfs $part $pnum{$l}\n";
+					system "$parted -s $device mkfs $part $pnum{$l}\n" if ($fake != 0);
 				}
 				elsif ($i =~ /^a$/) {
 					$part = <STDIN>;
@@ -230,7 +250,7 @@ if ($arch =~ /^ia64/) {
 					}
 					chomp($part);
 					print FLOG "a $part => set $part boot on\n";
-					system "$parted -s $device set $part boot on\n";
+					system "$parted -s $device set $part boot on\n" if ($fake != 0);
 				}
 				elsif ($i =~ /^q$/) {
 					print FLOG "q => quit\n";
@@ -322,6 +342,7 @@ my $start = shift;
 my $end = shift;
 
 my $un;
+my $endmax;
 my $d;
 my $n;
 
@@ -366,15 +387,23 @@ $part,
 #
 # Keep Fdisk headers
 #
+# this will return bytes
 $un = get_un ($device,$wpart);
+$endmax = get_max($device);
+# This will return MB
 get_parted ($device,$start,$end,\%type,\%flags);
 
 while (($n,$d) = each %type) {
 	# Print infos fdisk like
 	$part = ${device}.$n;
-	$mstart = sprintf("%d",int($$start{$n}));
-	$mend = sprintf("%d",int($$end{$n}));
-	$length = sprintf("%d",($mend-$mstart+1)*$un/1048576);
+	# start and end are in cylinder in fdisk format
+	# so return in MB * 1MB / what represents 1 cyl in B
+	$mstart = sprintf("%d",$$start{$n}*1048576/$un);
+	$mstart = 1 if ($mstart < 1);
+	$mend = sprintf("%d",$$end{$n}*1048576/$un - 1);
+	$mend = $endmax if ($mend > $endmax);
+	# length is in 1K blocks
+	$length = sprintf("%d",($mend-$mstart+1)*$un/1024);
 	$pid = $pid{$type{$n}};
 	$cmt = $cmt{$type{$n}};
 	print FLOG "$part - $mstart - $mend - $length\n";
@@ -403,9 +432,8 @@ while (($n,$d) = each %type) {
 		}
 	} else {
 		# manage the -s option of fdisk here
-		my $s = int(eval("$length/1048576*$un*1024"));
-		print "$s\n" if ($part eq $wpart);
-		print FLOG "$part has $s Bytes\n" if ($part eq $wpart);
+		print "$length\n" if ($part eq $wpart);
+		print FLOG "$part has $length KBytes\n" if ($part eq $wpart);
 	}
 }
 close(FDISK);
@@ -423,10 +451,10 @@ my $foo;
 
 open (FDISK, "$fdisk -l $device |") || die "Unable to read from $fdisk";
 while (<FDISK>) {
-	if ($_ =~ /^Disk/) {
-		($foo, $un , $foo) = split /=/;
-		$max =~ s/.*sectors,([0-9]+) cylinders/$1/g;
-		$max = eval($max);
+	if ($_ =~ /heads/) {
+		chomp;
+		$max = $_;
+		$max =~ s/.* ([0-9]+) cylinders/$1/;
 	}
 }
 close(FDISK);
@@ -435,7 +463,7 @@ return($max);
 }
 
 # 
-# Get units from fdisk
+# Get units from fdisk (cylinder size)
 #
 sub get_un {
 
@@ -458,6 +486,9 @@ print FLOG "get_un returns $un\n";
 return($un);
 }
 
+# 
+# Parted gives info in MB
+#
 sub get_parted {
 
 my $device = shift;

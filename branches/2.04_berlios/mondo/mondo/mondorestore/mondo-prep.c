@@ -1680,27 +1680,33 @@ int partition_device(FILE*pout_to_fdisk, const char *drive, int partno, int prev
 	sprintf(logfile, "/tmp/fdisk.log.%s", ++p);
 	sprintf(program, "parted2fdisk %s >> %s 2>> %s", drive, MONDO_LOGFILE, MONDO_LOGFILE);
 
+	/* BERLIOS: shoould not be called each time */
+	part_table_fmt = which_partition_format(drive);
 	output[0] = '\0';
 	/* make it a primary/extended/logical */
 	if (partno <= 4) {
 		sprintf(output + strlen(output), "n\np\n%d\n", partno);
 	} else {
-		if (partno == 5) {
-			part_table_fmt = which_partition_format(drive);
-			/* GPT allows more than 4 primary partitions */
-			if ((prev_partno >= 4) && (strcmp(part_table_fmt,"MBR") == 0)) {
-				log_to_screen("You need to leave at least one partition free, for 'extended/logical'");
-				paranoid_free(program);
-				paranoid_free(partition_name);
-				paranoid_free(tmp);
-				paranoid_free(logfile);
-				paranoid_free(output);
-				return (1);
-			} else {
-				sprintf(output + strlen(output), "n\ne\n%d\n\n\n", prev_partno + 1);
+		/* MBR needs an extended partition if more than 4 partitions */
+		if (strcmp(part_table_fmt,"MBR") == 0) {
+			if (partno == 5) {
+				if (prev_partno >= 4) {
+					log_to_screen("You need to leave at least one partition free, for 'extended/logical'");
+					paranoid_free(program);
+					paranoid_free(partition_name);
+					paranoid_free(tmp);
+					paranoid_free(logfile);
+					paranoid_free(output);
+					return (1);
+				} else {
+					sprintf(output + strlen(output), "n\ne\n%d\n\n\n", prev_partno + 1);
+				}
 			}
+			strcat(output + strlen(output), "n\nl\n");
+		} else {
+			/* GPT allows more than 4 primary partitions */
+			sprintf(output + strlen(output), "n\np\n%d\n", partno);
 		}
-		strcat(output + strlen(output), "n\nl\n");
 	}
 	strcat(output + strlen(output), "\n");	/*start block (ENTER for next free blk */
 	if (partsize > 0) {

@@ -561,8 +561,9 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 					mondo_mkisofs_sz,
 					extra_cdrom_params, bkpinfo->media_device);
 		}
-		if (getenv ("SUDO_COMMAND")) {
-		  fatal_error("Can't write DVDs as sudo because growisofs doesn't support this - please see the growisofs manpage for details.");
+		if (getenv("SUDO_COMMAND")) {
+			fatal_error
+				("Can't write DVDs as sudo because growisofs doesn't support this - please see the growisofs manpage for details.");
 		}
 		log_msg(2, "call_make_iso (DVD res) is ... %s",
 				bkpinfo->call_make_iso);
@@ -711,7 +712,7 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 				strcpy(bkpinfo->nfs_mount, ip_address);
 			}
 		}
-		store_nfs_config (bkpinfo);
+		store_nfs_config(bkpinfo);
 	}
 
 	log_it("Finished processing incoming params");

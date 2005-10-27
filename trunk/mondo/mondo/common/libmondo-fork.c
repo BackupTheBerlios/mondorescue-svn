@@ -476,13 +476,14 @@ int run_program_and_log_to_screen(char *basic_call, char *what_i_am_doing)
 	errno = 0;
 	res = pclose(fin);
 	/* Log actual pclose errors. */
-	if (errno) log_msg(5, "pclose err: %d", errno);
+	if (errno)
+		log_msg(5, "pclose err: %d", errno);
 	/* Check if we have a valid status. If we do, extract the called program's exit code. */
 	/* If we don't, highlight this fact by returning -1. */
 	if (WIFEXITED(res)) {
-	  retval = WEXITSTATUS(res); 
+		retval = WEXITSTATUS(res);
 	} else {
-	  retval = -1;
+		retval = -1;
 	}
 	close_evalcall_form();
 	unlink(lockfile);
@@ -680,8 +681,7 @@ int copy_from_src_to_dest(FILE * f_orig, FILE * f_archived, char direction)
  * @return 0 for success, nonzero for failure.
  */
 int dynamically_create_pipes_and_copy_from_them_to_output_file(char
-															   *input_device,
-															   char
+															   *input_device, char
 															   *output_fname)
 {
 	char *curr_fifo;

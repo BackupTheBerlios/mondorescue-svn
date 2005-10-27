@@ -42,25 +42,30 @@ char *build_partition_name(char *partition, const char *drive, int partno)
 	assert_string_is_neither_NULL_nor_zerolength(drive);
 	assert(partno >= 0);
 
-	p = strcpy(partition, drive);
+	asprintf(&partition, "%s", drive);
+	p = partition;
 	/* is this a devfs device path? */
 	c = strrchr(partition, '/');
 	if (c && strncmp(c, "/disc", 5) == 0) {
 		/* yup it's devfs, return the "part" path */
+		/* format /dev/.../disc */
 		strcpy(c + 1, "part");
-		p = c + 5;
 	} else {
 		p += strlen(p);
 		if (isdigit(p[-1])) {
-			*p++ =
+			p = partition;
 #ifdef BSD
-				's';
+			asprintf(&partition, "%ss", p);
 #else
-				'p';
+			/* format /dev/cciss/c0d0 */
+			asprintf(&partition, "%sp", p);
 #endif
+			paranoid_free(p);
 		}
 	}
-	sprintf(p, "%d", partno);
+	p = partition;
+	asprintf(&partition, "%s%d", p, partno);
+	paranoid_free(p);
 	return (partition);
 }
 
@@ -657,10 +662,6 @@ int strcmp_inc_numbers(char *stringA, char *stringB)
 	}
 	numA = atol(stringA + start_of_numbers_in_A);
 	numB = atol(stringB + start_of_numbers_in_B);
-	/*
-	   sprintf(tmp,"Comparing %s and %s --> %ld,%ld\n",stringA,stringB,numA,numB);
-	   log_to_screen(tmp);
-	 */
 	return ((int) (numA - numB));
 }
 
@@ -881,22 +882,22 @@ int severity_of_difference(char *fn, char *out_reason)
 	if (!strncmp(filename, "/var/", 5)) {
 		sev = 2;
 		asprintf(&reason,
-				"/var's contents will change regularly, inevitably.");
+				 "/var's contents will change regularly, inevitably.");
 	}
 	if (!strncmp(filename, "/home", 5)) {
 		sev = 2;
 		asprintf(&reason,
-				"It's in your /home partiton. Therefore, it is important.");
+				 "It's in your /home partiton. Therefore, it is important.");
 	}
 	if (!strncmp(filename, "/usr/", 5)) {
 		sev = 3;
 		asprintf(&reason,
-				"You may have installed/removed software during the backup.");
+				 "You may have installed/removed software during the backup.");
 	}
 	if (!strncmp(filename, "/etc/", 5)) {
 		sev = 3;
 		asprintf(&reason,
-				"Do not edit config files while backing up your PC.");
+				 "Do not edit config files while backing up your PC.");
 	}
 	if (!strcmp(filename, "/etc/adjtime")
 		|| !strcmp(filename, "/etc/mtab")) {
@@ -905,7 +906,8 @@ int severity_of_difference(char *fn, char *out_reason)
 	}
 	if (!strncmp(filename, "/root/", 6)) {
 		sev = 3;
-		asprintf(&reason, "Were you compiling/editing something in /root?");
+		asprintf(&reason,
+				 "Were you compiling/editing something in /root?");
 	}
 	if (!strncmp(filename, "/root/.", 7)) {
 		sev = 2;
@@ -922,19 +924,19 @@ int severity_of_difference(char *fn, char *out_reason)
 	if (!strncmp(filename, "/var/lib/slocate", 16)) {
 		sev = 1;
 		asprintf(&reason,
-				"The 'update' daemon ran during backup. This does not affect the integrity of your backup.");
+				 "The 'update' daemon ran during backup. This does not affect the integrity of your backup.");
 	}
 	if (!strncmp(filename, "/var/log/", 9)
 		|| strstr(filename, "/.xsession")
 		|| !strcmp(filename + strlen(filename) - 4, ".log")) {
 		sev = 1;
 		asprintf(&reason,
-				"Log files change frequently as the computer runs. Fret not.");
+				 "Log files change frequently as the computer runs. Fret not.");
 	}
 	if (!strncmp(filename, "/var/spool", 10)) {
 		sev = 1;
 		asprintf(&reason,
-				"Background processes or printers were active. This does not affect the integrity of your backup.");
+				 "Background processes or printers were active. This does not affect the integrity of your backup.");
 	}
 	if (!strncmp(filename, "/var/spool/mail", 10)) {
 		sev = 2;
@@ -943,12 +945,12 @@ int severity_of_difference(char *fn, char *out_reason)
 	if (filename[strlen(filename) - 1] == '~') {
 		sev = 1;
 		asprintf(&reason,
-				"Backup copy of another file which was modified recently.");
+				 "Backup copy of another file which was modified recently.");
 	}
 	if (strstr(filename, "cache")) {
 		sev = 1;
 		asprintf(&reason,
-				"Part of a cache of data. Caches change from time to time. Don't worry.");
+				 "Part of a cache of data. Caches change from time to time. Don't worry.");
 	}
 	if (!strncmp(filename, "/var/run/", 9)
 		|| !strncmp(filename, "/var/lock", 8)
@@ -956,14 +958,14 @@ int severity_of_difference(char *fn, char *out_reason)
 		|| strstr(filename, "/.Xauthority")) {
 		sev = 1;
 		asprintf(&reason,
-				"Temporary file (a lockfile, perhaps) used by software such as X or KDE to register its presence.");
+				 "Temporary file (a lockfile, perhaps) used by software such as X or KDE to register its presence.");
 	}
 	paranoid_free(filename);
 
 	if (sev == 0) {
 		sev = 3;
 		asprintf(&reason,
-			"Changed since backup. Consider running a differential backup in a day or two.");
+				 "Changed since backup. Consider running a differential backup in a day or two.");
 	}
 
 	out_reason = reason;
@@ -1023,7 +1025,7 @@ char *percent_media_full_comment(struct s_bkpinfo *bkpinfo)
 	if (bkpinfo->media_size[g_current_media_number] <= 0) {
 		asprintf(&tmp, "%lld", g_tape_posK);
 		asprintf(&outstr, "Volume %d: %s kilobytes archived so far",
-				g_current_media_number, commarize(tmp));
+				 g_current_media_number, commarize(tmp));
 		paranoid_free(tmp);
 		return (outstr);
 	}
@@ -1039,22 +1041,22 @@ char *percent_media_full_comment(struct s_bkpinfo *bkpinfo)
 			(int) (space_occupied_by_cd(bkpinfo->scratchdir) * 100 / 1024 /
 				   bkpinfo->media_size[g_current_media_number]);
 		asprintf(&prepstr, "%s %d: [",
-				media_descriptor_string(bkpinfo->backup_media_type),
-				g_current_media_number);
+				 media_descriptor_string(bkpinfo->backup_media_type),
+				 g_current_media_number);
 	}
 	if (percentage > 100) {
 		percentage = 100;
 	}
-	j = trunc(percentage/5);
-	tmp1 = (char *)malloc((j + 1) * sizeof(char));
-	for (i = 0, p = tmp1 ; i < j ; i++, p++) {
-			*p = '*';
+	j = trunc(percentage / 5);
+	tmp1 = (char *) malloc((j + 1) * sizeof(char));
+	for (i = 0, p = tmp1; i < j; i++, p++) {
+		*p = '*';
 	}
 	*p = '\0';
 
-	tmp2 = (char *)malloc((20 - j + 1) * sizeof(char));
-	for (i = 0, p = tmp2 ; i < 20 - j ; i++, p++) {
-			*p = '.';
+	tmp2 = (char *) malloc((20 - j + 1) * sizeof(char));
+	for (i = 0, p = tmp2; i < 20 - j; i++, p++) {
+		*p = '.';
 	}
 	*p = '\0';
 
@@ -1062,10 +1064,11 @@ char *percent_media_full_comment(struct s_bkpinfo *bkpinfo)
 	 * replace %% in the asprintf below by 'percent' it just works, but 
 	 * like this it creates a huge number. Memory pb somewhere */
 	/*
-	log_it("percentage: %d", percentage);
-	asprintf(&outstr, "%s%s%s] %3d%% used", prepstr, tmp1, tmp2, percentage);
-	*/
-	asprintf(&outstr, "%s%s%s] %3d percent used", prepstr, tmp1, tmp2, percentage);
+	   log_it("percentage: %d", percentage);
+	   asprintf(&outstr, "%s%s%s] %3d%% used", prepstr, tmp1, tmp2, percentage);
+	 */
+	asprintf(&outstr, "%s%s%s] %3d percent used", prepstr, tmp1, tmp2,
+			 percentage);
 	paranoid_free(prepstr);
 	paranoid_free(tmp1);
 	paranoid_free(tmp2);

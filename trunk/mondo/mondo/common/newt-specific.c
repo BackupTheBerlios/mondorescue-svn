@@ -61,9 +61,9 @@ extern "C" {
  * Padding above the Newt components, to overcome bugs in Newt.
  */
 	char **err_log_lines = NULL,	///< The list of log lines to show on the screen.
-		*g_blurb_str_1,	///< The string for line 1 of the blurb in the progress form
-		*g_blurb_str_2,	///< The string for line 2 of the blurb in the progress form
-		*g_blurb_str_3;	///< The string for line 3 (updated continuously) of the blurb in the progress form
+		*g_blurb_str_1,			///< The string for line 1 of the blurb in the progress form
+		*g_blurb_str_2,			///< The string for line 2 of the blurb in the progress form
+		*g_blurb_str_3;			///< The string for line 3 (updated continuously) of the blurb in the progress form
 	newtComponent g_isoform_main = NULL,	///< The evalcall form component itself
 		g_isoform_header = NULL,	///< The component for the evalcall form title
 		g_isoform_scale = NULL,	///< The progress bar component in the evalcall form
@@ -85,7 +85,7 @@ extern "C" {
 	bool g_text_mode = TRUE;	///< If FALSE, use a newt interface; if TRUE, use an ugly (but more compatible) dumb terminal interface.
 	bool g_called_by_xmondo = FALSE;	///< @bug Unneeded w/current XMondo.
 	char *g_erase_tmpdir_and_scratchdir;	///< The command to run to erase the tmpdir and scratchdir at the end of Mondo.
-char *g_selfmounted_isodir; ///< Holds the NFS mountpoint if mounted via mondoarchive.
+	char *g_selfmounted_isodir;	///< Holds the NFS mountpoint if mounted via mondoarchive.
 
 /* @} - end of globalGroup */
 
@@ -299,10 +299,10 @@ char *g_selfmounted_isodir; ///< Holds the NFS mountpoint if mounted via mondoar
 		}
 
 		if (g_selfmounted_isodir) {
-		  asprintf(&command, "umount %s", g_selfmounted_isodir);
-		  run_program_and_log_output(command, 5);
-		  asprintf(&command, "rmdir %s", g_selfmounted_isodir);
-		  run_program_and_log_output(command, 5);
+			asprintf(&command, "umount %s", g_selfmounted_isodir);
+			run_program_and_log_output(command, 5);
+			asprintf(&command, "rmdir %s", g_selfmounted_isodir);
+			run_program_and_log_output(command, 5);
 		}
 
 		if (!g_text_mode) {
@@ -315,8 +315,7 @@ char *g_selfmounted_isodir; ///< Holds the NFS mountpoint if mounted via mondoar
 		system
 			("cat /var/log/mondo-archive.log | gzip -9 > /tmp/MA.log.gz 2> /dev/null");
 		if (!strstr(g_version, "cvs") && !strstr(g_version, "svn")) {
-			printf
-				("Please try the latest SVN version ");
+			printf("Please try the latest SVN version ");
 			printf
 				("to see if that fixes the problem.\nPlease don't bother the mailing list with");
 			printf
@@ -357,10 +356,10 @@ char *g_selfmounted_isodir; ///< Holds the NFS mountpoint if mounted via mondoar
  */
 	void
 	 finish(int signal) {
-	        char *command;
-	        malloc_string(command);
-		
-	        /*  if (signal==0) { popup_and_OK("Please press <enter> to quit."); } */
+		char *command;
+		malloc_string(command);
+
+		/*  if (signal==0) { popup_and_OK("Please press <enter> to quit."); } */
 
 		/* newtPopHelpLine(); */
 
@@ -373,10 +372,10 @@ char *g_selfmounted_isodir; ///< Holds the NFS mountpoint if mounted via mondoar
 			run_program_and_log_output(g_erase_tmpdir_and_scratchdir, 1);
 		}
 		if (g_selfmounted_isodir) {
-		  asprintf(&command, "umount %s", g_selfmounted_isodir);
-		  run_program_and_log_output(command, 1);
-		  asprintf(&command, "rmdir %s", g_selfmounted_isodir);
-		  run_program_and_log_output(command, 1);
+			asprintf(&command, "umount %s", g_selfmounted_isodir);
+			run_program_and_log_output(command, 1);
+			asprintf(&command, "rmdir %s", g_selfmounted_isodir);
+			run_program_and_log_output(command, 1);
 		}
 //  iamhere("foo");
 		/* system("clear"); */
@@ -792,7 +791,7 @@ char *g_selfmounted_isodir; ///< Holds the NFS mountpoint if mounted via mondoar
 			} else {
 				printf("%s (%s or %s) --> ", p, button1, button2);
 			}
-			for (asprintf(&tmp,"");
+			for (asprintf(&tmp, "");
 				 strcmp(tmp, button1) && (strlen(button2) == 0
 										  || strcmp(tmp, button2));) {
 				printf("--> ");
@@ -944,7 +943,7 @@ char *g_selfmounted_isodir; ///< Holds the NFS mountpoint if mounted via mondoar
 		if (num < 1) {
 			percentage = 1;
 		} else {
-			percentage = (int)trunc(num) ;
+			percentage = (int) trunc(num);
 		}
 
 		current_time = get_time();
@@ -964,46 +963,58 @@ char *g_selfmounted_isodir; ///< Holds the NFS mountpoint if mounted via mondoar
 			|| percentage > g_isoform_old_progress) {
 			g_isoform_old_progress = percentage;
 			asprintf(&timeline_str,
-					"%2ld:%02ld taken            %2ld:%02ld remaining",
-					time_taken / 60, time_taken % 60, time_remaining / 60,
-					time_remaining % 60);
+					 "%2ld:%02ld taken            %2ld:%02ld remaining",
+					 time_taken / 60, time_taken % 60, time_remaining / 60,
+					 time_remaining % 60);
 			if (percentage < 3) {
-				tmp1 = (char *)malloc(g_mysterious_dot_counter * sizeof(char));
-				for (i = 0, p = tmp1 ; i < g_mysterious_dot_counter - 1 ; i++, p++) {
-						*p = '.';
+				tmp1 =
+					(char *) malloc(g_mysterious_dot_counter *
+									sizeof(char));
+				for (i = 0, p = tmp1; i < g_mysterious_dot_counter - 1;
+					 i++, p++) {
+					*p = '.';
 				}
 				*p = '\0';
 
 				/* BERLIOS: 27 should be a parameter */
-				tmp2 = (char *)malloc(27-g_mysterious_dot_counter * sizeof(char));
-				for (i = 0, p = tmp2 ; i < 27 - g_mysterious_dot_counter - 1 ; i++, p++) {
-						*p = ' ';
+				tmp2 =
+					(char *) malloc(27 -
+									g_mysterious_dot_counter *
+									sizeof(char));
+				for (i = 0, p = tmp2;
+					 i < 27 - g_mysterious_dot_counter - 1; i++, p++) {
+					*p = ' ';
 				}
 				*p = '\0';
 
-				asprintf(&pcline_str, " Working%s%s %c", tmp1, tmp2, special_dot_char(g_mysterious_dot_counter));
+				asprintf(&pcline_str, " Working%s%s %c", tmp1, tmp2,
+						 special_dot_char(g_mysterious_dot_counter));
 				paranoid_free(tmp1);
 				paranoid_free(tmp2);
 			} else {
-				asprintf(&pcline_str, " %3d%% done              %3d%% to go",
-						percentage, 100 - percentage);
+				asprintf(&pcline_str,
+						 " %3d%% done              %3d%% to go",
+						 percentage, 100 - percentage);
 			}
 			if (g_text_mode) {
-				j = trunc(percentage/5);
-				tmp1 = (char *)malloc((j + 1) * sizeof(char));
-				for (i = 0, p = tmp1 ; i < j ; i++, p++) {
-						*p = '*';
+				j = trunc(percentage / 5);
+				tmp1 = (char *) malloc((j + 1) * sizeof(char));
+				for (i = 0, p = tmp1; i < j; i++, p++) {
+					*p = '*';
 				}
 				*p = '\0';
 
-				tmp2 = (char *)malloc((20 - j + 1) * sizeof(char));
-				for (i = 0, p = tmp2 ; i < 20 - j ; i++, p++) {
-						*p = '.';
+				tmp2 = (char *) malloc((20 - j + 1) * sizeof(char));
+				for (i = 0, p = tmp2; i < 20 - j; i++, p++) {
+					*p = '.';
 				}
 				*p = '\0';
 
 				if (percentage >= 3) {
-					asprintf(&taskprogress, "TASK:  [%s%s] %3d%% done; %2ld:%02ld to go", tmp1, tmp2, percentage, time_remaining / 60, time_remaining % 60);
+					asprintf(&taskprogress,
+							 "TASK:  [%s%s] %3d%% done; %2ld:%02ld to go",
+							 tmp1, tmp2, percentage, time_remaining / 60,
+							 time_remaining % 60);
 					printf("---evalcall---1--- %s\r\n",
 						   g_isoform_header_str);
 					printf("---evalcall---2--- %s\r\n", taskprogress);
@@ -1090,9 +1101,9 @@ char *g_selfmounted_isodir; ///< Holds the NFS mountpoint if mounted via mondoar
 		} else {
 			if (g_current_progress > g_maximum_progress) {
 				asprintf(&tmp,
-						"update_progress_form_full(%s,%s,%s) --- g_current_progress=%ld; g_maximum_progress=%ld",
-						blurb1, blurb2, blurb3, g_current_progress,
-						g_maximum_progress);
+						 "update_progress_form_full(%s,%s,%s) --- g_current_progress=%ld; g_maximum_progress=%ld",
+						 blurb1, blurb2, blurb3, g_current_progress,
+						 g_maximum_progress);
 				log_msg(0, tmp);
 				paranoid_free(tmp);
 				g_current_progress = g_maximum_progress;
@@ -1117,11 +1128,12 @@ char *g_selfmounted_isodir; ///< Holds the NFS mountpoint if mounted via mondoar
 		/* BERLIOS/ Is it useful here ? */
 		//g_mysterious_dot_counter = (g_mysterious_dot_counter + 1) % 27;
 		asprintf(&timeline_str,
-				"%2ld:%02ld taken               %2ld:%02ld remaining  ",
-				time_taken / 60, time_taken % 60, time_remaining / 60,
-				time_remaining % 60);
-		asprintf(&percentline_str, " %3d%% done                 %3d%% to go",
-				percentage, 100 - percentage);
+				 "%2ld:%02ld taken               %2ld:%02ld remaining  ",
+				 time_taken / 60, time_taken % 60, time_remaining / 60,
+				 time_remaining % 60);
+		asprintf(&percentline_str,
+				 " %3d%% done                 %3d%% to go", percentage,
+				 100 - percentage);
 
 		if (g_text_mode) {
 			printf("---progress-form---1--- %s\r\n", blurb1);
@@ -1129,23 +1141,26 @@ char *g_selfmounted_isodir; ///< Holds the NFS mountpoint if mounted via mondoar
 			printf("---progress-form---3--- %s\r\n", blurb3);
 			printf("---progress-form---E---\n");
 
-			j = trunc(percentage/5);
-			tmp1 = (char *)malloc((j + 1) * sizeof(char));
-			for (i = 0, p = tmp1 ; i < j ; i++, p++) {
-					*p = '*';
+			j = trunc(percentage / 5);
+			tmp1 = (char *) malloc((j + 1) * sizeof(char));
+			for (i = 0, p = tmp1; i < j; i++, p++) {
+				*p = '*';
 			}
 			*p = '\0';
 
-			tmp2 = (char *)malloc((20 - j + 1) * sizeof(char));
-			for (i = 0, p = tmp2 ; i <  20 - j ; i++, p++) {
-					*p = '.';
+			tmp2 = (char *) malloc((20 - j + 1) * sizeof(char));
+			for (i = 0, p = tmp2; i < 20 - j; i++, p++) {
+				*p = '.';
 			}
 			*p = '\0';
 
 			if (percentage > 100) {
 				log_msg(2, "percentage = %d", percentage);
 			}
-			asprintf(&taskprogress, "TASK:  [%s%s] %3d%% done; %2ld:%02ld to go", tmp1, tmp2, percentage, time_remaining / 60, time_remaining % 60);
+			asprintf(&taskprogress,
+					 "TASK:  [%s%s] %3d%% done; %2ld:%02ld to go", tmp1,
+					 tmp2, percentage, time_remaining / 60,
+					 time_remaining % 60);
 
 			printf("---progress-form---4--- %s\r\n", taskprogress);
 			paranoid_free(taskprogress);
@@ -1232,11 +1247,11 @@ char *g_selfmounted_isodir; ///< Holds the NFS mountpoint if mounted via mondoar
 		newtDrawRootText(18, 0, WELCOME_STRING);
 		if (restoring) {
 			asprintf(&title_sz,
-				   "Please choose the backup media from which you want to read data.");
+					 "Please choose the backup media from which you want to read data.");
 			asprintf(&minimsg_sz, "Read from:");
 		} else {
 			asprintf(&title_sz,
-				   "Please choose the backup media to which you want to archive data.");
+					 "Please choose the backup media to which you want to archive data.");
 			asprintf(&minimsg_sz, "Backup to:");
 		}
 		newtPushHelpLine(title_sz);
@@ -1523,14 +1538,15 @@ char *g_selfmounted_isodir; ///< Holds the NFS mountpoint if mounted via mondoar
 								   keylist[i]);
 		}
 		asprintf(&differ_sz,
-				"  %d files differ. Hit 'Select' to pick a file. Hit 'Close' to quit the list.",
-				i);
+				 "  %d files differ. Hit 'Select' to pick a file. Hit 'Close' to quit the list.",
+				 i);
 		newtPushHelpLine(differ_sz);
 		paranoid_free(differ_sz);
 
 		bClose = newtCompactButton(10, 15, " Close  ");
 		bSelect = newtCompactButton(30, 15, " Select ");
-		asprintf(&tmp, "%-10s               %-20s", "Priority", "Filename");
+		asprintf(&tmp, "%-10s               %-20s", "Priority",
+				 "Filename");
 		headerMsg = newtLabel(2, 1, tmp);
 		paranoid_free(tmp);
 
@@ -1555,7 +1571,7 @@ char *g_selfmounted_isodir; ///< Holds the NFS mountpoint if mounted via mondoar
 						severity_of_difference(filelist->el[currline].
 											   filename, reason);
 						asprintf(&tmp, "%s --- %s",
-								filelist->el[currline].filename, reason);
+								 filelist->el[currline].filename, reason);
 						popup_and_OK(tmp);
 						paranoid_free(tmp);
 						paranoid_free(reason);

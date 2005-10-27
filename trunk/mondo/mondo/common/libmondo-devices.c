@@ -2102,12 +2102,12 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 				}
 			}
 			// check whether already mounted - we better remove
-                        // surrounding spaces and trailing '/' for this
-			strip_spaces (bkpinfo->nfs_mount);
+			// surrounding spaces and trailing '/' for this
+			strip_spaces(bkpinfo->nfs_mount);
 			if (bkpinfo->nfs_mount[strlen(bkpinfo->nfs_mount) - 1] == '/')
-			  bkpinfo->nfs_mount[strlen(bkpinfo->nfs_mount) - 1] = '\0';
+				bkpinfo->nfs_mount[strlen(bkpinfo->nfs_mount) - 1] = '\0';
 			sprintf(command, "mount | grep \"%s \" | cut -d' ' -f3",
-				   bkpinfo->nfs_mount);
+					bkpinfo->nfs_mount);
 			strcpy(bkpinfo->isodir,
 				   call_program_and_get_last_line_of_output(command));
 		}
@@ -2121,13 +2121,15 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 			}
 		}
 		if (!is_this_device_mounted(bkpinfo->nfs_mount)) {
-		  sprintf(bkpinfo->isodir, "/tmp/isodir.mondo.%d", (int)(random()%32768));
-		  sprintf(command, "mkdir -p %s", bkpinfo->isodir);
-		  run_program_and_log_output(command, 5);
-		  sprintf(tmp, "mount %s -t nfs %s", bkpinfo->nfs_mount, bkpinfo->isodir);
-		  run_program_and_log_output(tmp, 5);
-		  malloc_string(g_selfmounted_isodir);
-		  strcpy(g_selfmounted_isodir, bkpinfo->isodir);
+			sprintf(bkpinfo->isodir, "/tmp/isodir.mondo.%d",
+					(int) (random() % 32768));
+			sprintf(command, "mkdir -p %s", bkpinfo->isodir);
+			run_program_and_log_output(command, 5);
+			sprintf(tmp, "mount %s -t nfs %s", bkpinfo->nfs_mount,
+					bkpinfo->isodir);
+			run_program_and_log_output(tmp, 5);
+			malloc_string(g_selfmounted_isodir);
+			strcpy(g_selfmounted_isodir, bkpinfo->isodir);
 		}
 		if (!is_this_device_mounted(bkpinfo->nfs_mount)) {
 			popup_and_OK
@@ -2143,23 +2145,24 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 		}
 		strcpy(bkpinfo->nfs_remote_dir, tmp);
 		// check whether writable - we better remove surrounding spaces for this
-		strip_spaces (bkpinfo->nfs_remote_dir);
-		sprintf (command, "echo hi > %s/%s/.dummy.txt", bkpinfo->isodir,
-			          bkpinfo->nfs_remote_dir);
-		while (run_program_and_log_output (command, FALSE)) {
-		  strcpy(tmp, bkpinfo->nfs_remote_dir);
-		  asprintf (&prompt,
-			    "Directory '%s' under mountpoint '%s' does not exist or is not writable. You can fix this or change the directory and retry or cancel the backup.",
-			    bkpinfo->nfs_remote_dir, bkpinfo->isodir);
-		  if(!popup_and_get_string ("Directory", prompt, tmp, MAX_STR_LEN)) {
-		    log_to_screen("User has chosen not to backup the PC");
-		    finish(1);
-		  }
-		  strcpy(bkpinfo->nfs_remote_dir, tmp);
-		  // check whether writable - we better remove surrounding spaces for this */
-		  strip_spaces (bkpinfo->nfs_remote_dir);
-		  asprintf (&command, "echo hi > %s/%s/.dummy.txt", bkpinfo->isodir,
-			            bkpinfo->nfs_remote_dir);
+		strip_spaces(bkpinfo->nfs_remote_dir);
+		sprintf(command, "echo hi > %s/%s/.dummy.txt", bkpinfo->isodir,
+				bkpinfo->nfs_remote_dir);
+		while (run_program_and_log_output(command, FALSE)) {
+			strcpy(tmp, bkpinfo->nfs_remote_dir);
+			asprintf(&prompt,
+					 "Directory '%s' under mountpoint '%s' does not exist or is not writable. You can fix this or change the directory and retry or cancel the backup.",
+					 bkpinfo->nfs_remote_dir, bkpinfo->isodir);
+			if (!popup_and_get_string
+				("Directory", prompt, tmp, MAX_STR_LEN)) {
+				log_to_screen("User has chosen not to backup the PC");
+				finish(1);
+			}
+			strcpy(bkpinfo->nfs_remote_dir, tmp);
+			// check whether writable - we better remove surrounding spaces for this */
+			strip_spaces(bkpinfo->nfs_remote_dir);
+			asprintf(&command, "echo hi > %s/%s/.dummy.txt",
+					 bkpinfo->isodir, bkpinfo->nfs_remote_dir);
 		}
 		for (i = 0; i <= MAX_NOOF_MEDIA; i++) {
 			bkpinfo->media_size[i] = 650;
@@ -2907,7 +2910,7 @@ char *which_partition_format(const char *drive)
 #ifdef __IA64__
 	}
 #endif
-	log_msg(1, "Using %s",fdisk);
+	log_msg(1, "Using %s", fdisk);
 	sprintf(command, "%s -l %s | grep 'EFI GPT'", fdisk, drive);
 	strcpy(tmp, call_program_and_get_last_line_of_output(command));
 	if (strstr(tmp, "GPT") == NULL) {

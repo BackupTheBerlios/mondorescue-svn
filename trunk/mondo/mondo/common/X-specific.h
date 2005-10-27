@@ -63,8 +63,9 @@ extern "C" {
   public:
 	struct Event {
 		enum EventType { None, Show, Hide, New, SetProgress, SetTotal,
-				SetText, InsLine, PopupWithButtons, InfoMsg, ErrorMsg,
-				GetInfo } type;
+			SetText, InsLine, PopupWithButtons, InfoMsg, ErrorMsg,
+			GetInfo
+		} type;
 		QWidget *data;
 // union {
 		int iParam;

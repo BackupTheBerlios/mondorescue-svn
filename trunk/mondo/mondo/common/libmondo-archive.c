@@ -1213,7 +1213,7 @@ hexdump | tr -s ' ' '0' | head -n1"));
 	paranoid_free(data_disks_file);
 
 	asprintf(&command, "rm -f %s/%s/%s-[1-9]*.iso", bkpinfo->isodir,
-		         bkpinfo->nfs_remote_dir, bkpinfo->prefix);
+			 bkpinfo->nfs_remote_dir, bkpinfo->prefix);
 	paranoid_system(command);
 	paranoid_free(command);
 	wipe_archives(bkpinfo->scratchdir);
@@ -3378,8 +3378,8 @@ int write_final_iso_if_necessary(struct s_bkpinfo *bkpinfo)
 	asprintf(&tmp, "Writing the final ISO");
 	log_msg(2, tmp);
 	/* BERLIOS: center_string is now broken
-	center_string(tmp, 80);
-	*/
+	   center_string(tmp, 80);
+	 */
 #ifndef _XWIN
 	if (!g_text_mode) {
 		newtPushHelpLine(tmp);

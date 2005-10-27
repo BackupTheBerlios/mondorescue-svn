@@ -88,11 +88,11 @@ case "$host_cpu" in
 	i?86*)
 	#x86_64*)
 		ARCH=i386
-		CPPFLAGS="$CPPFLAGS -D__IA32__"
+		CPPFLAGS="$CPPFLAGS -D__IA32__ -Wall"
 		;;
 	ia64*)
 		ARCH=ia64
-		CPPFLAGS="$CPPFLAGS -D__IA64__"
+		CPPFLAGS="$CPPFLAGS -D__IA64__ -Wall"
 		;;
 	*)
 		echo "*** Sorry, only Intel Architectures (ia32, ia64) are supported at this time. Want to help?" 
@@ -139,7 +139,7 @@ AC_FUNC_LSTAT
 AC_FUNC_MALLOC
 AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS([bzero getcwd memmove memset mkdir mkfifo setenv strcasecmp strchr strerror strrchr strstr])
+AC_CHECK_FUNCS([bzero getcwd memmove memset mkdir mkfifo setenv strcasecmp strchr strerror strrchr strstr getline asprintf trunc vasprintf])
 
 if test -n "$qt_includes"; then
 	my_qt_includes="-I$qt_includes"

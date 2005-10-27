@@ -318,8 +318,8 @@ int main(int argc, char *argv[])
 	log_msg(9, "Next");
 	welcome_to_mondoarchive();
 	distro_specific_kludges_at_start_of_mondoarchive();
-	sprintf(g_erase_tmpdir_and_scratchdir, "rm -Rf %s %s", bkpinfo->tmpdir,
-			bkpinfo->scratchdir);
+	// BERLIOS : too early, bkpinfo is not initialized ??
+	//sprintf(g_erase_tmpdir_and_scratchdir, "rm -Rf %s %s", bkpinfo->tmpdir, bkpinfo->scratchdir);
 	g_kernel_version = get_kernel_version();
 
 	if (argc == 4 && !strcmp(argv[1], "getfattr")) {

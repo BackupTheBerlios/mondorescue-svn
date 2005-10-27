@@ -698,6 +698,7 @@ make_checksum_list_file(char *filelist, char *cksumlist, char *comppath)
  * @param outdir_fname The directory to create.
  * @return The return value of @c mkdir.
  */
+/* BERLIOS: This function shouldn't call system at all */
 int make_hole_for_dir(char *outdir_fname)
 {
 	char tmp[MAX_STR_LEN * 2];
@@ -716,6 +717,7 @@ int make_hole_for_dir(char *outdir_fname)
  * @return 0, always.
  * @bug Return value unnecessary.
  */
+/* BERLIOS: This function shouldn't call system at all */
 int make_hole_for_file(char *outfile_fname)
 {
 	/*@ buffer ****************************************************** */
@@ -1309,10 +1311,6 @@ estimate_noof_media_required(struct s_bkpinfo *bkpinfo, long noof_sets)
 	if (scratchLL <= 1) {
 		sprintf(tmp,
 				"Your backup will probably occupy a single CD/tape/ISO. Maybe two.");
-	} else if (scratchLL > 4) {
-		sprintf(tmp,
-				"Your backup will occupy one meeeeellion media! (maybe %s)",
-				number_to_text((int) (scratchLL + 1)));
 	} else {
 		sprintf(tmp, "Your backup will occupy approximately %s media.",
 				number_to_text((int) (scratchLL + 1)));

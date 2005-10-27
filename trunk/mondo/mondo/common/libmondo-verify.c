@@ -814,7 +814,6 @@ int verify_biggiefiles_from_stream(struct s_bkpinfo *bkpinfo)
 	long current_biggiefile_number = 0;
 
 	/*@ buffers ******************************************************** */
-	char *tmp;
 	char *orig_fname, *logical_fname;
 	char *comment;
 	char *curr_xattr_list_fname;

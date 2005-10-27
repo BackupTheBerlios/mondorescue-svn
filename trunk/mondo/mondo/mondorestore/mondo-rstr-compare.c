@@ -54,7 +54,6 @@
 */
 
 
-#include <pthread.h>
 #include "../common/my-stuff.h"
 #include "../common/mondostructures.h"
 #include "../common/libmondo.h"
@@ -63,6 +62,7 @@
 #include "mondo-rstr-compare.h"
 #include "mondo-restore-EXT.h"
 #include "mondo-rstr-tools-EXT.h"
+#include <pthread.h>
 
 //static char cvsid[] = "$Id$";
 

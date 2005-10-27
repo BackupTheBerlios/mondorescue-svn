@@ -380,7 +380,6 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 	/*@ buffers ******************************************************** */
 	char *tmp;
 	char *device;
-	char *mountpoint;
 
 	/*@ long *********************************************************** */
 	long physical_drive_size = 0;

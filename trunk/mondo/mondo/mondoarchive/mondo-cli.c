@@ -160,18 +160,15 @@ UPDATE LOG
 
 /** @def BOOT_LOADER_CHARS The characters allowed for boot loader on this platform. */
 
-#include <pthread.h>
 #include "../common/my-stuff.h"
 #include "../common/mondostructures.h"
 #include "mondo-cli-EXT.h"
 #include "../common/libmondo.h"
-
-
+#include <pthread.h>
 
 #ifndef VERSION
 #define VERSION AUX_VER
 #endif
-
 
 
 //static char cvsid[] = "$Id$";
@@ -262,6 +259,7 @@ handle_incoming_parameters(int argc, char *argv[],
 	res =
 		retrieve_switches_from_command_line(argc, argv, flag_val,
 											flag_set);
+	log_it("value: %s", flag_val['s']);
 	retval += res;
 	if (!retval) {
 		res = process_switches(bkpinfo, flag_val, flag_set);

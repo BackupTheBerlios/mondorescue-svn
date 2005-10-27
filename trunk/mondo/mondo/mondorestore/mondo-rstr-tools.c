@@ -123,7 +123,6 @@ cvsid     : $Id: mondo-rstr-tools.c
 */
 
 
-#include <pthread.h>
 #include "../common/my-stuff.h"
 #include "../common/mondostructures.h"
 #include "../common/libmondo.h"
@@ -131,6 +130,7 @@ cvsid     : $Id: mondo-rstr-tools.c
 //#include "mondo-restore.h"
 //#include "mondo-rstr-compare-EXT.h"
 #include "mondo-rstr-tools.h"
+#include <pthread.h>
 
 extern bool g_sigpipe_caught;
 extern bool g_ISO_restore_mode;	/* are we in Iso Mode? */

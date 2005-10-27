@@ -380,7 +380,6 @@
 /**************************************************************************
  * #include statements                                                    *
  **************************************************************************/
-#include <pthread.h>
 #include "../common/my-stuff.h"
 #include "../common/mondostructures.h"
 #include "../common/libmondo.h"
@@ -388,6 +387,7 @@
 #include "mondo-restore.h"
 #include "mondo-rstr-compare-EXT.h"
 #include "mondo-rstr-tools-EXT.h"
+#include <pthread.h>
 
 extern void success_message(void);
 extern void twenty_seconds_til_yikes(void);

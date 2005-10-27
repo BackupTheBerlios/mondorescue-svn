@@ -1,7 +1,6 @@
 /* $Id$
 
 subroutines to handle the archiving of files
-
 */
 
 /**
@@ -513,7 +512,6 @@ int backup_data(struct s_bkpinfo *bkpinfo)
  * - @c media_device
  * - @c media_size
  * - @c nonbootable_backup
- * - @c scratchdir
  * - @c tmpdir
  * - @c use_lzo
  *
@@ -527,7 +525,6 @@ int call_mindi_to_supply_boot_disks(struct s_bkpinfo *bkpinfo)
 {
 	/*@ buffer ************************************************************ */
 	char *tmp;
-	char *scratchdir;
 	char *command;
 	char *use_lzo_sz;
 	char *use_comp_sz;
@@ -870,7 +867,6 @@ int call_mindi_to_supply_boot_disks(struct s_bkpinfo *bkpinfo)
 	log_msg(2, command);
 
 	//  popup_and_OK("Pausing");
-
 	res = run_program_and_log_to_screen(command,
 										"Generating boot+data disks");
 	paranoid_free(command);
@@ -1507,9 +1503,10 @@ int make_afioballs_and_images(struct s_bkpinfo *bkpinfo)
 			misc_counter_that_is_not_important =
 				(misc_counter_that_is_not_important + 1) % 5;
 			/* BERLIOS: media_usage_comment was NOT initialized !!! */
-			/* maybe : */
-			asprintf(&media_usage_comment, "%s",
-					 percent_media_full_comment(bkpinfo));
+			/* maybe  */
+			tmp = percent_media_full_comment(bkpinfo);
+			asprintf(&media_usage_comment, "%s", tmp);
+			paranoid_free(tmp);
 			if (!misc_counter_that_is_not_important) {
 				update_progress_form(media_usage_comment);
 			}
@@ -1534,8 +1531,9 @@ int make_afioballs_and_images(struct s_bkpinfo *bkpinfo)
 						storing_filelist_fname, storing_afioball_fname);
 				sleep(5);
 			}
-			asprintf(&media_usage_comment, "%s",
-					 percent_media_full_comment(bkpinfo));
+			tmp = percent_media_full_comment(bkpinfo);
+			asprintf(&media_usage_comment, "%s", tmp);
+			paranoid_free(tmp);
 			/* copy to CD (scratchdir) ... and an actual CD-R if necessary */
 			if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
 				register_in_tape_catalog(fileset, storing_set_no, -1,
@@ -1643,7 +1641,6 @@ int make_iso_fs(struct s_bkpinfo *bkpinfo, char *destfile)
 	char *result_sz;
 	char *message_to_screen;
 	char *sz_blank_disk;
-	char *fnam;
 	char *tmp2;
 	char *tmp3;
 	bool cd_is_mountable;
@@ -2185,8 +2182,9 @@ int make_afioballs_and_images_OLD(struct s_bkpinfo *bkpinfo)
 			paranoid_free(tmp);
 		}
 
-		asprintf(&media_usage_comment, "%s",
-				 percent_media_full_comment(bkpinfo));
+		tmp = percent_media_full_comment(bkpinfo);
+		asprintf(&media_usage_comment, "%s", tmp);
+		paranoid_free(tmp);
 
 		/* copy to CD (scratchdir) ... and an actual CD-R if necessary */
 		if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
@@ -3166,7 +3164,7 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
 				 slice_fname(biggie_file_number, slice_num,
 							 bkpinfo->tmpdir, suffix));
 
-		asprintf(&tmp, "%s", percent_media_full_comment(bkpinfo));
+		tmp = percent_media_full_comment(bkpinfo);
 		update_progress_form(tmp);
 		paranoid_free(tmp);
 
@@ -3379,9 +3377,9 @@ int write_final_iso_if_necessary(struct s_bkpinfo *bkpinfo)
 
 	asprintf(&tmp, "Writing the final ISO");
 	log_msg(2, tmp);
-	/* BERLIOS: that function seems strange to me
-	   center_string(tmp, 80);
-	 */
+	/* BERLIOS: center_string is now broken
+	center_string(tmp, 80);
+	*/
 #ifndef _XWIN
 	if (!g_text_mode) {
 		newtPushHelpLine(tmp);

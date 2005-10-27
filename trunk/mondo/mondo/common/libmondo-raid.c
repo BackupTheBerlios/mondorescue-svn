@@ -904,7 +904,6 @@ int read_mdstat(struct s_mdstat *mdstat, char *mdstat_file)
 	char *tmp;
 	char *stub;
 	char *incoming = NULL;
-	char *raid_devname;
 	char *p, *q, *r;
 	int diskno;
 	size_t n = 0;

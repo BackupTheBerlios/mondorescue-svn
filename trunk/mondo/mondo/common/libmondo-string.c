@@ -67,12 +67,13 @@ char *build_partition_name(char *partition, const char *drive, int partno)
 
 /**
  * Pad a string on both sides so it appears centered.
- * @param in_out The string to be center-padded (modified).
+ * @param in_out The string to be center-padded (modified). The caller needs to free this string
  * @param width The width of the final result.
  */
 void center_string(char *in_out, int width)
 {
 	char *scratch;
+	char *out;
 	char *p;
 	int i;						/* purpose */
 	int len;					/* purpose */
@@ -86,7 +87,7 @@ void center_string(char *in_out, int width)
 		return;
 	}
 	for (p = in_out; *p == ' '; p++);
-	asprintf(&scratch, "%s", p);
+	asprintf(&scratch, p);
 	len = (int) strlen(scratch);
 	mid = width / 2;
 	x = mid - len / 2;
@@ -94,8 +95,9 @@ void center_string(char *in_out, int width)
 		in_out[i] = ' ';
 	}
 	in_out[i] = '\0';
-	strcat(in_out, scratch);
+	asprintf(&out, "%s%s", in_out, scratch);
 	paranoid_free(scratch);
+	in_out = out;
 }
 
 
@@ -862,12 +864,11 @@ char *turn_raid_level_number_to_string(int raid_level)
  */
 int severity_of_difference(char *fn, char *out_reason)
 {
-	int sev;
+	int sev = 0;
 	char *reason;
 	char *filename;
 
-	malloc_string(reason);
-// out_reason might be null on purpose, so don't bomb if it is :) OK?
+	// out_reason might be null on purpose, so don't bomb if it is :) OK?
 	assert_string_is_neither_NULL_nor_zerolength(fn);
 	if (!strncmp(fn, MNT_RESTORING, strlen(MNT_RESTORING))) {
 		asprintf(&filename, "%s", fn + strlen(MNT_RESTORING));
@@ -877,79 +878,76 @@ int severity_of_difference(char *fn, char *out_reason)
 		asprintf(&filename, "%s", fn);
 	}
 
-	sev = 3;
-	sprintf(reason,
-			"Changed since backup. Consider running a differential backup in a day or two.");
 	if (!strncmp(filename, "/var/", 5)) {
 		sev = 2;
-		sprintf(reason,
+		asprintf(&reason,
 				"/var's contents will change regularly, inevitably.");
 	}
 	if (!strncmp(filename, "/home", 5)) {
 		sev = 2;
-		sprintf(reason,
+		asprintf(&reason,
 				"It's in your /home partiton. Therefore, it is important.");
 	}
 	if (!strncmp(filename, "/usr/", 5)) {
 		sev = 3;
-		sprintf(reason,
+		asprintf(&reason,
 				"You may have installed/removed software during the backup.");
 	}
 	if (!strncmp(filename, "/etc/", 5)) {
 		sev = 3;
-		sprintf(reason,
+		asprintf(&reason,
 				"Do not edit config files while backing up your PC.");
 	}
 	if (!strcmp(filename, "/etc/adjtime")
 		|| !strcmp(filename, "/etc/mtab")) {
 		sev = 1;
-		sprintf(reason, "This file changes all the time. It's OK.");
+		asprintf(&reason, "This file changes all the time. It's OK.");
 	}
 	if (!strncmp(filename, "/root/", 6)) {
 		sev = 3;
-		sprintf(reason, "Were you compiling/editing something in /root?");
+		asprintf(&reason, "Were you compiling/editing something in /root?");
 	}
 	if (!strncmp(filename, "/root/.", 7)) {
 		sev = 2;
-		sprintf(reason, "Temp or 'dot' files changed in /root.");
+		asprintf(&reason, "Temp or 'dot' files changed in /root.");
 	}
 	if (!strncmp(filename, "/var/lib/", 9)) {
 		sev = 2;
-		sprintf(reason, "Did you add/remove software during backing?");
+		asprintf(&reason, "Did you add/remove software during backing?");
 	}
 	if (!strncmp(filename, "/var/lib/rpm", 12)) {
 		sev = 3;
-		sprintf(reason, "Did you add/remove software during backing?");
+		asprintf(&reason, "Did you add/remove software during backing?");
 	}
 	if (!strncmp(filename, "/var/lib/slocate", 16)) {
 		sev = 1;
-		sprintf(reason,
+		asprintf(&reason,
 				"The 'update' daemon ran during backup. This does not affect the integrity of your backup.");
 	}
 	if (!strncmp(filename, "/var/log/", 9)
 		|| strstr(filename, "/.xsession")
 		|| !strcmp(filename + strlen(filename) - 4, ".log")) {
 		sev = 1;
-		sprintf(reason,
+		asprintf(&reason,
 				"Log files change frequently as the computer runs. Fret not.");
 	}
 	if (!strncmp(filename, "/var/spool", 10)) {
 		sev = 1;
-		sprintf(reason,
+		asprintf(&reason,
 				"Background processes or printers were active. This does not affect the integrity of your backup.");
 	}
 	if (!strncmp(filename, "/var/spool/mail", 10)) {
 		sev = 2;
-		sprintf(reason, "Mail was sent/received during backup.");
+		asprintf(&reason, "Mail was sent/received during backup.");
 	}
 	if (filename[strlen(filename) - 1] == '~') {
 		sev = 1;
-		sprintf(reason,
+		asprintf(&reason,
 				"Backup copy of another file which was modified recently.");
 	}
 	if (strstr(filename, "cache")) {
 		sev = 1;
-		sprintf(reason,
+		asprintf(&reason,
 				"Part of a cache of data. Caches change from time to time. Don't worry.");
 	}
 	if (!strncmp(filename, "/var/run/", 9)
@@ -957,15 +955,18 @@ int severity_of_difference(char *fn, char *out_reason)
 		|| strstr(filename, "/.DCOPserver") || strstr(filename, "/.MCOP")
 		|| strstr(filename, "/.Xauthority")) {
 		sev = 1;
-		sprintf(reason,
+		asprintf(&reason,
 				"Temporary file (a lockfile, perhaps) used by software such as X or KDE to register its presence.");
 	}
 	paranoid_free(filename);
 
-	if (out_reason) {
-		strcpy(out_reason, reason);
+	if (sev == 0) {
+		sev = 3;
+		asprintf(&reason,
+			"Changed since backup. Consider running a differential backup in a day or two.");
 	}
-	paranoid_free(reason);
+
+	out_reason = reason;
 	return (sev);
 }
 
@@ -999,32 +1000,31 @@ int compare_two_filelist_entries(void *va, void *vb)
  * - @c bkpinfo->backup_media_type
  * - @c bkpinfo->media_size
  * - @c bkpinfo->scratchdir
- * @return The string indicating media fill.
+ * @return The string indicating media fill. Needs to be freed by caller
  * @note The returned string points to static storage that will be overwritten with each call.
  */
 char *percent_media_full_comment(struct s_bkpinfo *bkpinfo)
 {
 	/*@ int *********************************************** */
-	int percentage;
+	int percentage = 0;
+	int i;
 	int j;
 
 	/*@ buffers ******************************************* */
-	static char outstr[MAX_STR_LEN];
-	char *pos_w_commas, *tmp;
+	char *outstr;
+	char *tmp;
+	char *tmp1;
+	char *tmp2;
+	char *prepstr;
+	char *p;
 
 	assert(bkpinfo != NULL);
-	malloc_string(pos_w_commas);
-	malloc_string(tmp);
-	sprintf(tmp, "%lld", g_tape_posK);
-	strcpy(pos_w_commas, commarize(tmp));
 
-
-
-	if (bkpinfo->media_size[g_current_media_number] <= 0)
-//    { fatal_error( "percentage_media_full_comment() - unknown media size"); }
-	{
-		sprintf(outstr, "Volume %d: %s kilobytes archived so far",
-				g_current_media_number, pos_w_commas);
+	if (bkpinfo->media_size[g_current_media_number] <= 0) {
+		asprintf(&tmp, "%lld", g_tape_posK);
+		asprintf(&outstr, "Volume %d: %s kilobytes archived so far",
+				g_current_media_number, commarize(tmp));
+		paranoid_free(tmp);
 		return (outstr);
 	}
 
@@ -1033,28 +1033,42 @@ char *percent_media_full_comment(struct s_bkpinfo *bkpinfo)
 		percentage =
 			(int) (g_tape_posK / 10 /
 				   bkpinfo->media_size[g_current_media_number]);
-		if (percentage > 100) {
-			percentage = 100;
-		}
-		sprintf(outstr, "Volume %d: [", g_current_media_number);
+		asprintf(&prepstr, "Volume %d: [", g_current_media_number);
 	} else {
 		percentage =
 			(int) (space_occupied_by_cd(bkpinfo->scratchdir) * 100 / 1024 /
 				   bkpinfo->media_size[g_current_media_number]);
-		sprintf(outstr, "%s %d: [",
+		asprintf(&prepstr, "%s %d: [",
 				media_descriptor_string(bkpinfo->backup_media_type),
 				g_current_media_number);
 	}
-	for (j = 0; j < percentage; j += 5) {
-		strcat(outstr, "*");
+	if (percentage > 100) {
+		percentage = 100;
 	}
-	for (; j < 100; j += 5) {
-		strcat(outstr, ".");
+	j = trunc(percentage/5);
+	tmp1 = (char *)malloc((j + 1) * sizeof(char));
+	for (i = 0, p = tmp1 ; i < j ; i++, p++) {
+			*p = '*';
 	}
-	j = (int) strlen(outstr);
-	sprintf(outstr + j, "] %d%% used", percentage);
-	paranoid_free(pos_w_commas);
-	paranoid_free(tmp);
+	*p = '\0';
+
+	tmp2 = (char *)malloc((20 - j + 1) * sizeof(char));
+	for (i = 0, p = tmp2 ; i < 20 - j ; i++, p++) {
+			*p = '.';
+	}
+	*p = '\0';
+
+	/* BERLIOS There is a bug here I can't solve for the moment. If you 
+	 * replace %% in the asprintf below by 'percent' it just works, but 
+	 * like this it creates a huge number. Memory pb somewhere */
+	/*
+	log_it("percentage: %d", percentage);
+	asprintf(&outstr, "%s%s%s] %3d%% used", prepstr, tmp1, tmp2, percentage);
+	*/
+	asprintf(&outstr, "%s%s%s] %3d percent used", prepstr, tmp1, tmp2, percentage);
+	paranoid_free(prepstr);
+	paranoid_free(tmp1);
+	paranoid_free(tmp2);
 	return (outstr);
 }
 

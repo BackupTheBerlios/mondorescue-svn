@@ -2212,7 +2212,6 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 		fatal_error
 			("I, Mojo Jojo, shall defeat those pesky Powerpuff Girls!");
 	}
-
 	if (archiving_to_media) {
 
 #ifdef __FreeBSD__
@@ -2363,6 +2362,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 	log_it("tmpdir = '%s'", bkpinfo->tmpdir);
 	log_it("boot_device = '%s' (loader=%c)", bkpinfo->boot_device,
 		   bkpinfo->boot_loader);
+	log_it("prefix = %s", bkpinfo->prefix);
 	if (bkpinfo->media_size[0] < 0) {
 		if (archiving_to_media) {
 			fatal_error("Media size is less than zero.");
@@ -2891,7 +2891,6 @@ char *which_partition_format(const char *drive)
 	char *tmp;
 	char *command;
 	char *fdisk;
-	struct stat buf;
 
 	malloc_string(tmp);
 	malloc_string(command);
@@ -2899,6 +2898,8 @@ char *which_partition_format(const char *drive)
 	log_msg(0, "Looking for partition table format type");
 // BERLIOS: Do that temporarily: we need to put back parted2fdisk everywhere
 #ifdef __IA64__
+	struct stat buf;
+
 	sprintf(fdisk, "/usr/local/bin/fdisk");
 	if (stat(fdisk, &buf) != 0) {
 #endif

@@ -1,148 +1,7 @@
-/* my-stuff.h
-   $Id$
-.
-
-
-07/14
-- ARCH_THREADS is now 2; buffers, 4
-
-07/10
-- added acl, xattr stuff
-
-06/19
-- added AUX_VER
-
-06/14
-- added DO_MBR_PLEASE
-
-04/17
-- replaced INTERNAL_TAPE_BLK_SIZE with g_internal_tape_block_size
-  and DEFAULT_INTERNAL_TAPE_BLOCK_SIZE
-
-04/13
-- log_msg is now calling standard_log_debug_msg, not the alias (log_debug_msg)
-
-04/03/2004
-- added star and SELINUX support
-
-11/20/2003
-- boot from isolinux.bin, not mindi-boot.2880.img
-
-11/15
-- reduced SLICE_SIZE from 8192 to 4096
-
-10/08
-- set p-i-h volsize to 1GB
-
-10/21
-- added MNT_CDROM and FREELOADER
-
-10/11
-- added DEFAULT_DVD_DISK_SIZE
-- added PARTIMAGE_DEBUG_LEVEL
-
-09/27
-- better logging
-
-09/24
-- added MR_LOGFILE="/tmp/mondo-restore.log"
-
-09/22
-- added bool, FALSE, TRUE
-
-09/20
-- increasd PPCFG_RAMDISK_SIZE to 150
-
-09/12
-- reduced MAX_STR_LEN from 512 to 460
-
-09/10
-- moved PPCFG_RAMDISK_SIZE here
-
-09/05
-- better config.h stuff
-
-06/05
-- changed fgrep to grep
-
-05/19
-- added CP_BIN
-
-05/05
-- added #include <sys/param.h> and sys/sem.h and ioctl.h
-
-05/03
-- added kill_anything_like_this()
-
-04/24/2003
-- added *STUB #define's
-
-11/22/2002
-- added INTERNAL_TAPE_BLK_SIZE
-
-10/10
-- use #define to create XMondo-friendly log file name if appropriate
-
-08/30
-- changed ARBITRARY_MAXIMUM to 512
-
-08/26
-- set MAX_STR_LEN at 512 but halved it within many _structures_
-- changed ARBITRARY_MAXIMUM to 128
-
-08/08
-- added '#include <signal.h>'
-- added WELCOME_STRING
-
-06/19
-- changed tape block size from 8192 to 65536
-
-04/08
-- added manual_cd_tray flag to bkpinfo
-
-03/31
-- added restore_path to struct s_bkpinfo
-
-03/21
-- updated version# to 1.42
-
-02/20
-- added bkpinfo->using_cdstream
-
-02/06
-- added MONDO_VERSION
-
-02/02
-- added MONDO_CFG_FILE
-- added SLICE_SIZE
-
-01/31
-- removed MINDI_HOME: it is unnecessary
-- replaced MONDO_HOME with variable g_mondo_home
-
-01/25
-- added MONDO_HOME, MINDI_HOME
-
-01/21
-- added s_node{} structure
-
-01/17
-- added sys/shm.h, types.h, ipc.h
-
-01/02/2002
-- added that groovy bkpinfo{} stuff
-
-11/29/2001
-- added raidlist{} struct
-
-08/27
-- stuff
-*/
+/* $Id$ */
 
 #define AUX_VER "2.05_berlios"
-
 #define HAVE_MALLOC 1
-
 
 // Extra info for ACLs and SELINUX users
 #define STAR_ACL_SZ "-xfflags -acl"
@@ -154,6 +13,13 @@
  * @file
  * The main header file for Mondo.
  */
+#ifndef _MY_STUFF_H_
+#define _MY_STUFF_H_
+
+/* Required for the use of asprintf */
+#define __USE_GNU
+
+#include <stdio.h>
 
 #if !defined(bool) && !defined(__cplusplus)
 /**
@@ -164,9 +30,6 @@
 #define FALSE 0
 #endif
 
-#ifndef _MY_STUFF_H_
-#define _MY_STUFF_H_
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -174,13 +37,14 @@
 #ifndef __FreeBSD__
 #include <getopt.h>
 #endif
+
 #include <sys/types.h>
 #include <sys/shm.h>
 #include <sys/ipc.h>
 #include <sys/ioctl.h>
 #include <sys/sem.h>
 #include <sys/param.h>
-#include <stdio.h>
+
 #include <stdlib.h>
 #ifndef  __USE_FILE_OFFSET64
 #define  __USE_FILE_OFFSET64
@@ -526,8 +390,5 @@ extern void _mondo_assert_fail(const char *file, const char *function,
 
 #define FREELOADER				// You're not a paying customer
 #define DEFAULT_MR_LOGLEVEL 4
-
-/* Required for the use of asprintf */
-#define _GNU_SOURCE
 
 #endif							/* _MY_STUFF_H_ */

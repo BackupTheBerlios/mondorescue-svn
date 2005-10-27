@@ -718,7 +718,7 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 	if (retval) {
 		fprintf(stderr, "Type 'man mondoarchive' for help.\n");
 	}
-	sprintf(tmp, "%s", MONDO_TMPISOS);	/* added #define 22 apr 2002 */
+	sprintf(tmp, "%s", MONDO_TMPISOS);
 	if (does_file_exist(tmp)) {
 		unlink(tmp);
 	}

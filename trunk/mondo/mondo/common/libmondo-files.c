@@ -1111,9 +1111,11 @@ void copy_mondo_and_mindi_stuff_to_scratchdir(struct s_bkpinfo *bkpinfo)
 	mvaddstr_and_log_it(g_currentY, 0,
 						"Copying Mondo's core files to the scratch directory");
 
+	/* BERLIOS: Why do we need to do it here as well ? */
 	log_msg(4, "g_mondo_home='%s'", g_mondo_home);
-	if (strlen(g_mondo_home) < 2) {
-		find_and_store_mondoarchives_home(g_mondo_home);
+	if ((g_mondo_home == NULL) || strlen(g_mondo_home) < 2) {
+		paranoid_free(g_mondo_home);
+		g_mondo_home = find_and_store_mondoarchives_home();
 	}
 	sprintf(command, CP_BIN " --parents -pRdf %s %s", g_mondo_home,
 			bkpinfo->scratchdir);

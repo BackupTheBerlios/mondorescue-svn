@@ -134,7 +134,6 @@ extern int g_current_media_number;
 extern void register_pid(pid_t, char *);
 extern int g_currentY;
 extern bool g_text_mode;
-extern char *g_boot_mountpt;
 extern bool g_remount_cdrom_at_end, g_remount_floppy_at_end;
 extern char *g_mondo_home;
 extern char *g_tmpfs_mountpt;
@@ -313,6 +312,7 @@ int main(int argc, char *argv[])
 	register_pid(g_main_pid, "mondo");
 	set_signals(TRUE);			// catch SIGTERM, etc.
 	nice(10);
+	run_program_and_log_output("date", 1);
 	run_program_and_log_output("dmesg -n1", TRUE);
 
 	log_msg(9, "Next");
@@ -562,6 +562,8 @@ int main(int argc, char *argv[])
 	if (!g_dvd_drive_is_here) {
 		log_msg(10, "FYI, g_dvd_drive_is_here was never used");
 	}
+
+	run_program_and_log_output("date", 1);
 
 	if (!g_text_mode) {
 		popup_and_OK

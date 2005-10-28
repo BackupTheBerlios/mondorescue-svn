@@ -3246,8 +3246,7 @@ int main(int argc, char *argv[])
 
 	malloc_libmondo_global_strings();
 
-	strcpy(g_mondo_home,
-		   call_program_and_get_last_line_of_output("which mondorestore"));
+	asprintf(&g_mondo_home, call_program_and_get_last_line_of_output("which mondorestore"));
 	sprintf(g_tmpfs_mountpt, "/tmp/tmpfs");
 	make_hole_for_dir(g_tmpfs_mountpt);
 	g_current_media_number = 1;	// precaution

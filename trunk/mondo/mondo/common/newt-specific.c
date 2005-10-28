@@ -32,7 +32,6 @@ extern "C" {
 
 	extern pid_t g_mastermind_pid;
 	extern char *g_tmpfs_mountpt;
-	extern char *g_boot_mountpt;
 	extern char *g_mondo_home;
 
 	extern char g_version[];

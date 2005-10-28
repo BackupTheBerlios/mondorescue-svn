@@ -86,16 +86,20 @@ if test "$host_cpu" != "$target_cpu"; then
 fi
 case "$host_cpu" in
 	i?86*)
-	#x86_64*)
 		ARCH=i386
 		CPPFLAGS="$CPPFLAGS -D__IA32__ -Wall"
+		;;
+	x86_64*)
+		ARCH=x86-64
+		CPPFLAGS="$CPPFLAGS -D__X86_64__ -Wall"
 		;;
 	ia64*)
 		ARCH=ia64
 		CPPFLAGS="$CPPFLAGS -D__IA64__ -Wall"
 		;;
 	*)
-		echo "*** Sorry, only Intel Architectures (ia32, ia64) are supported at this time. Want to help?" 
+		echo "*** Sorry, only Intel Architectures (ia32, x86-64, ia64) are supported at this time." 
+		echo "If you Want to help send a mail to bcornec@users.berlios.de" 
 		;;
 esac
 AC_SUBST(ARCH)

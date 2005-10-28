@@ -1998,7 +1998,6 @@ void setup_MR_global_filenames(struct s_bkpinfo *bkpinfo)
 	malloc_string(g_imagedevs_restthese);
 	malloc_string(g_mondo_cfg_file);
 	malloc_string(g_mountlist_fname);
-	malloc_string(g_mondo_home);
 	malloc_string(g_tmpfs_mountpt);
 	malloc_string(g_isodir_device);
 	malloc_string(g_isodir_format);

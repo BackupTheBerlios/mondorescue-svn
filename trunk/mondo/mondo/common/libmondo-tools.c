@@ -40,9 +40,9 @@ bool g_cd_recovery;				///< TRUE if we're making an "autonuke" backup.
 double g_kernel_version;
 
 /**
- * The place where /boot is mounted.
+ * The place where /boot is mounted. - Used locally only
  */
-char *g_boot_mountpt = NULL;
+static char *g_boot_mountpt = NULL;
 
 /**
  * The location of Mondo's home directory.
@@ -166,8 +166,7 @@ void clean_up_KDE_desktop_if_necessary(void)
 {
 	char *tmp;
 
-	malloc_string(tmp);
-	strcpy(tmp,
+	asprintf(&tmp,
 		   "for i in `find /root /home -type d -name Desktop -maxdepth 2`; do \
 file=$i/.directory; if [ -f \"$file\" ] ; then mv -f $file $file.old ; \
 cat $file.old | awk '{if (index($0, \"rootimagesmindi\")) { while (length($0)>2) { getline;} ; } \
@@ -184,23 +183,27 @@ else { print $0;};}' > $file ; fi ; done");
  * @param home_sz String to store the home directory ("" if it could not be found).
  * @return 0 for success, nonzero for failure.
  */
-int find_and_store_mondoarchives_home(char *home_sz)
+char *find_and_store_mondoarchives_home()
 {
-	assert(home_sz != NULL);
-	strcpy(home_sz,
+	char *home_sz = NULL;
+
+	asprintf(&home_sz,
 		   call_program_and_get_last_line_of_output
 		   ("find /usr/lib/ /usr/local/ /usr/share/ /usr/local/share/ /opt/ /ramdisk/usr/share/ -type d -maxdepth 2 -name include -prune -o -type d -maxdepth 2 -path '*/mondo/restore-scripts' -printf '%h\n' 2> /dev/null"));
 
 	if (home_sz[0] == '\0') {
-		strcpy(home_sz,
+		paranoid_free(home_sz);
+		asprintf(&home_sz,
 			   call_program_and_get_last_line_of_output
 			   ("find /usr -type d -path '*/mondo/restore-scripts' -follow -maxdepth 3 -printf '%h\n' 2> /dev/null"));
 	}
 	if (home_sz[0] == '\0') {
-		return (1);
+		paranoid_free(home_sz);
+		home_sz = NULL;
 	} else {
-		return (0);
+		log_it("mondoarchive home found at %s", home_sz);
 	}
+	return (home_sz);
 }
 
 
@@ -208,6 +211,9 @@ char *get_architecture()
 {
 #ifdef __IA32__
 	return ("i386");
+#endif
+#ifdef __X86_64__
+	return ("x86-64");
 #endif
 #ifdef __IA64__
 	return ("ia64");
@@ -219,13 +225,13 @@ char *get_architecture()
 
 double get_kernel_version()
 {
-	char *p, tmp[200];
+	char *p, *tmp;
 	double d;
 #ifdef __FreeBSD__
 	// JOSH - FIXME :)
 	d = 5.2;					// :-)
 #else
-	strcpy(tmp, call_program_and_get_last_line_of_output("uname -r"));
+	asprintf(&tmp, call_program_and_get_last_line_of_output("uname -r"));
 	p = strchr(tmp, '.');
 	if (p) {
 		p = strchr(++p, '.');
@@ -253,27 +259,7 @@ double get_kernel_version()
  */
 long get_time()
 {
-
-#if 0
-
-	/*@ pointers **************************************************** */
-	FILE *fin;
-
-	/*@ buffers ***************************************************** */
-	char incoming[MAX_STR_LEN];
-
-	/*@ end vars **************************************************** */
-
-	if (!(fin = popen("date +%s", "r"))) {
-		log_OS_error("Cannot popen date");
-		return (0);
-	}
-	fgets(incoming, MAX_STR_LEN - 1, fin);
-	paranoid_pclose(fin);
-	return (atol(incoming));
-#else
 	return (long) time((void *) 0);
-#endif
 }
 
 
@@ -334,58 +320,9 @@ void insmod_crucial_modules(void)
 	system("kldstat | grep msdosfs || kldload msdosfs 2> /dev/null");
 	system("kldstat | grep ext2fs  || kldload ext2fs 2> /dev/null");
 #else
-	system("modprobe dos &> /dev/null");
-	system("modprobe fat &> /dev/null");
-	system("modprobe vfat &> /dev/null");
-	//  system("modprobe osst &> /dev/null");
+	system("modprobe -a dos fat vfat loop &> /dev/null");
 #endif
 }
-
-
-/**
- * Log a trace message to the trace file.
- * @bug This function seems orphaned. Please remove.
- */
-void log_trace(char *o)
-{
-	/*@ pointers **************************************************** */
-	FILE *fout;
-
-	/*@ buffers ***************************************************** */
-	char output[MAX_STR_LEN];
-
-	/*@ int    ****************************************************** */
-	int i;
-
-	/*@ end vars *************************************************** */
-
-	if (o[0] == '\0') {
-		return;
-	}
-	strcpy(output, o);
-	i = (int) strlen(output);
-	if (i <= 0) {
-		return;
-	}
-	if (output[i - 1] < 32) {
-		output[i - 1] = '\0';
-	}
-	if (g_text_mode
-		/* && !strstr(last_line_of_file(MONDO_LOGFILE),output) */ ) {
-		printf("%s\n", output);
-	}
-
-	fout = fopen(MONDO_TRACEFILE, "a");
-	if (fout) {
-		fprintf(fout, "%s\n", output);
-		paranoid_fclose(fout);
-	} else {
-		log_OS_error("Cannot write to tracefile");
-	}
-}
-
-
-
 
 
 /**
@@ -421,35 +358,20 @@ void log_trace(char *o)
  */
 int post_param_configuration(struct s_bkpinfo *bkpinfo)
 {
-	char *extra_cdrom_params;
-	char *mondo_mkisofs_sz;
+	char *extra_cdrom_params = NULL;
+	char *mondo_mkisofs_sz = NULL;
 	char *command;
-	char *mtpt;
 	char *hostname, *ip_address;
 	int retval = 0;
 	long avm = 0;
 	char *colon;
 	char *cdr_exe;
 	char *tmp;
+	char *tmp1;
 	int rdsiz_MB;
-	char *iso_dev;
-	char *iso_mnt;
-	char *iso_tmp;
 	char *iso_path;
 
 	assert(bkpinfo != NULL);
-	malloc_string(extra_cdrom_params);
-	malloc_string(mondo_mkisofs_sz);
-	malloc_string(command);
-	malloc_string(mtpt);
-	malloc_string(hostname);
-	malloc_string(ip_address);
-	malloc_string(cdr_exe);
-	malloc_string(tmp);
-	malloc_string(iso_dev);
-	malloc_string(iso_mnt);
-	malloc_string(iso_tmp);
-	malloc_string(iso_path);
 	bkpinfo->optimal_set_size =
 		(IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type) ? 4 : 8) *
 		1024;
@@ -457,12 +379,13 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 	log_msg(1, "Foo");
 	if (bkpinfo->backup_media_type == tape) {
 		log_msg(1, "Bar");
-		sprintf(tmp, "mt -f %s status", bkpinfo->media_device);
+		asprintf(&tmp, "mt -f %s status", bkpinfo->media_device);
 		log_msg(1, "tmp = '%s'", tmp);
 		if (run_program_and_log_output(tmp, 3)) {
 			fatal_error
 				("Unable to open tape device. If you haven't specified it with -d, do so. If you already have, check your parameter. I think it's wrong.");
 		}
+		paranoid_free(tmp);
 	}
 	make_hole_for_dir(bkpinfo->scratchdir);
 	make_hole_for_dir(bkpinfo->tmpdir);
@@ -471,29 +394,34 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 
 	run_program_and_log_output("uname -a", 5);
 	run_program_and_log_output("cat /etc/*issue*", 5);
-	sprintf(g_tmpfs_mountpt, "%s/tmpfs", bkpinfo->tmpdir);
-	sprintf(command, "mkdir -p %s", g_tmpfs_mountpt);
+	asprintf(&g_tmpfs_mountpt, "%s/tmpfs", bkpinfo->tmpdir);
+	asprintf(&command, "mkdir -p %s", g_tmpfs_mountpt);
 	paranoid_system(command);
+	paranoid_free(command);
 	rdsiz_MB = PPCFG_RAMDISK_SIZE + g_tape_buffer_size_MB;
 #ifdef __FreeBSD__
-	strcpy(tmp,
+	asprintf(&tmp,
 		   call_program_and_get_last_line_of_output
 		   ("vmstat | tail -1 | tr -s ' ' | cut -d' ' -f6"));
 	avm += atol(tmp);
-	strcpy(tmp,
+	paranoid_free(tmp);
+	asprintf(&tmp,
 		   call_program_and_get_last_line_of_output
 		   ("swapinfo | grep -v Device | tr -s ' ' | cut -d' ' -f4 | tr '\n' '+' | sed 's/+$//' | bc"));
 	avm += atol(tmp);
-	sprintf(command, "mdmfs -s %d%c md9 %s", rdsiz_MB, 'm',
+	paranoid_free(tmp);
+	asprintf(&command, "mdmfs -s %d%c md9 %s", rdsiz_MB, 'm',
 			g_tmpfs_mountpt);
 #else
-	strcpy(tmp,
+	asprintf(&tmp,
 		   call_program_and_get_last_line_of_output
 		   ("free | grep \":\" | tr -s ' ' '\t' | cut -f2 | head -n1"));
 	avm += atol(tmp);
-	sprintf(command, "mount /dev/shm -t tmpfs %s -o size=%d%c",
+	paranoid_free(tmp);
+	asprintf(&command, "mount /dev/shm -t tmpfs %s -o size=%d%c",
 			g_tmpfs_mountpt, rdsiz_MB, 'm');
 	run_program_and_log_output("cat /proc/cpuinfo", 5);
+	/* BERLIOS: rpm is not necessarily there ! */
 	run_program_and_log_output
 		("rpm -q newt newt-devel slang slang-devel ncurses ncurses-devel gcc",
 		 5);
@@ -509,6 +437,7 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 		g_tmpfs_mountpt[0] = '\0';
 		log_it("It doesn't seem you have enough swap to use tmpfs. Fine.");
 	}
+	paranoid_free(command);
 
 	if (bkpinfo->use_lzo) {
 		strcpy(bkpinfo->zip_exe, "lzop");
@@ -523,16 +452,11 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 // DVD
 
 	if (bkpinfo->backup_media_type == dvd) {
-		extra_cdrom_params[0] = '\0';
-		mondo_mkisofs_sz[0] = '\0';
-		if (find_home_of_exe("growisofs")) {
-			strcpy(cdr_exe, "growisofs");
-		}						// unlikely to be used
-		else {
+		if (! (find_home_of_exe("growisofs"))) {
 			fatal_error("Please install growisofs.");
 		}
 		if (bkpinfo->nonbootable_backup) {
-			strcat(mondo_mkisofs_sz, MONDO_GROWISOFS_NONBOOT);
+			asprintf(&mondo_mkisofs_sz, MONDO_GROWISOFS_NONBOOT);
 		} else if
 #ifdef __FreeBSD__
 			(TRUE)
@@ -541,16 +465,16 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 #endif
 #ifdef __IA64__
 	{
-		strcat(mondo_mkisofs_sz, MONDO_GROWISOFS_REGULAR_ELILO);
+		asprintf(&mondo_mkisofs_sz, MONDO_GROWISOFS_REGULAR_ELILO);
 	}
 #else
 	{
-		strcat(mondo_mkisofs_sz, MONDO_GROWISOFS_REGULAR_LILO);
+		asprintf(&mondo_mkisofs_sz, MONDO_GROWISOFS_REGULAR_LILO);
 	}
 #endif
 		else
 		{
-			strcat(mondo_mkisofs_sz, MONDO_GROWISOFS_REGULAR_SYSLINUX);
+			asprintf(&mondo_mkisofs_sz, MONDO_GROWISOFS_REGULAR_SYSLINUX);
 		}
 		if (bkpinfo->manual_cd_tray) {
 			fatal_error("Manual CD tray + DVD not supported yet.");
@@ -559,8 +483,10 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 			sprintf(bkpinfo->call_make_iso,
 					"%s %s -Z %s . 2>> _ERR_",
 					mondo_mkisofs_sz,
-					extra_cdrom_params, bkpinfo->media_device);
+					"", bkpinfo->media_device);
 		}
+		paranoid_free(mondo_mkisofs_sz);
+
 		if (getenv("SUDO_COMMAND")) {
 			fatal_error
 				("Can't write DVDs as sudo because growisofs doesn't support this - please see the growisofs manpage for details.");
@@ -572,22 +498,27 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 // CD-R or CD-RW
 	if (bkpinfo->backup_media_type == cdrw
 		|| bkpinfo->backup_media_type == cdr) {
-		extra_cdrom_params[0] = '\0';
 		if (!bkpinfo->manual_cd_tray) {
-			strcat(extra_cdrom_params, "-waiti ");
+			asprintf(&extra_cdrom_params, "-waiti ");
 		}
 		if (bkpinfo->backup_media_type == cdrw) {
-			strcat(extra_cdrom_params, "blank=fast ");
+			if (extra_cdrom_params != NULL) {
+				asprintf(&tmp, extra_cdrom_params);
+				paranoid_free(extra_cdrom_params);
+				asprintf(&extra_cdrom_params, "%s blank=fast ", tmp);
+			} else {
+				asprintf(&extra_cdrom_params, "blank=fast ");
+			}
 		}
 		if (find_home_of_exe("cdrecord")) {
-			strcpy(cdr_exe, "cdrecord");
+			asprintf(&cdr_exe, "cdrecord");
 		} else if (find_home_of_exe("dvdrecord")) {
-			strcpy(cdr_exe, "dvdrecord");
+			asprintf(&cdr_exe, "dvdrecord");
 		} else {
 			fatal_error("Please install either cdrecord or dvdrecord.");
 		}
 		if (bkpinfo->nonbootable_backup) {
-			strcpy(mondo_mkisofs_sz, MONDO_MKISOFS_NONBOOT);
+			asprintf(&mondo_mkisofs_sz, MONDO_MKISOFS_NONBOOT);
 		} else if
 #ifdef __FreeBSD__
 			(TRUE)
@@ -596,16 +527,16 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 #endif
 #ifdef __IA64__
 	{
-		strcat(mondo_mkisofs_sz, MONDO_MKISOFS_REGULAR_ELILO);
+		asprintf(&mondo_mkisofs_sz, MONDO_MKISOFS_REGULAR_ELILO);
 	}
 #else
 	{
-		strcpy(mondo_mkisofs_sz, MONDO_MKISOFS_REGULAR_LILO);
+		asprintf(&mondo_mkisofs_sz, MONDO_MKISOFS_REGULAR_LILO);
 	}
 #endif
 		else
 		{
-			strcpy(mondo_mkisofs_sz, MONDO_MKISOFS_REGULAR_SYSLINUX);
+			asprintf(&mondo_mkisofs_sz, MONDO_MKISOFS_REGULAR_SYSLINUX);
 		}
 		if (bkpinfo->manual_cd_tray) {
 			sprintf(bkpinfo->call_before_iso,
@@ -624,23 +555,10 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 					extra_cdrom_params, bkpinfo->media_device,
 					bkpinfo->cdrw_speed);
 		}
+		paranoid_free(mondo_mkisofs_sz);
+		paranoid_free(cdr_exe);
+		paranoid_free(extra_cdrom_params);
 	}							// end of CD code
-
-	/*
-	   if (bkpinfo->backup_data && bkpinfo->backup_media_type == tape)
-	   {
-	   sprintf (tmp,
-	   "dd if=/dev/zero of=%s bs=%ld count=32 2> /dev/null",
-	   bkpinfo->media_device, bkpinfo->internal_tape_block_size);
-	   if (system(tmp))
-	   {
-	   retval++;
-	   fprintf (stderr,
-	   "Cannot write to tape device. Is the tape set read-only?\n");
-	   }
-	   } // end of tape code
-	 */
-
 
 	if (bkpinfo->backup_media_type == iso) {
 
@@ -652,45 +570,47 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
  */
 
 		log_it("isodir = %s", bkpinfo->isodir);
-		sprintf(command, "df %s | tail -n1 | cut -d' ' -f1",
+		asprintf(&command, "df %s | tail -n1 | cut -d' ' -f1",
 				bkpinfo->isodir);
 		log_it("command = %s", command);
-		log_it("res of it = %s",
-			   call_program_and_get_last_line_of_output(command));
-		sprintf(iso_dev, "%s",
-				call_program_and_get_last_line_of_output(command));
-		sprintf(tmp, "%s/ISO-DEV", bkpinfo->tmpdir);
-		write_one_liner_data_file(tmp,
-								  call_program_and_get_last_line_of_output
-								  (command));
+		asprintf(&tmp, call_program_and_get_last_line_of_output(command));
+		paranoid_free(command);
+		log_it("res of it = %s", tmp);
+		asprintf(&tmp1, "%s/ISO-DEV", bkpinfo->tmpdir);
+		write_one_liner_data_file(tmp1, tmp);
+		paranoid_free(tmp1);
 
-		sprintf(command, "mount | grep -w %s | tail -n1 | cut -d' ' -f3",
-				iso_dev);
+		asprintf(&command, "mount | grep -w %s | tail -n1 | cut -d' ' -f3",
+				tmp);
+		paranoid_free(tmp);
 		log_it("command = %s", command);
-		log_it("res of it = %s",
-			   call_program_and_get_last_line_of_output(command));
-		sprintf(iso_mnt, "%s",
-				call_program_and_get_last_line_of_output(command));
-		sprintf(tmp, "%s/ISO-MNT", bkpinfo->tmpdir);
-		write_one_liner_data_file(tmp,
-								  call_program_and_get_last_line_of_output
-								  (command));
-		log_it("isomnt: %s, %d", iso_mnt, strlen(iso_mnt));
-		sprintf(iso_tmp, "%s", bkpinfo->isodir);
-		if (strlen(iso_tmp) < strlen(iso_mnt)) {
-			iso_path[0] = '\0';
+		asprintf(&tmp, call_program_and_get_last_line_of_output(command));
+		paranoid_free(command);
+		log_it("res of it = %s", tmp);
+
+		asprintf(&tmp1, "%s/ISO-MNT", bkpinfo->tmpdir);
+		write_one_liner_data_file(tmp1, tmp);
+		paranoid_free(tmp1);
+
+		log_it("isomnt: %s, %d", tmp, strlen(tmp));
+		if (strlen(bkpinfo->isodir) < strlen(tmp)) {
+			asprintf(&iso_path,"");
 		} else {
-			sprintf(iso_path, "%s", iso_tmp + strlen(iso_mnt));
+			asprintf(&iso_path, "%s", bkpinfo->isodir + strlen(tmp));
 		}
-		sprintf(tmp, "%s/ISODIR", bkpinfo->tmpdir);
+		paranoid_free(tmp);
+
+		asprintf(&tmp, "%s/ISODIR", bkpinfo->tmpdir);
 		write_one_liner_data_file(tmp, iso_path);
+		paranoid_free(tmp);
 		log_it("isodir: %s", iso_path);
+		paranoid_free(iso_path);
 
 /* End patch */
 	}							// end of iso code
 
 	if (bkpinfo->backup_media_type == nfs) {
-		strcpy(hostname, bkpinfo->nfs_mount);
+		asprintf(&hostname, bkpinfo->nfs_mount);
 		colon = strchr(hostname, ':');
 		if (!colon) {
 			log_it("nfs mount doesn't have a colon in it");
@@ -705,24 +625,27 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 					   hstrerror(h_errno));
 				retval++;
 			} else {
-				strcpy(ip_address, inet_ntoa((struct in_addr)
+				asprintf(&ip_address, "%s%s", inet_ntoa((struct in_addr)
 											 *((struct in_addr *) hent->
-											   h_addr)));
-				strcat(ip_address, strchr(bkpinfo->nfs_mount, ':'));
+											   h_addr)), strchr(bkpinfo->nfs_mount, ':'));
 				strcpy(bkpinfo->nfs_mount, ip_address);
+				paranoid_free(ip_address);
 			}
 		}
 		store_nfs_config(bkpinfo);
+		paranoid_free(hostname);
 	}
 
 	log_it("Finished processing incoming params");
 	if (retval) {
 		fprintf(stderr, "Type 'man mondoarchive' for help.\n");
 	}
-	sprintf(tmp, "%s", MONDO_TMPISOS);
+	asprintf(&tmp, "%s", MONDO_TMPISOS);
 	if (does_file_exist(tmp)) {
 		unlink(tmp);
 	}
+	paranoid_free(tmp);
+
 	if (strlen(bkpinfo->tmpdir) < 2 || strlen(bkpinfo->scratchdir) < 2) {
 		log_it("tmpdir or scratchdir are blank/missing");
 		retval++;
@@ -734,18 +657,6 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 	chmod(bkpinfo->scratchdir, 0700);
 	chmod(bkpinfo->tmpdir, 0700);
 	g_backup_media_type = bkpinfo->backup_media_type;
-	paranoid_free(mtpt);
-	paranoid_free(extra_cdrom_params);
-	paranoid_free(mondo_mkisofs_sz);
-	paranoid_free(command);
-	paranoid_free(hostname);
-	paranoid_free(ip_address);
-	paranoid_free(cdr_exe);
-	paranoid_free(tmp);
-	paranoid_free(iso_dev);
-	paranoid_free(iso_mnt);
-	paranoid_free(iso_tmp);
-	paranoid_free(iso_path);
 	return (retval);
 }
 
@@ -776,7 +687,7 @@ int pre_param_configuration(struct s_bkpinfo *bkpinfo)
 
 	unlink(MONDO_TRACEFILE);
 	run_program_and_log_output("rm -Rf /tmp/changed.files*", FALSE);
-	if (find_and_store_mondoarchives_home(g_mondo_home)) {
+	if ((g_mondo_home = find_and_store_mondoarchives_home()) == NULL) {
 		fprintf(stderr,
 				"Cannot find Mondo's homedir. I think you have >1 'mondo' directory on your hard disk. Please delete the superfluous 'mondo' directories and try again\n");
 		res++;
@@ -865,22 +776,26 @@ void reset_bkpinfo(struct s_bkpinfo *bkpinfo)
  */
 long free_space_on_given_partition(char *partition)
 {
-	char command[MAX_STR_LEN], out_sz[MAX_STR_LEN];
+	char *command, *out_sz;
 	long res;
 
 	assert_string_is_neither_NULL_nor_zerolength(partition);
 
-	sprintf(command, "df -m %s &> /dev/null", partition);
+	asprintf(&command, "df -m %s &> /dev/null", partition);
 	if (system(command)) {
 		return (-1);
 	}							// partition does not exist
-	sprintf(command, "df -m %s | tail -n1 | tr -s ' ' '\t' | cut -f4",
+	paranoid_free(command);
+
+	asprintf(&command, "df -m %s | tail -n1 | tr -s ' ' '\t' | cut -f4",
 			partition);
-	strcpy(out_sz, call_program_and_get_last_line_of_output(command));
+	asprintf(&out_sz, call_program_and_get_last_line_of_output(command));
+	paranoid_free(command);
 	if (strlen(out_sz) == 0) {
 		return (-1);
 	}							// error within df, probably
 	res = atol(out_sz);
+	paranoid_free(out_sz);
 	return (res);
 }
 
@@ -902,8 +817,7 @@ int some_basic_system_sanity_checks()
 {
 
 	/*@ buffers ************ */
-	char tmp[MAX_STR_LEN];
-	//  char command[MAX_STR_LEN];
+	char *tmp;
 
 	/*@ int's *************** */
 	int retval = 0;
@@ -920,7 +834,7 @@ int some_basic_system_sanity_checks()
 		run_program_and_log_output
 			("ln -sf `which mkfs.msdos` /sbin/mkfs.vfat", FALSE);
 	}
-	strcpy(tmp,
+	asprintf(&tmp,
 		   call_program_and_get_last_line_of_output
 		   ("free | grep Mem | head -n1 | tr -s ' ' '\t' | cut -f2"));
 	if (atol(tmp) < 35000) {
@@ -931,6 +845,7 @@ int some_basic_system_sanity_checks()
 		log_to_screen
 			("WARNING! You have very little RAM. Please upgrade to 64MB or more.");
 	}
+	paranoid_free(tmp);
 #endif
 
 	if ((Lres = free_space_on_given_partition("/root")) == -1) {
@@ -1009,7 +924,7 @@ int some_basic_system_sanity_checks()
 	}
 	run_program_and_log_output
 		("umount `mount | grep cdr | cut -d' ' -f3 | tr '\n' ' '`", 5);
-	strcpy(tmp,
+	asprintf(&tmp,
 		   call_program_and_get_last_line_of_output
 		   ("mount | grep -E \"cdr(om|w)\""));
 	if (strcmp("", tmp)) {
@@ -1028,6 +943,7 @@ int some_basic_system_sanity_checks()
 				("Your CD-ROM drive is mounted. Please unmount it.");
 		}
 	}
+	paranoid_free(tmp);
 #ifndef __FreeBSD__
 	if (!does_file_exist("/etc/modules.conf")) {
 		if (does_file_exist("/etc/conf.modules")) {
@@ -1101,17 +1017,18 @@ int some_basic_system_sanity_checks()
 int read_cfg_var(char *config_file, char *label, char *value)
 {
 	/*@ buffer ****************************************************** */
-	char command[MAX_STR_LEN * 2];
-	char tmp[MAX_STR_LEN];
+	char *command;
+	char *tmp;
 
 	/*@ end vars *************************************************** */
 
 	assert_string_is_neither_NULL_nor_zerolength(config_file);
 	assert_string_is_neither_NULL_nor_zerolength(label);
 	if (!does_file_exist(config_file)) {
-		sprintf(tmp, "(read_cfg_var) Cannot find %s config file",
+		asprintf(&tmp, "(read_cfg_var) Cannot find %s config file",
 				config_file);
 		log_to_screen(tmp);
+		paranoid_free(tmp);
 		value[0] = '\0';
 		return (1);
 	} else if (strstr(value, "/dev/") && strstr(value, "t0")
@@ -1120,9 +1037,10 @@ int read_cfg_var(char *config_file, char *label, char *value)
 				label, value);
 		return (0);
 	} else {
-		sprintf(command, "cat %s | grep \"%s .*\" | cut -d' ' -f2,3,4,5",
+		asprintf(&command, "cat %s | grep \"%s .*\" | cut -d' ' -f2,3,4,5",
 				config_file, label);
 		strcpy(value, call_program_and_get_last_line_of_output(command));
+		paranoid_free(command);
 		if (strlen(value) == 0) {
 			return (1);
 		} else {
@@ -1188,7 +1106,7 @@ char g_autofs_exe[MAX_STR_LEN];
  */
 void stop_autofs_if_necessary()
 {
-	char tmp[MAX_STR_LEN];
+	char *tmp;
 
 	g_autofs_exe[0] = '\0';
 	if (does_file_exist(XANDROS_AUTOFS_FNAME)) {
@@ -1202,13 +1120,14 @@ void stop_autofs_if_necessary()
 	} else {
 		log_msg(3, "%s --- autofs detected", g_autofs_exe);
 // FIXME -- only disable it if it's running ---  sprintf(tmp, "%s status", autofs_exe);
-		sprintf(tmp, "%s stop", g_autofs_exe);
+		asprintf(&tmp, "%s stop", g_autofs_exe);
 		if (run_program_and_log_output(tmp, 2)) {
 			log_it("Failed to stop autofs - I assume it wasn't running");
 		} else {
 			g_autofs_stopped = TRUE;
 			log_it("Stopped autofs OK");
 		}
+		paranoid_free(tmp);
 	}
 }
 
@@ -1217,19 +1136,20 @@ void stop_autofs_if_necessary()
  */
 void restart_autofs_if_necessary()
 {
-	char tmp[MAX_STR_LEN];
+	char *tmp;
 
 	if (!g_autofs_stopped || !g_autofs_exe[0]) {
 		log_msg(3, "No autofs detected.");
 		return;
 	}
-	sprintf(tmp, "%s start", g_autofs_exe);
+	asprintf(&tmp, "%s start", g_autofs_exe);
 	if (run_program_and_log_output(tmp, 2)) {
 		log_it("Failed to start autofs");
 	} else {
 		g_autofs_stopped = FALSE;
 		log_it("Started autofs OK");
 	}
+		paranoid_free(tmp);
 }
 
 
@@ -1238,51 +1158,63 @@ void restart_autofs_if_necessary()
  */
 void mount_boot_if_necessary()
 {
-	char tmp[MAX_STR_LEN];
-	char command[MAX_STR_LEN];
+	char *tmp;
+	char *tmp1;
+	char *command;
 
 	log_msg(1, "Started sub");
-	log_msg(4, "About to set g_boot_mountpt[0] to '\\0'");
-	g_boot_mountpt[0] = '\0';
+	log_msg(4, "About to set g_boot_mountpt to \"\"");
+	asprintf(&g_boot_mountpt, "");
 	log_msg(4, "Done. Great. Seeting command to something");
-	strcpy(command,
+	asprintf(&command,
 		   "cat /etc/fstab | grep -v \":\" | grep -vx \"#.*\" | grep -w \"/boot\" | tr -s ' ' '\t' | cut -f1 | head -n1");
 	log_msg(4, "Cool. Command = '%s'", command);
-	strcpy(tmp, call_program_and_get_last_line_of_output(command));
+	asprintf(&tmp, call_program_and_get_last_line_of_output(command));
+	paranoid_free(command);
+
 	log_msg(4, "tmp = '%s'", tmp);
 	if (tmp[0]) {
 		log_it("/boot is at %s according to /etc/fstab", tmp);
 		if (strstr(tmp, "LABEL=")) {
 			if (!run_program_and_log_output("mount /boot", 5)) {
-				strcpy(g_boot_mountpt, "/boot");
+				paranoid_free(g_boot_mountpt);
+				asprintf(&g_boot_mountpt, "/boot");
 				log_msg(1, "Mounted /boot");
 			} else {
 				log_it("...ignored cos it's a label :-)");
 			}
 		} else {
-			sprintf(command, "mount | grep -w \"%s\"", tmp);
+			asprintf(&command, "mount | grep -w \"%s\"", tmp);
 			log_msg(3, "command = %s", command);
 			if (run_program_and_log_output(command, 5)) {
-				strcpy(g_boot_mountpt, tmp);
-				sprintf(tmp,
+				paranoid_free(g_boot_mountpt);
+				asprintf(&g_boot_mountpt, tmp);
+				asprintf(&tmp1,
 						"%s (your /boot partition) is not mounted. I'll mount it before backing up",
 						g_boot_mountpt);
-				log_it(tmp);
-				sprintf(tmp, "mount %s", g_boot_mountpt);
-				if (run_program_and_log_output(tmp, 5)) {
-					g_boot_mountpt[0] = '\0';
+				log_it(tmp1);
+				paranoid_free(tmp1);
+
+				asprintf(&tmp1, "mount %s", g_boot_mountpt);
+				if (run_program_and_log_output(tmp1, 5)) {
+					paranoid_free(g_boot_mountpt);
+					asprintf(&g_boot_mountpt, "");
 					log_msg(1, "Plan B");
 					if (!run_program_and_log_output("mount /boot", 5)) {
-						strcpy(g_boot_mountpt, "/boot");
+						paranoid_free(g_boot_mountpt);
+						asprintf(&g_boot_mountpt, "/boot");
 						log_msg(1, "Plan B worked");
 					} else {
 						log_msg(1,
 								"Plan B failed. Unable to mount /boot for backup purposes. This probably means /boot is mounted already, or doesn't have its own partition.");
 					}
 				}
+				paranoid_free(tmp1);
 			}
+			paranoid_free(command);
 		}
 	}
+	paranoid_free(tmp);
 	log_msg(1, "Ended sub");
 }
 
@@ -1292,14 +1224,15 @@ void mount_boot_if_necessary()
  */
 void unmount_boot_if_necessary()
 {
-	char tmp[MAX_STR_LEN];
+	char *tmp;
 
 	log_msg(3, "starting");
 	if (g_boot_mountpt[0]) {
-		sprintf(tmp, "umount %s", g_boot_mountpt);
+		asprintf(&tmp, "umount %s", g_boot_mountpt);
 		if (run_program_and_log_output(tmp, 5)) {
 			log_it("WARNING - unable to unmount /boot");
 		}
+		paranoid_free(tmp);
 	}
 	log_msg(3, "leaving");
 }
@@ -1317,34 +1250,41 @@ void unmount_boot_if_necessary()
 int write_cfg_var(char *config_file, char *label, char *value)
 {
 	/*@ buffers ***************************************************** */
-	char command[MAX_STR_LEN * 2];
-	char tempfile[MAX_STR_LEN];
-	char tmp[MAX_STR_LEN];
+	char *command;
+	char *tempfile;
+	char *tmp;
 
 
 	/*@ end vars *************************************************** */
 	assert_string_is_neither_NULL_nor_zerolength(config_file);
 	assert_string_is_neither_NULL_nor_zerolength(label);
 	assert(value != NULL);
+
 	if (!does_file_exist(config_file)) {
-		sprintf(tmp, "(write_cfg_file) Cannot find %s config file",
+		asprintf(&tmp, "(write_cfg_file) Cannot find %s config file",
 				config_file);
 		log_to_screen(tmp);
+		paranoid_free(tmp);
 		return (1);
 	}
-	strcpy(tempfile,
+	asprintf(&tempfile,
 		   call_program_and_get_last_line_of_output
 		   ("mktemp -q /tmp/mojo-jojo.blah.XXXXXX"));
 	if (does_file_exist(config_file)) {
-		sprintf(command, "cat %s | grep -vx \"%s .*\" > %s", config_file,
+		asprintf(&command, "cat %s | grep -vx \"%s .*\" > %s", config_file,
 				label, tempfile);
 		paranoid_system(command);
+		paranoid_free(command);
 	}
-	sprintf(command, "echo \"%s %s\" >> %s", label, value, tempfile);
+	asprintf(&command, "echo \"%s %s\" >> %s", label, value, tempfile);
 	paranoid_system(command);
-	sprintf(command, "mv -f %s %s", tempfile, config_file);
+	paranoid_free(command);
+
+	asprintf(&command, "mv -f %s %s", tempfile, config_file);
 	paranoid_system(command);
+	paranoid_free(command);
 	unlink(tempfile);
+	paranoid_free(tempfile);
 	return (0);
 }
 
@@ -1360,7 +1300,6 @@ void standard_log_debug_msg(int debug_level, const char *szFile,
 	va_list args;
 	int i;
 	static int depth = 0;
-	char *tmp;
 	FILE *fout;
 
 	if (depth > 5) {
@@ -1368,8 +1307,6 @@ void standard_log_debug_msg(int debug_level, const char *szFile,
 		return;
 	}
 	depth++;
-
-	malloc_string(tmp);
 
 	if (debug_level <= g_loglevel) {
 		va_start(args, fmt);
@@ -1403,7 +1340,6 @@ void standard_log_debug_msg(int debug_level, const char *szFile,
 		paranoid_fclose(fout);
 	}
 	depth--;
-	paranoid_free(tmp);
 }
 
 /**
@@ -1414,12 +1350,6 @@ void (*log_debug_msg) (int, const char *, const char *, int, const char *,
 
 
 /**
- * If @p y, malloc @p x, else free @p x.
- * @bug This function seems orphaned. Please remove.
- */
-#define do_alloc_or_free_depending(x,y) { if(y) {x=malloc(MAX_STR_LEN);} else {paranoid_free(x);} }
-
-/**
  * Allocate or free important globals, depending on @p mal.
  * @param mal If TRUE, malloc; if FALSE, free.
  */
@@ -1427,9 +1357,6 @@ void do_libmondo_global_strings_thing(int mal)
 {
 	if (mal) {
 		iamhere("Malloc'ing globals");
-		malloc_string(g_boot_mountpt);
-		malloc_string(g_mondo_home);
-		malloc_string(g_tmpfs_mountpt);
 		malloc_string(g_erase_tmpdir_and_scratchdir);
 		malloc_string(g_serial_string);
 		malloc_string(g_magicdev_command);
@@ -1442,36 +1369,6 @@ void do_libmondo_global_strings_thing(int mal)
 		paranoid_free(g_serial_string);
 		paranoid_free(g_magicdev_command);
 	}
-
-	/*
-	   char**list_of_arrays[] = {
-	   &g_boot_mountpt,
-	   &g_mondo_home,
-	   &g_tmpfs_mountpt,
-	   &g_erase_tmpdir_and_scratchdir,
-	   &g_serial_string,
-	   &g_magicdev_command,
-	   NULL};
-
-	   char**ppcurr;
-	   int i;
-
-	   for(i=0;list_of_arrays[i];i++)
-	   {
-	   log_msg(5, "Allocating %d", i);
-	   ppcurr = list_of_arrays[i];
-	   if (mal)
-	   { *ppcurr = malloc(MAX_STR_LEN); }
-	   else
-	   {
-	   if (*ppcurr)
-	   {
-	   free(*ppcurr);
-	   }
-	   }
-	   }
-	   log_msg(5, "Returning");
-	 */
 }
 
 /**
@@ -1517,12 +1414,11 @@ void restart_magicdev_if_necessary()
 {
 	char *tmp;
 
-	malloc_string(tmp);
 	if (g_magicdev_command && g_magicdev_command[0]) {
-		sprintf(tmp, "%s &", g_magicdev_command);
+		asprintf(&tmp, "%s &", g_magicdev_command);
 		paranoid_system(tmp);
+		paranoid_free(tmp);
 	}
-	paranoid_free(tmp);
 }
 
 /* @} - end of utilityGroup */

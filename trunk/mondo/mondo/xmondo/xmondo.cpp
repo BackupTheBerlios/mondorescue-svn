@@ -4,7 +4,7 @@
     begin                : Thu Apr 24 19:44:32 PDT 2003
     copyright            : (C) 2003 by Joshua Oreman
     email                : oremanj@get-linux.org
-    cvsid                : $Id: xmondo.cpp,v 1.1 2004/06/10 16:13:06 hugo Exp $
+    cvsid                : $Id$
  ***************************************************************************/
 
 /***************************************************************************
@@ -56,7 +56,7 @@ extern "C" {
 
 int g_operation_in_progress = 0;
 
-static char cvsid[] = "$Id: xmondo.cpp,v 1.1 2004/06/10 16:13:06 hugo Exp $";
+static char cvsid[] = "$Id$";
 
 QProgressBar            *XMondoProgress;
 QLabel                  *XMondoProgressWhat, *XMondoProgressWhat2, *XMondoProgressWhat3;
@@ -229,7 +229,7 @@ void XMondo::slotMode (int x)
     } else {
 	char logo_location[MAX_STR_LEN];
 
-	if (find_and_store_mondoarchives_home (logo_location) == 0) {
+	if ((logo_location = find_and_store_mondoarchives_home()) != NULL) {
 	    strcat (logo_location, "/mondo.png");
 	    if (logo.load (logo_location)) {
 		about->setLogo (logo);

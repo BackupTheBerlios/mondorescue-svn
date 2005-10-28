@@ -16,7 +16,6 @@ extern void initialize_raidrec(struct vinum_volume *vv);
 #else
 extern void initialize_raidrec(struct raid_device_record *raidrec);
 #endif
-extern void log_trace(char *o);
 extern int some_basic_system_sanity_checks();
 
 
@@ -24,7 +23,7 @@ extern int g_loglevel;
 
 
 extern void insmod_crucial_modules(void);
-extern int find_and_store_mondoarchives_home(char *home_sz);
+extern char *find_and_store_mondoarchives_home(void);
 
 extern void unmount_supermounts_if_necessary(void);
 extern void remount_supermounts_if_necessary(void);

@@ -19,12 +19,11 @@ void initialize_raidrec(struct vinum_volume *vv);
 #else
 void initialize_raidrec(struct raid_device_record *raidrec);
 #endif
-void log_trace(char *o);
 int some_basic_system_sanity_checks();
 
 
 void insmod_crucial_modules(void);
-int find_and_store_mondoarchives_home(char *home_sz);
+char *find_and_store_mondoarchives_home(void);
 
 
 void unmount_supermounts_if_necessary(void);

@@ -1,0 +1,16 @@
+#!/bin/sh
+
+if [ "$#" -lt "1" ] ; then
+    echo "raw-MR <dev>" >> /dev/stderr
+    exit 1
+fi
+LogIt "Restoring MBR..." 2
+if uname -a | grep -q FreeBSD; then
+    echo -e 'y\ny' | /mnt/RESTORING/sbin/fdisk -b /BOOTLOADER.MBR -B $1 >/dev/null 2>>/tmp/mondo-restore.log
+else
+    dd if=/BOOTLOADER.MBR of=$1 bs=446 count=1 2>> /tmp/mondo-restore.log
+fi
+exit $?
+
+
+

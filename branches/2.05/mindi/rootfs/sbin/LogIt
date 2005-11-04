@@ -1,0 +1,52 @@
+#!/bin/sh
+
+#    if [ ! -e "/bin/date" ] ; then
+#	currdate=""
+#    else
+#	currdate=`date +%H:%M`
+#    fi
+currdate=""
+
+    LOGFILE=/tmp/mondo-restore.log
+    if [ ! -e "/tmp/mondo-restore.log" ] ; then
+        echo "...first line..." > /tmp/mondo-restore.log
+    fi
+#    mkdir -p /var/log
+#    ln -s -f /tmp/mondo-restore.log /var/log/mondo-restore.log
+
+# LogIt $phrase ------ log only
+# LogIt $phrase 1 ---- log & display
+# LogIt $phrase 2 ---- log & display w/o LF
+# LogIt $prhase 3 ---- log & display, blanking the current screen line
+#                      before displaying message _with_ LF
+# LogIt $phrase 9 ---- log IF --verbose is ON
+
+if [ "$#" = "1" ] ; then
+    echo -e "$currdate $1" >> $LOGFILE
+elif [ "$#" = "2" ] ; then
+    if [ "$2" = "0" ] ; then
+	echo -e "$currdate $1" >> $LOGFILE
+    elif [ "$2" = "1" ] ; then
+	echo -e "$1"
+	echo -e "$currdate $1" >> $LOGFILE
+    elif [ "$2" = "2" ] ; then
+	echo -e -n "                                                                                \r$1\r"
+	echo -e "$currdate $1" >> $LOGFILE
+    elif [ "$2" = "3" ] ; then
+	echo -e -n "                                                                                \r$1\n"
+	echo -e "$currdate $1" >> $LOGFILE
+    elif [ "$2" = "9" ] ; then
+	if [ "$DEBUGGING" = "yes" ] ; then
+	    echo -e "$currdate $1" >> $LOGFILE
+	fi
+    else
+	LogIt "LogIt '$1' '$2' .. unknown 2nd param"
+        exit 1
+    fi
+else
+    LogIt "LogIt '$1' .. silly params"
+    exit 1
+fi
+
+
+exit 0

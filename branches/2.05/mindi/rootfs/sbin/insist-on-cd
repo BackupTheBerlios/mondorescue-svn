@@ -1,0 +1,53 @@
+#!/bin/sh
+
+
+
+InsistOnCD() {
+    local the_next_cd cd_inserted_correctly line present_cd
+    the_next_cd=$1
+
+    if [ "`ThisCDsNumber`" = "$the_next_cd" ] ; then
+#        echo "CD #$the_next_cd is already inserted. Proceeding."
+        return 0
+    fi
+
+    cd_inserted_correctly="no"
+
+# -- can't do w/o supermount until/unless softlinks from /usr/share/mondo
+# -- to /mnt/cdrom/usr/share/mondo are cut (I think).. but we'll see.. :)
+#    umount /mnt/cdrom; # to see if we can do without supermount :)
+#    if [ "$?" -ne "0" ] ; then
+#	LogIt "To paraphrase Celine Dion, 'I can't li-i-i-ive, if living is without supermount.'" 1
+#    fi
+    while [ "$cd_inserted_correctly" != "yes" ] ; do
+	umount /mnt/cdrom
+        eject /dev/cdrom
+	echo -n "Please insert CD #$the_next_cd in this set, then press ENTER."
+ 	read line
+	mount /mnt/cdrom
+	ls /mnt/cdrom/archives &> /tmp/try_to_read_cd.txt
+	if [ "$?" -ne "0" ] ; then
+	    echo "Bad CD? No CD? I can't find /mnt/cdrom/archives. \
+Please try again."
+        elif [ "`ThisCDsNumber`" != "$the_next_cd" ] ; then
+            echo "This CD is #`ThisCDsNumber`; \
+I want #$the_next_cd. Try again."
+	else
+	    echo -e -n "Thankyou. "
+	    cd_inserted_correctly="yes"
+	fi
+    done
+    LogIt "Now processing CD#$the_next_cd." 1
+}
+
+
+ThisCDsNumber() {
+    if [ ! -f "/mnt/cdrom/archives/THIS-CD-NUMBER" ] ; then
+        echo "(absent)"
+    else
+        cat /mnt/cdrom/archives/THIS-CD-NUMBER
+    fi
+}
+
+InsistOnCD $1
+exit $?

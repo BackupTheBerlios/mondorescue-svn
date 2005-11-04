@@ -1,0 +1,85 @@
+#!/bin/sh
+#
+#
+# Sample post-nuke script                   by Hugo Rabson <hugorabson@msn.com>
+#
+#
+# 04/23
+# - more distro-nonspecific file list, thanks to find/grep
+#
+# 04/22/2003
+# - first created
+#
+###############################################################################
+
+Die() {
+    echo "$1" >> /dev/stderr
+    exit 1
+}
+
+
+AskMe() {
+    sz=""
+    while [ ! "$sz" ] ; do
+	echo -en "$1"
+	read sz
+    done
+}
+
+
+AddOrReplaceLine() {
+    local oldfile newfile sz_exclude sz_add
+    oldfile=$1.orig
+    mv -f $1 $oldfile
+    newfile=$1
+    sz_exclude="$2"
+    sz_add="$3"
+    > $newfile
+    cat $oldfile | grep -v "$sz_exclude.*" >> $newfile
+    echo "$sz_add" >> $newfile
+}
+
+
+ListOfEth0Files() {
+    local i
+    for i in `find $1/etc | grep eth0` ; do
+        grep "IPADDR=" $i > /dev/null 2> /dev/null && echo $i
+    done
+}
+
+
+# ---------------------------------------------------------------------
+
+
+[ "$#" -ne "2" ] && Die "post-nuke <base dir> <mondorestore res code>"
+basedir=$1
+    
+echo -en "        Welcome to my post-nuke configuration script\n\n"
+done=""
+while [ ! "$done" ] ; do
+    AskMe " What would you like your IP address to be? "
+    ipaddr=$sz
+    AskMe " What would you like your netmask address to be? "
+    netmask=$sz
+    echo " IP address: $ipaddr      Netmask: $netmask"
+    AskMe " Is that okay (y/n)? "
+    if [ "$sz" = "y" ] || [ "$sz" = "Y" ] ; then
+	done="yes"
+    fi
+done
+
+ip_wildcard="[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*"
+files_changed=0
+for path in `ListOfEth0Files $basedir` ; do
+    filename=$path
+    [ ! -e "$filename" ] && continue
+    echo "Processing $filename"
+    AddOrReplaceLine $filename "IPADDR=$ip_wildcard" "IPADDR=$ipaddr"
+    AddOrReplaceLine $filename "NETMASK=$ip_wildard" "NETMASK=$netmask"
+    files_changed=$(($files_changed+1))
+done
+echo "Done. $files_changed files changed. Post-nuke script is exiting now."
+echo -en "Press ENTER to continue."
+read line
+exit 0
+

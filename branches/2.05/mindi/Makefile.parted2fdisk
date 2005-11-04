@@ -1,0 +1,20 @@
+ARCH=$(shell /bin/arch | sed 's/686/386/')
+PRG=parted2fdisk
+PERLV=$(shell perl -v | grep 'perl,' | awk '{print $$4}' | cut -c2-)
+PERLA=$(shell perl -v | grep 'perl,' | awk '{print $$7}')
+PERLBASE=/usr/lib/perl5/$(PERLV)/$(PERLA)
+PERLINC=$(PERLBASE)/CORE
+PERLLIB=$(PERLBASE)/auto/DynaLoader/DynaLoader.a
+SUB=rootfs/sbin
+
+$(PRG): $(PRG).c
+	$(CC) -O -static -s -I$(PERLINC) -o $(PRG) $(PRG).c -L$(PERLINC) -lperl -lm -lcrypt $(PERLLIB) -lpthread -ldl
+
+$(PRG).c: $(PRG).pl
+	perlcc $(PRG).pl -c -o $(PRG).c
+
+clean: 
+	rm -f $(PRG) $(PRG).c
+
+install: $(PRG)
+	cp -a $(PRG) $(DEST)$(SUB)/$(PRG)-$(ARCH)

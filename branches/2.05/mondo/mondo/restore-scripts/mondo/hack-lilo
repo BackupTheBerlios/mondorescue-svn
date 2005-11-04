@@ -1,0 +1,143 @@
+#!/bin/sh
+
+
+LogIt() {
+    echo "$1" >> /tmp/mondo-restore.log
+}
+
+
+
+GetDevFromLine() {
+    echo "$1" | cut -d'=' -f2 | sed s/' '//
+}
+
+
+GetOldFstabMountpoint() {
+    local res
+    res=`cat $old_fstab | tr -s '\t' ' ' | grep "$1" | cut -d' ' -f2`
+#    echo "old_fstab = $old_fstab" >> /dev/stderr
+    if [ "$res" = "" ] ; then
+#	echo "OK, resB" >> /dev/stderr
+	res=`cat $old_mountlist | tr -s '\t' ' ' | grep " $1 " | cut -d' ' -f1`
+    fi
+    echo "$res"
+}
+
+
+GetNewFstabMountpoint() {
+    for i in fd0 fd0u1722 fd0h1440 fd0H1440 cdrom cdrw cdrom2 ; do
+	if [ "$1" = "/dev/$i" ] ; then
+	    echo "/dev/$i"
+	    return
+	fi
+    done
+    old_mountpoint=`GetOldFstabMountpoint $1`
+#    echo "old_mountpoint = $old_mountpoint" >> /dev/stderr
+    new_mountpoint=`cat $new_mountlist | tr -s '\t' ' ' | grep " $old_mountpoint" | cut -d' ' -f1`
+    if [ "$new_mountpoint" = "" ] ; then
+	mtpt=`cat $new_mountlist | tr -s '\t' ' ' | grep " $old_mountpoint " | cut -d' ' -f2`
+	dev=`cat $new_mountlist | tr -s '\t' ' ' | grep " $mtpt " | cut -d' ' -f1`
+#	echo "NEW_MP (A) = $dev" >> /dev/stderr
+#    else
+#	echo "NEW_MP (B) = $new_mountpoint" >> /dev/stderr
+    fi
+}
+
+
+
+ProcessBigHack() {
+    local incoming dev newdev col2 col1_new
+    incoming="$1"
+#    echo "incoming = $1" >> /dev/stderr
+    dev=`GetDevFromLine "$incoming"`
+#    GetOldFstabMountpoint $dev
+    newdev=`GetNewFstabMountpoint $dev`
+    if [ ! "$newdev" ] ; then
+	col2=`cat $old_mountlist | grep "$dev " | cut -d' ' -f2`
+	col1_new=`cat $new_mountlist | grep " $col2 " | cut -d' ' -f1`
+	newdev="$col1_new"
+	if [ ! "$newdev" ] ; then
+	    newdev=$dev
+	fi
+    fi
+#    old_fstab_line=`cat $new_fstab | grep "$dev"`
+    [ "$2" = "other" ] || echo -e -n "\t"
+    echo -e "$2=$newdev"
+    echo "$newdev" >> $bootlistfile
+}
+
+ProcessOther() {
+    ProcessBigHack "$1" "other"
+}
+
+
+ProcessRoot() {
+    ProcessBigHack "$1" "root"
+}
+
+
+
+ProcessLilo() {
+    local incoming bonks blanklines
+    read incoming
+    bonks=0
+    blanklines=0
+    while [ "$blanklines" -lt "5" ] ; do
+	if [ "$incoming" = "" ] ; then
+	    blanklines=$(($blanklines+1))
+            read incoming
+            continue
+        fi
+        blanklines=0
+        if [ "`echo "$incoming" | grep "#"`" != "" ] ; then
+            echo "$incoming"
+	elif [ "`echo "$incoming" | grep "other.*="`" != "" ] ; then
+	    ProcessOther "$incoming"
+	    bonks=$(($bonks+1))
+	elif [ "`echo "$incoming" | grep "root.*="`" != "" ] ; then
+	    ProcessRoot "$incoming"
+	    bonks=$(($bonks+1))
+	elif [ "`echo "$incoming" | grep "image.*="`" != "" ] ; then
+	    bonks=$(($bonks+1))
+	    echo "$incoming"
+	else
+	    if [ "$bonks" -gt "0" ] && [ "`echo "$incoming" | grep "image"`" = "" ]  ; then
+		echo -e -n "\t"
+	    fi
+	    echo "$incoming"
+	fi
+	read incoming
+    done
+}
+
+
+# ------------------ main ------------------
+
+LogIt "hack-lilo --- starting"
+
+bootlistfile=/tmp/partitions-to-make-bootable.txt
+> $bootlistfile
+
+if [ "$#" -ne "6" ] ; then
+    LogIt "hack-lilo <old mountlist> <old fstab> <old lilo> <new mountlist> <new fstab> <new lilo>" 1
+    LogIt "NB: the new lilo file is outgoing; all others are incoming." 1
+    exit 1
+fi
+
+old_mountlist=$1
+old_fstab=$2
+old_lilo=$3
+new_mountlist=$4
+new_fstab=$5
+outfile=$6
+
+> $outfile
+ProcessLilo < $old_lilo >> $outfile
+chmod 600 $outfile
+cat $bootlistfile | sort | uniq > $bootlistfile
+
+#------ disabled 12/10/01 (doesn't do anything anyway *g*)
+#make-me-bootable $bootlistfile > /tmp/make-me-bootable.log 2> /tmp/make-me-bootable.log
+
+LogIt "hack-lilo --- leaving"
+exit 0

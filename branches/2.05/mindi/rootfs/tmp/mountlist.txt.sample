@@ -1,0 +1,7 @@
+/dev/hda1 / ext2 233336
+/dev/hda5 /mnt/dos vfat 2396988
+/dev/hda6 swap swap 248968
+/dev/hda7 /tmp ext2 101089
+/dev/hda8 /var ext2 194443
+/dev/hda9 /usr ext2 1478428
+/dev/hda10 /home ext2 2363940

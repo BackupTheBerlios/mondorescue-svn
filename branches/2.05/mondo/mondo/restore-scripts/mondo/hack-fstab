@@ -1,0 +1,159 @@
+#!/bin/sh
+#
+#
+#
+#
+#
+# 2003/08/04
+# - added some logging
+#
+# mid-2002 --- created
+################################################
+
+
+LogIt() {
+    echo "$1" >> /dev/stderr
+}
+
+
+
+
+AddFancyParams() {
+    local incoming device mountpoint format size original_fstab_line
+#    echo "AddFancyParams '$1'" >> /dev/stderr
+    incoming=`echo "$1" | tr -s '\t' ' '`
+    [ "$incoming" = "" ] && return
+    device=`echo "$incoming"     | cut -d' ' -f1`
+    [ "`echo "$device" | grep "/dev/"`" = "" ] && return
+    mountpoint=`echo "$incoming" | cut -d' ' -f2`
+    format=`echo "$incoming"     | cut -d' ' -f3`
+    size=`echo "$incoming"       | cut -d' ' -f4`
+#    echo "'$device' '$mountpoint' '$format' '$size'" > /dev/stderr
+    original_fstab_line=`cat $old_fstab | grep " $mountpoint " | grep -v "#" | tr -s ' ' ' '`
+#    echo "original_fstab_line = $original_fstab_line" >> /dev/stderr
+    if [ "`cat $old_fstab | grep "LABEL="`" != "" ] ; then
+	if [ "$format" = "ext2" ] || [ "$format" = "ext3" ] ; then
+	    device="LABEL=$mountpoint"
+	fi
+    fi
+
+#    LogIt "my_res = $my_res"
+
+    echo -e -n "$device $mountpoint $format "
+
+    if [ "$original_fstab_line" != "" ] ; then
+#	echo $original_fstab_line | gawk '{i=index($0,$4); print substr($0,i);}'
+	echo "$original_fstab_line" | cut -d' ' -f4-19 | tr -s ' ' ' '
+    else
+	echo -e "defaults 0 0"
+    fi
+}
+
+
+
+ProcessFstab() {
+    local incoming dev mountlist_entry blanklines new_i
+    read incoming
+    blanklines=0
+    while [ "$blanklines" -lt "5" ] ; do
+	if [ "$incoming" = "" ] ; then
+	    blanklines=$(($blanklines+1))
+	    read incoming
+	    continue
+	fi
+	incoming=`echo "$incoming" | tr -s '\t' ' '`
+#	new_i=`HackIncomingIfLABELused "$incoming"`
+#	if [ ! "$new_i" ] ; then
+	if [ "`echo "$incoming" | grep -v "LABEL="`" ] ; then
+	    dev=`echo "$incoming" | cut -d' ' -f1`
+#	    echo "OK, $dev isn't a label" >> /dev/stderr
+	    mountlist_entry=`grep "$dev " $old_mountlist`
+#	    echo "MLE($dev) = '$mountlist_entry'" >> /dev/stderr
+	    if [ "$mountlist_entry" = "" ] ; then
+#		echo "(PF) '$incoming'" >> /dev/stderr
+		echo "$incoming"
+	    fi
+#	else
+#	    echo "Skipping '$incoming'" >> /dev/stderr
+	fi
+	read incoming
+    done
+}
+
+
+HackIncomingIfLABELused() {
+    local incoming col1 col2 col_rest orig out result
+    result=""
+    incoming=`echo "$1" | tr -s '\t' ' '`
+    col1=`echo "$incoming" | cut -f1`
+    col2=`echo "$incoming" | cut -f2`
+    col_rest=`echo "$incoming" | cut -f3-19 | tr -s ' ' ' '`
+    orig="`cat $old_fstab | grep " $col2 " | cut -f1`"
+    if [ "`echo "$orig" | grep "LABEL="`" != "" ] ; then
+	echo "orig = $orig" >> /dev/stderr
+	echo -e "$orig $col2 $col_rest | tr -s ' ' ' '"
+    fi
+}
+
+
+#HackIncomingIfLABELused "LABEL=/ / ext2 defaults 0,0,0"
+#exit 0
+
+
+
+ProcessMountlist() {
+    local incoming outstr res spc
+    read incoming
+    while [ "$incoming" != "" ] ; do
+	incoming=`echo "$incoming" | tr -s '\t' ' '`
+#	echo "(PM) incoming = '$incoming'" >> /dev/stderr
+	res=`HackIncomingIfLABELused "$incoming"`
+	if [ ! "$res" ] ; then
+	    outstr=`AddFancyParams "$incoming"`
+	else
+	    outstr=`AddFancyParams "$res"`
+	fi
+	spc="`echo "$outstr" | tr -s '\t' ' '`"
+	if [ "$spc" != "" ] && [ "$spc" != " " ] && [ "`echo "$spc" | grep "raid raid"`" = "" ] ; then
+	    echo "$spc"
+#	    echo "(PM) outgoing = '$outstr'" >> /dev/stderr
+	fi
+	read incoming
+    done
+}
+
+# ----------------- main ---------------
+
+LogIt "hack-fstab --- starting"
+
+if [ "$#" -ne "4" ] ; then
+    LogIt "hack-fstab <old mountlist> <old fstab> <new mountlist> <new fstab>" 1
+    LogIt "NB: the new fstab file is outgoing; all other files are incoming." 1
+    exit 1
+fi
+
+LogIt "hack-fstab '$1' '$2' '$3' '$4'"
+
+old_mountlist=$1
+old_fstab=$2
+new_mountlist=$3
+outfile=$4
+
+> $outfile
+LogIt "Processing mountlist"
+ProcessMountlist < $new_mountlist >> $outfile
+LogIt "Processing fstab"
+ProcessFstab < $old_fstab >> $outfile
+if [ ! -e "$outfile.old" ] ; then
+    LogIt "Moving $outfile to $outfile.old" 1
+    mv $outfile $outfile.old
+else
+    LogIt "$outfile.old exists already - assuming it _is_ the old one & using it" 1
+fi
+cat $outfile.old | tr -s ' ' ' ' \
+| gawk '{printf "%-15s %-18s %-10s ",$1,$2,$3; for(i=4;i<=NF;i++) {printf "%s ",$i;};print "";};' \
+| sort -u > $outfile
+
+LogIt "Finished writing to outfile ($outfile)"
+LogIt "hack-fstab --- leaving"
+exit 0

@@ -1,0 +1,205 @@
+#!/bin/sh
+
+
+# grub-MR ------ a rudimentary replacement for grub-install
+#
+#
+#
+# 2004/06/28
+# - added support for /dev/md0==GRUB
+#
+# 2004/06/27
+# - re-enable the call to grub-install and the 'echo' thing as a backup
+# - hacked the hack :) to improve MDK9.2 support
+# - added try_grub_hack()
+#
+# 2004/06/14
+# - just use grub-install.patched; nothing else
+#
+# 2004/05/05
+# - try EVERYTHING - grub-install, grub --batch, etc.
+#
+# 2004/04/18
+# - try grub --batch < /etc/grub.conf first
+# - if it fails, grub-install.patched instead
+# - if _that_ fails, fail.
+#
+# 2004/04/15
+# - added grub-install.patched to the mix
+#
+# 2004/04/01
+# - use grub-install if there's an NTFS partition on the disk
+#
+# 2004/03/31
+# - disabled direct call to grub
+#
+# 2004/03/28
+# - call grub directly if possible
+#
+# 2004/03/26
+# - find stage 1 if possible; more stable, reliable call to grub
+#
+# 2003/08/24
+# - fixed line 26 (Christian)
+#
+# 2002/11/18
+# - first incarnation
+
+
+LOGFILE=/var/log/mondo-archive.log
+
+
+Die() {
+    echo "$1" >> /dev/stderr
+    exit 1
+}
+
+
+FindBootPart() {
+    local i
+    bootpart=""
+    BOOTPATHNAME=""
+    for sz in /boot / ; do
+	bootpart=`cat $2 | grep " $sz " | cut -d' ' -f1 | head -n1`
+	[ "$bootpart" ] && [ -e "/mnt/RESTORING/$bootpart" ] && break
+    done
+    [ ! "$bootpart" ] && Die "Cannot find boot partition in mountlist"
+
+    if [ "$sz" = "/boot" ] ; then
+	BOOTPATHNAME=/grub
+    else
+	BOOTPATHNAME=/boot/grub
+    fi
+    if [ -e "$MNT_RESTORING/boot/grub/stage1" ] ; then
+	echo "Alright then."
+	return
+    fi
+    
+    cd $MNT_RESTORING
+    for i in usr/lib/grub/* ; do
+	echo "Checking $i"
+        if [ -e "$i/stage1" ] ; then
+	    BOOTPATHNAME=/$i
+	    mkdir -p /boot/grub
+	    cp -au $i/* /boot/grub/
+	    echo "BOOTPATHNAME is now $BOOTPATHNAME"
+	    return 0
+	fi
+    done
+    cd /
+    echo "Cannot find BOOTPATHNAME"
+    return 1
+}
+
+FindPathOfRESTExe() {
+    local path
+    for path in /usr/sbin /usr/bin /usr/local/sbin /usr/local/bin \
+/bin /sbin ; do
+        if [ -f "/mnt/RESTORING/$path/$1" ] ; then 
+            echo "/mnt/RESTORING/$path/$1"
+	    return
+        fi
+    done
+    which grub
+}
+
+
+try_grub_hack() {
+    local driveno extraline partno
+    driveno=$1
+    partno=$2
+    extraline="$3"
+
+    echo -en "\
+	device (hd$driveno) $mbrpart\n\
+	$extraline\n\
+	root (hd$driveno,$partno)\n\
+	setup (hd$driveno)\n\
+	quit \n" > /tmp/feed.txt
+    cat /tmp/feed.txt
+    if [ "$MNT_RESTORING" ] ; then
+        chroot /mnt/RESTORING grub --batch < /tmp/feed.txt 
+    else
+        grub --batch < /tmp/feed.txt
+    fi
+    return $?
+}
+
+
+# ---------------------------------- main -----------------------------------
+
+if [ "$#" -ne "2" ] ; then
+    Die "grub-MR <MBR drive> <mountlist filename>; e.g. grub-MR /dev/hda /tmp/mountlist.txt"
+fi
+[ ! -f "$2" ] && Die "mountlist file not found"
+
+if [ -e "/mnt/RESTORING/boot" ] ; then
+    MNT_RESTORING=/mnt/RESTORING
+else
+    MNT_RESTORING=""
+fi
+
+echo "Trying a hack" >> $LOGFILE
+FindBootPart $1 $2
+mbrpart=$1
+if echo $bootpart | grep "/cciss/" > /dev/null ; then
+	partno=`basename $bootpart | cut -d'p' -f2`
+else
+	partno=`basename $bootpart | sed s/[a-z]*//`
+fi
+if [ ! "$partno" ] ; then
+    partno=0
+else
+    partno=$(($partno-1))
+fi
+if echo $bootpart | grep "/md" > /dev/null ; then
+    base=`basename $bootpart`
+    line=`cat /proc/mdstat | grep $base | head -n1`
+    echo "mbrpart was $mbrpart"
+    mbrpart=`fdisk -l | grep /dev/ | head -n1 | tr ':' ' ' \
+| cut -d' ' -f2`
+    echo "mbrpart is $mbrpart"
+    partno="0"; # cheating - FIXME    
+fi
+echo ".............Cool."
+
+grub=`FindPathOfRESTExe grub`
+mkdir -p /boot
+[ "$MNT_RESTORING" ] && ln -sf /mnt/RESTORING/boot/grub /boot/grub
+
+# ---------------------------------
+
+for driveno in 0 1 2 ; do
+    try_grub_hack $driveno $partno "" >> $LOGFILE 2>> $LOGFILE && break
+    try_grub_Hack $driveno $partno "find $BOOTPATHNAME/stage1" >> $LOGFILE 2>> $LOGFILE && break
+done
+res=$?
+echo "Hack returned res=$res" >> $LOGFILE
+[ "$res" -eq "0" ] && exit 0
+
+# ---------------------------------
+
+echo "Now I'll use grub-install.patched" >> $LOGFILE
+cp -f `which grub-install.patched` /mnt/RESTORING/sbin
+chroot /mnt/RESTORING grub-install.patched $1 >> $LOGFILE
+res=$?
+echo "grub-install.patched returned $res" >> $LOGFILE
+[ "$res" -eq "0" ] && exit 0
+
+# ---------------------------------
+
+echo "Trying to use the existing grub.conf file in batch mode" >> $LOGFILE
+chroot /mnt/RESTORING grub --batch < /mnt/RESTORING/etc/grub.conf
+res=$?
+echo "Grub.conf approach returned $res" >> $LOGFILE
+[ "$res" -eq "0" ] && exit 0
+
+#echo "Now I'll use grub-install" >> $LOGFILE
+#chroot /mnt/RESTORING grub-install $1 >> $LOGFILE
+#res=$?
+#echo "grub-install returned $res" >> $LOGFILE
+#[ "$res" -eq "0" ] && exit 0
+
+echo "grub-MR returned res=$res" >> $LOGFILE
+
+exit $res

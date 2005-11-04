@@ -1,0 +1,289 @@
+#!/bin/sh
+
+
+
+
+
+
+Dots() {
+    local i
+    i=0
+    while [ "$i" -le "$1" ] ; do
+	echo -n "."
+	i=$(($i+2))
+    done
+}
+
+
+GetSizeOfFile() {
+    if [ -f "$1" ] ; then
+	echo `du -sk "$1" | cut -f1`
+    elif [ ! -d "$1 " ] ; then
+	echo 0
+    else
+	echo 1
+    fi
+}
+
+
+
+
+GiveSliceName() {
+    echo -e -n "/mnt/cdrom/archives/slice-`printf "%07d" $1`.`printf "%05d" $2`.dat"
+}
+
+
+
+
+IsThisTheLastCD() {
+    if [ -f "/mnt/cdrom/archives/NOT-THE-LAST" ] ; then
+	echo "no"
+    else
+	echo "yes"
+    fi
+}
+
+
+
+CompareAllBigfiles() {
+    local bf_num finished retval wildpath
+    wildpath=$1
+    bf_num=0
+    finished=no
+    retval=0
+    LogIt "Comparing big files. Please wait." 1
+    > /tmp/biggiefiles.reassembled
+    while [ "$finished" != "yes" ] ; do
+        fname=`GiveSliceName $bf_num 0`
+        echo -n "Big file $bf_num "
+        if [ ! -f "$fname" ] ; then
+            echo -n "not found. "
+	    LogIt "$bf_num's 1st slice ($fname) not found"
+            if [ "`IsThisTheLastCD`" = "no" ] ; then
+                cd_number=$(($cd_number+1))
+                LogIt "Perhaps it's on the next CD ($cd_number)." 1
+                insist-on-cd $cd_number
+            else
+                LogIt "This was the last CD. Bigfile reassembly complete." 1
+                finished=yes
+            fi
+        else
+            echo -e -n "found.\r"
+            CompareBigfile $bf_num $wildpath
+            if [ "$?" -ne "0" ] ; then
+               echo " failed."
+	       LogIt "An error occurred while bigfile #bf_num was being compared."
+               retval=$(($retval+1))
+            else
+               echo -e -n " OK.     \r"
+            fi
+            bf_num=$(($bf_num+1))
+        fi
+    done
+    if [ "$retval" -eq "1" ] ; then
+        echo -n "One error"
+    elif [ "$retval" -eq "0" ] ; then
+        echo -n "No errors"
+    else
+        echo -n "$retval errors"
+    fi
+    echo " occurred during verification of big files."
+    LogIt "$retval errors occurred during verification of bigfiles"
+    return $retval
+}
+
+
+
+CompareBigfile() {
+    local bf_num fname stem outputfile tempstr new_cksum \
+padded_bfnum finalsize checksum i res last_i \
+slice_num slice_fname slice_search cd_number wildpath
+    bf_num=$1
+    wildpath=$2
+    slice_num=0
+    padded_bfnum=`printf "%07d" $bf_num`
+    slice_fname=`GiveSliceName $bf_num $slice_num`
+    checksum=`cat $slice_fname | cut -f1`
+#    finalsize=`cat $slice_fname | cut -f2`
+    i=`cat $slice_fname | cut -f3`
+    outputfile=/mnt/RESTORING/"$i"
+    echo -n "$i "
+
+    if [ "`echo "$outputfile" | grep "$wildpath"`" = "" ] ; then
+        echo -e -n " (Skipped) "
+        return 0
+    fi
+
+    new_cksum=`md5sum "$outputfile" | cut -d' ' -f1`
+    if [ "$new_cksum" != "$checksum" ] ; then
+        LogIt "Warning - $i does not match its checksum." 1
+        LogIt "new cksum = $new_cksum"
+	LogIt "old size = $finalsize"
+        LogIt "orig cksum= $checksum"
+        LogIt "new size = `GetSizeOfFile "$outputfile"`"
+        echo "$outputfile" >> /tmp/compare-me.log
+        return 1
+    else
+        echo "$outputfile" >> /tmp/biggiefiles.reassembled
+        return 0
+    fi
+}
+
+
+
+CompareTarballs() {
+    local cd_number archive_list i noof_files current_fileno \
+start_time end_time wildpath current_fileno percentage \
+time_taken time_per minutes seconds outcome res logs retval
+    cd_number=$1
+    wildpath=$2
+    insist-on-cd $cd_number
+    retval=0
+    archive_list=`find /mnt/cdrom/archives/*afio*`
+    if [ "$?" -eq "0" ] ; then
+	noof_files=`find /mnt/cdrom/archives/*afio* | grep -n "" | tail -n 1 | cut -d':' -f1`
+	current_fileno=0
+	start_time=`date +%s`
+	for archive in $archive_list ; do
+	    current_fileno=$(($current_fileno+1))
+	    percentage=$(($current_fileno*100/$noof_files))
+	    time_taken=$((`date +%s`-$start_time))
+	    time_per=$(($time_taken*10/$current_fileno))
+	    files_remaining=$(($noof_files-$current_fileno))
+	    time_remaining=$(($time_per*$files_remaining/10))
+	    if [ "$current_fileno" -le "2" ] ; then
+		time_remaining="5999"
+	    fi
+	    minutes=$(($time_remaining/60))
+	    seconds=$(($time_remaining%60))
+	    if [ "$seconds" -lt "10" ] ; then
+		seconds="0"$seconds
+	    fi
+	    echo -n -e "CD #$cd_number `Dots $percentage` $percentage% ("$minutes":"$seconds" remaining)\r"
+	    compare-subroutine-me $archive "$wildpath" &> /tmp/rsm.log
+	    outcome=$?
+            retval=$(($retval+$outcome))
+	    cat /tmp/rsm.log | grep -v "ignored" > /tmp/rsm.2.log
+	    if [ "$outcome" -ne "0" ] ; then
+		echo -e -n "                                                                            \r"
+		LogIt "Tar returned warnings/errors while verifying $archive."
+		cat /tmp/rsm.2.log
+	    fi
+	done
+	sync
+	LogIt "CD #$cd_number's data has been verified." 3
+    else
+	noof_files=0
+	LogIt "I could find no archives on this CD. :-/" 3
+    fi
+    echo "Time taken: $(($time_taken/60))m $(($time_taken%60))s"
+    TOTAL_FILES=$(($TOTAL_FILES+$noof_files))
+    return $retval
+}
+
+
+
+ThisCDsNumber() {
+    if [ ! -f "/mnt/cdrom/archives/THIS-CD-NUMBER" ] ; then
+        echo "(absent)"
+    else
+        cat /mnt/cdrom/archives/THIS-CD-NUMBER
+    fi
+}
+
+
+
+
+# ------------------------- main ----------------------
+
+echo "DO NOT USE THIS SCRIPT"
+exit 0
+
+> /tmp/compare-me.log
+
+LogIt "compare-me --- starting"
+
+wildpath=""
+if [ "$#" -eq "0" ] ; then
+    LogIt "compare-me: comparing everything" 2
+elif [ "$#" -eq "1" ] ; then
+    wildpath=`echo "/$1*" | tr '/' '/' --squeeze-repeats | tr '*' '*' --squeeze-repeats`
+    wildpath=`echo "$wildpath" | cut -d'/' -f2-99`
+    LogIt "compare-me: comparing $wildpath" 2
+else
+    LogIt "compare-me <wildpath>" 1
+    exit 1
+fi
+
+if [ "`mount | grep "/mnt/RESTORING"`" = "" ] ; then
+    LogIt "Please run mount-me before you run compare-me." 1
+    exit 1
+fi
+
+if [ -e "/tmp/DO-NOT-VERIFY" ] ; then
+    LogIt "WTF are you doing, calling compare-me when verify is off?"
+    rm /tmp/DO-NOT-VERIFY -f
+    LogIt "Verify is now most definitely ON, thank you very much."
+else
+    LogIt " (verify is ON)"
+fi
+echo " (verify is ON)                 "
+
+done="no"
+cd_number=0
+totalflaws=0
+TOTAL_FILES=0
+while [ "$done" != "yes" ] ; do
+    cd_number=$(($cd_number+1))
+    insist-on-cd $cd_number
+    CompareTarballs $cd_number "$wildpath"
+    res=$?
+    totalflaws=$(($totalflaws+$res))
+    if [ "$res" -ne "0" ] ; then
+	LogIt "Warning - CD #$cd_number's tarballs differed from the filesystem." 1
+    fi
+    if [ "`IsThisTheLastCD`" = "yes" ] || [ "`find /mnt/cdrom/archives/slice* 2> /dev/null`" != "" ] ; then
+        done="yes"
+    fi
+done
+LogIt "Tarballs compared." 3
+
+CompareAllBigfiles "$wildpath"
+res=$?
+totalflaws=$(($totalflaws+$res))
+[ "$res" -eq "0" ] || LogIt "Warning - errors occurred during verification of bigfiles." 1
+
+LogIt "All archives have been compared." 1
+if [ "$totalflaws" -gt "0" ] ; then
+    LogIt "$totalflaws errors occurred." 1
+else
+    LogIt "Everything checked out. :-)" 1
+fi
+
+cat /tmp/compare-me.log \
+| grep -v -x "Files [^:]*:-" \
+| sort | uniq > /tmp/suspect.files
+
+noof_lines=`grep -n "" /tmp/suspect.files | tail -n 1 | cut -d':' -f1`
+if [ "$noof_lines" -gt "0" ] ; then
+    echo -e -n "$noof_lines changed/removed files"
+    if [ "$noof_lines" -gt "15" ] ; then
+        echo ": too many to list here."
+    else
+	echo ":-"
+	cat /tmp/suspect.files
+    fi
+    echo "See /tmp/suspect.files for a copy of the list."
+else
+    echo "No files were reported as changed."
+fi
+
+LogIt "$noof_lines changed/removed files"
+cat /tmp/suspect.files >> /var/log/mondo-restore.log
+
+LogIt "compare-me --- leaving"
+if [ "$totalflaws" -gt "0" ] ; then
+    exit $noof_lines
+else
+    exit 0
+fi

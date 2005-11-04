@@ -116,7 +116,7 @@ AbortIfYourDistroIsAPieceOfStercus() {
     which which > /dev/null 2> /dev/null || Die "Please install 'which'."
     which strings > /dev/null 2> /dev/null || Die "Please install binutils and libbinutils; you have no 'strings' executable."
     which gawk > /dev/null 2> /dev/null || Die "Gawk is missing from your computer. Please install gawk. You may find the package on Debian's website. How did I know you're running Debian? Because only Debian would be stupid enough not to include gawk in your distribution."
-    which gawk > /dev/null 2> /dev/null && AWK=`which gawk` ||AWK="`which awk`"
+    which gawk > /dev/null 2> /dev/null && AWK=`which gawk 2>/dev/null` || AWK="`which awk 2>/dev/null`"
     if which awk &> /dev/null ; then
 	if ! which gawk &> /dev/null ; then
 	    LogIt "You have awk but not gawk. Please note that mindi works fine with a _sane_ awk binary. If your awk binary misbehaves then please contact your vendor or distribution's mailing list for technical support."
@@ -295,8 +295,8 @@ CopyBootBFile() {
     local copy_to copy_from possible_locations liloc
     copy_to=$1
     copy_from=/boot/boot.b
-    liloc=`which lilo.real`
-    [ $liloc ] || liloc=`which lilo`
+    liloc=`which lilo.real 2>/dev/null`
+    [ $liloc ] || liloc=`which lilo 2>/dev/null`
     if [ $liloc ]; then
         if ! [ `strings $liloc | grep "boot\.b"` ]; then
             LogIt "boot.b files built into lilo; I'll create a dummy."
@@ -935,7 +935,7 @@ GetFileSizeList() {
 
 GetHomeDir() {
     local res loc
-    loc=`which $1`
+    loc=`which $1 2>/dev/null`
     res=`file $loc | $AWK '{print $NF;}'`
     dirname $res
 }

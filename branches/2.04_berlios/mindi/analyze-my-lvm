@@ -242,7 +242,7 @@ WriteShutdownScript() {
 
 
 # -------------------------------- main -----------------------------------
-which lvmdiskscan >/dev/null 2>&1 || Die "Cannot find lvmdiskscan. Are you sure you're using LVM?"
+which lvmdiskscan 2>/dev/null 2>&1 || Die "Cannot find lvmdiskscan. Are you sure you're using LVM?"
 if [ -e "/proc/lvm/global" ] && [ "`cat /proc/lvm/global | tr -s '\t' ' ' | grep "0 VGs 0 PVs 0 LVs"`" != "" ] ; then
     exit 0
 fi
@@ -252,13 +252,13 @@ fi
 
 #lvmversion=`lvmdiskscan --version | grep "LVM version:" | cut -d: -f2 | cut -d. -f1 | sed -e 's/ //g'`
 
-lvmversion=`lvmdiskscan --version |
+lvmversion=`lvmdiskscan --help |
   grep -E "Logical Volume Manager|LVM version:" |
   cut -d: -f2 | cut -d. -f1 |
   awk '{print $NF}' |
   sed -e 's/ //g'`
 
-if which lvm; then
+if which lvm 2>/dev/null; then
     version=`lvm version | grep "LVM version" | awk '{print $3}'`
     i="`echo "$version" | cut -d'.' -f1`"
     echo "i=$i"

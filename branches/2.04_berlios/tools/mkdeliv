@@ -45,5 +45,9 @@ ssh ${SVNAUTH} "mkdir -p ${DSTDIR}/${ddir}/${dver}"
 echo "Packages delivery to ${SVNAUTH}:${DSTDIR}/${ddir}/${dver}"
 scp ${rpms} ${SVNAUTH}:${DSTDIR}/${ddir}/${dver}
 scp ${srpms} ${SVNAUTH}:${DSTDIR}/${ddir}/${dver}
-echo "Sources delivery to ${FTPURL}"
-ncftpput ${FTPURL} ${tgz}
+echo "Sources delivery to ${FTPSERV} ${FTPDIR}"
+if [ "`which ncftpput`" != "" ]; then
+	ncftpput ${FTPSERV} ${FTPDIR} ${tgz}
+elif [ "`which lftp`" != "" ]; then
+	lftp -e "cd ${FTPDIR} ; put ${tgz} ; quit" ${FTPSERV}
+fi

@@ -9,7 +9,8 @@
 export BASE=${HOME}/mondo
 export SVNAUTH=bcornec@shell.berlios.de
 export DSTDIR=/home/groups/ftp/pub/mondorescue
-export FTPURL="ftp.berlios.de /incoming"
+export FTPSERV="ftp.berlios.de"
+export FTPDIR="/incoming"
 
 # Should not be modified below
 export VER=branches/2.04_berlios

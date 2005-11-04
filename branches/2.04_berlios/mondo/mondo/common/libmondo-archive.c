@@ -1,5 +1,5 @@
 /* libmondo-archive.c
-   $Id: libmondo-archive.c,v 1.19 2004/06/21 20:20:36 hugo Exp $
+   $Id$
 
 subroutines to handle the archiving of files
 
@@ -219,7 +219,7 @@ subroutines to handle the archiving of files
 #endif /* __FreeBSD__ */
 
 /*@unused@*/
-//static char cvsid[] = "$Id: libmondo-archive.c,v 1.19 2004/06/21 20:20:36 hugo Exp $";
+//static char cvsid[] = "$Id$";
 
 /* *************************** external global vars ******************/
 extern int g_current_media_number;
@@ -1280,7 +1280,8 @@ hexdump | tr -s ' ' '0' | head -n1"));
       log_msg (1, "Backing up to CD's");
     }
 
-  sprintf (command, "rm -f %s/%s-[1-9]*.iso", bkpinfo->prefix, bkpinfo->isodir);
+  sprintf (command, "rm -f %s/%s/%s-[1-9]*.iso", bkpinfo->isodir,
+                        bkpinfo->nfs_remote_dir, bkpinfo->prefix);
   paranoid_system (command);
   wipe_archives (bkpinfo->scratchdir);
   mvaddstr_and_log_it (g_currentY++, 74, "Done.");

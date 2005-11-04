@@ -1,5 +1,5 @@
 /* libmondo-tools.c                                  misc tools
-   $Id: libmondo-tools.c,v 1.14 2004/06/19 01:36:07 hugo Exp $
+   $Id$
 .
 
 
@@ -185,7 +185,7 @@
 #include <arpa/inet.h>
 
 /*@unused@*/
-//static char cvsid[] = "$Id: libmondo-tools.c,v 1.14 2004/06/19 01:36:07 hugo Exp $";
+//static char cvsid[] = "$Id$";
 
 extern int g_tape_buffer_size_MB;
 extern char *g_erase_tmpdir_and_scratchdir;
@@ -866,6 +866,7 @@ log_it("isodir: %s", iso_path);
 	      strcpy (bkpinfo->nfs_mount, ip_address);
 	  }
       }
+	  store_nfs_config (bkpinfo);
   }
 
   log_it("Finished processing incoming params");

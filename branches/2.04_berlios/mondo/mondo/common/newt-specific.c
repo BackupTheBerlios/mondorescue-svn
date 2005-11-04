@@ -1,5 +1,5 @@
 /* newt-specific.c
-   $Id: newt-specific.c,v 1.8 2004/06/10 17:13:33 hugo Exp $
+   $Id$
 
   subroutines which do display-type things
   and use the newt library to do them
@@ -121,7 +121,7 @@ extern "C" {
 #include "lib-common-externs.h"
 
 /*@unused@*/
-//static char cvsid[] = "$Id: newt-specific.c,v 1.8 2004/06/10 17:13:33 hugo Exp $";
+//static char cvsid[] = "$Id$";
 
 extern pid_t g_mastermind_pid;
 extern char *g_tmpfs_mountpt;
@@ -187,6 +187,7 @@ char g_xmondo_stdin[MAX_NEWT_COMMENT_LEN], ///< ... @bug Unneeded w/current XMon
     g_xmondo_stdout[MAX_NEWT_COMMENT_LEN]; ///< .... @bug Unneeded w/current XMondo.
 bool g_called_by_xmondo=FALSE; ///< @bug Unneeded w/current XMondo.
 char *g_erase_tmpdir_and_scratchdir; ///< The command to run to erase the tmpdir and scratchdir at the end of Mondo.
+char *g_selfmounted_isodir; ///< Holds the NFS mountpoint if mounted via mondoarchive.
 
 /* @} - end of globalGroup */
 
@@ -362,11 +363,13 @@ fatal_error (char *error_string)
 	/*@ buffers ******************************************************/
   char fatalstr[MAX_NEWT_COMMENT_LEN] = "-------FATAL ERROR---------";
   char *tmp;
+  char *command;
   static bool already_exiting=FALSE;
   int i;
 
 	/*@ end vars *****************************************************/
 
+  malloc_string(command);
   tmp = malloc(MAX_NEWT_COMMENT_LEN);
   set_signals(FALSE); // link to external func
   g_exiting = TRUE;
@@ -418,6 +421,13 @@ fatal_error (char *error_string)
   if (g_erase_tmpdir_and_scratchdir[0])
     { run_program_and_log_output(g_erase_tmpdir_and_scratchdir, 5); }
 
+  if (g_selfmounted_isodir) {
+    sprintf(command, "umount %s", g_selfmounted_isodir);
+	run_program_and_log_output(command, 5);
+	sprintf(command, "rmdir %s", g_selfmounted_isodir);
+	run_program_and_log_output(command, 5);
+	}
+
   if (!g_text_mode)
     {
       log_msg (0, fatalstr);
@@ -453,6 +463,7 @@ fatal_error (char *error_string)
   register_pid(0, "mondo"); // finish() does this too, FYI
   if (!g_main_pid) { log_msg(3, "FYI - g_main_pid is blank"); }
   paranoid_free(tmp);
+  paranoid_free(command);
   finish (254);
 }
 
@@ -467,6 +478,8 @@ fatal_error (char *error_string)
 void
 finish (int signal)
 {
+		char *command;
+		malloc_string(command);
 
   /*  if (signal==0) { popup_and_OK("Please press <enter> to quit."); } */
 
@@ -480,6 +493,12 @@ finish (int signal)
     {
       run_program_and_log_output(g_erase_tmpdir_and_scratchdir, 1);
     }
+  if (g_selfmounted_isodir) {
+	sprintf(command, "umount %s", g_selfmounted_isodir);
+	run_program_and_log_output(command, 1);
+	sprintf(command, "rmdir %s", g_selfmounted_isodir);
+	run_program_and_log_output(command, 1);
+	}
     
 //  iamhere("foo");
   /* system("clear"); */

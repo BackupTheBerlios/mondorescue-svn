@@ -259,6 +259,7 @@ extern double g_kernel_version;
 extern bool g_ISO_restore_mode;
 extern struct s_bkpinfo *g_bkpinfo_DONTUSETHIS;
 extern char *g_erase_tmpdir_and_scratchdir;
+extern char *g_selfmounted_isodir;
 
 static char g_cdrw_drive_is_here[MAX_STR_LEN/4]="";
 static char g_cdrom_drive_is_here[MAX_STR_LEN/4]="";
@@ -1785,6 +1786,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo *bkpinfo, b
   char *sz_size;
   char *command;
   char *comment;
+  char *prompt;
   int i;
   FILE*fin;
 
@@ -1792,6 +1794,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo *bkpinfo, b
   malloc_string(sz_size);
   malloc_string(command);
   malloc_string(comment);
+  malloc_string(prompt);
   assert(bkpinfo!=NULL);
   sz_size[0] = '\0';
   bkpinfo->nonbootable_backup = FALSE;
@@ -2001,7 +2004,12 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo *bkpinfo, b
                     finish(1);
                   }
               }
-            sprintf(command, "mount | grep %s | cut -d' ' -f3", bkpinfo->nfs_mount);
+            // check whether already mounted - we better remove
+            // surrounding spaces and trailing '/' for this
+            strip_spaces (bkpinfo->nfs_mount);
+            if (bkpinfo->nfs_mount[strlen(bkpinfo->nfs_mount) - 1] == '/')
+               bkpinfo->nfs_mount[strlen(bkpinfo->nfs_mount) - 1] = '\0';
+            sprintf(command, "mount | grep \"%s \" | cut -d' ' -f3",bkpinfo->nfs_mount);
             strcpy(bkpinfo->isodir, call_program_and_get_last_line_of_output(command));
 	  }
 	if (bkpinfo->disaster_recovery)
@@ -2015,10 +2023,13 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo *bkpinfo, b
           }
         if (!is_this_device_mounted(bkpinfo->nfs_mount))
           {
-            sprintf(bkpinfo->isodir, "/tmp/isodir");
-	    run_program_and_log_output("mkdir -p /tmp/isodir", 5);
-	    sprintf(tmp, "mount %s -t nfs -o nolock /tmp/isodir", bkpinfo->nfs_mount);
-	    run_program_and_log_output(tmp, 5);
+				  sprintf(bkpinfo->isodir, "/tmp/isodir.mondo.%d", (int)(random(%32768)));
+                  sprintf(command, "mkdir -p %s", bkpinfo->isodir);
+                  run_program_and_log_output(command, 5);
+                  sprintf(tmp, "mount %s -t nfs %s", bkpinfo->nfs_mount, bkpinfo->isodir);
+                  run_program_and_log_output(tmp, 5);
+                  malloc_string(g_selfmounted_isodir);
+                  strcpy(g_selfmounted_isodir, bkpinfo->isodir);
           }
 	if (!is_this_device_mounted(bkpinfo->nfs_mount))
 	  {
@@ -2032,6 +2043,26 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo *bkpinfo, b
              finish(1);
           }
         strcpy(bkpinfo->nfs_remote_dir, tmp);
+        // check whether writable - we better remove surrounding spaces for this
+        strip_spaces (bkpinfo->nfs_remote_dir);
+        sprintf (command, "echo hi > %s/%s/.dummy.txt", bkpinfo->isodir,
+                                  bkpinfo->nfs_remote_dir);
+        while (run_program_and_log_output (command, FALSE)) {
+            strcpy(tmp, bkpinfo->nfs_remote_dir);
+            sprintf (prompt,
+                     "Directory '%s' under mountpoint '%s' does not exist or is not writable. You can fix this or change the directory and retry or cancel the backup.",
+                     bkpinfo->nfs_remote_dir, bkpinfo->isodir);
+            if(!popup_and_get_string ("Directory", prompt, tmp, MAX_STR_LEN)) {
+                log_to_screen("User has chosen not to backup the PC");
+                finish(1);
+            }
+            strcpy(bkpinfo->nfs_remote_dir, tmp);
+            // check whether writable - we better remove surrounding space s for this
+            strip_spaces (bkpinfo->nfs_remote_dir);
+            sprintf (command, "echo hi > %s/%s/.dummy.txt", bkpinfo->isodir,
+                                    bkpinfo->nfs_remote_dir);
+        }
+
 	for(i=0; i<=MAX_NOOF_MEDIA; i++) { bkpinfo->media_size[i] = 650; }
         log_msg(3, "Just set nfs_remote_dir to %s", bkpinfo->nfs_remote_dir);
 	log_msg(3, "isodir is still %s", bkpinfo->isodir);
@@ -2180,6 +2211,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo *bkpinfo, b
   paranoid_free(sz_size);
   paranoid_free(command);
   paranoid_free(comment);
+  paranoid_free(prompt);
   return(0);
 }
 

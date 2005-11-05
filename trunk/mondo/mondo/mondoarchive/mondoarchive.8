@@ -68,7 +68,10 @@ Mondo will wipe media before writing to them.
 .TP
 .BI "-r "
 Use DVD drive as backup device and its disks as backup media. Growisofs decides
-on the best speed for your drive.
+on the best speed for your drive. Note that calling mondoarchive
+.B using sudo when writing to DVDs will fail
+because growisofs does not support this - see the growisofs manpage for
+details.
 
 .TP
 .BI "-C " speed
@@ -320,7 +323,7 @@ support questions.
 .SH NOTES
 A link to Mondo's HTML-based manual (by Mikael Hultgren, Cafeole, Randy Delphs,
 Stan Benoit, and me) may be found at
-.I http://www.microwerks.net/~hugo/docs/docs.html
+.I http://www.mondorescue.org/docs/docs.html
 - or in 
 .I /usr/share/doc/mondo-x.xx
 on your hard drive.
@@ -402,7 +405,7 @@ afio(1), bzip2(1), find(1), mindi(8), mondorestore(8). The mindi manual
 might not have been written yet.
 .SH AUTHORS
 Hugo Rabson (coding)
-.I "hugorabson@msn.comt"
+.I "hugo.rabson@mondorescue.org"
 .br
 Jesse Keating (packaging)
 .I "hosting@j2solutions.net"
@@ -413,5 +416,5 @@ Stan Benoit (testing)
 Mikael Hultgren (docs)
 .I "mikael_hultgren@gmx.net"
 .br
-See mailing list at http://www.mondorescue.com for technical support.
+See mailing list at http://www.mondorescue.org for technical support.
 .

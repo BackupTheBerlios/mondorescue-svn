@@ -23,7 +23,7 @@ RUN_AFTER_BOOT_PHASE_COMPLETE="ide-opt"
     # before the init script runs mondorestore, it will
     # run this command.
 
-MINDI_VERSION=1.04_berlios
+MINDI_VERSION=1.05
 
 EXTRA_SPACE=24576         ; # increase if you run out of ramdisk space
 IA64_BOOT_SIZE=8192       ; # size of the ia64 boot disk

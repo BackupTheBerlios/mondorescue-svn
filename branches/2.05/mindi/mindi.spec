@@ -8,7 +8,7 @@
 %define is_redhat %(test -e /etc/redhat-release && echo 1 || echo 0)
 
 %define name	mindi
-%define version	1.04_berlios
+%define version	1.05
 %define mrel	1
 
 %if %is_redhat
@@ -124,6 +124,11 @@ cd $RPM_BUILD_ROOT%{_sbindir}
 %attr(755,root,root) %{_datadir}/mindi/rootfs/sbin/*
 
 %changelog
+* Fri Nov 05 2005 Bruno Cornec <bcornec@users.berlios.de> 1.05
+- ia64 is now working
+- NFS related bug fixed
+- ldd related bugs fixed
+
 * Tue Sep 06 2005 Bruno Cornec <bcornec@users.berlios.de> 1.04_berlios
 - Merge of patches mentionned on mondo ML + ia64 updates
 - Fix bugs when called alone

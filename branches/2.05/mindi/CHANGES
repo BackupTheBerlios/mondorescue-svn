@@ -1,5 +1,11 @@
 MINDI                            CHANGES                           08/23/2004
 
+1.05
+- Bug fix for ldd output incorrectly handled, leading to "grep not found" errors
+- NFS now works in interactive mode, and nolock problems are solved
+- IA-64 support is now working for rhel
+
+
 1.04
 - support exec-shield
 - added 'ide-generic' module to IDE modules in mindi to ensure that kernels

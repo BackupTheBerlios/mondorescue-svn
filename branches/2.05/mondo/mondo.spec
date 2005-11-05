@@ -8,7 +8,7 @@
 %define is_redhat %(test -e /etc/redhat-release && echo 1 || echo 0)
 
 %define name	mondo
-%define version	2.04_berlios
+%define version	2.05
 %define mrel	1
 
 %if %is_redhat
@@ -44,10 +44,10 @@ Source:		%{src}
 BuildRoot:	%{_tmppath}/%{name}-%{version}
 BuildRequires:	newt-devel >= 0.50, slang-devel >= 1.4.1, gcc
 %ifarch ia64
-Requires:	mindi >= 1.04_berlios, bzip2 >= 0.9, afio, mkisofs, binutils, elilo, newt >= 0.50, slang >= 1.4.1, buffer, parted
+Requires:	mindi >= 1.05, bzip2 >= 0.9, afio, mkisofs, binutils, elilo, newt >= 0.50, slang >= 1.4.1, buffer, parted
 %{!?_without_xmondo:BuildRequires:    gcc-c++, XFree86-devel, qt-devel, kdelibs-devel, libpng-devel}
 %else
-Requires:	mindi >= 1.04_berlios, bzip2 >= 0.9, afio, mkisofs, binutils, syslinux >= 1.52, newt >= 0.50, slang >= 1.4.1, cdrecord, buffer
+Requires:	mindi >= 1.05, bzip2 >= 0.9, afio, mkisofs, binutils, syslinux >= 1.52, newt >= 0.50, slang >= 1.4.1, cdrecord, buffer
 %{!?_without_xmondo:BuildRequires:    gcc-c++, XFree86-devel, qt-devel, kdelibs-devel, arts-devel, libart_lgpl-devel, libpng-devel}
 %endif
 
@@ -135,6 +135,10 @@ con cintas y NFS, tambien.
 #%{!?_without_xmondo:%{_datadir}/mondo/mondo.png}
 
 %changelog
+* Fri Nov 05 2005 Bruno Cornec <bcornec@users.berlios.de> 1.05
+- ia64 is now working
+- -p option related bug fixed
+
 * Tue Sep 06 2005 Bruno Cornec <bcornec@users.berlios.de> 2.04_berlios
 - Merge of patches mentionned on mondo ML + ia64 updates
 - Add -p option

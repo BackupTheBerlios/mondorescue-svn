@@ -1,5 +1,9 @@
-MONDO CHANGES          Hugo Rabson <hugorabson@msn.com>             2005-09-09
+MONDO CHANGES                                                       2005-11-05
 
+v2.05 (Bruno Cornec <bcornec@users.berlios.de)
+- -p options works better for NFS cases
+- ia64 is now working for rhel3
+- delivery process to BerliOS improved 
 
 v2.04_berlios (Bruno Cornec <bcornec@users.berlios.de)
 - Add -p option to generate ISO images file names with prefix. The new default

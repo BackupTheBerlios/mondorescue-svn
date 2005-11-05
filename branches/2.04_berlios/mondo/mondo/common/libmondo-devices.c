@@ -2023,7 +2023,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo *bkpinfo, b
           }
         if (!is_this_device_mounted(bkpinfo->nfs_mount))
           {
-				  sprintf(bkpinfo->isodir, "/tmp/isodir.mondo.%d", (int)(random(%32768)));
+				  sprintf(bkpinfo->isodir, "/tmp/isodir.mondo.%d", (int)(random()%32768));
                   sprintf(command, "mkdir -p %s", bkpinfo->isodir);
                   run_program_and_log_output(command, 5);
                   sprintf(tmp, "mount %s -t nfs %s", bkpinfo->nfs_mount, bkpinfo->isodir);

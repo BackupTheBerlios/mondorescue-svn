@@ -110,7 +110,7 @@ cd /
 
 # Was disabled in mid-March 2002 (?). Dunno why. Re-enabled July 11th, 2002.
 for path in /sbin /bin /usr/bin /usr/sbin /lib /usr/lib /lib/* /usr/lib/* ; do
-    mkdir -p $path
+    [ ! -e "$path" ] && mkdir -p "$path"
     for i in `ls $mountdir/$path 2> /dev/null` ; do
 	rm -f $path/$i 2> /dev/null
         mv $mountdir/$path/$i $path 2> /dev/null

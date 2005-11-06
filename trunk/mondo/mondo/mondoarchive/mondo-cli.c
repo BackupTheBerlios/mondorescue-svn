@@ -493,7 +493,11 @@ process_switches(struct s_bkpinfo *bkpinfo,
 				("Please install dvdrecord/cdrecord and try again.");
 		}
 		if (flag_set['C']) {
-			bkpinfo->cdrw_speed = 2;
+			bkpinfo->cdrw_speed = atoi(flag_val['C']);
+			if (bkpinfo->cdrw_speed < 1) {
+				fatal_error
+					("You specified a silly speed for a CD-R[W] drive");
+			}
 			if (!flag_set['L']) {
 				log_to_screen
 					("You must use -L with -C. Therefore I am setting it for you.");
@@ -962,7 +966,7 @@ retrieve_switches_from_command_line(int argc, char *argv[],
 	}
 	while ((opt =
 			getopt(argc, argv,
-				   "0123456789A:B:CDE:FHI:J:K:LNOP:QRS:T:VWb:c:d:ef:gik:l:mn:op:rs:tuw:x:"))
+				   "0123456789A:B:C:DE:FHI:J:K:LNOP:QRS:T:VWb:c:d:ef:gik:l:mn:op:rs:tuw:x:"))
 		   != -1) {
 		if (opt == '?') {
 			bad_switches = TRUE;

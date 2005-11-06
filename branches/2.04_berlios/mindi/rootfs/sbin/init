@@ -621,7 +621,7 @@ fi
 #if [ -e "/tmp/2880.siz" ] ; then
 #    HandleCDROMorFloppies
 #el
-if [ "`cat /tmp/mondo-restore.cfg | grep "tape"`" ] || [ "`cat /tmp/mondo-restore.cfg | grep udev`" ] ; then
+if [ "`cat /tmp/mondo-restore.cfg | grep "tape "`" ] || [ "`cat /tmp/mondo-restore.cfg | grep udev`" ] ; then
     HandleTape
 else
 	if [ "`cat /proc/cmdline | grep -i pxe`" ] ; then

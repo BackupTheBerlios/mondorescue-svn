@@ -7,7 +7,7 @@ copyright : (C) 2002 Mondo  Hugo Rabson
 email	  : Hugo Rabson <hugorabson@msn.com>
 edited by : by Stan Benoit 4/2002
 email     : troff@nakedsoul.org
-cvsid     : $Id: libmondo-verify.c,v 1.9 2004/06/21 20:20:36 hugo Exp $
+cvsid     : $Id$
 ***************************************************************************/
 
 /***************************************************************************
@@ -112,7 +112,7 @@ Started late Dec, 2001
 #include "lib-common-externs.h"
 
 /*@unused@*/
-//static char cvsid[] = "$Id: libmondo-verify.c,v 1.9 2004/06/21 20:20:36 hugo Exp $";
+//static char cvsid[] = "$Id$";
 
 char *vfy_tball_fname (struct s_bkpinfo *, char *, int);
 
@@ -1003,8 +1003,8 @@ verify_cd_image (struct s_bkpinfo *bkpinfo)
   assert(bkpinfo!=NULL);
 
   sprintf (mountpoint, "%s/cdrom", bkpinfo->tmpdir);
-  sprintf (fname, "%s/%s/%s-%d.iso", bkpinfo->isodir, bkpinfo->prefix, 
-		  bkpinfo->nfs_remote_dir, g_current_media_number);
+  sprintf (fname, "%s/%s/%s-%d.iso", bkpinfo->nfs_remote_dir, bkpinfo->isodir, 
+		  bkpinfo->prefix, g_current_media_number);
 
   mkdir (mountpoint, 1777);
   sync ();

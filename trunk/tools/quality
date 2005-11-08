@@ -1,0 +1,50 @@
+#!/bin/bash 
+#
+# $Id$
+#
+# Mesures quality improvement of mondorescue project
+#
+
+# Adapt to your needs
+dname=`dirname $0`
+prem=`echo $dname |cut -c1`
+if [ ${prem} == "/" ]; then
+        export TOOLHOME=$dname
+else
+        export TOOLHOME=${PWD}/$dname
+fi
+
+d=$TOOLHOME/..
+
+if [ $# -gt 0 ]; then
+	if [ -d $1 ]; then
+		d=$1
+	fi
+fi
+
+echo "Working on $d"
+echo " "
+cd $d
+
+# How many sprintf/strcat/strcpy vs asprintf are they
+echo "monodrescue uses : `find . -name '*.c' -o -name '*.h' |  egrep -v '\.svn' | egrep -v '/\*' | xargs grep -r asprintf | wc -l` asprintf"
+echo "monodrescue uses : `find . -name '*.c' -o -name '*.h' |  egrep -v '\.svn' | egrep -v '/\*' | xargs grep -r sprintf | grep -v asprintf | wc -l` sprintf"
+echo "monodrescue uses : `find . -name '*.c' -o -name '*.h' |  egrep -v '\.svn' | egrep -v '/\*' | xargs grep -r strcat | wc -l` strcat"
+echo "monodrescue uses : `find . -name '*.c' -o -name '*.h' |  egrep -v '\.svn' | egrep -v '/\*' | xargs grep -r strcpy | wc -l` strcpy"
+echo "monodrescue uses : `find . -name '*.c' -o -name '*.h' |  egrep -v '\.svn' | egrep -v '/\*' | xargs grep -r malloc_string | wc -l` malloc_string"
+echo "monodrescue uses : `find . -name '*.c' -o -name '*.h' |  egrep -v '\.svn' | egrep -v '/\*' | xargs grep -r MAX_STR_LEN | wc -l` MAX_STR_LEN"
+
+echo " "
+echo "Qualimetry: "
+find . -name '*.c' -o -name '*.h' |  egrep -v '\.svn' | xargs grep -r asprintf | egrep -v '/\*' | egrep -v 'asprintf\(&' > /tmp/mondo.quality
+cat /tmp/mondo.quality
+echo "monodrescue uses : `cat /tmp/mondo.quality | wc -l` asprintf without &"
+find . -name '*.c' -o -name '*.h' |  egrep -v '\.svn' | xargs grep -r getline | egrep -v '/\*' | egrep -v 'getline\(&' > /tmp/mondo.quality
+cat /tmp/mondo.quality
+echo "monodrescue uses : `cat /tmp/mondo.quality | wc -l` getline without &"
+
+echo " "
+echo "Splint: "
+find . -name '*.c' -o -name '*.h' | xargs splint +posixlib -Dlinux
+
+rm -f /tmp/mondo.quality

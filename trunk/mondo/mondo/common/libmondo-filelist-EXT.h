@@ -4,8 +4,10 @@ extern int chop_filelist(char *filelist, char *outdir, long maxsetsizeK);
 extern int call_filelist_chopper(struct s_bkpinfo *bkpinfo);
 extern void free_filelist(struct s_node *filelist);
 extern int get_last_filelist_number(struct s_bkpinfo *bkpinfo);
+/* BERLIOS: Useless ?
 extern int add_string_at_node(struct s_node *startnode,
 							  char *string_to_add);
+							  */
 extern struct s_node *load_filelist(char *filelist_fname);
 extern void reload_filelist(struct s_node *filelist);
 extern void save_filelist(struct s_node *filelist, char *outfname);

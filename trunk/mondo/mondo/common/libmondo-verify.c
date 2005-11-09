@@ -1,9 +1,4 @@
 /* $Id$ */
-/*
-copyright : (C) 2002 Mondo  Hugo Rabson <hugorabson@msn.com>
-edited by : by Stan Benoit 4/2002 troff@nakedsoul.org
-*/
-
 
 /**
  * @file

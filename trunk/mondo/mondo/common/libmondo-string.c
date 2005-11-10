@@ -31,7 +31,7 @@ extern long long g_tape_posK;
  * @param drive The drive basename of the partition name (e.g. /dev/hda)
  * @param partno The partition number (e.g. 1)
  * @param partition Where to put the partition name (e.g. /dev/hda1)
- * @return @p partition.
+ * @return @p partition. The caller has to free it.
  * @note If @p drive ends in a digit, then 'p' (on Linux) or 's' (on *BSD) is added before @p partno.
  */
 char *build_partition_name(char *partition, const char *drive, int partno)
@@ -256,7 +256,7 @@ char *leftpad_string(char *incoming, int width)
 	assert(incoming != NULL);
 	assert(width > 2);
 
-	asprintf(output, "%s", incoming);
+	asprintf(&output, "%s", incoming);
 	for (i = (int) strlen(output); i < width; i++) {
 		output[i] = ' ';
 	}

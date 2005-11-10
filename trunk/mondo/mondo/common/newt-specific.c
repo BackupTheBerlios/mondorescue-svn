@@ -1378,23 +1378,28 @@ extern "C" {
 		log_msg(2, "Loading %s", source_file);
 		for (filelist->entries = 0; filelist->entries <= ARBITRARY_MAXIMUM;
 			 filelist->entries++) {
-		  god_i_hate_gotos:
 			if (feof(fin)) {
 				break;
 			}
 			(void) getline(&tmp, &n, fin);
 			i = (int) strlen(tmp);
 			if (i < 2) {
-				goto god_i_hate_gotos;
+				if (feof(fin)) {
+					break;
+				}
 			}
 			if (tmp[i - 1] < 32) {
 				tmp[--i] = '\0';
 			}
 			if (i < 2) {
-				goto god_i_hate_gotos;
+				if (feof(fin)) {
+					break;
+				}
 			}
 			if (!does_file_exist(tmp)) {
-				goto god_i_hate_gotos;
+				if (feof(fin)) {
+					break;
+				}
 			}
 			filelist->el[filelist->entries].severity =
 				severity_of_difference(tmp, reason);

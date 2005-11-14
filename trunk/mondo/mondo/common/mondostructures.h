@@ -17,15 +17,15 @@
  ***************************************************************************/
 
 
-/**
+/*
  * @file
  * The header file defining all of Mondo's structures.
  */
 
 
-/** @def MAX_NOOF_MEDIA The maximum number of media that can be used in any one backup. */
+/* @def MAX_NOOF_MEDIA The maximum number of media that can be used in any one backup. */
 
-///* So we can override it in config.h: */
+/* So we can override it in config.h: */
 //#ifndef MAX_NOOF_MEDIA
 #define MAX_NOOF_MEDIA 50
 //#endif

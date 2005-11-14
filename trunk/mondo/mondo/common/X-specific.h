@@ -1,7 +1,5 @@
 /* X-specific.h */
 
-#include <config.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif

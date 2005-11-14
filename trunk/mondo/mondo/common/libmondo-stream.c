@@ -1,97 +1,10 @@
-/* libmondo-stream.c
-   $Id$
+/* $Id$
 
 ...tools for talking to tapes, Monitas streams, etc.
-
-
-07/10
-- added ACL and XATTR support
-
-04/17
-- added bkpinfo->internal_tape_block_size
-- fixed bug in set_tape_block_size_with_mt()
-
-03/25
-- call 'mt' when opening tape in/out, to set block size to 32K
-
-02/06/2004
-- only eject_device() at end of closein_tape() --- not closeout_tape()
-
-10/26/2003
-- call eject_device() at end of closein_tape() and closeout_tape()
- 
-09/25
-- added docu-header to each subroutine
-
-09/20
-- working on multi-tape code
-- friendlier message in insist_on_this_tape_number()
-- delay is now 5s
-
-09/10
-- adding multi-tape support
-- adding 'back catalog' of previous archives, so that we may resume
-  from point of end-of-tape (approx.)
-
-09/08
-- cleaned up insist_on_this_tape_number() --- 10s delay for same tape now
-
-08/27
-- improved find_tape_device_and_size() --- tries /dev/osst*
-
-05/05
-- added Joshua Oreman's FreeBSD patches
-
-04/24
-- added lots of assert()'s and log_OS_error()'s
-
-04/06/2003
-- use find_home_of_exe() instead of which
-
-12/13/2002
-- cdrecord -scanbus call was missing 2> /dev/null
-
-11/24
-- disabled fatal_error("Bad marker")
-
-10/29
-- replaced convoluted grep wih wc (KP)
-
-09/07
-- removed g_end_of_tape_reached
-- lots of multitape-related fixes
-
-08/01 - 08/31
-- write 16MB of zeroes to end of tape when closing(out)
-- compensate for 'buffer' and its distortion of speed of writing/reading
-  when writing/reading data disks at start of tape
-- rewrote lots of multitape stuff
-- wrote workaround to allow >2GB of archives w/buffering
-- do not close/reopen tape when starting to read/write from
-  new tape: no need! 'buffer' handles all that; we're writing
-  to/reading from a FIFO, so no need to close/reopen when new tape
-- write 8MB of zeroes at end of tape, just in case
-- re-enable various calls to *_evalcall_form
-- added g_end_of_tape_reached
-- fixed bugs in start_to_[read|write]_[to|from]_next_tape
-- added internal buffering, replacing the external 'buffer' exe
-- wait 10 seconds (after user inserts new tape), to
-  let tape stabilize in drive
-- added insist_on_this_tape_number()
-- worked on find_tape_device_and_size()
-- cleaned up some log_it() calls
-- added find_tape_device_and_size()
-- replaced using_cdstream with backup_media_type
-- replace *_from_tape with *_from_stream
-- replace *_to_stream with *_to_stream
-
-07/01 - 07/31
-- leave 32MB at end of tape, to avoid overrunning
-- started [07/24/2002]
 */
 
-
-/**
+/*
+ *
  * @file
  * Functions for writing data to/reading data from streams (tape, CD stream, etc.)
  */
@@ -184,9 +97,6 @@ int closein_tape(struct s_bkpinfo *bkpinfo)
 	int res = 0;
 	int ctrl_chr = '\0';
 
-	/*@ buffers ***************************************************** */
-	char fname[MAX_STR_LEN];
-
 	/*@ long long's ************************************************* */
 	long long size;
 	char *blk;
@@ -195,12 +105,12 @@ int closein_tape(struct s_bkpinfo *bkpinfo)
 	blk = (char *) malloc(256 * 1024);
 
 	log_it("closein_tape() -- entering");
-	res = read_header_block_from_stream(&size, fname, &ctrl_chr);
+	res = read_header_block_from_stream(&size, NULL, &ctrl_chr);
 	retval += res;
 	if (ctrl_chr != BLK_END_OF_BACKUP) {
 		wrong_marker(BLK_END_OF_BACKUP, ctrl_chr);
 	}
-	res = read_header_block_from_stream(&size, fname, &ctrl_chr);
+	res = read_header_block_from_stream(&size, NULL, &ctrl_chr);
 	retval += res;
 	if (ctrl_chr != BLK_END_OF_TAPE) {
 		wrong_marker(BLK_END_OF_TAPE, ctrl_chr);
@@ -213,12 +123,6 @@ int closein_tape(struct s_bkpinfo *bkpinfo)
 	sleep(1);
 	paranoid_pclose(g_tape_stream);
 	log_it("closein_tape() -- leaving");
-/*
-  for(i=0; i < g_tapecatalog->entries; i++)
-    {
-      log_it("i=%d type=%s num=%d aux=%ld", i, (g_tapecatalog->el[i].type==fileset)?"fileset":"bigslice", g_tapecatalog->el[i].number, g_tapecatalog->el[i].aux);
-    }
-*/
 	if (!bkpinfo->please_dont_eject) {
 		eject_device(bkpinfo->media_device);
 	}
@@ -240,14 +144,8 @@ int closeout_tape(struct s_bkpinfo *bkpinfo)
 {
 	/*@ int's ******************************************************* */
 	int retval = 0;
-//  int res = 0;
-//  int ctrl_chr = '\0';
-
-	/*@ buffers ***************************************************** */
-//  char fname[MAX_STR_LEN];
 
 	/*@ long long's ************************************************* */
-//  long long size;
 	int i;
 	char *blk;
 
@@ -261,7 +159,7 @@ int closeout_tape(struct s_bkpinfo *bkpinfo)
 		write_header_block_to_stream(0, "end-of-backup",
 									 BLK_END_OF_BACKUP);
 	retval += write_header_block_to_stream(0, "end-of-tape", BLK_END_OF_TAPE);	/* just in case */
-/* write 1MB of crap */
+	/* write 1MB of crap */
 	for (i = 0; i < 256 * 1024; i++) {
 		blk[i] = (int) (random() & 0xFF);
 	}
@@ -272,21 +170,6 @@ int closeout_tape(struct s_bkpinfo *bkpinfo)
 			start_to_write_to_next_tape(bkpinfo);
 		}
 	}
-/* write 1MB of zeroes */
-/*
-    for (i = 0; i < 256*1024; i++)
-      {
-        blk[i] = 0;
-      }
-    for (i = 0; i < 4; i++)
-      {
-        fwrite (blk, 1, 256*1024, g_tape_stream);
-        if (should_we_write_to_next_tape (bkpinfo->media_size[g_current_media_number], 256*1024))
-          {
-            start_to_write_to_next_tape (bkpinfo);
-          }
-      }
-*/
 	sleep(2);
 	paranoid_pclose(g_tape_stream);
 	log_it("closeout_tape() -- leaving");
@@ -297,8 +180,6 @@ int closeout_tape(struct s_bkpinfo *bkpinfo)
 			   g_tapecatalog->el[i].number, g_tapecatalog->el[i].aux,
 			   g_tapecatalog->el[i].tape_posK);
 	}
-	//  if (!bkpinfo->please_dont_eject)
-	//    { eject_device(bkpinfo->media_device); }
 	paranoid_free(blk);
 	paranoid_free(g_tapecatalog);
 	return (retval);
@@ -311,8 +192,7 @@ bool mt_says_tape_exists(char *dev)
 	char *command;
 	int res;
 
-	malloc_string(command);
-	sprintf(command, "mt -f %s status", dev);
+	asprintf(&command, "mt -f %s status", dev);
 	res = run_program_and_log_output(command, 1);
 	paranoid_free(command);
 	if (res) {
@@ -333,45 +213,54 @@ bool mt_says_tape_exists(char *dev)
  */
 int find_tape_device_and_size(char *dev, char *siz)
 {
-	char tmp[MAX_STR_LEN];
-	char command[MAX_STR_LEN * 2];
-	char cdr_exe[MAX_STR_LEN];
-//  char tape_description_[MAX_STR_LEN];
-//  char tape_manufacturer_cdr[MAX_STR_LEN];
-//  FILE*fin;
+	char *tmp;
+	char *command;
+	char *cdr_exe;
 	int res;
 
 	log_to_screen("I am looking for your tape streamer. Please wait.");
 	dev[0] = siz[0] = '\0';
 	if (find_home_of_exe("cdrecord")) {
-		strcpy(cdr_exe, "cdrecord");
+		asprintf(&cdr_exe, "cdrecord");
 	} else {
-		strcpy(cdr_exe, "dvdrecord");
+		asprintf(&cdr_exe, "dvdrecord");
 	}
-	sprintf(command, "%s -scanbus 2> /dev/null | grep -i tape | wc -l",
+	asprintf(&command, "%s -scanbus 2> /dev/null | grep -i tape | wc -l",
 			cdr_exe);
-	strcpy(tmp, call_program_and_get_last_line_of_output(command));
+	asprintf(&tmp, call_program_and_get_last_line_of_output(command));
+	paranoid_free(command);
+
 	if (atoi(tmp) != 1) {
 		log_it
 			("Either too few or too many tape streamers for me to detect...");
 		strcpy(dev, VANILLA_SCSI_TAPE);
 		return 1;
 	}
-	sprintf(command,
+	paranoid_free(tmp);
+
+	asprintf(&command,
 			"%s -scanbus 2> /dev/null | tr -s '\t' ' ' | grep \"[0-9]*,[0-9]*,[0-9]*\" | grep -v \"[0-9]*) \\*\" | grep -i TAPE | cut -d' ' -f2 | head -n1",
 			cdr_exe);
-	strcpy(tmp, call_program_and_get_last_line_of_output(command));
+	asprintf(&tmp, call_program_and_get_last_line_of_output(command));
+	paranoid_free(command);
 	if (strlen(tmp) < 2) {
 		log_it("Could not find tape device");
 		return 1;
 	}
-	sprintf(command,
+	paranoid_free(tmp);
+
+	asprintf(&command,
 			"%s -scanbus 2> /dev/null | tr -s '\t' ' ' | grep \"[0-9]*,[0-9]*,[0-9]*\" | grep -v \"[0-9]*) \\*\" | grep -i TAPE | cut -d' ' -f3 | cut -d')' -f1 | head -n1",
 			cdr_exe);
-	strcpy(tmp, call_program_and_get_last_line_of_output(command));
+	paranoid_free(cdr_exe);
+
+	asprintf(&tmp, call_program_and_get_last_line_of_output(command));
+	paranoid_free(command);
 	strcpy(dev, VANILLA_SCSI_TAPE);
 	dev[strlen(dev) - 1] = '\0';
 	strcat(dev, tmp);			// e.g. '/dev/st0' becomes '/dev/stN'
+	paranoid_free(tmp);
+
 	res = 0;
 	if (!mt_says_tape_exists(dev)) {
 		strcpy(dev, ALT_TAPE);
@@ -392,7 +281,7 @@ int find_tape_device_and_size(char *dev, char *siz)
 
 	log_it("At this point, dev = %s and res = %d", dev, res);
 
-	strcpy(tmp, call_program_and_get_last_line_of_output("\
+	asprintf(&tmp, call_program_and_get_last_line_of_output("\
 cdrecord -scanbus 2> /dev/null | tr -s '\t' ' ' | \
 grep \"[0-9]*,[0-9]*,[0-9]*\" | grep -v \"[0-9]*) \\*\" | grep -i TAPE | \
 awk '{for(i=1; i<NF; i++) { if (index($i, \"GB\")>0) { print $i;};};};'"));
@@ -401,7 +290,8 @@ awk '{for(i=1; i<NF; i++) { if (index($i, \"GB\")>0) { print $i;};};};'"));
 		res = 0;
 	} else {
 		log_it("Turning %s", dev);
-		strcpy(tmp, (strrchr(dev, '/') != NULL) ? strrchr(dev, '/') : dev);
+		paranoid_free(tmp);
+		asprintf(&tmp, (strrchr(dev, '/') != NULL) ? strrchr(dev, '/') : dev);
 		sprintf(dev, "/dev/os%s", tmp);
 		log_it("...into %s", dev);
 		if (mt_says_tape_exists(dev)) {
@@ -426,12 +316,8 @@ awk '{for(i=1; i<NF; i++) { if (index($i, \"GB\")>0) { print $i;};};};'"));
 		strcpy(siz, tmp);
 		return (0);
 	}
+	paranoid_free(tmp);
 }
-
-
-
-
-
 
 int read_EXAT_files_from_tape(struct s_bkpinfo *bkpinfo,
 							  long long *ptmp_size, char *tmp_fname,
@@ -440,40 +326,46 @@ int read_EXAT_files_from_tape(struct s_bkpinfo *bkpinfo,
 {
 	int res = 0;
 	int retval = 0;
+	char *fname = &res;		/* Should NOT be NULL */
 
 // xattr
-	res = read_header_block_from_stream(ptmp_size, tmp_fname, pctrl_chr);
+	res = read_header_block_from_stream(ptmp_size, fname, pctrl_chr);
 	if (*pctrl_chr != BLK_START_EXAT_FILE) {
 		wrong_marker(BLK_START_EXAT_FILE, *pctrl_chr);
 	}
-	if (!strstr(tmp_fname, "xattr")) {
+	if (!strstr(fname, "xattr")) {
 		fatal_error("Wrong order, sunshine.");
 	}
+	paranoid_free(fname);
+	fname = &res;
 	read_file_from_stream_to_file(bkpinfo, xattr_fname, *ptmp_size);
-	res = read_header_block_from_stream(ptmp_size, tmp_fname, pctrl_chr);
+	res = read_header_block_from_stream(ptmp_size, NULL, pctrl_chr);
 	if (*pctrl_chr != BLK_STOP_EXAT_FILE) {
 		wrong_marker(BLK_STOP_EXAT_FILE, *pctrl_chr);
 	}
-// acl
-	res = read_header_block_from_stream(ptmp_size, tmp_fname, pctrl_chr);
-	if (!strstr(tmp_fname, "acl")) {
+	// acl
+	res = read_header_block_from_stream(ptmp_size, fname, pctrl_chr);
+	if (!strstr(fname, "acl")) {
 		fatal_error("Wrong order, sunshine.");
 	}
+	paranoid_free(fname);
+	fname = &res;
 	if (*pctrl_chr != BLK_START_EXAT_FILE) {
 		wrong_marker(BLK_START_EXAT_FILE, *pctrl_chr);
 	}
 	read_file_from_stream_to_file(bkpinfo, acl_fname, *ptmp_size);
-	res = read_header_block_from_stream(ptmp_size, tmp_fname, pctrl_chr);
+	res = read_header_block_from_stream(ptmp_size, NULL, pctrl_chr);
 	if (*pctrl_chr != BLK_STOP_EXAT_FILE) {
 		wrong_marker(BLK_STOP_EXAT_FILE, *pctrl_chr);
 	}
-	res = read_header_block_from_stream(ptmp_size, tmp_fname, pctrl_chr);
+	res = read_header_block_from_stream(ptmp_size, NULL, pctrl_chr);
 	if (*pctrl_chr != BLK_STOP_EXTENDED_ATTRIBUTES) {
 		wrong_marker(BLK_STOP_EXTENDED_ATTRIBUTES, *pctrl_chr);
 	}
-// tarball itself
-	res = read_header_block_from_stream(ptmp_size, tmp_fname, pctrl_chr);
+	// tarball itself
+	res = read_header_block_from_stream(ptmp_size, fname, pctrl_chr);
 	log_msg(1, "Got xattr and acl; now looking for afioball");
+	tmp_fname = fname;
 	return (retval);
 }
 
@@ -482,10 +374,10 @@ int write_EXAT_files_to_tape(struct s_bkpinfo *bkpinfo, char *xattr_fname,
 							 char *acl_fname)
 {
 	int res = 0;
-// EXATs
+	// EXATs
 	write_header_block_to_stream(length_of_file(xattr_fname), xattr_fname,
 								 BLK_START_EXTENDED_ATTRIBUTES);
-// xattr
+	// xattr
 	write_header_block_to_stream(length_of_file(xattr_fname), xattr_fname,
 								 BLK_START_EXAT_FILE);
 	write_file_to_stream_from_file(bkpinfo, xattr_fname);
@@ -512,15 +404,16 @@ int write_EXAT_files_to_tape(struct s_bkpinfo *bkpinfo, char *xattr_fname,
 void insist_on_this_tape_number(int tapeno)
 {
 	int i;
-	char tmp[MAX_STR_LEN];
+	char *tmp;
 
 	log_it("Insisting on tape #%d", tapeno);
 	if (g_current_media_number != tapeno) {
 		//      log_it("g_current_media_number = %d", g_current_media_number);
-		sprintf(tmp,
+		asprintf(&tmp,
 				"When the tape drive goes quiet, please insert volume %d in this series.",
 				tapeno);
 		popup_and_OK(tmp);
+		paranoid_free(tmp);
 		open_evalcall_form("Waiting while the tape drive settles");
 	} else {
 		open_evalcall_form("Waiting while the tape drive rewinds");
@@ -539,18 +432,11 @@ void insist_on_this_tape_number(int tapeno)
 }
 
 
-
-
 /**
  * Debugging aid - log the offset we're at on the tape (reading or writing).
  */
 void log_tape_pos(void)
 {
-	/*@ buffers ***************************************************** */
-
-
-	/*@ end vars *************************************************** */
-
 	log_it("Tape position -- %ld KB (%ld MB)", (long) g_tape_posK,
 		   (long) g_tape_posK >> 10);
 }
@@ -575,19 +461,23 @@ int maintain_collection_of_recent_archives(char *td, char *latest_fname)
 		final_actually_certain_writeK = 0, cposK, bufsize_K;
 	int last, curr, i;
 	t_archtype type = other;
-	char command[MAX_STR_LEN];
-	char tmpdir[MAX_STR_LEN];
-	char old_fname[MAX_STR_LEN];
+	char *command;
+	char *tmpdir;
+	char *old_fname;
 	char *p;
+	/* BERLIOS: useless
 	char suffix[16];
+	*/
 
 	bufsize_K = (long long) (1024LL * (1 + g_tape_buffer_size_MB));
-	sprintf(tmpdir, "%s/tmpfs/backcatalog", td);
+	asprintf(&tmpdir, "%s/tmpfs/backcatalog", td);
+	/* BERLIOS: useless
 	if ((p = strrchr(latest_fname, '.'))) {
 		strcpy(suffix, ++p);
 	} else {
 		suffix[0] = '\0';
 	}
+	*/
 	if (strstr(latest_fname, ".afio.") || strstr(latest_fname, ".star.")) {
 		type = fileset;
 	} else if (strstr(latest_fname, "slice")) {
@@ -598,11 +488,13 @@ int maintain_collection_of_recent_archives(char *td, char *latest_fname)
 			("Unknown type. Internal error in maintain_collection_of_recent_archives()");
 	}
 	mkdir(tmpdir, 0x700);
-	sprintf(command, "cp -f %s %s", latest_fname, tmpdir);
+	asprintf(&command, "cp -f %s %s", latest_fname, tmpdir);
 	if (run_program_and_log_output(command, 6)) {
 		log_it("Warning - failed to copy %s to backcatalog at %s",
 			   latest_fname, tmpdir);
 	}
+	paranoid_free(command);
+
 	last = g_tapecatalog->entries - 1;
 	if (last <= 0) {
 		iamhere("Too early to start deleting from collection.");
@@ -625,13 +517,13 @@ int maintain_collection_of_recent_archives(char *td, char *latest_fname)
 //  log_it( "There are %lld KB (more than %d KB) in my backcatalog", final_alleged_writeK - final_actually_certain_writeK, bufsize_K);
 
 	for (i = curr - 1; i >= 0 && curr - i < 10; i--) {
-		sprintf(old_fname, "%s/%s", tmpdir, g_tapecatalog->el[i].fname);
+		asprintf(&old_fname, "%s/%s", tmpdir, g_tapecatalog->el[i].fname);
 		unlink(old_fname);
+		paranoid_free(old_fname);
 	}
+	paranoid_free(tmpdir);
 	return (0);
 }
-
-
 
 
 /**
@@ -645,13 +537,12 @@ int openin_cdstream(struct s_bkpinfo *bkpinfo)
 	return (openin_tape(bkpinfo));
 }
 
+
 /**
  * FIFO used to read/write to the tape device.
  * @bug This seems obsolete now that we call an external @c buffer program. Please look onto this.
  */
 char g_tape_fifo[MAX_STR_LEN];
-
-
 
 int set_tape_block_size_with_mt(char *tapedev,
 								long internal_tape_block_size)
@@ -664,13 +555,11 @@ int set_tape_block_size_with_mt(char *tapedev,
 				"Not using 'mt setblk'. This isn't an actual /dev entry.");
 		return (0);
 	}
-	malloc_string(tmp);
-	sprintf(tmp, "mt -f %s setblk %ld", tapedev, internal_tape_block_size);
+	asprintf(&tmp, "mt -f %s setblk %ld", tapedev, internal_tape_block_size);
 	res = run_program_and_log_output(tmp, 3);
 	paranoid_free(tmp);
 	return (res);
 }
-
 
 
 /**
@@ -684,11 +573,10 @@ int set_tape_block_size_with_mt(char *tapedev,
 int openin_tape(struct s_bkpinfo *bkpinfo)
 {
 	/*@ buffer ***************************************************** */
-	char fname[MAX_STR_LEN];
 	char *datablock;
-	char tmp[MAX_STR_LEN];
+	char *tmp;
 	char old_cwd[MAX_STR_LEN];
-	char outfname[MAX_STR_LEN];
+	char *outfname;
 	/*@ int ******************************************************* */
 	int i;
 	int j;
@@ -717,7 +605,7 @@ int openin_tape(struct s_bkpinfo *bkpinfo)
 		return (0);
 	}
 	insist_on_this_tape_number(1);
-	sprintf(outfname, "%s/tmp/all.tar.gz", bkpinfo->tmpdir);
+	asprintf(&outfname, "%s/tmp/all.tar.gz", bkpinfo->tmpdir);
 	make_hole_for_file(outfname);
 
 	set_tape_block_size_with_mt(bkpinfo->media_device,
@@ -764,13 +652,13 @@ int openin_tape(struct s_bkpinfo *bkpinfo)
 	}
 	paranoid_fclose(fout);
 	paranoid_free(datablock);
-/* find initial blocks */
-	res = read_header_block_from_stream(&size, fname, &ctrl_chr);
+	/* find initial blocks */
+	res = read_header_block_from_stream(&size, NULL, &ctrl_chr);
 	retval += res;
 	if (ctrl_chr != BLK_START_OF_TAPE) {
 		wrong_marker(BLK_START_OF_TAPE, ctrl_chr);
 	}
-	res = read_header_block_from_stream(&size, fname, &ctrl_chr);
+	res = read_header_block_from_stream(&size, NULL, &ctrl_chr);
 	retval += res;
 	if (ctrl_chr != BLK_START_OF_BACKUP) {
 		wrong_marker(BLK_START_OF_BACKUP, ctrl_chr);
@@ -779,12 +667,14 @@ int openin_tape(struct s_bkpinfo *bkpinfo)
 	log_it("Saved all.tar.gz to '%s'", outfname);
 	(void) getcwd(old_cwd, MAX_STR_LEN);
 	chdir(bkpinfo->tmpdir);
-	sprintf(tmp, "tar -zxf %s tmp/mondo-restore.cfg 2> /dev/null",
+	asprintf(&tmp, "tar -zxf %s tmp/mondo-restore.cfg 2> /dev/null",
 			outfname);
 	paranoid_system(tmp);
+	paranoid_free(tmp);
 	paranoid_system("cp -f tmp/mondo-restore.cfg . 2> /dev/null");
 	chdir(old_cwd);
 	unlink(outfname);
+	paranoid_free(outfname);
 	return (retval);
 }
 
@@ -799,25 +689,26 @@ int openin_tape(struct s_bkpinfo *bkpinfo)
 int openout_cdstream(char *cddev, int speed)
 {
 	/*@ buffers ***************************************************** */
-	char command[MAX_STR_LEN * 2];
+	char command;
 
 	/*@ end vars *************************************************** */
 
-/*  add 'dummy' if testing */
-	sprintf(command,
+	/*  add 'dummy' if testing */
+	asprintf(&command,
 			"cdrecord -eject dev=%s speed=%d fs=24m -waiti - >> %s 2>> %s",
 			cddev, speed, MONDO_LOGFILE, MONDO_LOGFILE);
-/*  initialise the catalog */
+	/*  initialise the catalog */
 	g_current_media_number = 1;
 	if (!(g_tapecatalog = malloc(sizeof(struct s_tapecatalog)))) {
 		fatal_error("Cannot alloc mem for tape catalog");
 	}
 	g_tapecatalog->entries = 0;
-/* log stuff */
+	/* log stuff */
 	log_it("Opening OUT cdstream with the command");
 	log_it(command);
-/*  log_it("Let's see what happens, shall we?"); */
+	/*  log_it("Let's see what happens, shall we?"); */
 	g_tape_stream = popen(command, "w");
+	paranoid_free(command);
 	if (g_tape_stream) {
 		return (0);
 	} else {
@@ -825,6 +716,7 @@ int openout_cdstream(char *cddev, int speed)
 		return (1);
 	}
 }
+
 
 /**
  * Start writing to a tape device for the backup.
@@ -835,8 +727,6 @@ int openout_cdstream(char *cddev, int speed)
  */
 int openout_tape(char *tapedev, long internal_tape_block_size)
 {
-//  char sz_call_to_buffer[MAX_STR_LEN];
-
 	g_current_media_number = 1;
 	if (g_tape_stream) {
 		log_it("FYI - I won't 'openout' the tape. It's already open.");
@@ -859,8 +749,6 @@ int openout_tape(char *tapedev, long internal_tape_block_size)
 	}
 	return (0);
 }
-
-
 
 
 /**
@@ -886,7 +774,6 @@ read_file_from_stream_to_file(struct s_bkpinfo *bkpinfo, char *outfile,
 }
 
 
-
 /**
  * Copy a file from the currently opened stream (CD or tape) to the stream indicated
  * by @p fout.
@@ -906,11 +793,8 @@ read_file_from_stream_to_stream(struct s_bkpinfo *bkpinfo, FILE * fout,
 	/*@ end vars *************************************************** */
 
 	res = read_file_from_stream_FULL(bkpinfo, NULL, fout, size);
-/*  fflush(g_tape_stream);
-  fflush(fout);*/
 	return (res);
 }
-
 
 
 /**
@@ -932,10 +816,9 @@ read_file_from_stream_FULL(struct s_bkpinfo *bkpinfo, char *outfname,
 	/*@ buffers ***************************************************** */
 	char *tmp;
 	char *datablock;
-	char *temp_fname;
-	char *temp_cksum;
+	char *temp_fname = bkpinfo;		/* Should NOT be NULL */
+	char *temp_cksum = bkpinfo;		/* Should NOT be NULL */
 	char *actual_cksum;
-//  char *pA, *pB;
 
 	/*@ int ********************************************************* */
 	int retval = 0;
@@ -949,8 +832,7 @@ read_file_from_stream_FULL(struct s_bkpinfo *bkpinfo, char *outfname,
 	FILE *fout;
 
 	/*@ long    ***************************************************** */
-	long bytes_to_write = 0 /*,i */ ;
-//  long bytes_successfully_read_in_this_time = 0;
+	long bytes_to_write = 0;
 
 	/*@ long long *************************************************** */
 	long long temp_size, size;
@@ -958,17 +840,12 @@ read_file_from_stream_FULL(struct s_bkpinfo *bkpinfo, char *outfname,
 	long long total_read_from_tape_for_this_file = 0;
 	long long where_I_was_before_tape_change = 0;
 	/*@ unsigned int ************************************************ */
-	/*  unsigned int ch; */
 	unsigned int crc16;
 	unsigned int crctt;
 
 	bool had_to_resync = FALSE;
 
 	/*@ init  ******************************************************* */
-	malloc_string(tmp);
-	malloc_string(temp_fname);
-	malloc_string(temp_cksum);
-	malloc_string(actual_cksum);
 	datablock = malloc(TAPE_BLOCK_SIZE);
 	crc16 = 0;
 	crctt = 0;
@@ -978,17 +855,20 @@ read_file_from_stream_FULL(struct s_bkpinfo *bkpinfo, char *outfname,
 
 	res = read_header_block_from_stream(&temp_size, temp_fname, &ctrl_chr);
 	if (orig_size != temp_size && orig_size != -1) {
-		sprintf(tmp,
+		asprintf(&tmp,
 				"output file's size should be %ld K but is apparently %ld K",
 				(long) size >> 10, (long) temp_size >> 10);
 		log_to_screen(tmp);
+		paranoid_free(tmp);
 	}
 	if (ctrl_chr != BLK_START_FILE) {
 		wrong_marker(BLK_START_FILE, ctrl_chr);
 		return (1);
 	}
-	sprintf(tmp, "Reading file from tape; writing to '%s'; %ld KB",
+	asprintf(&tmp, "Reading file from tape; writing to '%s'; %ld KB",
 			outfname, (long) size >> 10);
+	log_to_screen(tmp);
+	paranoid_free(tmp);
 
 	if (foutstream) {
 		fout = foutstream;
@@ -1044,7 +924,7 @@ read_file_from_stream_FULL(struct s_bkpinfo *bkpinfo, char *outfname,
 			total_read_from_tape_for_this_file);
 	log_msg(6, ".......................... Should be %lld", orig_size);
 	g_tape_posK += total_read_from_tape_for_this_file / 1024;
-	sprintf(actual_cksum, "%04x%04x", crc16, crctt);
+	asprintf(&actual_cksum, "%04x%04x", crc16, crctt);
 	if (foutstream) {			/*log_it("Finished writing to foutstream"); */
 	} else {
 		paranoid_fclose(fout);
@@ -1055,25 +935,23 @@ read_file_from_stream_FULL(struct s_bkpinfo *bkpinfo, char *outfname,
 //      fatal_error("Bad marker"); // return(1);
 	}
 	if (strcmp(temp_cksum, actual_cksum)) {
-		sprintf(tmp, "actual cksum=%s; recorded cksum=%s", actual_cksum,
+		asprintf(&tmp, "actual cksum=%s; recorded cksum=%s", actual_cksum,
 				temp_cksum);
 		log_to_screen(tmp);
-		sprintf(tmp, "%s (%ld K) is corrupt on tape", temp_fname,
+		paranoid_free(tmp);
+
+		asprintf(&tmp, "%s (%ld K) is corrupt on tape", temp_fname,
 				(long) orig_size >> 10);
 		log_to_screen(tmp);
+		paranoid_free(tmp);
 		retval++;
-	} else {
-		sprintf(tmp, "%s is GOOD on tape", temp_fname);
-		/*      log_it(tmp); */
 	}
+	paranoid_free(actual_cksum);
 	paranoid_free(datablock);
-	paranoid_free(tmp);
 	paranoid_free(temp_fname);
 	paranoid_free(temp_cksum);
-	paranoid_free(actual_cksum);
 	return (retval);
 }
-
 
 
 /**
@@ -1109,18 +987,16 @@ read_header_block_from_stream(long long *plen, char *filename,
 			fread(tempblock, 1, (size_t) TAPE_BLOCK_SIZE,
 				  g_tape_stream) / 1024;
 	}
-/*  memcpy((char*)plength_of_incoming_file,(char*)tempblock+7001,sizeof(long long)); */
-/*  for(*plen=0,i=7;i>=0;i--) {*plen<<=8; *plen |= tempblock[7001+i];} */
 	memcpy((char *) plen, tempblock + 7001, sizeof(long long));
 	if (strcmp(tempblock + 6000 + *pcontrol_char, "Mondolicious, baby")) {
 		log_it("Bad header block at %ld K", (long) g_tape_posK);
 	}
-	strcpy(filename, tempblock + 1000);
-/*  strcpy(cksum,tempblock+5555);*/
-/*  log_it( "%s  (reading) fname=%s, filesize=%ld K",
-	   marker_to_string (*pcontrol_char), filename,
-	   (long) ((*plen) >> 10));
-*/
+	/* the caller manages whether we should allocate or not 
+	 * by setting the value to NULL (do not allocate) or 
+	 * something (allocate) */
+	if (filename != NULL) {
+		asprintf(&filename, tempblock + 1000);
+	}
 	if (*pcontrol_char == BLK_ABORTED_BACKUP) {
 		log_to_screen("I can't verify an aborted backup.");
 		retval = 1;
@@ -1139,7 +1015,6 @@ read_header_block_from_stream(long long *plen, char *filename,
 	paranoid_free(tempblock);
 	return (retval);
 }
-
 
 
 /**
@@ -1183,8 +1058,6 @@ int register_in_tape_catalog(t_archtype type, int number, long aux,
 	g_tapecatalog->entries++;
 	return (last);				// returns the index of the record we've jsut added
 }
-
-
 
 
 /**
@@ -1236,13 +1109,12 @@ int skip_incoming_files_until_we_find_this_one(char
 	char *pB;
 	int res;
 	int ctrl_chr;
-	char *temp_fname;
+	char *temp_fname = &res;		/* should NOT be NULL */
 	char *datablock;
 	long long temp_size, size;
 	long bytes_to_write;
 
 	datablock = malloc(TAPE_BLOCK_SIZE);
-	malloc_string(temp_fname);
 	pB = strrchr(the_file_I_was_reading, '/');
 	if (pB) {
 		pB++;
@@ -1262,6 +1134,8 @@ int skip_incoming_files_until_we_find_this_one(char
 		log_msg(1, "%lld %s %c", temp_size, temp_fname, ctrl_chr);
 		wrong_marker(BLK_START_AN_AFIO_OR_SLICE, ctrl_chr);
 		log_msg(3, "Still trying to re-sync w/ tape");
+		paranoid_free(temp_fname);
+		temp_fname = &res;
 	}
 	while (ctrl_chr != BLK_START_FILE) {
 		res =
@@ -1273,6 +1147,11 @@ int skip_incoming_files_until_we_find_this_one(char
 		log_msg(1, "%lld %s %c", temp_size, temp_fname, ctrl_chr);
 		wrong_marker(BLK_START_FILE, ctrl_chr);
 		log_msg(3, "Still trying to re-sync w/ tape");
+		/* Do not desallocate when the while condition is met */
+		if (ctrl_chr != BLK_START_FILE) {
+			paranoid_free(temp_fname);
+			temp_fname = &res;
+		}
 	}
 	pA = strrchr(temp_fname, '/');
 	if (pA) {
@@ -1295,20 +1174,23 @@ int skip_incoming_files_until_we_find_this_one(char
 			// FIXME - needs error-checking and -catching
 			fread(datablock, 1, (size_t) TAPE_BLOCK_SIZE, g_tape_stream);
 		}
+		
+		paranoid_free(temp_fname);
+		temp_fname = &res;
 		res =
-			read_header_block_from_stream(&temp_size, temp_fname,
+			read_header_block_from_stream(&temp_size, NULL,
 										  &ctrl_chr);
 		if (ctrl_chr != BLK_STOP_FILE) {
 			wrong_marker(BLK_STOP_FILE, ctrl_chr);
 		}
 		res =
-			read_header_block_from_stream(&temp_size, temp_fname,
+			read_header_block_from_stream(&temp_size, NULL,
 										  &ctrl_chr);
 		if (ctrl_chr != BLK_STOP_AN_AFIO_OR_SLICE) {
 			wrong_marker(BLK_STOP_AN_AFIO_OR_SLICE, ctrl_chr);
 		}
 		res =
-			read_header_block_from_stream(&temp_size, temp_fname,
+			read_header_block_from_stream(&temp_size, NULL,
 										  &ctrl_chr);
 		if (ctrl_chr != BLK_START_AN_AFIO_OR_SLICE) {
 			wrong_marker(BLK_START_AN_AFIO_OR_SLICE, ctrl_chr);
@@ -1325,12 +1207,14 @@ int skip_incoming_files_until_we_find_this_one(char
 		} else {
 			pA = temp_fname;
 		}
+		/* BERLIOS: useless ?
 		pB = strrchr(the_file_I_was_reading, '/');
 		if (pB) {
 			pB++;
 		} else {
 			pB = the_file_I_was_reading;
 		}
+		*/
 	}
 	log_msg(2, "Reading %s (it matches %s)", temp_fname,
 			the_file_I_was_reading);
@@ -1349,10 +1233,8 @@ int start_to_read_from_next_tape(struct s_bkpinfo *bkpinfo)
 {
 	/*@ int ********************************************************* */
 	int res = 0;
-	char *sz_msg;
 	int ctrlchr;
 	long long temp_size;
-	malloc_string(sz_msg);
 	/*@ end vars *************************************************** */
 
 	paranoid_pclose(g_tape_stream);
@@ -1372,20 +1254,18 @@ int start_to_read_from_next_tape(struct s_bkpinfo *bkpinfo)
 	}
 	g_tape_posK = 0;
 	g_sigpipe = FALSE;
-	res += read_header_block_from_stream(&temp_size, sz_msg, &ctrlchr);	/* just in case */
+	res += read_header_block_from_stream(&temp_size, NULL, &ctrlchr);	/* just in case */
 	if (ctrlchr != BLK_START_OF_TAPE) {
 		wrong_marker(BLK_START_OF_TAPE, ctrlchr);
 	}
-	res += read_header_block_from_stream(&temp_size, sz_msg, &ctrlchr);	/* just in case */
+	res += read_header_block_from_stream(&temp_size, NULL, &ctrlchr);	/* just in case */
 	if (ctrlchr != BLK_START_OF_BACKUP) {
 		wrong_marker(BLK_START_OF_BACKUP, ctrlchr);
 	} else {
 		log_msg(3, "Next tape opened OK. Whoopee!");
 	}
-	paranoid_free(sz_msg);
 	return (res);
 }
-
 
 
 /**
@@ -1396,7 +1276,8 @@ int start_to_read_from_next_tape(struct s_bkpinfo *bkpinfo)
 int start_to_write_to_next_tape(struct s_bkpinfo *bkpinfo)
 {
 	int res = 0;
-	char command[MAX_STR_LEN * 2];
+	char *command;
+
 	paranoid_pclose(g_tape_stream);
 	system("sync");
 	system("sync");
@@ -1408,7 +1289,7 @@ int start_to_write_to_next_tape(struct s_bkpinfo *bkpinfo)
 		log_to_screen("Too many tapes. Man, you need to use nfs!");
 	}
 	if (bkpinfo->backup_media_type == cdstream) {
-		sprintf(command,
+		asprintf(&command,
 				"cdrecord -eject dev=%s speed=%d fs=24m -waiti - >> %s 2>> %s",
 				bkpinfo->media_device, bkpinfo->cdrw_speed, MONDO_LOGFILE,
 				MONDO_LOGFILE);
@@ -1416,6 +1297,7 @@ int start_to_write_to_next_tape(struct s_bkpinfo *bkpinfo)
 		log_it(command);
 		log_it("Let's see what happens, shall we?");
 		g_tape_stream = popen(command, "w");
+		paranoid_free(command);
 		if (!g_tape_stream) {
 			log_to_screen("Failed to openout to cdstream (fifo)");
 			return (1);
@@ -1439,8 +1321,6 @@ int start_to_write_to_next_tape(struct s_bkpinfo *bkpinfo)
 }
 
 
-
-
 /**
  * Write a bufferfull of the most recent archives to the tape. The
  * rationale behind this is a bit complex. If the previous tape ended
@@ -1459,10 +1339,9 @@ int write_backcatalog_to_tape(struct s_bkpinfo *bkpinfo)
 	char *fname;
 
 	log_msg(2, "I am now writing back catalog to tape");
-	malloc_string(fname);
 	last = g_tapecatalog->entries - 1;
 	for (i = 0; i <= last; i++) {
-		sprintf(fname, "%s/tmpfs/backcatalog/%s", bkpinfo->tmpdir,
+		asprintf(&fname, "%s/tmpfs/backcatalog/%s", bkpinfo->tmpdir,
 				g_tapecatalog->el[i].fname);
 		if (!does_file_exist(fname)) {
 			log_msg(6, "Can't write %s - it doesn't exist.", fname);
@@ -1481,12 +1360,11 @@ int write_backcatalog_to_tape(struct s_bkpinfo *bkpinfo)
 											 BLK_STOP_AN_AFIO_OR_SLICE);
 			}
 		}
+		paranoid_free(fname);
 	}
-	paranoid_free(fname);
 	log_msg(2, "Finished writing back catalog to tape");
 	return (res);
 }
-
 
 
 /**
@@ -1498,7 +1376,7 @@ int write_data_disks_to_stream(char *fname)
 {
 	/*@ pointers *************************************************** */
 	FILE *fin;
-	char tmp[MAX_STR_LEN];
+	char *tmp;
 
 	/*@ long ******************************************************* */
 	long m = -1;
@@ -1516,8 +1394,9 @@ int write_data_disks_to_stream(char *fname)
 	log_to_screen("Writing data disks to tape");
 	log_it("Data disks = %s", fname);
 	if (!does_file_exist(fname)) {
-		sprintf(tmp, "Cannot find %s", fname);
+		asprintf(&tmp, "Cannot find %s", fname);
 		log_to_screen(tmp);
+		paranoid_free(tmp);
 		return (1);
 	}
 	if (!(fin = fopen(fname, "r"))) {
@@ -1549,8 +1428,6 @@ int write_data_disks_to_stream(char *fname)
 }
 
 
-
-
 /**
  * Copy @p infile to the opened stream (CD or tape).
  * @param bkpinfo The backup information structure. @c bkpinfo->media_size is the only field used.
@@ -1560,9 +1437,9 @@ int write_data_disks_to_stream(char *fname)
 int write_file_to_stream_from_file(struct s_bkpinfo *bkpinfo, char *infile)
 {
 	/*@ buffers **************************************************** */
-	char tmp[MAX_STR_LEN];
+	char *tmp;
 	char datablock[TAPE_BLOCK_SIZE];
-	char checksum[MAX_STR_LEN];
+	char *checksum;
 	char *infile_basename;
 
 	/*@ int ******************************************************** */
@@ -1592,8 +1469,6 @@ int write_file_to_stream_from_file(struct s_bkpinfo *bkpinfo, char *infile)
 	crc16 = 0;
 	crctt = 0;
 
-
-
 	/*@ end vars *************************************************** */
 
 	infile_basename = strrchr(infile, '/');
@@ -1614,9 +1489,11 @@ int write_file_to_stream_from_file(struct s_bkpinfo *bkpinfo, char *infile)
 	} else {
 		p++;
 	}
-	sprintf(tmp, "Writing file '%s' to tape (%ld KB)", p,
+	asprintf(&tmp, "Writing file '%s' to tape (%ld KB)", p,
 			(long) filesize >> 10);
 	log_it(tmp);
+	paranoid_free(tmp);
+
 	write_header_block_to_stream(filesize, infile_basename,
 								 BLK_START_FILE);
 //go_here_to_restart_saving_of_file:
@@ -1655,15 +1532,13 @@ int write_file_to_stream_from_file(struct s_bkpinfo *bkpinfo, char *infile)
 #endif
 	}
 	paranoid_fclose(fin);
-	sprintf(checksum, "%04x%04x", crc16, crctt);
+	asprintf(&checksum, "%04x%04x", crc16, crctt);
 	write_header_block_to_stream(g_current_media_number, checksum,
 								 BLK_STOP_FILE);
+	paranoid_free(checksum);
 //  log_it("File '%s' written to tape.", infile);
 	return (retval);
 }
-
-
-
 
 
 /**
@@ -1683,7 +1558,7 @@ write_header_block_to_stream(long long length_of_incoming_file,
 {
 	/*@ buffers **************************************************** */
 	char tempblock[TAPE_BLOCK_SIZE];
-	char tmp[MAX_STR_LEN];
+	char *tmp;
 	char *p;
 
 	/*@ int ******************************************************** */
@@ -1712,29 +1587,18 @@ write_header_block_to_stream(long long length_of_incoming_file,
 	}
 	sprintf(tempblock + 6000 + control_char, "Mondolicious, baby");
 	tempblock[7000] = control_char;
-/*  for(i=0;i<8;i++) {tempblock[7001+i]=olen&0xff; olen>>=8;} */
 	memcpy(tempblock + 7001, (char *) &olen, sizeof(long long));
-/*  if (length_of_incoming_file) {memcpy(tempblock+7001,(char*)&length_of_incoming_file,sizeof(long long));} */
 	strcpy(tempblock + 1000, filename);
-/*  strcpy(tempblock+5555,cksum); */
 	g_tape_posK +=
 		fwrite(tempblock, 1, (size_t) TAPE_BLOCK_SIZE,
 			   g_tape_stream) / 1024;
-	sprintf(tmp, "%s (fname=%s, size=%ld K)",
+	asprintf(&tmp, "%s (fname=%s, size=%ld K)",
 			marker_to_string(control_char), p,
 			(long) length_of_incoming_file >> 10);
 	log_msg(6, tmp);
-/*  log_tape_pos(); */
+	paranoid_free(tmp);
 	return (0);
 }
-
-
-
-
-
-
-
-
 
 
 /**
@@ -1745,14 +1609,14 @@ write_header_block_to_stream(long long length_of_incoming_file,
 void wrong_marker(int should_be, int it_is)
 {
 	/*@ buffer ***************************************************** */
-	char tmp[MAX_STR_LEN];
+	char *tmp;
 
 
 	/*@ end vars *************************************************** */
-	sprintf(tmp, "Wrong marker! (Should be %s, ",
-			marker_to_string(should_be));
-	sprintf(tmp + strlen(tmp), "is actually %s)", marker_to_string(it_is));
+	asprintf(&tmp, "Wrong marker! (Should be %s, is actually %s)",
+			marker_to_string(should_be), marker_to_string(it_is));
 	log_to_screen(tmp);
+	paranoid_free(tmp);
 }
 
 /* @} - end of streamGroup */

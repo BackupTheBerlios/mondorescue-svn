@@ -1828,7 +1828,6 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 	malloc_string(sz_size);
 	malloc_string(command);
 	malloc_string(comment);
-	malloc_string(prompt);
 	assert(bkpinfo != NULL);
 	sz_size[0] = '\0';
 	bkpinfo->nonbootable_backup = FALSE;

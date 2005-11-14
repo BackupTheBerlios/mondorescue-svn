@@ -1061,7 +1061,7 @@ char *percent_media_full_comment(struct s_bkpinfo *bkpinfo)
 	*p = '\0';
 
 	/* BERLIOS There is a bug here I can't solve for the moment. If you 
-	 * replace %% in the asprintf below by 'percent' it just works, but 
+	 * replace %% in the format below by 'percent' it just works, but 
 	 * like this it creates a huge number. Memory pb somewhere */
 	/*
 	   log_it("percentage: %d", percentage);

@@ -16,7 +16,7 @@
 #ifndef _MY_STUFF_H_
 #define _MY_STUFF_H_
 
-/* Required for the use of asprintf */
+/* Required for the use of getline, ... */
 #define __USE_GNU
 
 #include <stdio.h>

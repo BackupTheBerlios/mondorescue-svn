@@ -480,21 +480,23 @@ does_device_exist (char *device)
 
 	/*@ buffers ************************************************************/
   char *tmp;
+  bool ret;
 
   malloc_string(tmp);
   assert_string_is_neither_NULL_nor_zerolength(device);
 
   sprintf (tmp, "ls %s > /dev/null 2> /dev/null", device);
   
-  paranoid_free(tmp);
   if (system (tmp))
     {
-      return (FALSE);
+      ret = FALSE;
     }
   else
     {
-      return (TRUE);
+      ret = TRUE;
     }
+  paranoid_free(tmp);
+  return(ret);
 }
 
 

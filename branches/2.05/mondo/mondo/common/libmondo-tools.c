@@ -421,24 +421,7 @@ double get_kernel_version()
 long
 get_time ()
 {
-
-#if 0
-
-	/*@ pointers *****************************************************/
-  FILE *fin;
-
-	/*@ buffers ******************************************************/
-  char incoming[MAX_STR_LEN];
-
-	/*@ end vars *****************************************************/
-
-  if (!(fin = popen ("date +%s", "r"))) { log_OS_error("Cannot popen date"); return(0); }
-  fgets (incoming, MAX_STR_LEN - 1, fin);
-  paranoid_pclose (fin);
-  return (atol (incoming));
-#else
   return (long) time ((void *) 0);
-#endif
 }
 
 

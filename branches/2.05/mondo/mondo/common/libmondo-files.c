@@ -568,7 +568,7 @@ char *last_line_of_file(char *filename)
 		output[0] = '\0';
 		return (output);
 	}
-	sprintf(command, "cat %s | tail -n1", filename);
+	sprintf(command, "tail -n1 %s", filename);
 	fin = popen(command, "r");
 	(void) fgets(output, MAX_STR_LEN, fin);
 	paranoid_pclose(fin);
@@ -1308,7 +1308,8 @@ estimate_noof_media_required(struct s_bkpinfo *bkpinfo, long noof_sets)
 	}
 	if (scratchLL <= 1) {
 		sprintf(tmp,
-				"Your backup will probably occupy a single CD/tape/ISO. Maybe two.");
+				"Your backup will probably occupy a single %s. Maybe two.",
+				media_descriptor_string(bkpinfo->backup_media_type));
 	} else if (scratchLL > 4) {
 		sprintf(tmp,
 				"Your backup will occupy one meeeeellion media! (maybe %s)",

@@ -561,12 +561,13 @@ log_file_end_to_screen (char *filename, char *grep_for_me)
     }
   if (grep_for_me[0] != '\0')
     {
-      sprintf (command, "cat %s | grep \"%s\" | tail -n%d", filename,
-	       grep_for_me, g_noof_log_lines);
+      sprintf (command, "grep '%s' %s | tail -n%d", 	       
+				 	grep_for_me, filename,
+					g_noof_log_lines);
     }
   else
     {
-      sprintf (command, "cat %s | tail -n%d", filename, g_noof_log_lines);
+      sprintf (command, "cat %s | tail -n%d %s", g_noof_log_lines, filename);
     }
   fin = popen (command, "r");
   if (!fin)

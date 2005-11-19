@@ -55,7 +55,7 @@ struct s_bkpinfo;
 class XMondo:public KMainWindow {
   Q_OBJECT public:
 	/** construtor */
-	XMondo(QWidget * parent = 0, const char *name = 0);
+	 XMondo(QWidget * parent = 0, const char *name = 0);
 	/** destructor */
 	 virtual ~ XMondo();
 

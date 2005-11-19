@@ -157,14 +157,14 @@ int sort_file(char *orig_fname)
 
 	log_msg(1, "Sorting file %s", orig_fname);
 	asprintf(&tmp_fname, "/tmp/sort.%d.%d.%d", (int) (random() % 32768),
-			(int) (random() % 32768), (int) (random() % 32768));
+			 (int) (random() % 32768), (int) (random() % 32768));
 
 	if (!does_file_exist(orig_fname)) {
 		return (0);
 	}							// no sense in trying to sort an empty file
 
 	asprintf(&command, "sort %s > %s 2>> %s", orig_fname, tmp_fname,
-			MONDO_LOGFILE);
+			 MONDO_LOGFILE);
 	retval = system(command);
 	paranoid_free(command);
 
@@ -253,11 +253,11 @@ int chop_filelist(char *filelist, char *outdir, long maxsetsizeK)
 	log_it("outfname=%s; biggie_fname=%s", outfname, biggie_fname);
 	if (!(fbig = fopen(biggie_fname, "w"))) {
 		log_OS_error("Cannot openout biggie_fname");
-		return(0);
+		return (0);
 	}
 	if (!(fout = fopen(outfname, "w"))) {
 		log_OS_error("Cannot openout outfname");
-		return(0);
+		return (0);
 	}
 	(void) fgets(&incoming, &n, fin);
 	while (!feof(fin)) {
@@ -267,12 +267,12 @@ int chop_filelist(char *filelist, char *outdir, long maxsetsizeK)
 			i = 0;
 		}
 		/* BERLIOS: Useless with getline
-		if (i > MAX_STR_LEN - 1) {
-			incoming[MAX_STR_LEN - 30] = '\0';
-			log_msg(1, "Warning - truncating file %s's name", incoming);
-			err++;
-		}
-		*/
+		   if (i > MAX_STR_LEN - 1) {
+		   incoming[MAX_STR_LEN - 30] = '\0';
+		   log_msg(1, "Warning - truncating file %s's name", incoming);
+		   err++;
+		   }
+		 */
 		if (incoming[i] < 32) {
 			incoming[i] = '\0';
 		}
@@ -297,10 +297,11 @@ int chop_filelist(char *filelist, char *outdir, long maxsetsizeK)
 
 				curr_set_no++;
 				curr_set_size = 0;
-				asprintf(&outfname, "%s/filelist.%ld", outdir, curr_set_no);
+				asprintf(&outfname, "%s/filelist.%ld", outdir,
+						 curr_set_no);
 				if (!(fout = fopen(outfname, "w"))) {
 					log_OS_error("Unable to openout outfname");
-					return(0);
+					return (0);
 				}
 				update_evalcall_form((int) (lino * 100 / noof_lines));
 			}
@@ -326,7 +327,7 @@ int chop_filelist(char *filelist, char *outdir, long maxsetsizeK)
 	if (write_one_liner_data_file(outfname, tmp)) {
 		log_OS_error
 			("Unable to echo write one-liner to LAST-FILELIST-NUMBER");
-		return(0);
+		return (0);
 	}
 	paranoid_free(outfname);
 	paranoid_free(tmp);
@@ -422,8 +423,7 @@ int call_exe_and_pipe_output_to_fd(char *syscall, FILE * pout)
 		paranoid_pclose(pattr);
 		return (2);
 	}
-	for (getline(&tmp, &n, pattr); !feof(pattr);
-		 getline(&tmp, &n, pattr)) {
+	for (getline(&tmp, &n, pattr); !feof(pattr); getline(&tmp, &n, pattr)) {
 		fputs(tmp, pout);
 	}
 	paranoid_pclose(pattr);
@@ -489,8 +489,8 @@ int get_acl_list(char *filelist, char *facl_fname)
 	if (find_home_of_exe("getfacl")) {
 //      sort_file(filelist); // FIXME - filelist chopper sorts, so this isn't necessary
 		asprintf(&command,
-				"cat %s | getfacl --all-effective -P - 2>> %s | gzip -c1 > %s 2>> %s",
-				filelist, MONDO_LOGFILE, facl_fname, MONDO_LOGFILE);
+				 "cat %s | getfacl --all-effective -P - 2>> %s | gzip -c1 > %s 2>> %s",
+				 filelist, MONDO_LOGFILE, facl_fname, MONDO_LOGFILE);
 		iamhere(command);
 		retval = system(command);
 		paranoid_free(command);
@@ -543,9 +543,9 @@ int set_EXAT_list(char *orig_msklist, char *original_exat_fname,
 				  char *executable)
 {
 	const int my_depth = 8;
-	char *command, *syscall_pin, *syscall_pout; 
+	char *command, *syscall_pin, *syscall_pout;
 	char *incoming = NULL;
-	char *current_subset_file = NULL; 
+	char *current_subset_file = NULL;
 	char *current_master_file, *masklist;
 	int retval = 0;
 	int i;
@@ -560,7 +560,7 @@ int set_EXAT_list(char *orig_msklist, char *original_exat_fname,
 		log_msg(1,
 				"No masklist provided. I shall therefore set ALL attributes.");
 		asprintf(&command, "cat %s | gzip -dc | %s --restore - 2>> %s",
-				original_exat_fname, executable, MONDO_LOGFILE);
+				 original_exat_fname, executable, MONDO_LOGFILE);
 		log_msg(1, "command = %s", command);
 		retval = system(command);
 		paranoid_free(command);
@@ -574,7 +574,7 @@ int set_EXAT_list(char *orig_msklist, char *original_exat_fname,
 		return (0);
 	}
 	asprintf(&masklist, "/tmp/%d.%d.mask", (int) (random() % 32768),
-			(int) (random() % 32768));
+			 (int) (random() % 32768));
 	asprintf(&command, "cp -f %s %s", orig_msklist, masklist);
 	run_program_and_log_output(command, 1);
 	paranoid_free(command);
@@ -582,7 +582,7 @@ int set_EXAT_list(char *orig_msklist, char *original_exat_fname,
 	sort_file(masklist);
 	asprintf(&syscall_pin, "cat %s | gzip -dc", original_exat_fname);
 	asprintf(&syscall_pout, "%s --restore - 2>> %s", executable,
-			MONDO_LOGFILE);
+			 MONDO_LOGFILE);
 
 	log_msg(1, "syscall_pin = %s", syscall_pin);
 	log_msg(1, "syscall_pout = %s", syscall_pout);
@@ -773,7 +773,6 @@ int add_string_at_node(struct s_node *startnode, char *string_to_add)
 				char_to_add, node->ch, (node->right)->ch);
 		return (add_string_at_node(node->right, string_to_add));
 	}
-
 	// walk down tree if appropriate
 	if (node->down != NULL && node->ch == char_to_add) {
 		log_msg(7, "depth=%d char=%c --- going DOWN", depth, char_to_add);
@@ -787,7 +786,6 @@ int add_string_at_node(struct s_node *startnode, char *string_to_add)
 		log_msg(6, "%s already in tree", original_string);
 		return (1);
 	}
-
 	// add here
 	if (!(newnode = (struct s_node *) malloc(sizeof(struct s_node)))) {
 		log_to_screen("failed to malloc");
@@ -903,8 +901,7 @@ struct s_node *load_filelist(char *filelist_fname)
 	paranoid_free(command_to_open_fname);
 
 	open_evalcall_form("Loading filelist from disk");
-	for (getline(&fname, &n, pin); !feof(pin);
-		 getline(&fname, &n, pin)) {
+	for (getline(&fname, &n, pin); !feof(pin); getline(&fname, &n, pin)) {
 		if ((fname[strlen(fname) - 1] == 13
 			 || fname[strlen(fname) - 1] == 10) && strlen(fname) > 0) {
 			fname[strlen(fname) - 1] = '\0';
@@ -1325,7 +1322,8 @@ int prepare_filelist(struct s_bkpinfo *bkpinfo)
  * @bug Return value should be @c void.
  */
 int open_and_list_dir(char *dir, char *sth, FILE * fout,
-					  time_t time_of_last_full_backup, char *skeleton_filelist) 
+					  time_t time_of_last_full_backup,
+					  char *skeleton_filelist)
 {
 	DIR *dip;
 	struct dirent *dit;
@@ -1358,13 +1356,13 @@ int open_and_list_dir(char *dir, char *sth, FILE * fout,
 #if linux
 		// 2.6 has /sys as a proc-type thing -- must be excluded
 		asprintf(&tmp,
-				"find %s -maxdepth %d -path /proc -prune -o -path /tmp -prune -o -path /sys -prune -o -path /dev/shm -prune -o -path /media/floppy -prune -o -type d -a -print > %s 2> /dev/null",
-				dir, MAX_SKEL_DEPTH, skeleton_filelist);
+				 "find %s -maxdepth %d -path /proc -prune -o -path /tmp -prune -o -path /sys -prune -o -path /dev/shm -prune -o -path /media/floppy -prune -o -type d -a -print > %s 2> /dev/null",
+				 dir, MAX_SKEL_DEPTH, skeleton_filelist);
 #else
 		// On BSD, for example, /sys is the kernel sources -- don't exclude
 		asprintf(&tmp,
-				"find %s -maxdepth %d -path /proc -prune -o -path /tmp -prune -o -type d -a -print > %s 2> /dev/null",
-				dir, MAX_SKEL_DEPTH, skeleton_filelist);
+				 "find %s -maxdepth %d -path /proc -prune -o -path /tmp -prune -o -type d -a -print > %s 2> /dev/null",
+				 dir, MAX_SKEL_DEPTH, skeleton_filelist);
 #endif
 		system(tmp);
 		paranoid_free(tmp);
@@ -1435,10 +1433,10 @@ int open_and_list_dir(char *dir, char *sth, FILE * fout,
 			paranoid_free(new_with_spaces);
 			asprintf(&new_with_spaces, " %s ", new);
 			/* BERLIOS: Old code
-			new_with_spaces[0] = ' ';
-			strcpy(new_with_spaces + 1, new);
-			strcat(new_with_spaces, " ");
-			*/
+			   new_with_spaces[0] = ' ';
+			   strcpy(new_with_spaces + 1, new);
+			   strcat(new_with_spaces, " ");
+			 */
 			if (strstr(skip_these, new_with_spaces)) {
 				fprintf(fout, "%s\n", new);
 			} else {
@@ -1446,7 +1444,8 @@ int open_and_list_dir(char *dir, char *sth, FILE * fout,
 					if (!S_ISLNK(statbuf.st_mode)
 						&& S_ISDIR(statbuf.st_mode)) {
 						open_and_list_dir(new, skip_these, fout,
-										  time_of_last_full_backup, skeleton_filelist);
+										  time_of_last_full_backup,
+										  skeleton_filelist);
 					} else {
 						if (time_of_last_full_backup == 0
 							|| time_of_last_full_backup <
@@ -1456,7 +1455,7 @@ int open_and_list_dir(char *dir, char *sth, FILE * fout,
 								counter = 0;
 								uberctr++;
 								asprintf(&tmp, " %c ",
-										special_dot_char(uberctr));
+										 special_dot_char(uberctr));
 #ifndef _XWIN
 								if (!g_text_mode) {
 									newtDrawRootText(77, g_noof_rows - 3,
@@ -1546,8 +1545,8 @@ int mondo_makefilelist(char *logfile, char *tmpdir, char *scratchdir,
 	char *command;
 	time_t time_of_last_full_backup = 0;
 	struct stat statbuf;
-	char *skeleton_filelist; 
- 	// The pathname to the skeleton filelist, used to give better progress reporting for mondo_makefilelist().
+	char *skeleton_filelist;
+	// The pathname to the skeleton filelist, used to give better progress reporting for mondo_makefilelist().
 
 	asprintf(&sz_datefile, sz_datefile_wildcard, 0);
 	if (!include_paths && !userdef_filelist) {
@@ -1564,14 +1563,15 @@ int mondo_makefilelist(char *logfile, char *tmpdir, char *scratchdir,
 
 	if (differential == 0) {
 		// restore last good datefile if it exists
-		asprintf(&command, "cp -f %s.aborted %s", sz_datefile, sz_datefile);
+		asprintf(&command, "cp -f %s.aborted %s", sz_datefile,
+				 sz_datefile);
 		run_program_and_log_output(command, 3);
 		paranoid_free(command);
 
 		// backup last known good datefile just in case :)
 		if (does_file_exist(sz_datefile)) {
 			asprintf(&command, "mv -f %s %s.aborted", sz_datefile,
-					sz_datefile);
+					 sz_datefile);
 			paranoid_system(command);
 			paranoid_free(command);
 		}
@@ -1629,7 +1629,8 @@ int mondo_makefilelist(char *logfile, char *tmpdir, char *scratchdir,
 				q = next_entry(p);
 				log_msg(1, "Including %s in filelist %s", q, sz_filelist);
 				open_and_list_dir(q, exclude_paths, fout,
-								  time_of_last_full_backup, skeleton_filelist);
+								  time_of_last_full_backup,
+								  skeleton_filelist);
 				p += strlen(q);
 				while (*p == ' ') {
 					p++;
@@ -1818,8 +1819,7 @@ int add_list_of_files_to_filelist(struct s_node *filelist,
 		iamhere(list_of_files_fname);
 		return (1);
 	}
-	for (getline(&tmp, &n, fin); !feof(fin);
-		 getline(&tmp, &n, fin)) {
+	for (getline(&tmp, &n, fin); !feof(fin); getline(&tmp, &n, fin)) {
 		if (!tmp[0]) {
 			continue;
 		}

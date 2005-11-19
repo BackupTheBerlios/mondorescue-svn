@@ -357,8 +357,8 @@ archive_this_fileset(struct s_bkpinfo *bkpinfo, char *filelist,
 	paranoid_system(command);
 	paranoid_free(command);
 
-	asprintf(&command, "cat %s | afio -o -b %ld -M 16m %s %s 2>> %s",
-			 filelist, TAPE_BLOCK_SIZE, zipparams, fname, MONDO_LOGFILE);
+	asprintf(&command, "afio -o -b %ld -M 16m %s %s < %s 2>> %s",
+			 TAPE_BLOCK_SIZE, zipparams, fname, filelist, MONDO_LOGFILE);
 	paranoid_free(zipparams);
 
 	asprintf(&tmp, "echo hi > %s 2> /dev/null", fname);
@@ -555,7 +555,7 @@ int call_mindi_to_supply_boot_disks(struct s_bkpinfo *bkpinfo)
 	assert(bkpinfo != NULL);
 
 	asprintf(&tmp,
-			 "echo \"%s\" | tr -s ' ' '\n' | grep -x \"/dev/.*\" | tr -s '\n' ' ' | awk '{print $0\"\\n\";}'",
+			 "echo '%s' | tr -s ' ' '\n' | grep -x '/dev/.*' | tr -s '\n' ' ' | awk '{print $0\"\\n\";}'",
 			 bkpinfo->exclude_paths);
 	asprintf(&devs_to_exclude,
 			 call_program_and_get_last_line_of_output(tmp));
@@ -831,9 +831,9 @@ int call_mindi_to_supply_boot_disks(struct s_bkpinfo *bkpinfo)
 /*	   "mindi --custom 2=%s 3=%s/images 4=\"%s\" 5=\"%s\" \
 6=\"%s\" 7=%ld 8=\"%s\" 9=\"%s\" 10=\"%s\" \
 11=\"%s\" 12=%s 13=%ld 14=\"%s\" 15=\"%s\" 16=\"%s\" 17=\"%s\" 18=%ld 19=%d",*/
-			 "mindi --custom %s %s/images \"%s\" \"%s\" \
-\"%s\" %ld \"%s\" \"%s\" \"%s\" \
-\"%s\" %s %ld \"%s\" \"%s\" \"%s\" \"%s\" %ld %d %s", bkpinfo->tmpdir,	// parameter #2
+			 "mindi --custom %s %s/images '%s' '%s' \
+'%s' %ld '%s' '%s' '%s' \
+'%s' %s %ld '%s' '%s' '%s' '%s' %ld %d %s", bkpinfo->tmpdir,	// parameter #2
 			 bkpinfo->scratchdir,	// parameter #3
 			 bkpinfo->kernel_path,	// parameter #4
 			 tape_device,		// parameter #5
@@ -916,8 +916,7 @@ int call_mindi_to_supply_boot_disks(struct s_bkpinfo *bkpinfo)
 		}
 	} else {
 		log_to_screen("Mindi failed to create your boot+data disks.");
-		asprintf(&command, "cat %s | grep \"Fatal error\"",
-				 "/var/log/mindi.log");
+		asprintf(&command, "grep 'Fatal error' /var/log/mindi.log");
 		asprintf(&tmp, call_program_and_get_last_line_of_output(command));
 		paranoid_free(command);
 		if (strlen(tmp) > 1) {
@@ -1714,7 +1713,7 @@ int make_iso_fs(struct s_bkpinfo *bkpinfo, char *destfile)
 			} else {
 				log_to_screen("%s...OK", message_to_screen);
 				if (!run_program_and_log_output
-					("tail -n10 /var/log/mondo-archive.log | fgrep \":-(\"",
+					("tail -n10 /var/log/mondo-archive.log | fgrep ':-('",
 					 1)) {
 					log_to_screen
 						("Despite nonfatal errors, growisofs confirms the write was successful.");
@@ -1723,7 +1722,7 @@ int make_iso_fs(struct s_bkpinfo *bkpinfo, char *destfile)
 			retval += res;
 #ifdef DVDRWFORMAT
 			asprintf(&tmp,
-					 "cat %s | tail -n8 | grep \"blank=full.*dvd-compat.*DAO\"",
+					 "tail -n8 %s | grep 'blank=full.*dvd-compat.*DAO'",
 					 MONDO_LOGFILE);
 			if (g_backup_media_type == dvd
 				&& (res || !run_program_and_log_output(tmp, 1))) {
@@ -3104,7 +3103,7 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
 				biggie_filename);
 	} else {
 		file_to_openin = biggie_filename;
-		asprintf(&command, "md5sum \"%s\"", biggie_filename);
+		asprintf(&command, "md5sum '%s'", biggie_filename);
 		if (!(fin = popen(command, "r"))) {
 			log_OS_error("Unable to popen-in command");
 			paranoid_free(command);
@@ -3507,7 +3506,8 @@ int write_iso_and_go_on(struct s_bkpinfo *bkpinfo, bool last_cd)
 		}
 		if (bkpinfo->verify_data && !res) {
 			log_to_screen
-				("Please reboot from the 1st CD in Compare Mode, as a precaution.");
+				("Please reboot from the 1st %s in Compare Mode, as a precaution.",
+				 media_descriptor_string(g_backup_media_type));
 			chdir("/");
 			iamhere("Before calling verify_cd_image()");
 			res += verify_cd_image(bkpinfo);
@@ -3639,13 +3639,13 @@ int verify_data(struct s_bkpinfo *bkpinfo)
 	  system (tmp);
 */
 		asprintf(&tmp,
-				 "cat %s | grep \"afio: \" | sed 's/afio: //' | grep -vx \"/dev/.*\" >> /tmp/changed.files",
+				 "sed -n -e 's/afio: //p' %s | grep -vx '/dev/.*' >> /tmp/changed.files",
 				 MONDO_LOGFILE);
 		system(tmp);
 		paranoid_free(tmp);
 
 		asprintf(&tmp,
-				 "cat %s | grep \"star: \" | sed 's/star: //' | grep -vx \"/dev/.*\" >> /tmp/changed.files",
+				 "sed -n -e 's/star: //p' %s | grep -vx '/dev/.*' >> /tmp/changed.files",
 				 MONDO_LOGFILE);
 		system(tmp);
 		paranoid_free(tmp);

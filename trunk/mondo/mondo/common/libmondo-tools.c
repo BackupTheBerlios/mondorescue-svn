@@ -167,7 +167,7 @@ void clean_up_KDE_desktop_if_necessary(void)
 	char *tmp;
 
 	asprintf(&tmp,
-		   "for i in `find /root /home -type d -name Desktop -maxdepth 2`; do \
+			 "for i in `find /root /home -type d -name Desktop -maxdepth 2`; do \
 file=$i/.directory; if [ -f \"$file\" ] ; then mv -f $file $file.old ; \
 cat $file.old | awk '{if (index($0, \"rootimagesmindi\")) { while (length($0)>2) { getline;} ; } \
 else { print $0;};}' > $file ; fi ; done");
@@ -188,14 +188,14 @@ char *find_and_store_mondoarchives_home()
 	char *home_sz = NULL;
 
 	asprintf(&home_sz,
-		   call_program_and_get_last_line_of_output
-		   ("find /usr/lib/ /usr/local/ /usr/share/ /usr/local/share/ /opt/ /ramdisk/usr/share/ -type d -maxdepth 2 -name include -prune -o -type d -maxdepth 2 -path '*/mondo/restore-scripts' -printf '%h\n' 2> /dev/null"));
+			 call_program_and_get_last_line_of_output
+			 ("find /usr/lib/ /usr/local/ /usr/share/ /usr/local/share/ /opt/ /ramdisk/usr/share/ -type d -maxdepth 2 -name include -prune -o -type d -maxdepth 2 -path '*/mondo/restore-scripts' -printf '%h\n' 2> /dev/null"));
 
 	if (home_sz[0] == '\0') {
 		paranoid_free(home_sz);
 		asprintf(&home_sz,
-			   call_program_and_get_last_line_of_output
-			   ("find /usr -type d -path '*/mondo/restore-scripts' -follow -maxdepth 3 -printf '%h\n' 2> /dev/null"));
+				 call_program_and_get_last_line_of_output
+				 ("find /usr -type d -path '*/mondo/restore-scripts' -follow -maxdepth 3 -printf '%h\n' 2> /dev/null"));
 	}
 	if (home_sz[0] == '\0') {
 		paranoid_free(home_sz);
@@ -401,25 +401,25 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 	rdsiz_MB = PPCFG_RAMDISK_SIZE + g_tape_buffer_size_MB;
 #ifdef __FreeBSD__
 	asprintf(&tmp,
-		   call_program_and_get_last_line_of_output
-		   ("vmstat | tail -1 | tr -s ' ' | cut -d' ' -f6"));
+			 call_program_and_get_last_line_of_output
+			 ("vmstat | tail -1 | tr -s ' ' | cut -d' ' -f6"));
 	avm += atol(tmp);
 	paranoid_free(tmp);
 	asprintf(&tmp,
-		   call_program_and_get_last_line_of_output
-		   ("swapinfo | grep -v Device | tr -s ' ' | cut -d' ' -f4 | tr '\n' '+' | sed 's/+$//' | bc"));
+			 call_program_and_get_last_line_of_output
+			 ("swapinfo | grep -v Device | tr -s ' ' | cut -d' ' -f4 | tr '\n' '+' | sed 's/+$//' | bc"));
 	avm += atol(tmp);
 	paranoid_free(tmp);
 	asprintf(&command, "mdmfs -s %d%c md9 %s", rdsiz_MB, 'm',
-			g_tmpfs_mountpt);
+			 g_tmpfs_mountpt);
 #else
 	asprintf(&tmp,
-		   call_program_and_get_last_line_of_output
-		   ("free | grep \":\" | tr -s ' ' '\t' | cut -f2 | head -n1"));
+			 call_program_and_get_last_line_of_output
+			 ("free | grep \":\" | tr -s ' ' '\t' | cut -f2 | head -n1"));
 	avm += atol(tmp);
 	paranoid_free(tmp);
 	asprintf(&command, "mount /dev/shm -t tmpfs %s -o size=%d%c",
-			g_tmpfs_mountpt, rdsiz_MB, 'm');
+			 g_tmpfs_mountpt, rdsiz_MB, 'm');
 	run_program_and_log_output("cat /proc/cpuinfo", 5);
 	/* BERLIOS: rpm is not necessarily there ! */
 	run_program_and_log_output
@@ -452,7 +452,7 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 // DVD
 
 	if (bkpinfo->backup_media_type == dvd) {
-		if (! (find_home_of_exe("growisofs"))) {
+		if (!(find_home_of_exe("growisofs"))) {
 			fatal_error("Please install growisofs.");
 		}
 		if (bkpinfo->nonbootable_backup) {
@@ -482,8 +482,7 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 		} else {
 			sprintf(bkpinfo->call_make_iso,
 					"%s %s -Z %s . 2>> _ERR_",
-					mondo_mkisofs_sz,
-					"", bkpinfo->media_device);
+					mondo_mkisofs_sz, "", bkpinfo->media_device);
 		}
 		paranoid_free(mondo_mkisofs_sz);
 
@@ -571,7 +570,7 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 
 		log_it("isodir = %s", bkpinfo->isodir);
 		asprintf(&command, "df %s | tail -n1 | cut -d' ' -f1",
-				bkpinfo->isodir);
+				 bkpinfo->isodir);
 		log_it("command = %s", command);
 		asprintf(&tmp, call_program_and_get_last_line_of_output(command));
 		paranoid_free(command);
@@ -581,7 +580,7 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 		paranoid_free(tmp1);
 
 		asprintf(&command, "mount | grep -w %s | tail -n1 | cut -d' ' -f3",
-				tmp);
+				 tmp);
 		paranoid_free(tmp);
 		log_it("command = %s", command);
 		asprintf(&tmp, call_program_and_get_last_line_of_output(command));
@@ -594,7 +593,7 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 
 		log_it("isomnt: %s, %d", tmp, strlen(tmp));
 		if (strlen(bkpinfo->isodir) < strlen(tmp)) {
-			asprintf(&iso_path,"");
+			asprintf(&iso_path, "");
 		} else {
 			asprintf(&iso_path, "%s", bkpinfo->isodir + strlen(tmp));
 		}
@@ -626,8 +625,10 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 				retval++;
 			} else {
 				asprintf(&ip_address, "%s%s", inet_ntoa((struct in_addr)
-											 *((struct in_addr *) hent->
-											   h_addr)), strchr(bkpinfo->nfs_mount, ':'));
+														*((struct in_addr
+														   *) hent->
+														  h_addr)),
+						 strchr(bkpinfo->nfs_mount, ':'));
 				strcpy(bkpinfo->nfs_mount, ip_address);
 				paranoid_free(ip_address);
 			}
@@ -788,7 +789,7 @@ long free_space_on_given_partition(char *partition)
 	paranoid_free(command);
 
 	asprintf(&command, "df -m %s | tail -n1 | tr -s ' ' '\t' | cut -f4",
-			partition);
+			 partition);
 	asprintf(&out_sz, call_program_and_get_last_line_of_output(command));
 	paranoid_free(command);
 	if (strlen(out_sz) == 0) {
@@ -835,8 +836,8 @@ int some_basic_system_sanity_checks()
 			("ln -sf `which mkfs.msdos` /sbin/mkfs.vfat", FALSE);
 	}
 	asprintf(&tmp,
-		   call_program_and_get_last_line_of_output
-		   ("free | grep Mem | head -n1 | tr -s ' ' '\t' | cut -f2"));
+			 call_program_and_get_last_line_of_output
+			 ("free | grep Mem | head -n1 | tr -s ' ' '\t' | cut -f2"));
 	if (atol(tmp) < 35000) {
 		retval++;
 		log_to_screen("You must have at least 32MB of RAM to use Mondo.");
@@ -925,8 +926,8 @@ int some_basic_system_sanity_checks()
 	run_program_and_log_output
 		("umount `mount | grep cdr | cut -d' ' -f3 | tr '\n' ' '`", 5);
 	asprintf(&tmp,
-		   call_program_and_get_last_line_of_output
-		   ("mount | grep -E \"cdr(om|w)\""));
+			 call_program_and_get_last_line_of_output
+			 ("mount | grep -E \"cdr(om|w)\""));
 	if (strcmp("", tmp)) {
 		if (strstr(tmp, "autofs")) {
 			log_to_screen
@@ -1026,7 +1027,7 @@ int read_cfg_var(char *config_file, char *label, char *value)
 	assert_string_is_neither_NULL_nor_zerolength(label);
 	if (!does_file_exist(config_file)) {
 		asprintf(&tmp, "(read_cfg_var) Cannot find %s config file",
-				config_file);
+				 config_file);
 		log_to_screen(tmp);
 		paranoid_free(tmp);
 		value[0] = '\0';
@@ -1038,7 +1039,7 @@ int read_cfg_var(char *config_file, char *label, char *value)
 		return (0);
 	} else {
 		asprintf(&command, "cat %s | grep \"%s .*\" | cut -d' ' -f2,3,4,5",
-				config_file, label);
+				 config_file, label);
 		strcpy(value, call_program_and_get_last_line_of_output(command));
 		paranoid_free(command);
 		if (strlen(value) == 0) {
@@ -1149,7 +1150,7 @@ void restart_autofs_if_necessary()
 		g_autofs_stopped = FALSE;
 		log_it("Started autofs OK");
 	}
-		paranoid_free(tmp);
+	paranoid_free(tmp);
 }
 
 
@@ -1167,7 +1168,7 @@ void mount_boot_if_necessary()
 	asprintf(&g_boot_mountpt, "");
 	log_msg(4, "Done. Great. Seeting command to something");
 	asprintf(&command,
-		   "cat /etc/fstab | grep -v \":\" | grep -vx \"#.*\" | grep -w \"/boot\" | tr -s ' ' '\t' | cut -f1 | head -n1");
+			 "cat /etc/fstab | grep -v \":\" | grep -vx \"#.*\" | grep -w \"/boot\" | tr -s ' ' '\t' | cut -f1 | head -n1");
 	log_msg(4, "Cool. Command = '%s'", command);
 	asprintf(&tmp, call_program_and_get_last_line_of_output(command));
 	paranoid_free(command);
@@ -1190,8 +1191,8 @@ void mount_boot_if_necessary()
 				paranoid_free(g_boot_mountpt);
 				asprintf(&g_boot_mountpt, tmp);
 				asprintf(&tmp1,
-						"%s (your /boot partition) is not mounted. I'll mount it before backing up",
-						g_boot_mountpt);
+						 "%s (your /boot partition) is not mounted. I'll mount it before backing up",
+						 g_boot_mountpt);
 				log_it(tmp1);
 				paranoid_free(tmp1);
 
@@ -1262,17 +1263,17 @@ int write_cfg_var(char *config_file, char *label, char *value)
 
 	if (!does_file_exist(config_file)) {
 		asprintf(&tmp, "(write_cfg_file) Cannot find %s config file",
-				config_file);
+				 config_file);
 		log_to_screen(tmp);
 		paranoid_free(tmp);
 		return (1);
 	}
 	asprintf(&tempfile,
-		   call_program_and_get_last_line_of_output
-		   ("mktemp -q /tmp/mojo-jojo.blah.XXXXXX"));
+			 call_program_and_get_last_line_of_output
+			 ("mktemp -q /tmp/mojo-jojo.blah.XXXXXX"));
 	if (does_file_exist(config_file)) {
 		asprintf(&command, "cat %s | grep -vx \"%s .*\" > %s", config_file,
-				label, tempfile);
+				 label, tempfile);
 		paranoid_system(command);
 		paranoid_free(command);
 	}

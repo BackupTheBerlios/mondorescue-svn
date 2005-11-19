@@ -209,22 +209,22 @@ extern void _mondo_assert_fail(const char *file, const char *function,
 /**
  * @c growisofs command to generate a bootable DVD using isolinux, except for the directory to image.
  */
-#define MONDO_GROWISOFS_REGULAR_SYSLINUX "growisofs -use-the-force-luke -J -no-emul-boot -boot-load-size 4 -b isolinux.bin --boot-info-table -c boot.cat -boot-load-size 4 -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL_Version -V _CD#_ -v"
+#define MONDO_GROWISOFS_REGULAR_SYSLINUX "growisofs -speed=1 -use-the-force-luke -J -no-emul-boot -boot-load-size 4 -b isolinux.bin --boot-info-table -c boot.cat -boot-load-size 4 -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL_Version -V _CD#_ -v"
 
 /**
  * @c growisofs command to generate a bootable DVD using LILO, except for the directory to image.
-	   	 */// -b images/mindi-boot.2880.img
-#define MONDO_GROWISOFS_REGULAR_ELILO     "growisofs -use-the-force-luke -no-emul-boot -b images/mindi-boot.2880.img -c boot.cat -J -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL -V _CD#_ -v"
+		   	   	 */// -b images/mindi-boot.2880.img
+#define MONDO_GROWISOFS_REGULAR_ELILO     "growisofs -speed=1 -use-the-force-luke -no-emul-boot -b images/mindi-boot.2880.img -c boot.cat -J -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL -V _CD#_ -v"
 
 /**
  * @c growisofs command to generate a bootable DVD using LILO, except for the directory to image.
-	   	 */// -b images/mindi-boot.2880.img
-#define MONDO_GROWISOFS_REGULAR_LILO     "growisofs -no-emul-boot -b isolinux.bin -c boot.cat -J -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL -V _CD#_ -v"
+		   	   	 */// -b images/mindi-boot.2880.img
+#define MONDO_GROWISOFS_REGULAR_LILO     "growisofs -speed=1 -no-emul-boot -b isolinux.bin -c boot.cat -J -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL -V _CD#_ -v"
 
 /**
  * @c growisofs command to generate a nonbootable DVD, except for the directory to image.
  */
-#define MONDO_GROWISOFS_NONBOOT          "growisofs -use-the-force-luke -J -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL -V _CD#_ -v"
+#define MONDO_GROWISOFS_NONBOOT          "growisofs -speed=1 -use-the-force-luke -J -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL -V _CD#_ -v"
 
 /**
  * Welcome string displayed at the top of the newt interface.

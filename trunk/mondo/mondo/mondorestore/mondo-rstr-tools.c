@@ -744,8 +744,7 @@ int mount_cdrom(struct s_bkpinfo *bkpinfo)
 				g_current_media_number, MNT_CDROM);
 #endif
 
-	} else
-	 if (bkpinfo->backup_media_type == iso) {
+	} else if (bkpinfo->backup_media_type == iso) {
 #ifdef __FreeBSD__
 		sprintf(mount_cmd, "%s/%d.iso", bkpinfo->isodir,
 				g_current_media_number);
@@ -1964,7 +1963,8 @@ void set_signals(int on)
 {
 	int signals[] =
 		{ SIGKILL, SIGPIPE, SIGTERM, SIGHUP, SIGTRAP, SIGABRT, SIGINT,
-SIGSTOP, 0 };
+		SIGSTOP, 0
+	};
 	int i;
 	for (i = 0; signals[i]; i++) {
 		if (on) {

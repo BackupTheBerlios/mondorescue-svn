@@ -487,10 +487,10 @@ int do_my_funky_lvm_stuff(bool just_erase_existing_volumes,
 			log_it("%s... so I'll get creative.", tmp);
 			if (lvmversion == 2) {
 				strcpy(tmp, call_program_and_get_last_line_of_output
-					   ("cat /var/log/mondo-archive.log | tail -n5 | grep Insufficient | tail -n1"));
+					   ("tail -n5 /var/log/mondo-archive.log | grep Insufficient | tail -n1"));
 			} else {
 				strcpy(tmp, call_program_and_get_last_line_of_output
-					   ("cat /var/log/mondo-archive.log | tail -n5 | grep lvcreate | tail -n1"));
+					   ("tail -n5 /var/log/mondo-archive.log | grep lvcreate | tail -n1"));
 			}
 			for (p = tmp; *p != '\0' && !isdigit(*p); p++);
 			extents = atol(p);

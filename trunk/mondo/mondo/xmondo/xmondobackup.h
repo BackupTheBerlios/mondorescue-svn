@@ -29,7 +29,7 @@
 class BackupThread;
 class XMondoBackup:public QObject {
   Q_OBJECT public:
-	XMondoBackup();
+	 XMondoBackup();
 	~XMondoBackup();
 	int run(struct s_bkpinfo *bkpinfo);
 	int compare(struct s_bkpinfo *bkpinfo);

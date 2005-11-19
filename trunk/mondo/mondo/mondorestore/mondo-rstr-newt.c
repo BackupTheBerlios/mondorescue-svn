@@ -2311,8 +2311,7 @@ find_raid_device_in_raidlist(struct raidlist_itself *raidlist,
 	}
 #else
 
-	for (i = 0;
-		 strcmp(raidlist->el[i].raid_device, device)
+	for (i = 0; strcmp(raidlist->el[i].raid_device, device)
 		 && i < raidlist->entries; i++);
 #endif
 	if (i == raidlist->entries) {
@@ -2624,11 +2623,10 @@ redraw_varslist(struct additional_raid_variables *additional_vars,
  * @return The value of the variable removed.
  * @ingroup restoreUtilityGroup
  */
-int
-read_variableINT_and_remove_from_raidvars(struct
-										  OSSWAP (raid_device_record,
-												  vinum_volume) * raidrec,
-										  char *label)
+int read_variableINT_and_remove_from_raidvars(struct
+											  OSSWAP (raid_device_record,
+													  vinum_volume) *
+											  raidrec, char *label)
 {
 	/** int ***************************************************************/
 	int i = 0;

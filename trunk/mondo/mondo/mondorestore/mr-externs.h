@@ -84,8 +84,7 @@ extern int write_cfg_var(char *, char *, char *);
 extern void wrong_marker(int, int);
 extern void resize_drive_proportionately_to_suit_new_drives(struct
 															mountlist_itself
-															*mountlist,
-															char
+															*mountlist, char
 															*drive_name);
 extern void resize_mountlist_proportionately_to_suit_new_drives(struct
 																mountlist_itself

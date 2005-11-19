@@ -43,7 +43,8 @@ class XMondoRestore:public QObject {
 	virtual void go();
 	bool good() {
 		return ok;
-	} bool isSetupDone() {
+	}
+	bool isSetupDone() {
 		return doneSetup;
 	}
 

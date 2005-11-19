@@ -607,7 +607,7 @@ verify_a_biggiefile_from_stream(struct s_bkpinfo *bkpinfo,
 	char *biggie_cksum;
 	char *orig_cksum;
 	char *tmp;
-	char *slice_fnam = (char *)&res;
+	char *slice_fnam = (char *) &res;
 
 	/*@ pointers ******************************************************** */
 	char *p;
@@ -626,9 +626,9 @@ verify_a_biggiefile_from_stream(struct s_bkpinfo *bkpinfo,
 	}
 	asprintf(&test_file, "%s/temporary-%s", bkpinfo->tmpdir, p);
 	asprintf(&tmp,
-	"Temporarily copying biggiefile %s's slices from tape to '%s'",
-	p, test_file);
-	log_it(tmp); 
+			 "Temporarily copying biggiefile %s's slices from tape to '%s'",
+			 p, test_file);
+	log_it(tmp);
 	paranoid_free(tmp);
 	for (res =
 		 read_header_block_from_stream(&slice_siz, slice_fnam, &ctrl_chr);
@@ -642,7 +642,7 @@ verify_a_biggiefile_from_stream(struct s_bkpinfo *bkpinfo,
 		res = read_file_from_stream_to_file(bkpinfo, test_file, slice_siz);
 		unlink(test_file);
 		paranoid_free(slice_fnam);
-		slice_fnam = (char *)&res;
+		slice_fnam = (char *) &res;
 		res =
 			read_header_block_from_stream(&slice_siz, slice_fnam,
 										  &ctrl_chr);
@@ -653,7 +653,7 @@ verify_a_biggiefile_from_stream(struct s_bkpinfo *bkpinfo,
 		current_slice_number++;
 		retval += res;
 		paranoid_free(slice_fnam);
-		slice_fnam = (char *)&res;
+		slice_fnam = (char *) &res;
 	}
 	paranoid_free(test_file);
 
@@ -705,7 +705,7 @@ int verify_afioballs_from_stream(struct s_bkpinfo *bkpinfo)
 
 	/*@ buffers ***************************************************** */
 	char *tmp;
-	char *fname = (char *)&res;				/* Should NOT be NULL */
+	char *fname = (char *) &res;	/* Should NOT be NULL */
 	char *curr_xattr_list_fname;
 	char *curr_acl_list_fname;
 
@@ -743,8 +743,7 @@ int verify_afioballs_from_stream(struct s_bkpinfo *bkpinfo)
 
 	for (res = read_header_block_from_stream(&size, fname, &ctrl_chr);
 		 ctrl_chr != BLK_STOP_AFIOBALLS;
-		 res = 
-		 read_header_block_from_stream(&size, fname, &ctrl_chr)) {
+		 res = read_header_block_from_stream(&size, fname, &ctrl_chr)) {
 		asprintf(&curr_xattr_list_fname, XATTR_LIST_FNAME_RAW_SZ,
 				 bkpinfo->tmpdir, current_afioball_number);
 		asprintf(&curr_acl_list_fname, ACL_LIST_FNAME_RAW_SZ,
@@ -752,7 +751,7 @@ int verify_afioballs_from_stream(struct s_bkpinfo *bkpinfo)
 		if (ctrl_chr == BLK_START_EXTENDED_ATTRIBUTES) {
 			iamhere("Reading EXAT files from tape");
 			paranoid_free(fname);
-			fname = (char *)&res;
+			fname = (char *) &res;
 			res =
 				read_EXAT_files_from_tape(bkpinfo, &size, fname, &ctrl_chr,
 										  curr_xattr_list_fname,
@@ -780,13 +779,13 @@ int verify_afioballs_from_stream(struct s_bkpinfo *bkpinfo)
 		current_afioball_number++;
 		g_current_progress++;
 		paranoid_free(fname);
-		fname = (char *)&res;
+		fname = (char *) &res;
 		res = read_header_block_from_stream(&size, fname, &ctrl_chr);
 		if (ctrl_chr != BLK_STOP_AN_AFIO_OR_SLICE) {
 			wrong_marker(BLK_STOP_AN_AFIO_OR_SLICE, ctrl_chr);
 		}
 		paranoid_free(fname);
-		fname = (char *)&res;
+		fname = (char *) &res;
 	}
 	log_msg(1, "All done with afioballs");
 	close_progress_form();
@@ -816,7 +815,7 @@ int verify_biggiefiles_from_stream(struct s_bkpinfo *bkpinfo)
 	long current_biggiefile_number = 0;
 
 	/*@ buffers ******************************************************** */
-	char *orig_fname = (char *)&ctrl_chr;	/* Should NOT be NULL */
+	char *orig_fname = (char *) &ctrl_chr;	/* Should NOT be NULL */
 	char *logical_fname;
 	char *comment;
 	char *curr_xattr_list_fname;
@@ -840,7 +839,7 @@ int verify_biggiefiles_from_stream(struct s_bkpinfo *bkpinfo)
 		if (ctrl_chr == BLK_START_EXTENDED_ATTRIBUTES) {
 			iamhere("Grabbing the EXAT biggiefiles");
 			paranoid_free(orig_fname);
-			orig_fname = (char *)&ctrl_chr;
+			orig_fname = (char *) &ctrl_chr;
 			res =
 				read_EXAT_files_from_tape(bkpinfo, &size, orig_fname,
 										  &ctrl_chr, curr_xattr_list_fname,
@@ -850,7 +849,7 @@ int verify_biggiefiles_from_stream(struct s_bkpinfo *bkpinfo)
 	paranoid_free(curr_xattr_list_fname);
 	paranoid_free(curr_acl_list_fname);
 	paranoid_free(orig_fname);
-	orig_fname = (char *)&ctrl_chr;
+	orig_fname = (char *) &ctrl_chr;
 
 	if (ctrl_chr != BLK_START_BIGGIEFILES) {
 		wrong_marker(BLK_START_BIGGIEFILES, ctrl_chr);
@@ -890,7 +889,7 @@ int verify_biggiefiles_from_stream(struct s_bkpinfo *bkpinfo)
 		current_biggiefile_number++;
 		g_current_progress++;
 		paranoid_free(orig_fname);
-		orig_fname = (char *)&ctrl_chr;
+		orig_fname = (char *) &ctrl_chr;
 	}
 	close_progress_form();
 	return (retval);

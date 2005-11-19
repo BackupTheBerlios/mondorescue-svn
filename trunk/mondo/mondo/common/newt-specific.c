@@ -312,7 +312,7 @@ extern "C" {
 		}
 
 		system
-			("cat /var/log/mondo-archive.log | gzip -9 > /tmp/MA.log.gz 2> /dev/null");
+			("gzip -9c /var/log/mondo-archive.log > /tmp/MA.log.gz 2> /dev/null");
 		if (!strstr(g_version, "cvs") && !strstr(g_version, "svn")) {
 			printf("Please try the latest SVN version ");
 			printf
@@ -426,11 +426,10 @@ extern "C" {
 			return;
 		}
 		if (grep_for_me[0] != '\0') {
-			asprintf(&command, "cat %s | grep \"%s\" | tail -n%d",
-					 filename, grep_for_me, g_noof_log_lines);
+			asprintf(&command, "grep '%s' %s | tail -n%d",
+					 grep_for_me, filename, g_noof_log_lines);
 		} else {
-			asprintf(&command, "cat %s | tail -n%d", filename,
-					 g_noof_log_lines);
+			asprintf(&command, "tail -n%d %s", g_noof_log_lines, filename);
 		}
 		fin = popen(command, "r");
 		if (!fin) {

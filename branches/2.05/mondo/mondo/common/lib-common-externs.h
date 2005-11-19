@@ -6,8 +6,3 @@
    to use the library... */
 
 //extern void log_it(char*);
-
-
-
-
-

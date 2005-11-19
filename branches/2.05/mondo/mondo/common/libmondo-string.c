@@ -1,5 +1,5 @@
 /* libmondo-string.c
-   $Id: libmondo-string.c,v 1.3 2004/06/21 20:20:36 hugo Exp $
+   $Id$
 
 - string manipulation
 
@@ -70,7 +70,7 @@
 #include "libmondo-tools-EXT.h"
 
 /*@unused@*/
-//static char cvsid[] = "$Id: libmondo-string.c,v 1.3 2004/06/21 20:20:36 hugo Exp $";
+//static char cvsid[] = "$Id$";
 
 extern int g_current_media_number;
 extern long long g_tape_posK;
@@ -88,35 +88,34 @@ extern long long g_tape_posK;
  * @return @p partition.
  * @note If @p drive ends in a digit, then 'p' (on Linux) or 's' (on *BSD) is added before @p partno.
  */
-char *
-build_partition_name (char *partition, const char *drive, int partno)
+char *build_partition_name(char *partition, const char *drive, int partno)
 {
-    char *p, *c;
+	char *p, *c;
 
-  assert(partition!=NULL);
-  assert_string_is_neither_NULL_nor_zerolength(drive);
-  assert(partno>=0);
+	assert(partition != NULL);
+	assert_string_is_neither_NULL_nor_zerolength(drive);
+	assert(partno >= 0);
 
-  p = strcpy(partition, drive);
-  /* is this a devfs device path? */
-  c = strrchr (partition, '/');
-  if (c && strncmp (c, "/disc", 5) == 0) {
-      /* yup it's devfs, return the "part" path */
-      strcpy (c + 1, "part");
-      p = c + 5;
-  } else {
-      p += strlen (p);
-      if (isdigit (p[-1])) {
-	  *p++ =
+	p = strcpy(partition, drive);
+	/* is this a devfs device path? */
+	c = strrchr(partition, '/');
+	if (c && strncmp(c, "/disc", 5) == 0) {
+		/* yup it's devfs, return the "part" path */
+		strcpy(c + 1, "part");
+		p = c + 5;
+	} else {
+		p += strlen(p);
+		if (isdigit(p[-1])) {
+			*p++ =
 #ifdef BSD
-	     's';
+				's';
 #else
-             'p';
+				'p';
 #endif
-      }
-    }
-  sprintf (p, "%d", partno);
-  return (partition);
+		}
+	}
+	sprintf(p, "%d", partno);
+	return (partition);
 }
 
 
@@ -136,47 +135,46 @@ build_partition_name (char *partition, const char *drive, int partno)
  * @param in_out The string to be center-padded (modified).
  * @param width The width of the final result.
  */
-void center_string (char *in_out, int width)
+void center_string(char *in_out, int width)
 {
-  char scratch[MAX_STR_LEN];
-  char *p;
-  int i;			/* purpose */
-  int len;			/* purpose */
-  int mid;			/* purpose */
-  int x;			/* purpose */
+	char scratch[MAX_STR_LEN];
+	char *p;
+	int i;						/* purpose */
+	int len;					/* purpose */
+	int mid;					/* purpose */
+	int x;						/* purpose */
 
-  assert(in_out!=NULL);
-  assert(width>2);
+	assert(in_out != NULL);
+	assert(width > 2);
 
-  if (strlen (in_out) == 0)
-    {
-      return;
-    }
-  for (p = in_out; *p == ' '; p++);
-  strcpy (scratch, p);
-  len = (int) strlen (scratch);
-  mid = width / 2;
-  x = mid - len / 2;
-  for (i = 0; i < x; i++)
-    {
-      in_out[i] = ' ';
-    }
-  in_out[i] = '\0';
-  strcat (in_out, scratch);
+	if (strlen(in_out) == 0) {
+		return;
+	}
+	for (p = in_out; *p == ' '; p++);
+	strcpy(scratch, p);
+	len = (int) strlen(scratch);
+	mid = width / 2;
+	x = mid - len / 2;
+	for (i = 0; i < x; i++) {
+		in_out[i] = ' ';
+	}
+	in_out[i] = '\0';
+	strcat(in_out, scratch);
 }
 
 
 
 
-inline void turn_wildcard_chars_into_literal_chars(char*sout, char*sin)
+inline void turn_wildcard_chars_into_literal_chars(char *sout, char *sin)
 {
 	char *p, *q;
-	
-	for(p=sin, q=sout; *p!='\0'; *(q++) = *(p++) )
-	  {
-	    if (strchr("[]*?", *p)) { *(q++) = '\\'; }
-	  }
-	*q = *p; // for the final '\0'
+
+	for (p = sin, q = sout; *p != '\0'; *(q++) = *(p++)) {
+		if (strchr("[]*?", *p)) {
+			*(q++) = '\\';
+		}
+	}
+	*q = *p;					// for the final '\0'
 }
 
 
@@ -187,39 +185,35 @@ inline void turn_wildcard_chars_into_literal_chars(char*sout, char*sin)
  * @return The string with commas.
  * @note The returned string points to static storage that will be overwritten with each call.
  */
-char* commarize(char*input)
+char *commarize(char *input)
 {
-  char pos_w_commas[MAX_STR_LEN];
-  static char output[MAX_STR_LEN];
-  char tmp[MAX_STR_LEN];
-  int j;
+	char pos_w_commas[MAX_STR_LEN];
+	static char output[MAX_STR_LEN];
+	char tmp[MAX_STR_LEN];
+	int j;
 
-  assert(input!=NULL);
+	assert(input != NULL);
 
-  strcpy(tmp, input);
-  if (strlen(tmp) > 6)
-    {
-      strcpy(pos_w_commas, tmp);
-      j = (int) strlen(pos_w_commas);
-      tmp[j-6] = ',';
-      strcpy(tmp+j-5, pos_w_commas+j-6);
+	strcpy(tmp, input);
+	if (strlen(tmp) > 6) {
+		strcpy(pos_w_commas, tmp);
+		j = (int) strlen(pos_w_commas);
+		tmp[j - 6] = ',';
+		strcpy(tmp + j - 5, pos_w_commas + j - 6);
 //      tmp[j-2] = ',';
 //      strcpy(tmp+j-1, pos_w_commas+j-3);
-      strcpy(pos_w_commas, tmp);
-    }
-  if (strlen(tmp) > 3)
-    {
-      j = (int) strlen(tmp);
-      strcpy(pos_w_commas, tmp);
-      pos_w_commas[j-3] = ',';
-      strcpy(pos_w_commas+j-2, tmp+j-3);
-    }
-  else
-    {
-      strcpy(pos_w_commas, tmp);
-    }
-  strcpy(output, pos_w_commas);
-  return(output);
+		strcpy(pos_w_commas, tmp);
+	}
+	if (strlen(tmp) > 3) {
+		j = (int) strlen(tmp);
+		strcpy(pos_w_commas, tmp);
+		pos_w_commas[j - 3] = ',';
+		strcpy(pos_w_commas + j - 2, tmp + j - 3);
+	} else {
+		strcpy(pos_w_commas, tmp);
+	}
+	strcpy(output, pos_w_commas);
+	return (output);
 }
 
 
@@ -240,18 +234,17 @@ char* commarize(char*input)
  * @return The string form of the disklist entry.
  * @note The returned string points to static storage and will be overwritten with each call.
  */
-char *
-disklist_entry_to_string (struct list_of_disks *disklist, int lino)
+char *disklist_entry_to_string(struct list_of_disks *disklist, int lino)
 {
 
-	/*@ buffers ***********************************************************/
-  static char output[MAX_STR_LEN];
+	/*@ buffers ********************************************************** */
+	static char output[MAX_STR_LEN];
 
-  assert(disklist!=NULL);
+	assert(disklist != NULL);
 
-  sprintf (output, "%-24s %8d", disklist->el[lino].device,
-	   disklist->el[lino].index);
-  return (output);
+	sprintf(output, "%-24s %8d", disklist->el[lino].device,
+			disklist->el[lino].index);
+	return (output);
 }
 
 
@@ -265,52 +258,53 @@ disklist_entry_to_string (struct list_of_disks *disklist, int lino)
  * @param incoming The sizestring to convert (e.g. "40m", "2g").
  * @return The size in megabytes.
  */
-long
-friendly_sizestr_to_sizelong (char *incoming)
+long friendly_sizestr_to_sizelong(char *incoming)
 {
-  long outval;
-  int i;
-  char *tmp;
-  char ch;
+	long outval;
+	int i;
+	char *tmp;
+	char ch;
 
-  assert_string_is_neither_NULL_nor_zerolength(incoming);
+	assert_string_is_neither_NULL_nor_zerolength(incoming);
 
-  malloc_string(tmp);
-  if (!incoming[0]) { free(tmp); return(0); }
-  if (strchr(incoming, '.'))
-    { fatal_error("Please use integers only. No decimal points."); }
-  strcpy (tmp, incoming);
-  i = (int) strlen(tmp);
-  if (tmp[i-1]=='B' || tmp[i-1]=='b') { tmp[i-1]='\0'; }
-  for (i = 0; i < (int) strlen (tmp) && isdigit (tmp[i]); i++);
-  ch = tmp[i];
-  tmp[i] = '\0';
-  outval = atol (tmp);
-  if (ch == 'g' || ch == 'G')
-    {
-      outval = outval * 1024;
-    }
-  else if (ch == 'k' || ch == 'K')
-    {
-      outval = outval / 1024;
-    }
-  else if (ch == 't' || ch == 'T') // terabyte
-    {
-	outval *= 1048576;
-    }
-  else if (ch == 'Y' || ch == 'y') // yottabyte - the biggest measure in the info file
-    {
-	log_it ("Oh my gosh. You actually think a YOTTABYTE will get you anywhere? What're you going to do with 1,208,925,819,614,629,174,706,176 bytes of data?!?!");
-	popup_and_OK ("That sizespec is more than 1,208,925,819,614,629,174,706,176 bytes. You have a shocking amount of data. Please send a screenshot to the list :-)");
-	fatal_error ("Integer overflow.");
-    }
-  else if (ch != 'm' && ch != 'M')
-    {
-      sprintf(tmp, "Re: parameter '%s' - bad multiplier ('%c')", incoming, ch);
-      fatal_error(tmp);
-    }
-  paranoid_free(tmp);
-  return (outval);
+	malloc_string(tmp);
+	if (!incoming[0]) {
+		free(tmp);
+		return (0);
+	}
+	if (strchr(incoming, '.')) {
+		fatal_error("Please use integers only. No decimal points.");
+	}
+	strcpy(tmp, incoming);
+	i = (int) strlen(tmp);
+	if (tmp[i - 1] == 'B' || tmp[i - 1] == 'b') {
+		tmp[i - 1] = '\0';
+	}
+	for (i = 0; i < (int) strlen(tmp) && isdigit(tmp[i]); i++);
+	ch = tmp[i];
+	tmp[i] = '\0';
+	outval = atol(tmp);
+	if (ch == 'g' || ch == 'G') {
+		outval = outval * 1024;
+	} else if (ch == 'k' || ch == 'K') {
+		outval = outval / 1024;
+	} else if (ch == 't' || ch == 'T')	// terabyte
+	{
+		outval *= 1048576;
+	} else if (ch == 'Y' || ch == 'y')	// yottabyte - the biggest measure in the info file
+	{
+		log_it
+			("Oh my gosh. You actually think a YOTTABYTE will get you anywhere? What're you going to do with 1,208,925,819,614,629,174,706,176 bytes of data?!?!");
+		popup_and_OK
+			("That sizespec is more than 1,208,925,819,614,629,174,706,176 bytes. You have a shocking amount of data. Please send a screenshot to the list :-)");
+		fatal_error("Integer overflow.");
+	} else if (ch != 'm' && ch != 'M') {
+		sprintf(tmp, "Re: parameter '%s' - bad multiplier ('%c')",
+				incoming, ch);
+		fatal_error(tmp);
+	}
+	paranoid_free(tmp);
+	return (outval);
 }
 
 
@@ -323,26 +317,24 @@ friendly_sizestr_to_sizelong (char *incoming)
  * @note The returned string points to static storage that will be overwritten with each call.
  * @bug Why does center_string() modify its argument but leftpad_string() returns a modified copy?
  */
-char *
-leftpad_string (char *incoming, int width)
+char *leftpad_string(char *incoming, int width)
 {
-	/*@ buffers ******************************************************/
-  static char output[MAX_STR_LEN];
+	/*@ buffers ***************************************************** */
+	static char output[MAX_STR_LEN];
 
-	/*@ ints *********************************************************/
-  int i;
+	/*@ ints ******************************************************** */
+	int i;
 
-	/*@ end vars *****************************************************/
-  assert(incoming!=NULL);
-  assert(width>2);
+	/*@ end vars **************************************************** */
+	assert(incoming != NULL);
+	assert(width > 2);
 
-  strcpy (output, incoming);
-  for (i = (int) strlen (output); i < width; i++)
-    {
-      output[i] = ' ';
-    }
-  output[i] = '\0';
-  return (output);
+	strcpy(output, incoming);
+	for (i = (int) strlen(output); i < width; i++) {
+		output[i] = ' ';
+	}
+	output[i] = '\0';
+	return (output);
 }
 
 
@@ -354,82 +346,80 @@ leftpad_string (char *incoming, int width)
  * @return @p marker as a string.
  * @note The returned string points to static storage that will be overwritten with each call.
  */
-char *
-marker_to_string (int marker)
+char *marker_to_string(int marker)
 {
-	/*@ buffer *******************************************************/
-  static char outstr[MAX_STR_LEN];
+	/*@ buffer ****************************************************** */
+	static char outstr[MAX_STR_LEN];
 
 
-	/*@ end vars ****************************************************/
+	/*@ end vars *************************************************** */
 
-  switch (marker)
-    {
-    case BLK_START_OF_BACKUP:
-      strcpy (outstr, "BLK_START_OF_BACKUP");
-      break;
-    case BLK_START_OF_TAPE:
-      strcpy (outstr, "BLK_START_OF_TAPE");
-      break;
-    case BLK_START_AN_AFIO_OR_SLICE:
-      strcpy (outstr, "BLK_START_AN_AFIO_OR_SLICE");
-      break;
-    case BLK_STOP_AN_AFIO_OR_SLICE:
-      strcpy (outstr, "BLK_STOP_AN_AFIO_OR_SLICE");
-      break;
-    case BLK_START_AFIOBALLS:
-      strcpy (outstr, "BLK_START_AFIOBALLS");
-      break;
-    case BLK_STOP_AFIOBALLS:
-      strcpy (outstr, "BLK_STOP_AFIOBALLS");
-      break;
-    case BLK_STOP_BIGGIEFILES:
-      strcpy (outstr, "BLK_STOP_BIGGIEFILES");
-      break;
-    case BLK_START_A_NORMBIGGIE:
-      strcpy (outstr, "BLK_START_A_NORMBIGGIE");
-      break;
-    case BLK_START_A_PIHBIGGIE:
-      strcpy (outstr, "BLK_START_A_PIHBIGGIE");
-      break;
-    case BLK_START_EXTENDED_ATTRIBUTES:
-      strcpy (outstr, "BLK_START_EXTENDED_ATTRIBUTES");
-      break;
-    case BLK_STOP_EXTENDED_ATTRIBUTES:
-      strcpy (outstr, "BLK_STOP_EXTENDED_ATTRIBUTES");
-      break;
-    case BLK_START_EXAT_FILE:
-      strcpy (outstr, "BLK_START_EXAT_FILE");
-      break;
-    case BLK_STOP_EXAT_FILE:
-      strcpy (outstr, "BLK_STOP_EXAT_FILE");
-      break;
-    case BLK_START_BIGGIEFILES:
-      strcpy (outstr, "BLK_START_BIGGIEFILES");
-      break;
-    case BLK_STOP_A_BIGGIE:
-      strcpy (outstr, "BLK_STOP_A_BIGGIE");
-      break;
-    case BLK_END_OF_TAPE:
-      strcpy (outstr, "BLK_END_OF_TAPE");
-      break;
-    case BLK_END_OF_BACKUP:
-      strcpy (outstr, "BLK_END_OF_BACKUP");
-      break;
-    case BLK_ABORTED_BACKUP:
-      strcpy (outstr, "BLK_ABORTED_BACKUP");
-      break;
-    case BLK_START_FILE:
-      strcpy (outstr, "BLK_START_FILE");
-      break;
-    case BLK_STOP_FILE:
-      strcpy (outstr, "BLK_STOP_FILE");
-      break;
-    default:
-      sprintf (outstr, "BLK_UNKNOWN (%d)", marker);
-      break;
-    }
-  return (outstr);
+	switch (marker) {
+	case BLK_START_OF_BACKUP:
+		strcpy(outstr, "BLK_START_OF_BACKUP");
+		break;
+	case BLK_START_OF_TAPE:
+		strcpy(outstr, "BLK_START_OF_TAPE");
+		break;
+	case BLK_START_AN_AFIO_OR_SLICE:
+		strcpy(outstr, "BLK_START_AN_AFIO_OR_SLICE");
+		break;
+	case BLK_STOP_AN_AFIO_OR_SLICE:
+		strcpy(outstr, "BLK_STOP_AN_AFIO_OR_SLICE");
+		break;
+	case BLK_START_AFIOBALLS:
+		strcpy(outstr, "BLK_START_AFIOBALLS");
+		break;
+	case BLK_STOP_AFIOBALLS:
+		strcpy(outstr, "BLK_STOP_AFIOBALLS");
+		break;
+	case BLK_STOP_BIGGIEFILES:
+		strcpy(outstr, "BLK_STOP_BIGGIEFILES");
+		break;
+	case BLK_START_A_NORMBIGGIE:
+		strcpy(outstr, "BLK_START_A_NORMBIGGIE");
+		break;
+	case BLK_START_A_PIHBIGGIE:
+		strcpy(outstr, "BLK_START_A_PIHBIGGIE");
+		break;
+	case BLK_START_EXTENDED_ATTRIBUTES:
+		strcpy(outstr, "BLK_START_EXTENDED_ATTRIBUTES");
+		break;
+	case BLK_STOP_EXTENDED_ATTRIBUTES:
+		strcpy(outstr, "BLK_STOP_EXTENDED_ATTRIBUTES");
+		break;
+	case BLK_START_EXAT_FILE:
+		strcpy(outstr, "BLK_START_EXAT_FILE");
+		break;
+	case BLK_STOP_EXAT_FILE:
+		strcpy(outstr, "BLK_STOP_EXAT_FILE");
+		break;
+	case BLK_START_BIGGIEFILES:
+		strcpy(outstr, "BLK_START_BIGGIEFILES");
+		break;
+	case BLK_STOP_A_BIGGIE:
+		strcpy(outstr, "BLK_STOP_A_BIGGIE");
+		break;
+	case BLK_END_OF_TAPE:
+		strcpy(outstr, "BLK_END_OF_TAPE");
+		break;
+	case BLK_END_OF_BACKUP:
+		strcpy(outstr, "BLK_END_OF_BACKUP");
+		break;
+	case BLK_ABORTED_BACKUP:
+		strcpy(outstr, "BLK_ABORTED_BACKUP");
+		break;
+	case BLK_START_FILE:
+		strcpy(outstr, "BLK_START_FILE");
+		break;
+	case BLK_STOP_FILE:
+		strcpy(outstr, "BLK_STOP_FILE");
+		break;
+	default:
+		sprintf(outstr, "BLK_UNKNOWN (%d)", marker);
+		break;
+	}
+	return (outstr);
 }
 
 
@@ -446,19 +436,19 @@ marker_to_string (int marker)
  * @return The string form of <tt>mountlist</tt>-\>el[<tt>lino</tt>].
  * @note The returned string points to static storage and will be overwritten with each call.
  */
-char *
-mountlist_entry_to_string (struct mountlist_itself *mountlist, int lino)
+char *mountlist_entry_to_string(struct mountlist_itself *mountlist,
+								int lino)
 {
 
-	/*@ buffer ************************************************************/
-  static char output[MAX_STR_LEN];
+	/*@ buffer *********************************************************** */
+	static char output[MAX_STR_LEN];
 
-  assert(mountlist!=NULL);
+	assert(mountlist != NULL);
 
-  sprintf (output, "%-24s %-24s %-10s %8lld", mountlist->el[lino].device,
-	   mountlist->el[lino].mountpoint, mountlist->el[lino].format,
-	   mountlist->el[lino].size / 1024);
-  return (output);
+	sprintf(output, "%-24s %-24s %-10s %8lld", mountlist->el[lino].device,
+			mountlist->el[lino].mountpoint, mountlist->el[lino].format,
+			mountlist->el[lino].size / 1024);
+	return (output);
 }
 
 
@@ -474,32 +464,27 @@ mountlist_entry_to_string (struct mountlist_itself *mountlist, int lino)
  * @return The string containing "X blah blah disk(s)".
  * @note The returned string points to static storage and will be overwritten with each call.
  */
-char *
-number_of_disks_as_string (int noof_disks, char *label)
+char *number_of_disks_as_string(int noof_disks, char *label)
 {
 
-	/*@ buffers **********************************************************/
-  static char output[MAX_STR_LEN];
+	/*@ buffers ********************************************************* */
+	static char output[MAX_STR_LEN];
 
-	/*@ char     *********************************************************/
-  char p;
+	/*@ char     ******************************************************** */
+	char p;
 
-  assert(label!=NULL);
+	assert(label != NULL);
 
-  if (noof_disks > 1)
-    {
-      p = 's';
-    }
-  else
-    {
-      p = ' ';
-    }
-  sprintf (output, "%d %s disk%c", noof_disks, label, p);
-  while (strlen (output) < 14)
-    {
-      strcat (output, " ");
-    }
-  return (output);
+	if (noof_disks > 1) {
+		p = 's';
+	} else {
+		p = ' ';
+	}
+	sprintf(output, "%d %s disk%c", noof_disks, label, p);
+	while (strlen(output) < 14) {
+		strcat(output, " ");
+	}
+	return (output);
 }
 
 
@@ -511,53 +496,51 @@ number_of_disks_as_string (int noof_disks, char *label)
  * @return The string form of @p i.
  * @note The returned value points to static strorage that will be overwritten with each call.
  */
-char *
-number_to_text (int i)
+char *number_to_text(int i)
 {
 
-	/*@ buffers ******************************************************/
-  static char output[MAX_STR_LEN];
+	/*@ buffers ***************************************************** */
+	static char output[MAX_STR_LEN];
 
 
-	/*@ end vars ****************************************************/
+	/*@ end vars *************************************************** */
 
-  switch (i)
-    {
-    case 0:
-      strcpy (output, "zero");
-      break;
-    case 1:
-      strcpy (output, "one");
-      break;
-    case 2:
-      strcpy (output, "two");
-      break;
-    case 3:
-      strcpy (output, "three");
-      break;
-    case 4:
-      strcpy (output, "four");
-      break;
-    case 5:
-      strcpy (output, "five");
-      break;
-    case 6:
-      strcpy (output, "six");
-      break;
-    case 7:
-      strcpy (output, "seven");
-      break;
-    case 8:
-      strcpy (output, "eight");
-      break;
-    case 9:
-      strcpy (output, "nine");
-    case 10:
-      strcpy (output, "ten");
-    default:
-      sprintf (output, "%d", i);
-    }
-  return (output);
+	switch (i) {
+	case 0:
+		strcpy(output, "zero");
+		break;
+	case 1:
+		strcpy(output, "one");
+		break;
+	case 2:
+		strcpy(output, "two");
+		break;
+	case 3:
+		strcpy(output, "three");
+		break;
+	case 4:
+		strcpy(output, "four");
+		break;
+	case 5:
+		strcpy(output, "five");
+		break;
+	case 6:
+		strcpy(output, "six");
+		break;
+	case 7:
+		strcpy(output, "seven");
+		break;
+	case 8:
+		strcpy(output, "eight");
+		break;
+	case 9:
+		strcpy(output, "nine");
+	case 10:
+		strcpy(output, "ten");
+	default:
+		sprintf(output, "%d", i);
+	}
+	return (output);
 }
 
 
@@ -570,31 +553,29 @@ number_to_text (int i)
  * @param token The token to be relaced with @p value.
  * @param value The value to replace @p token.
  */
-void
-resolve_naff_tokens (char *output, char *ip, char *value, char *token)
+void resolve_naff_tokens(char *output, char *ip, char *value, char *token)
 {
-	/*@ buffers ****/
-  char *input;
+	/*@ buffers *** */
+	char *input;
 
-	/*@ pointers **/
-  char *p;
+	/*@ pointers * */
+	char *p;
 
-  input = malloc(2000);
-  assert_string_is_neither_NULL_nor_zerolength(ip);
-  assert_string_is_neither_NULL_nor_zerolength(token);
-  assert(value!=NULL);
+	input = malloc(2000);
+	assert_string_is_neither_NULL_nor_zerolength(ip);
+	assert_string_is_neither_NULL_nor_zerolength(token);
+	assert(value != NULL);
 
-  strcpy (output, ip);		/* just in case the token doesn't appear in string at all */
-  for (strcpy (input, ip); strstr (input, token); strcpy (input, output))
-    {
-      strcpy (output, input);
-      p = strstr (output, token);
-      *p = '\0';
-      strcat (output, value);
-      p = strstr (input, token) + strlen (token);
-      strcat (output, p);
-    }
-  paranoid_free(input);
+	strcpy(output, ip);			/* just in case the token doesn't appear in string at all */
+	for (strcpy(input, ip); strstr(input, token); strcpy(input, output)) {
+		strcpy(output, input);
+		p = strstr(output, token);
+		*p = '\0';
+		strcat(output, value);
+		p = strstr(input, token) + strlen(token);
+		strcat(output, p);
+	}
+	paranoid_free(input);
 }
 
 
@@ -616,28 +597,24 @@ resolve_naff_tokens (char *output, char *ip, char *value, char *token)
  * @return The slice filename.
  * @note The returned value points to static storage and will be overwritten with each call.
  */
-char *
-slice_fname (long bigfileno, long sliceno, char *path, char *s)
+char *slice_fname(long bigfileno, long sliceno, char *path, char *s)
 {
 
-	/*@ buffers *****************************************************/
-  static char output[MAX_STR_LEN];
-  static char suffix[MAX_STR_LEN];
+	/*@ buffers **************************************************** */
+	static char output[MAX_STR_LEN];
+	static char suffix[MAX_STR_LEN];
 
-	/*@ end vars ****************************************************/
+	/*@ end vars *************************************************** */
 
-  assert_string_is_neither_NULL_nor_zerolength(path);
-  if (s[0] != '\0')
-    {
-      sprintf (suffix, ".%s", s);
-    }
-  else
-    {
-      suffix[0] = '\0';
-    }
-  sprintf (output, "%s/slice-%07ld.%05ld.dat%s", path, bigfileno, sliceno,
-	   suffix);
-  return (output);
+	assert_string_is_neither_NULL_nor_zerolength(path);
+	if (s[0] != '\0') {
+		sprintf(suffix, ".%s", s);
+	} else {
+		suffix[0] = '\0';
+	}
+	sprintf(output, "%s/slice-%07ld.%05ld.dat%s", path, bigfileno, sliceno,
+			suffix);
+	return (output);
 }
 
 
@@ -649,23 +626,21 @@ slice_fname (long bigfileno, long sliceno, char *path, char *s)
  * for this iteration of the spinner.
  * @return The character for this iteration.
  */
-int
-special_dot_char (int i)
+int special_dot_char(int i)
 {
-  switch (i % 4)
-    {
-    case 0:
-      return ('/');
-    case 1:
-      return ('-');
-    case 2:
-      return ('\\');
-    case 3:
-      return ('|');
-    default:
-      return ('.');
-    }
-  return ('.');
+	switch (i % 4) {
+	case 0:
+		return ('/');
+	case 1:
+		return ('-');
+	case 2:
+		return ('\\');
+	case 3:
+		return ('|');
+	default:
+		return ('.');
+	}
+	return ('.');
 }
 
 
@@ -681,51 +656,44 @@ special_dot_char (int i)
  * @return TRUE if res == 0, FALSE otherwise.
  */
 bool
-spread_flaws_across_three_lines (char *flaws_str, char *flaws_str_A,
-				 char *flaws_str_B, char *flaws_str_C,
-				 int res)
+spread_flaws_across_three_lines(char *flaws_str, char *flaws_str_A,
+								char *flaws_str_B, char *flaws_str_C,
+								int res)
 {
 
-	/*@ int **************************************************************/
-  int i = 0;
+	/*@ int ************************************************************* */
+	int i = 0;
 
-	/*@ initialize *******************************************************/
-  assert(flaws_str_A!=NULL);
-  assert(flaws_str_B!=NULL);
-  assert(flaws_str_C!=NULL);
-  assert(flaws_str!=NULL);
+	/*@ initialize ****************************************************** */
+	assert(flaws_str_A != NULL);
+	assert(flaws_str_B != NULL);
+	assert(flaws_str_C != NULL);
+	assert(flaws_str != NULL);
 
-  flaws_str_A[0] = flaws_str_B[0] = flaws_str_C[0] = '\0';
+	flaws_str_A[0] = flaws_str_B[0] = flaws_str_C[0] = '\0';
 
 
-  if (!res && !strlen (flaws_str))
-    {
-      return (TRUE);
-    }
-  if (strlen (flaws_str) > 0)
-    {
-      sprintf (flaws_str_A, "%s", flaws_str + 1);
-    }
-  if (strlen (flaws_str_A) >= 74)
-    {
-      for (i = 74; flaws_str_A[i] != ' '; i--);
-      strcpy (flaws_str_B, flaws_str_A + i + 1);
-      flaws_str_A[i] = '\0';
-    }
-  if (strlen (flaws_str_B) >= 74)
-    {
-      for (i = 74; flaws_str_B[i] != ' '; i--);
-      strcpy (flaws_str_C, flaws_str_B + i + 1);
-      flaws_str_B[i] = '\0';
-    }
-  if (res)
-    {
-      return (FALSE);
-    }
-  else
-    {
-      return (TRUE);
-    }
+	if (!res && !strlen(flaws_str)) {
+		return (TRUE);
+	}
+	if (strlen(flaws_str) > 0) {
+		sprintf(flaws_str_A, "%s", flaws_str + 1);
+	}
+	if (strlen(flaws_str_A) >= 74) {
+		for (i = 74; flaws_str_A[i] != ' '; i--);
+		strcpy(flaws_str_B, flaws_str_A + i + 1);
+		flaws_str_A[i] = '\0';
+	}
+	if (strlen(flaws_str_B) >= 74) {
+		for (i = 74; flaws_str_B[i] != ' '; i--);
+		strcpy(flaws_str_C, flaws_str_B + i + 1);
+		flaws_str_B[i] = '\0';
+	}
+	if (res) {
+		return (FALSE);
+	} else {
+		return (TRUE);
+	}
 }
 
 
@@ -739,55 +707,49 @@ spread_flaws_across_three_lines (char *flaws_str, char *flaws_str_A,
  * @note This function only does a numerical sort on the @e last set of numbers. If
  * there are any in the middle those will be sorted ASCIIbetically.
  */
-int
-strcmp_inc_numbers (char *stringA, char *stringB)
+int strcmp_inc_numbers(char *stringA, char *stringB)
 {
-	/*@ int **********************************************************/
-  int i;
-  int start_of_numbers_in_A;
-  int start_of_numbers_in_B;
-  int res;
+	/*@ int ********************************************************* */
+	int i;
+	int start_of_numbers_in_A;
+	int start_of_numbers_in_B;
+	int res;
 
-	/*@ long ********************************************************/
-  long numA;
-  long numB;
+	/*@ long ******************************************************* */
+	long numA;
+	long numB;
 
-	/*@ end vars ****************************************************/
-  assert(stringA!=NULL);
-  assert(stringB!=NULL);
+	/*@ end vars *************************************************** */
+	assert(stringA != NULL);
+	assert(stringB != NULL);
 
-  if (strlen (stringA) == strlen (stringB))
-    {
-      return (strcmp (stringA, stringB));
-    }
-  for (i = (int) strlen (stringA); i > 0 && isdigit (stringA[i - 1]); i--);
-  if (i == (int) strlen (stringA))
-    {
-      return (strcmp (stringA, stringB));
-    }
-  start_of_numbers_in_A = i;
-  for (i = (int) strlen (stringB); i > 0 && isdigit (stringB[i - 1]); i--);
-  if (i == (int) strlen (stringB))
-    {
-      return (strcmp (stringA, stringB));
-    }
-  start_of_numbers_in_B = i;
-  if (start_of_numbers_in_A != start_of_numbers_in_B)
-    {
-      return (strcmp (stringA, stringB));
-    }
-  res = strncmp (stringA, stringB, (size_t) i);
-  if (res)
-    {
-      return (res);
-    }
-  numA = atol (stringA + start_of_numbers_in_A);
-  numB = atol (stringB + start_of_numbers_in_B);
-  /*
-     sprintf(tmp,"Comparing %s and %s --> %ld,%ld\n",stringA,stringB,numA,numB);
-     log_to_screen(tmp);
-   */
-  return ((int) (numA - numB));
+	if (strlen(stringA) == strlen(stringB)) {
+		return (strcmp(stringA, stringB));
+	}
+	for (i = (int) strlen(stringA); i > 0 && isdigit(stringA[i - 1]); i--);
+	if (i == (int) strlen(stringA)) {
+		return (strcmp(stringA, stringB));
+	}
+	start_of_numbers_in_A = i;
+	for (i = (int) strlen(stringB); i > 0 && isdigit(stringB[i - 1]); i--);
+	if (i == (int) strlen(stringB)) {
+		return (strcmp(stringA, stringB));
+	}
+	start_of_numbers_in_B = i;
+	if (start_of_numbers_in_A != start_of_numbers_in_B) {
+		return (strcmp(stringA, stringB));
+	}
+	res = strncmp(stringA, stringB, (size_t) i);
+	if (res) {
+		return (res);
+	}
+	numA = atol(stringA + start_of_numbers_in_A);
+	numB = atol(stringB + start_of_numbers_in_B);
+	/*
+	   sprintf(tmp,"Comparing %s and %s --> %ld,%ld\n",stringA,stringB,numA,numB);
+	   log_to_screen(tmp);
+	 */
+	return ((int) (numA - numB));
 }
 
 
@@ -800,30 +762,27 @@ strcmp_inc_numbers (char *stringA, char *stringB)
  * @return The stripped line.
  * @note The returned string points to static storage that will be overwritten with each call.
  */
-char *
-strip_afio_output_line (char *input)
+char *strip_afio_output_line(char *input)
 {
-	/*@ buffer *******************************************************/
-  static char output[MAX_STR_LEN];
+	/*@ buffer ****************************************************** */
+	static char output[MAX_STR_LEN];
 
-	/*@ pointers *****************************************************/
-  char *p;
-  char *q;
-	/*@ end vars ****************************************************/
+	/*@ pointers **************************************************** */
+	char *p;
+	char *q;
+	/*@ end vars *************************************************** */
 
-  assert(input!=NULL);
-  strcpy (output, input);
-  p = strchr (input, '\"');
-  if (p)
-    {
-      q = strchr (++p, '\"');
-      if (q)
-	{
-	  strcpy (output, p);
-	  *(strchr (output, '\"')) = '\0';
+	assert(input != NULL);
+	strcpy(output, input);
+	p = strchr(input, '\"');
+	if (p) {
+		q = strchr(++p, '\"');
+		if (q) {
+			strcpy(output, p);
+			*(strchr(output, '\"')) = '\0';
+		}
 	}
-    }
-  return (output);
+	return (output);
 }
 
 
@@ -833,76 +792,60 @@ strip_afio_output_line (char *input)
  * (spaces and control characters) from both sides of @p in_out.
  * @param in_out The string to strip spaces/control characters from (modified).
  */
-void
-strip_spaces (char *in_out)
+void strip_spaces(char *in_out)
 {
-	/*@ buffers ******************************************************/
-  char *tmp;
+	/*@ buffers ***************************************************** */
+	char *tmp;
 
-	/*@ pointers *****************************************************/
-  char *p;
+	/*@ pointers **************************************************** */
+	char *p;
 
-	/*@ int *********************************************************/
-  int i;
-  int original_incoming_length;
+	/*@ int ******************************************************** */
+	int i;
+	int original_incoming_length;
 
-	/*@ end vars ****************************************************/
+	/*@ end vars *************************************************** */
 
-  assert(in_out!=NULL);
-  malloc_string(tmp);
-  original_incoming_length = (int) strlen(in_out);
-  for (i = 0; in_out[i] <= ' ' && i < (int) strlen (in_out); i++);
-  strcpy (tmp, in_out + i);
-  for (i = (int) strlen (tmp); i>0 && tmp[i - 1] <= 32; i--);
-  tmp[i] = '\0';
-  for (i = 0; i < original_incoming_length && MAX_STR_LEN; i++)
-    {
-      in_out[i] = ' ';
-    }
-  in_out[i] = '\0';
-  i = 0;
-  p = tmp;
-  while (*p != '\0')
-    {
-      in_out[i] = *(p++);
-      in_out[i + 1] = '\0';
-      if (in_out[i] < 32 && i > 0)
-	{
-	  if (in_out[i] == 8)
-	    {
-	      i--;
-	    }
-	  else if (in_out[i] == 9)
-	    {
-	      in_out[i++] = ' ';
-	    }
-	  else if (in_out[i] == '\r') // added 1st October 2003 -- FIXME
-	    {
-    	      strcpy(tmp, in_out+i);
-	      strcpy(in_out,tmp);
-	      i=-1;
-	      continue;
-	    }
-	  else if (in_out[i] == '\t')
-	    {
-	      for (i++; i % 5; i++);
-	    }
-	  else if (in_out[i] >= 10 && in_out[i] <= 13)
-	    {
-	      break;
-	    }
-	  else
-	    {
-	      i--;
-	    }
+	assert(in_out != NULL);
+	malloc_string(tmp);
+	original_incoming_length = (int) strlen(in_out);
+	for (i = 0; in_out[i] <= ' ' && i < (int) strlen(in_out); i++);
+	strcpy(tmp, in_out + i);
+	for (i = (int) strlen(tmp); i > 0 && tmp[i - 1] <= 32; i--);
+	tmp[i] = '\0';
+	for (i = 0; i < original_incoming_length && MAX_STR_LEN; i++) {
+		in_out[i] = ' ';
 	}
-      else
-	{
-	  i++;
+	in_out[i] = '\0';
+	i = 0;
+	p = tmp;
+	while (*p != '\0') {
+		in_out[i] = *(p++);
+		in_out[i + 1] = '\0';
+		if (in_out[i] < 32 && i > 0) {
+			if (in_out[i] == 8) {
+				i--;
+			} else if (in_out[i] == 9) {
+				in_out[i++] = ' ';
+			} else if (in_out[i] == '\r')	// added 1st October 2003 -- FIXME
+			{
+				strcpy(tmp, in_out + i);
+				strcpy(in_out, tmp);
+				i = -1;
+				continue;
+			} else if (in_out[i] == '\t') {
+				for (i++; i % 5; i++);
+			} else if (in_out[i] >= 10 && in_out[i] <= 13) {
+				break;
+			} else {
+				i--;
+			}
+		} else {
+			i++;
+		}
 	}
-    }
-  in_out[i] = '\0';
-  paranoid_free(tmp);
+	in_out[i] = '\0';
+	paranoid_free(tmp);
 /*  for(i=strlen(in_out); i>0 && in_out[i-1]<=32; i--) {in_out[i-1]='\0';} */
 }
 
@@ -913,25 +856,21 @@ strip_spaces (char *in_out)
  * @param incoming The string to trim quotes from (modified).
  * @return @p incoming.
  */
-char *
-trim_empty_quotes (char *incoming)
+char *trim_empty_quotes(char *incoming)
 {
-	/*@ buffer *******************************************************/
-  static char outgoing[MAX_STR_LEN];
+	/*@ buffer ****************************************************** */
+	static char outgoing[MAX_STR_LEN];
 
-	/*@ end vars ****************************************************/
-  assert(incoming!=NULL);
+	/*@ end vars *************************************************** */
+	assert(incoming != NULL);
 
-  if (incoming[0] == '\"' && incoming[strlen (incoming) - 1] == '\"')
-    {
-      strcpy (outgoing, incoming + 1);
-      outgoing[strlen (outgoing) - 1] = '\0';
-    }
-  else
-    {
-      strcpy (outgoing, incoming);
-    }
-  return (outgoing);
+	if (incoming[0] == '\"' && incoming[strlen(incoming) - 1] == '\"') {
+		strcpy(outgoing, incoming + 1);
+		outgoing[strlen(outgoing) - 1] = '\0';
+	} else {
+		strcpy(outgoing, incoming);
+	}
+	return (outgoing);
 }
 
 
@@ -942,45 +881,43 @@ trim_empty_quotes (char *incoming)
  * @param partition The partition name soon-to-become drive name. (modified)
  * @return @p partition.
  */
-char *
-truncate_to_drive_name (char *partition)
+char *truncate_to_drive_name(char *partition)
 {
-  int i = strlen (partition) - 1;
-  char *c;
+	int i = strlen(partition) - 1;
+	char *c;
 
 #ifdef __FreeBSD__
 
-  if (islower (partition[i])) // BSD subpartition
-      i--;
-  if (partition[i - 1] == 's') {
-      while (isdigit (partition[i]))
-	  i--;
-      i--;
-  }
-  partition[i + 1] = '\0';
+	if (islower(partition[i]))	// BSD subpartition
+		i--;
+	if (partition[i - 1] == 's') {
+		while (isdigit(partition[i]))
+			i--;
+		i--;
+	}
+	partition[i + 1] = '\0';
 
 #else
 
-  assert_string_is_neither_NULL_nor_zerolength(partition);
-  /* first see if it's a devfs style device */
-  c = strrchr(partition, '/');
-  if (c && strncmp(c, "/part", 5) == 0) {
-    /* yup it's devfs, return the "disc" path */
-    strcpy(c + 1, "disc");
-    return partition;
-  }
+	assert_string_is_neither_NULL_nor_zerolength(partition);
+	/* first see if it's a devfs style device */
+	c = strrchr(partition, '/');
+	if (c && strncmp(c, "/part", 5) == 0) {
+		/* yup it's devfs, return the "disc" path */
+		strcpy(c + 1, "disc");
+		return partition;
+	}
 
-  for (i = strlen (partition); isdigit (partition[i - 1]); i--)
-    continue;
-  if (partition[i - 1] == 'p' && isdigit (partition[i - 2]))
-    {
-      i--;
-    }
-  partition[i] = '\0';
+	for (i = strlen(partition); isdigit(partition[i - 1]); i--)
+		continue;
+	if (partition[i - 1] == 'p' && isdigit(partition[i - 2])) {
+		i--;
+	}
+	partition[i] = '\0';
 
 #endif
 
-  return partition;
+	return partition;
 }
 
 
@@ -995,24 +932,20 @@ truncate_to_drive_name (char *partition)
  * @return The string form of @p raid_level.
  * @note The returned value points to static storage that will be overwritten with each call.
  */
-char *
-turn_raid_level_number_to_string (int raid_level)
+char *turn_raid_level_number_to_string(int raid_level)
 {
 
-	/*@ buffer ***********************************************************/
-  static char output[MAX_STR_LEN];
+	/*@ buffer ********************************************************** */
+	static char output[MAX_STR_LEN];
 
 
 
-  if (raid_level >= 0)
-    {
-      sprintf (output, " RAID %-2d ", raid_level);
-    }
-  else
-    {
-      sprintf (output, "Linear RAID");
-    }
-  return (output);
+	if (raid_level >= 0) {
+		sprintf(output, " RAID %-2d ", raid_level);
+	} else {
+		sprintf(output, "Linear RAID");
+	}
+	return (output);
 }
 
 
@@ -1032,46 +965,111 @@ turn_raid_level_number_to_string (int raid_level)
  */
 int severity_of_difference(char *fn, char *out_reason)
 {
-  int sev;
-  char *reason;
-  char *filename;
+	int sev;
+	char *reason;
+	char *filename;
 
-  malloc_string(reason);
-  malloc_string(filename);
+	malloc_string(reason);
+	malloc_string(filename);
 // out_reason might be null on purpose, so don't bomb if it is :) OK?
-  assert_string_is_neither_NULL_nor_zerolength(fn);
-  if (!strncmp(fn, MNT_RESTORING, strlen(MNT_RESTORING)))
-    { strcpy(filename, fn+strlen(MNT_RESTORING)); }
-  else if (fn[0]!='/')
-    { sprintf(filename, "/%s", fn); }
-  else
-    { strcpy(filename, fn); }
+	assert_string_is_neither_NULL_nor_zerolength(fn);
+	if (!strncmp(fn, MNT_RESTORING, strlen(MNT_RESTORING))) {
+		strcpy(filename, fn + strlen(MNT_RESTORING));
+	} else if (fn[0] != '/') {
+		sprintf(filename, "/%s", fn);
+	} else {
+		strcpy(filename, fn);
+	}
 
-  sev = 3;
-  sprintf(reason, "Changed since backup. Consider running a differential backup in a day or two.");
-  if (!strncmp(filename, "/var/", 5)) { sev = 2; sprintf(reason, "/var's contents will change regularly, inevitably."); }
-  if (!strncmp(filename, "/home", 5)) { sev = 2; sprintf(reason, "It's in your /home partiton. Therefore, it is important."); }
-  if (!strncmp(filename, "/usr/", 5)) { sev = 3; sprintf(reason, "You may have installed/removed software during the backup."); }
-  if (!strncmp(filename, "/etc/", 5)) { sev = 3; sprintf(reason, "Do not edit config files while backing up your PC."); }
-  if (!strcmp(filename, "/etc/adjtime") || !strcmp(filename, "/etc/mtab")) { sev = 1; sprintf(reason, "This file changes all the time. It's OK."); }
-  if (!strncmp(filename, "/root/", 6)) { sev = 3; sprintf(reason, "Were you compiling/editing something in /root?"); }
-  if (!strncmp(filename, "/root/.", 7)) { sev = 2; sprintf(reason, "Temp or 'dot' files changed in /root."); }
-  if (!strncmp(filename, "/var/lib/", 9)) { sev = 2; sprintf(reason, "Did you add/remove software during backing?"); }
-  if (!strncmp(filename, "/var/lib/rpm", 12)) { sev = 3; sprintf(reason, "Did you add/remove software during backing?"); }
-  if (!strncmp(filename, "/var/lib/slocate", 16)) { sev = 1; sprintf(reason, "The 'update' daemon ran during backup. This does not affect the integrity of your backup."); }
-  if (!strncmp(filename, "/var/log/", 9) || strstr(filename,"/.xsession") || !strcmp(filename+strlen(filename)-4, ".log")) { sev = 1; sprintf(reason, "Log files change frequently as the computer runs. Fret not."); }
-  if (!strncmp(filename, "/var/spool", 10)) { sev = 1; sprintf(reason, "Background processes or printers were active. This does not affect the integrity of your backup."); }
-  if (!strncmp(filename, "/var/spool/mail", 10)) { sev = 2; sprintf(reason, "Mail was sent/received during backup."); }
-  if (filename[strlen(filename)-1]== '~')
-    { sev = 1; sprintf(reason, "Backup copy of another file which was modified recently."); }
-  if (strstr(filename, "cache"))
-    { sev = 1; sprintf(reason, "Part of a cache of data. Caches change from time to time. Don't worry."); }
-  if (!strncmp(filename, "/var/run/", 9) || !strncmp(filename, "/var/lock", 8) || strstr(filename, "/.DCOPserver") || strstr(filename, "/.MCOP") || strstr(filename, "/.Xauthority"))
-    { sev = 1; sprintf(reason, "Temporary file (a lockfile, perhaps) used by software such as X or KDE to register its presence."); }
-  if (out_reason) { strcpy(out_reason,reason); }
-  paranoid_free(filename);
-  paranoid_free(reason);
-  return(sev);
+	sev = 3;
+	sprintf(reason,
+			"Changed since backup. Consider running a differential backup in a day or two.");
+	if (!strncmp(filename, "/var/", 5)) {
+		sev = 2;
+		sprintf(reason,
+				"/var's contents will change regularly, inevitably.");
+	}
+	if (!strncmp(filename, "/home", 5)) {
+		sev = 2;
+		sprintf(reason,
+				"It's in your /home partiton. Therefore, it is important.");
+	}
+	if (!strncmp(filename, "/usr/", 5)) {
+		sev = 3;
+		sprintf(reason,
+				"You may have installed/removed software during the backup.");
+	}
+	if (!strncmp(filename, "/etc/", 5)) {
+		sev = 3;
+		sprintf(reason,
+				"Do not edit config files while backing up your PC.");
+	}
+	if (!strcmp(filename, "/etc/adjtime")
+		|| !strcmp(filename, "/etc/mtab")) {
+		sev = 1;
+		sprintf(reason, "This file changes all the time. It's OK.");
+	}
+	if (!strncmp(filename, "/root/", 6)) {
+		sev = 3;
+		sprintf(reason, "Were you compiling/editing something in /root?");
+	}
+	if (!strncmp(filename, "/root/.", 7)) {
+		sev = 2;
+		sprintf(reason, "Temp or 'dot' files changed in /root.");
+	}
+	if (!strncmp(filename, "/var/lib/", 9)) {
+		sev = 2;
+		sprintf(reason, "Did you add/remove software during backing?");
+	}
+	if (!strncmp(filename, "/var/lib/rpm", 12)) {
+		sev = 3;
+		sprintf(reason, "Did you add/remove software during backing?");
+	}
+	if (!strncmp(filename, "/var/lib/slocate", 16)) {
+		sev = 1;
+		sprintf(reason,
+				"The 'update' daemon ran during backup. This does not affect the integrity of your backup.");
+	}
+	if (!strncmp(filename, "/var/log/", 9)
+		|| strstr(filename, "/.xsession")
+		|| !strcmp(filename + strlen(filename) - 4, ".log")) {
+		sev = 1;
+		sprintf(reason,
+				"Log files change frequently as the computer runs. Fret not.");
+	}
+	if (!strncmp(filename, "/var/spool", 10)) {
+		sev = 1;
+		sprintf(reason,
+				"Background processes or printers were active. This does not affect the integrity of your backup.");
+	}
+	if (!strncmp(filename, "/var/spool/mail", 10)) {
+		sev = 2;
+		sprintf(reason, "Mail was sent/received during backup.");
+	}
+	if (filename[strlen(filename) - 1] == '~') {
+		sev = 1;
+		sprintf(reason,
+				"Backup copy of another file which was modified recently.");
+	}
+	if (strstr(filename, "cache")) {
+		sev = 1;
+		sprintf(reason,
+				"Part of a cache of data. Caches change from time to time. Don't worry.");
+	}
+	if (!strncmp(filename, "/var/run/", 9)
+		|| !strncmp(filename, "/var/lock", 8)
+		|| strstr(filename, "/.DCOPserver") || strstr(filename, "/.MCOP")
+		|| strstr(filename, "/.Xauthority")) {
+		sev = 1;
+		sprintf(reason,
+				"Temporary file (a lockfile, perhaps) used by software such as X or KDE to register its presence.");
+	}
+	if (out_reason) {
+		strcpy(out_reason, reason);
+	}
+	paranoid_free(filename);
+	paranoid_free(reason);
+	return (sev);
 }
 
 
@@ -1083,17 +1081,17 @@ int severity_of_difference(char *fn, char *out_reason)
  * @param vb The second filelist entry, cast as a @c void pointer.
  * @return The return value of strcmp().
  */
-int compare_two_filelist_entries(void*va,void*vb)
+int compare_two_filelist_entries(void *va, void *vb)
 {
-  static int res;
-  struct s_filelist_entry *fa, *fb;
+	static int res;
+	struct s_filelist_entry *fa, *fb;
 
-  assert(va!=NULL);
-  assert(vb!=NULL);
-  fa = (struct s_filelist_entry*)va;
-  fb = (struct s_filelist_entry*)vb;
-  res = strcmp(fa->filename, fb->filename);
-  return(res);
+	assert(va != NULL);
+	assert(vb != NULL);
+	fa = (struct s_filelist_entry *) va;
+	fb = (struct s_filelist_entry *) vb;
+	res = strcmp(fa->filename, fb->filename);
+	return (res);
 }
 
 
@@ -1112,62 +1110,60 @@ int compare_two_filelist_entries(void*va,void*vb)
  * @return The string indicating media fill.
  * @note The returned string points to static storage that will be overwritten with each call.
  */
-char *
-percent_media_full_comment (struct s_bkpinfo *bkpinfo)
+char *percent_media_full_comment(struct s_bkpinfo *bkpinfo)
 {
-	/*@ int ************************************************/
-  int percentage;
-  int j;
+	/*@ int *********************************************** */
+	int percentage;
+	int j;
 
-	/*@ buffers ********************************************/
-  static char outstr[MAX_STR_LEN];
-  char *pos_w_commas, *tmp;
+	/*@ buffers ******************************************* */
+	static char outstr[MAX_STR_LEN];
+	char *pos_w_commas, *tmp;
 
-  assert(bkpinfo!=NULL);
-  malloc_string(pos_w_commas);
-  malloc_string(tmp);
-  sprintf(tmp, "%lld", g_tape_posK);
-  strcpy(pos_w_commas, commarize(tmp));
+	assert(bkpinfo != NULL);
+	malloc_string(pos_w_commas);
+	malloc_string(tmp);
+	sprintf(tmp, "%lld", g_tape_posK);
+	strcpy(pos_w_commas, commarize(tmp));
 
 
 
-  if (bkpinfo->media_size[g_current_media_number]<=0)
+	if (bkpinfo->media_size[g_current_media_number] <= 0)
 //    { fatal_error( "percentage_media_full_comment() - unknown media size"); }
-    {
-      sprintf( outstr, "Volume %d: %s kilobytes archived so far", g_current_media_number, pos_w_commas);
-      return( outstr );
-    }
+	{
+		sprintf(outstr, "Volume %d: %s kilobytes archived so far",
+				g_current_media_number, pos_w_commas);
+		return (outstr);
+	}
 
 /* update screen */
-  if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type))
-    {
-      percentage = (int) (g_tape_posK / 10 / bkpinfo->media_size[g_current_media_number]);
-      if (percentage > 100)
-	{
-	  percentage = 100;
+	if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
+		percentage =
+			(int) (g_tape_posK / 10 /
+				   bkpinfo->media_size[g_current_media_number]);
+		if (percentage > 100) {
+			percentage = 100;
+		}
+		sprintf(outstr, "Volume %d: [", g_current_media_number);
+	} else {
+		percentage =
+			(int) (space_occupied_by_cd(bkpinfo->scratchdir) * 100 / 1024 /
+				   bkpinfo->media_size[g_current_media_number]);
+		sprintf(outstr, "%s %d: [",
+				media_descriptor_string(bkpinfo->backup_media_type),
+				g_current_media_number);
 	}
-      sprintf (outstr, "Volume %d: [", g_current_media_number);
-    }
-  else
-    {
-      percentage =
-	(int) (space_occupied_by_cd (bkpinfo->scratchdir) * 100 / 1024 /
-	       bkpinfo->media_size[g_current_media_number]);
-      sprintf (outstr, "%s %d: [", media_descriptor_string(bkpinfo->backup_media_type), g_current_media_number);
-    }
-  for (j = 0; j < percentage; j += 5)
-    {
-      strcat (outstr, "*");
-    }
-  for (; j < 100; j += 5)
-    {
-      strcat (outstr, ".");
-    }
-  j = (int) strlen (outstr);
-  sprintf (outstr + j, "] %d%% used", percentage);
-  paranoid_free(pos_w_commas);
-  paranoid_free(tmp);
-  return (outstr);
+	for (j = 0; j < percentage; j += 5) {
+		strcat(outstr, "*");
+	}
+	for (; j < 100; j += 5) {
+		strcat(outstr, ".");
+	}
+	j = (int) strlen(outstr);
+	sprintf(outstr + j, "] %d%% used", percentage);
+	paranoid_free(pos_w_commas);
+	paranoid_free(tmp);
+	return (outstr);
 }
 
 /**
@@ -1178,13 +1174,13 @@ percent_media_full_comment (struct s_bkpinfo *bkpinfo)
  */
 char *media_descriptor_string(t_bkptype type_of_bkp)
 {
-  static char *type_of_backup=NULL;
-  
-  if (!type_of_backup)
-    { malloc_string(type_of_backup); }
-    
-  switch(type_of_bkp)
-  	{
+	static char *type_of_backup = NULL;
+
+	if (!type_of_backup) {
+		malloc_string(type_of_backup);
+	}
+
+	switch (type_of_bkp) {
 	case dvd:
 		strcpy(type_of_backup, "DVD");
 		break;
@@ -1212,7 +1208,7 @@ char *media_descriptor_string(t_bkptype type_of_bkp)
 	default:
 		strcpy(type_of_backup, "ISO");
 	}
-  return(type_of_backup);
+	return (type_of_backup);
 }
 
 /* @} - end of stringGroup */

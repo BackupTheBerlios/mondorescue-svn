@@ -4,7 +4,7 @@
     begin                : Sun Nov 22 2003
     copyright            : (C) 2003 by Joshua Oreman
     email                : oremanj@get-linux.org
-    cvsid                : $Id: xmondorestore.h,v 1.1 2004/06/10 16:13:06 hugo Exp $
+    cvsid                : $Id$
  ***************************************************************************/
 
 /***************************************************************************
@@ -31,48 +31,44 @@ class RestoreThread;
  * The class that handles all the restore functions.
  * @author Joshua Oreman
  */
-class XMondoRestore : public QObject
-{
-    Q_OBJECT
+class XMondoRestore:public QObject {
+	Q_OBJECT friend void *XMondoRestore_preparer_thread(void *arg);
 
-    friend void *XMondoRestore_preparer_thread (void *arg);
-    
-public:
-    XMondoRestore (QWidget *parent, QButtonGroup *mediaType, QLineEdit *device, QLineEdit *nfsRemoteDir, QLineEdit *filelistFilter);
-    virtual ~XMondoRestore();
+  public:
+	 XMondoRestore(QWidget * parent, QButtonGroup * mediaType,
+				   QLineEdit * device, QLineEdit * nfsRemoteDir,
+				   QLineEdit * filelistFilter);
+	 virtual ~ XMondoRestore();
 
-    virtual void go();
-    bool good() {
-	return ok;
-    }
-    bool isSetupDone() {
-	return doneSetup;
-    }
+	virtual void go();
+	bool good() {
+		return ok;
+	} bool isSetupDone() {
+		return doneSetup;
+	}
 
-public slots:
-    void slotAbortRestore();
+	public slots:void slotAbortRestore();
 
-protected:
-    bool ok;
-    bool doneSetup;
-    
-    QButtonGroup *rMediaType;
-    QLineEdit *rDevice, *rNFSRemoteDir, *rFilter;
+  protected:
+	bool ok;
+	bool doneSetup;
 
-    QWidget *files;
-    QLabel *fStatusMsg;
-    QListView *fList;
-    QLabel *fRestoreDirLabel;
-    QLineEdit *fRestoreDir;
+	QButtonGroup *rMediaType;
+	QLineEdit *rDevice, *rNFSRemoteDir, *rFilter;
 
-    QString tempdir, filelistLocation, cfgLocation, cdMountpoint;
+	QWidget *files;
+	QLabel *fStatusMsg;
+	QListView *fList;
+	QLabel *fRestoreDirLabel;
+	QLineEdit *fRestoreDir;
 
-    pthread_t preparer_thread;
-    
-    s_bkpinfo *bkpinfo;
-    
-    RestoreThread *th;
+	QString tempdir, filelistLocation, cfgLocation, cdMountpoint;
+
+	pthread_t preparer_thread;
+
+	s_bkpinfo *bkpinfo;
+
+	RestoreThread *th;
 };
 
 #endif
-

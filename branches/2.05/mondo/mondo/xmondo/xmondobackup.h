@@ -4,7 +4,7 @@
     begin                : Mon Apr 28 2003
     copyright            : (C) 2003 by Joshua Oreman
     email                : oremanj@get-linux.org
-    cvsid                : $Id: xmondobackup.h,v 1.1 2004/06/10 16:13:06 hugo Exp $
+    cvsid                : $Id$
  ***************************************************************************/
 
 /***************************************************************************
@@ -27,19 +27,17 @@
   */
 
 class BackupThread;
-class XMondoBackup : public QObject {
-   Q_OBJECT
-public: 
+class XMondoBackup:public QObject {
+  Q_OBJECT public:
 	XMondoBackup();
 	~XMondoBackup();
-	int run (struct s_bkpinfo *bkpinfo);
-	int compare (struct s_bkpinfo *bkpinfo);
+	int run(struct s_bkpinfo *bkpinfo);
+	int compare(struct s_bkpinfo *bkpinfo);
 
-public slots:
-    void abortBackup(); 
+	public slots:void abortBackup();
 
-private:
-    BackupThread *th;
+  private:
+	 BackupThread * th;
 };
 
 #endif

@@ -1,4 +1,17 @@
-MINDI                            CHANGES                           08/23/2004
+MINDI                            CHANGES
+
+1.05 (2005-11-19)
+- Bug fix for ldd output incorrectly handled, leading to "grep not found" error
+  (Andree Leidenfrost)
+- NFS now works in interactive mode, and nolock problems are solve
+  (Andree Leidenfrost)
+- IA-64 support is now working for rhel 3
+  (Bruno Cornec)
+- add MINDI_CONF to the mindi LOGFILE 
+  (Philippe De Muyter)
+- Speed up fdisk'ing dev/ida raid devices
+  (Philippe De Muyter)
+
 
 1.04
 - support exec-shield

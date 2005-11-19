@@ -650,6 +650,7 @@ FindHomeOfMindiAndMondo() {
 	echo "MINDI_HOME = $MINDI_HOME" >> $LOGFILE
 	echo "MONDO_HOME = $MONDO_HOME" >> $LOGFILE
 	[ -e "/etc/mindi" ] && MINDI_CONF=/etc/mindi || MINDI_CONF=$MINDI_HOME
+	echo "MINDI_CONF = $MINDI_CONF" >> $LOGFILE
 	mkdir -p $CACHE_LOC
 }
 
@@ -1419,7 +1420,7 @@ absolute_partition old_partition_fmt
             old_partition_fmt=$partition_format
 #	    partition_format="`$FDISK -l 2>> $LOGFILE | tr -s '\t' ' ' | grep -w "$absolute_partition" | $AWK 'x=$(NF-1}'`"
 	    partition_format="`$FDISK -l 2>> $LOGFILE | tr '*' ' ' | tr '+' ' ' | tr -s ' ' '\t' | grep -w "$absolute_partition" | cut -f5`"
-            echo "------- $FDISK log ------------" >> $LOGFILE
+            echo "------- $FDISK -l log ------------" >> $LOGFILE
             cat $FDISKLOG >> $LOGFILE
             echo "------- $FDISK log end ------------" >> $LOGFILE
 	    partition_size=$(($partition_size+1)); # just in case
@@ -1434,9 +1435,9 @@ absolute_partition old_partition_fmt
             continue
         fi
         if [ ! "$partition_mountpt" ] ; then
-	    for qq in "" `find /dev/ida/c*d*` ; do
+	    for qq in "" `find /dev/ida/c*d* ! -name '*p*'` ; do
 		partition_format=`$FDISK -l $qq 2>> $LOGFILE | grep -w "$c_p" | sed 's/12/|/' | tr -s '\t' ' ' | cut -d'|' -f2 | cut -d' ' -f2-9`
-                echo "------- $FDISK log ------------" >> $LOGFILE
+                echo "------- $FDISK -l log ------------" >> $LOGFILE
                 cat $FDISKLOG >> $LOGFILE
                 echo "------- $FDISK log end ------------" >> $LOGFILE
 		[ "$partition_format" ] && break
@@ -2444,7 +2445,7 @@ SizeOfPartition() {
 #    res=`$FDISK -l 2>> $LOGFILE | grep -w "$device" | head -n1 | sort -u | tr '*' ' ' | tr -s '\t' '|' | tr -s ' ' ' ' | cut -d' ' -f4 | sed s/+// | sed s/-//`
 # patch from Bill <bill@iwizard.biz> - 2003/08/25
     res=`$FDISK -s $device`
-    echo "------- $FDISK log ------------" >> $LOGFILE
+    echo "------- $FDISK -l log ------------" >> $LOGFILE
     cat $FDISKLOG >> $LOGFILE
     echo "------- $FDISK log end ------------" >> $LOGFILE
 # end patch

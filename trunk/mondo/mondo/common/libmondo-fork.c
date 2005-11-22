@@ -1,100 +1,5 @@
-/* libmondo-fork.c
-   $Id$
-
-- subroutines for handling forking/pthreads/etc.
-
-
-06/20/2004
-- create fifo /var/log/partimagehack-debug.log and empty it
-  to keep ramdisk from filling up
-
-04/13/2004
-- >= should be <= g_loglevel
-
-11/15/2003
-- changed a few []s to char*s
-  
-10/12
-- rewrote partimagehack handling (multiple fifos, chunks, etc.)
-
-10/11
-- partimagehack now has debug level of N (set in my-stuff.h)
-
-10/08
-- call to partimagehack when restoring will now log errors to /var/log/....log
-
-10/06
-- cleaned up logging a bit
-
-09/30
-- line 735 - missing char* cmd in sprintf()
-
-09/28
-- added run_external_binary_with_percentage_indicator()
-- rewritten eval_call_to_make_ISO()
-
-09/18
-- call mkstemp instead of mktemp
-
-09/13
-- major NTFS hackage
-
-09/12
-- paranoid_system("rm -f /tmp/ *PARTIMAGE*") before calling partimagehack
-
-09/11
-- forward-ported unbroken feed_*_partimage() subroutines
-  from early August 2003
-
-09/08
-- detect & use partimagehack if it exists
-
-09/05
-- finally finished partimagehack hack :)
-
-07/04
-- added subroutines to wrap around partimagehack
-
-04/27
-- don't echo (...res=%d...) at end of log_it()
-  unnecessarily
-- replace newtFinished() and newtInit() with
-  newtSuspend() and newtResume()
-
-04/24
-- added some assert()'s and log_OS_error()'s
-
-04/09
-- cleaned up run_program_and_log_output()
-
-04/07
-- cleaned up code a bit
-- let run_program_and_log_output() accept -1 (only log if _no error_)
-
-01/02/2003
-- in eval_call_to_make_ISO(), append output to MONDO_LOGFILE
-  instead of a temporary stderr text file
-
-12/10
-- patch by Heiko Schlittermann to handle % chars in issue.net
-
-11/18
-- if mkisofs in eval_call_to_make_ISO() returns an error then return it,
-  whether ISO was created or not
-
-10/30
-- if mkisofs in eval_call_to_make_ISO() returns an error then find out if
-  the output (ISO) file has been created; if it has then return 0 anyway
-
-08/01 - 09/30
-- run_program_and_log_output() now takes boolean operator to specify
-  whether it will log its activities in the event of _success_
-- system() now includes 2>/dev/null
-- enlarged some tmp[]'s
-- added run_program_and_log_to_screen() and run_program_and_log_output()
-
-07/24
-- created
+/* $Id$
+  subroutines for handling forking/pthreads/etc.
 */
 
 
@@ -125,25 +30,25 @@ pid_t g_buffer_pid = 0;
 char *call_program_and_get_last_line_of_output(char *call)
 {
 	/*@ buffers ***************************************************** */
-	static char result[512];
-	char *tmp;
+	static char *result = NULL;
+	char *tmp = NULL;
 
 	/*@ pointers **************************************************** */
 	FILE *fin;
 
-	/*@ initialize data ********************************************* */
-	malloc_string(tmp);
-	result[0] = '\0';
-	tmp[0] = '\0';
+	int n = 0;
 
 	/*@******************************************************************** */
 
 	assert_string_is_neither_NULL_nor_zerolength(call);
 	if ((fin = popen(call, "r"))) {
-		for (fgets(tmp, MAX_STR_LEN, fin); !feof(fin);
-			 fgets(tmp, MAX_STR_LEN, fin)) {
+		for (getline(&tmp, &n, fin); !feof(fin);
+			 getline(&tmp, &n, fin)) {
 			if (strlen(tmp) > 1) {
-				strcpy(result, tmp);
+				if (result != NULL) {
+					paranoid_free(result);
+				}
+				asprintf(&result, tmp);
 			}
 		}
 		paranoid_pclose(fin);
@@ -151,13 +56,9 @@ char *call_program_and_get_last_line_of_output(char *call)
 		log_OS_error("Unable to popen call");
 	}
 	strip_spaces(result);
+	paranoid_free(tmp);
 	return (result);
 }
-
-
-
-
-
 
 #define MONDO_POPMSG  "Your PC will not retract the CD tray automatically. Please call mondoarchive with the -m (manual CD tray) flag."
 
@@ -189,8 +90,8 @@ eval_call_to_make_ISO(struct s_bkpinfo *bkpinfo,
 
 
 	/*@ buffers      *** */
-	char *midway_call, *ultimate_call, *tmp, *command, *incoming,
-		*old_stderr, *cd_number_str;
+	char *midway_call, *ultimate_call, *tmp, *command,
+		*cd_number_str;
 	char *p;
 
 /*@***********   End Variables ***************************************/
@@ -209,25 +110,18 @@ eval_call_to_make_ISO(struct s_bkpinfo *bkpinfo,
 	if (!(tmp = malloc(1200))) {
 		fatal_error("Cannot malloc tmp");
 	}
-	if (!(command = malloc(1200))) {
-		fatal_error("Cannot malloc command");
-	}
-	malloc_string(incoming);
-	malloc_string(old_stderr);
-	malloc_string(cd_number_str);
 
-	incoming[0] = '\0';
-	old_stderr[0] = '\0';
-
-	sprintf(cd_number_str, "%d", cd_no);
+	asprintf(&cd_number_str, "%d", cd_no);
 	resolve_naff_tokens(midway_call, basic_call, isofile, "_ISO_");
 	resolve_naff_tokens(tmp, midway_call, cd_number_str, "_CD#_");
+	paranoid_free(cd_number_str);
+
 	resolve_naff_tokens(ultimate_call, tmp, MONDO_LOGFILE, "_ERR_");
 	log_msg(4, "basic call = '%s'", basic_call);
 	log_msg(4, "midway_call = '%s'", midway_call);
 	log_msg(4, "tmp = '%s'", tmp);
 	log_msg(4, "ultimate call = '%s'", ultimate_call);
-	sprintf(command, "%s >> %s", ultimate_call, MONDO_LOGFILE);
+	asprintf(&command, "%s >> %s", ultimate_call, MONDO_LOGFILE);
 
 	log_to_screen
 		("Please be patient. Do not be alarmed by on-screen inactivity.");
@@ -245,7 +139,8 @@ eval_call_to_make_ISO(struct s_bkpinfo *bkpinfo,
 				*p = ' ';
 			}
 		}
-		strcpy(command, tmp);
+		paranoid_free(command);
+		asprintf(&command, tmp);
 #ifndef _XWIN
 		if (!g_text_mode) {
 			newtSuspend();
@@ -271,25 +166,13 @@ eval_call_to_make_ISO(struct s_bkpinfo *bkpinfo,
 			run_external_binary_with_percentage_indicator_NEW
 			(what_i_am_doing, command);
 	}
+	paranoid_free(command);
 
 	paranoid_free(midway_call);
 	paranoid_free(ultimate_call);
 	paranoid_free(tmp);
-	paranoid_free(command);
-	paranoid_free(incoming);
-	paranoid_free(old_stderr);
-	paranoid_free(cd_number_str);
-/*
-  if (bkpinfo->backup_media_type == dvd && !bkpinfo->please_dont_eject_when_restoring)
-    {
-      log_msg(3, "Ejecting DVD device");
-      eject_device(bkpinfo->media_device);
-    }
-*/
 	return (retval);
 }
-
-
 
 
 /**
@@ -301,14 +184,14 @@ eval_call_to_make_ISO(struct s_bkpinfo *bkpinfo,
 int run_program_and_log_output(char *program, int debug_level)
 {
 	/*@ buffer ****************************************************** */
-	char callstr[MAX_STR_LEN * 2];
-	char incoming[MAX_STR_LEN * 2];
+	char *callstr;
+	char *incoming = NULL;
 	char tmp[MAX_STR_LEN * 2];
-	char initial_label[MAX_STR_LEN * 2];
 
 	/*@ int ********************************************************* */
 	int res;
 	int i;
+	int n = 0;
 	int len;
 	bool log_if_failure = FALSE;
 	bool log_if_success = FALSE;
@@ -324,15 +207,12 @@ int run_program_and_log_output(char *program, int debug_level)
 		log_msg(2, "Warning - asked to run zerolength program");
 		return (1);
 	}
-//  if (debug_level == TRUE) { debug_level=5; }
-
-	//  assert_string_is_neither_NULL_nor_zerolength(program);
 
 	if (debug_level <= g_loglevel) {
 		log_if_success = TRUE;
 		log_if_failure = TRUE;
 	}
-	sprintf(callstr,
+	asprintf(&callstr,
 			"%s > /tmp/mondo-run-prog-thing.tmp 2> /tmp/mondo-run-prog-thing.err",
 			program);
 	while ((p = strchr(callstr, '\r'))) {
@@ -354,13 +234,14 @@ int run_program_and_log_output(char *program, int debug_level)
 	for (i = 0; i < 35 - len / 2; i++) {
 		strcat(tmp, "-");
 	}
-	strcpy(initial_label, tmp);
 	res = system(callstr);
 	if (((res == 0) && log_if_success) || ((res != 0) && log_if_failure)) {
 		log_msg(0, "running: %s", callstr);
 		log_msg(0,
 				"--------------------------------start of output-----------------------------");
 	}
+	paranoid_free(callstr);
+
 	if (log_if_failure
 		&&
 		system
@@ -371,8 +252,8 @@ int run_program_and_log_output(char *program, int debug_level)
 	unlink("/tmp/mondo-run-prog-thing.err");
 	fin = fopen("/tmp/mondo-run-prog-thing.tmp", "r");
 	if (fin) {
-		for (fgets(incoming, MAX_STR_LEN, fin); !feof(fin);
-			 fgets(incoming, MAX_STR_LEN, fin)) {
+		for (getline(&incoming, &n, fin); !feof(fin);
+			 getline(&incoming, &n, fin)) {
 			/* patch by Heiko Schlittermann */
 			p = incoming;
 			while (p && *p) {
@@ -388,6 +269,7 @@ int run_program_and_log_output(char *program, int debug_level)
 				log_msg(0, incoming);
 			}
 		}
+		paranoid_free(incoming);
 		paranoid_fclose(fin);
 	}
 	unlink("/tmp/mondo-run-prog-thing.tmp");
@@ -406,7 +288,6 @@ int run_program_and_log_output(char *program, int debug_level)
 }
 
 
-
 /**
  * Run a program and log its output to the screen.
  * @param basic_call The program to run.
@@ -420,34 +301,42 @@ int run_program_and_log_to_screen(char *basic_call, char *what_i_am_doing)
 	/*@ int ******************************************************** */
 	int retval = 0;
 	int res = 0;
+	int n = 0;
 	int i;
 
 	/*@ pointers **************************************************** */
 	FILE *fin;
 
 	/*@ buffers **************************************************** */
-	char tmp[MAX_STR_LEN * 2];
-	char command[MAX_STR_LEN * 2];
-	char lockfile[MAX_STR_LEN];
+	char *tmp;
+	char *command;
+	char *lockfile;
 
 	/*@ end vars *************************************************** */
 
 	assert_string_is_neither_NULL_nor_zerolength(basic_call);
 
-	sprintf(lockfile, "/tmp/mojo-jojo.blah.XXXXXX");
+	asprintf(&lockfile, "/tmp/mojo-jojo.blah.XXXXXX");
 	mkstemp(lockfile);
-	sprintf(command,
+	asprintf(&command,
 			"echo hi > %s ; %s >> %s 2>> %s; res=$?; sleep 1; rm -f %s; exit $res",
 			lockfile, basic_call, MONDO_LOGFILE, MONDO_LOGFILE, lockfile);
 	open_evalcall_form(what_i_am_doing);
-	sprintf(tmp, "Executing %s", basic_call);
+	asprintf(&tmp, "Executing %s", basic_call);
 	log_msg(2, tmp);
+	paranoid_free(tmp);
+
 	if (!(fin = popen(command, "r"))) {
 		log_OS_error("Unable to popen-in command");
-		sprintf(tmp, "Failed utterly to call '%s'", command);
+		asprintf(&tmp, "Failed utterly to call '%s'", command);
 		log_to_screen(tmp);
+		paranoid_free(tmp);
+		paranoid_free(lockfile);
+		paranoid_free(command);
 		return (1);
 	}
+	paranoid_free(command);
+
 	if (!does_file_exist(lockfile)) {
 		log_to_screen("Waiting for external binary to start");
 		for (i = 0; i < 60 && !does_file_exist(lockfile); sleep(1), i++) {
@@ -457,14 +346,16 @@ int run_program_and_log_to_screen(char *basic_call, char *what_i_am_doing)
 #ifdef _XWIN
 	/* This only can update when newline goes into the file,
 	   but it's *much* prettier/faster on Qt. */
+	tmp = NULL;
 	while (does_file_exist(lockfile)) {
 		while (!feof(fin)) {
-			if (!fgets(tmp, 512, fin))
+			if (!getline(&tmp, &n, fin))
 				break;
 			log_to_screen(tmp);
 		}
 		usleep(500000);
 	}
+	paranoid_free(tmp);
 #else
 	/* This works on Newt, and it gives quicker updates. */
 	for (; does_file_exist(lockfile); sleep(1)) {
@@ -487,11 +378,10 @@ int run_program_and_log_to_screen(char *basic_call, char *what_i_am_doing)
 	}
 	close_evalcall_form();
 	unlink(lockfile);
+	paranoid_free(lockfile);
+
 	return (retval);
 }
-
-
-
 
 
 /**
@@ -530,7 +420,7 @@ void *call_partimage_in_bkgd(void *xfb)
 #define PAUSE_PARTIMAGE_FNAME "/tmp/PAUSE-PARTIMAGE-FOR-MONDO"
 
 /**
- * Apparently unused. @bug This has a purpose, but what?
+ * Apparently used. @bug This has a purpose, but what?
  */
 #define PIMP_START_SZ "STARTSTARTSTART9ff3kff9a82gv34r7fghbkaBBC2T231hc81h42vws8"
 #define PIMP_END_SZ "ENDENDEND0xBBC10xBBC2T231hc81h42vws89ff3kff9a82gv34r7fghbka"
@@ -559,8 +449,6 @@ int copy_from_src_to_dest(FILE * f_orig, FILE * f_archived, char direction)
 	FILE *ftmp;
 
 	log_msg(5, "Opening.");
-	malloc_string(tmp);
-	tmp[0] = '\0';
 	bufcap = 256L * 1024L;
 	if (!(buf = malloc(bufcap))) {
 		fatal_error("Failed to malloc() buf");
@@ -569,37 +457,46 @@ int copy_from_src_to_dest(FILE * f_orig, FILE * f_archived, char direction)
 	if (direction == 'w') {
 		fin = f_orig;
 		fout = f_archived;
-		sprintf(tmp, "%-64s", PIMP_START_SZ);
+		asprintf(&tmp, "%-64s", PIMP_START_SZ);
 		if (fwrite(tmp, 1, 64, fout) != 64) {
 			fatal_error("Can't write the introductory block");
 		}
+		paranoid_free(tmp);
+
 		while (1) {
 			bytes_to_be_read = bytes_read_in = fread(buf, 1, bufcap, fin);
 			if (bytes_read_in == 0) {
 				break;
 			}
-			sprintf(tmp, "%-64ld", bytes_read_in);
+			asprintf(&tmp, "%-64ld", bytes_read_in);
 			if (fwrite(tmp, 1, 64, fout) != 64) {
 				fatal_error("Cannot write introductory block");
 			}
+			paranoid_free(tmp);
+
 			log_msg(7,
 					"subslice #%ld --- I have read %ld of %ld bytes in from f_orig",
 					subsliceno, bytes_read_in, bytes_to_be_read);
 			bytes_written_out += fwrite(buf, 1, bytes_read_in, fout);
-			sprintf(tmp, "%-64ld", subsliceno);
+			asprintf(&tmp, "%-64ld", subsliceno);
 			if (fwrite(tmp, 1, 64, fout) != 64) {
 				fatal_error("Cannot write post-thingy block");
 			}
+			paranoid_free(tmp);
+
 			log_msg(7, "Subslice #%d written OK", subsliceno);
 			subsliceno++;
 		}
-		sprintf(tmp, "%-64ld", 0L);
+		asprintf(&tmp, "%-64ld", 0L);
 		if (fwrite(tmp, 1, 64L, fout) != 64L) {
 			fatal_error("Cannot write final introductory block");
 		}
 	} else {
 		fin = f_archived;
 		fout = f_orig;
+		if (!(tmp = malloc(64L))) {
+			fatal_error("Failed to malloc() tmp");
+		}
 		if (fread(tmp, 1, 64L, fin) != 64L) {
 			fatal_error("Cannot read the introductory block");
 		}
@@ -639,10 +536,11 @@ int copy_from_src_to_dest(FILE * f_orig, FILE * f_archived, char direction)
 //  log_msg(4, "Written %ld of %ld bytes", bytes_written_out, bytes_read_in);
 
 	if (direction == 'w') {
-		sprintf(tmp, "%-64s", PIMP_END_SZ);
+		asprintf(&tmp, "%-64s", PIMP_END_SZ);
 		if (fwrite(tmp, 1, 64, fout) != 64) {
 			fatal_error("Can't write the final block");
 		}
+		paranoid_free(tmp);
 	} else {
 		log_msg(1, "tmpA is %s", tmp);
 		if (!strstr(tmp, PIMP_END_SZ)) {
@@ -656,8 +554,11 @@ int copy_from_src_to_dest(FILE * f_orig, FILE * f_archived, char direction)
 				log_msg(1, "bytes_read_in = %ld", bytes_read_in);
 //      if (bytes_read_in!=128+64) { fatal_error("Can't read the terminating block"); }
 				fwrite(tmp, 1, bytes_read_in, ftmp);
-				sprintf(tmp, "I am here - %ld", ftell(fin));
-//    log_msg(0, tmp);
+				paranoid_free(tmp);
+				
+				if (!(tmp = malloc(512))) {
+					fatal_error("Failed to malloc() tmp");
+				}
 				fread(tmp, 1, 512, fin);
 				log_msg(0, "tmp = '%s'", tmp);
 				fwrite(tmp, 1, 512, ftmp);
@@ -665,10 +566,10 @@ int copy_from_src_to_dest(FILE * f_orig, FILE * f_archived, char direction)
 				fatal_error("Missing terminating block");
 			}
 		}
+		paranoid_free(tmp);
 	}
 
 	paranoid_free(buf);
-	paranoid_free(tmp);
 	log_msg(3, "Successfully copied %ld bytes", bytes_written_out);
 	return (retval);
 }
@@ -685,7 +586,7 @@ int dynamically_create_pipes_and_copy_from_them_to_output_file(char
 															   *output_fname)
 {
 	char *curr_fifo;
-	char *prev_fifo;
+	char *prev_fifo = NULL;
 	char *next_fifo;
 	char *command;
 	char *sz_call_to_partimage;
@@ -698,36 +599,31 @@ int dynamically_create_pipes_and_copy_from_them_to_output_file(char
 	FILE *fin;
 	char *tmp;
 
-	malloc_string(tmpstub);
-	malloc_string(curr_fifo);
-	malloc_string(prev_fifo);
-	malloc_string(next_fifo);
-	malloc_string(command);
-	malloc_string(sz_call_to_partimage);
-	malloc_string(tmp);
-
 	log_msg(1, "g_tmpfs_mountpt = %s", g_tmpfs_mountpt);
 	if (g_tmpfs_mountpt && g_tmpfs_mountpt[0]
 		&& does_file_exist(g_tmpfs_mountpt)) {
-		strcpy(tmpstub, g_tmpfs_mountpt);
+		asprintf(&tmpstub, g_tmpfs_mountpt);
 	} else {
-		strcpy(tmpstub, "/tmp");
+		asprintf(&tmpstub, "/tmp");
 	}
 	paranoid_system("rm -f /tmp/*PARTIMAGE*");
-	sprintf(command, "rm -Rf %s/pih-fifo-*", tmpstub);
+	asprintf(&command, "rm -Rf %s/pih-fifo-*", tmpstub);
 	paranoid_system(command);
-	sprintf(tmpstub + strlen(tmpstub), "/pih-fifo-%ld",
-			(long int) random());
+	paranoid_free(command);
+
+	asprintf(&tmp, "%s/pih-fifo-%ld", tmpstub, (long int) random());
+	paranoid_free(tmpstub);
+	tmpstub = tmp;
+	paranoid_free(tmp);
+
 	mkfifo(tmpstub, S_IRWXU | S_IRWXG);	// never used, though...
-	sprintf(curr_fifo, "%s.%03d", tmpstub, fifo_number);
-	sprintf(next_fifo, "%s.%03d", tmpstub, fifo_number + 1);
+	asprintf(&curr_fifo, "%s.%03d", tmpstub, fifo_number);
+	asprintf(&next_fifo, "%s.%03d", tmpstub, fifo_number + 1);
 	mkfifo(curr_fifo, S_IRWXU | S_IRWXG);
 	mkfifo(next_fifo, S_IRWXU | S_IRWXG);	// make sure _next_ fifo already exists before we call partimage
-	sz_call_to_partimage[0] = 2;
-	sz_call_to_partimage[1] = 0;
-	sprintf(sz_call_to_partimage + 2,
-			"partimagehack " PARTIMAGE_PARAMS
-			" save %s %s > /tmp/stdout 2> /tmp/stderr", input_device,
+	asprintf(&sz_call_to_partimage,
+			"%c%cpartimagehack " PARTIMAGE_PARAMS
+			" save %s %s > /tmp/stdout 2> /tmp/stderr", 2, 0, input_device,
 			tmpstub);
 	log_msg(5, "curr_fifo   = %s", curr_fifo);
 	log_msg(5, "next_fifo   = %s", next_fifo);
@@ -749,30 +645,35 @@ int dynamically_create_pipes_and_copy_from_them_to_output_file(char
 	log_msg(1, "Running fore/back at same time");
 	log_to_screen("Working with partimagehack...");
 	while (sz_call_to_partimage[0] > 0) {
-		sprintf(tmp, "%s\n", NEXT_SUBVOL_PLEASE);
+		asprintf(&tmp, "%s\n", NEXT_SUBVOL_PLEASE);
 		if (fwrite(tmp, 1, 128, fout) != 128) {
 			fatal_error("Cannot write interim block");
 		}
+		paranoid_free(tmp);
+
 		log_msg(5, "fifo_number=%d", fifo_number);
 		log_msg(4, "Cat'ting %s", curr_fifo);
 		if (!(fin = fopen(curr_fifo, "r"))) {
 			fatal_error("Unable to openin from fifo");
 		}
-//      if (!sz_call_to_partimage[0]) { break; }
-		log_msg(5, "Deleting %s", prev_fifo);
-		unlink(prev_fifo);		// just in case
+		if (prev_fifo !=  NULL) {
+			log_msg(5, "Deleting %s", prev_fifo);
+			unlink(prev_fifo);		// just in case
+			paranoid_free(prev_fifo);
+		}
 		copy_from_src_to_dest(fin, fout, 'w');
 		paranoid_fclose(fin);
 		fifo_number++;
-		strcpy(prev_fifo, curr_fifo);
-		strcpy(curr_fifo, next_fifo);
+
+		prev_fifo = curr_fifo;
+		curr_fifo = next_fifo;
 		log_msg(5, "Creating %s", next_fifo);
-		sprintf(next_fifo, "%s.%03d", tmpstub, fifo_number + 1);
+		asprintf(&next_fifo, "%s.%03d", tmpstub, fifo_number + 1);
 		mkfifo(next_fifo, S_IRWXU | S_IRWXG);	// make sure _next_ fifo exists before we cat this one
 		system("sync");
 		sleep(5);
 	}
-	sprintf(tmp, "%s\n", NO_MORE_SUBVOLS);
+	asprintf(&tmp, "%s\n", NO_MORE_SUBVOLS);
 	if (fwrite(tmp, 1, 128, fout) != 128) {
 		fatal_error("Cannot write interim block");
 	}
@@ -785,13 +686,20 @@ int dynamically_create_pipes_and_copy_from_them_to_output_file(char
 	if (fwrite(tmp, 1, 128, fout) != 128) {
 		fatal_error("Cannot write interim block");
 	}
+	paranoid_free(tmp);
 	paranoid_fclose(fout);
 	log_to_screen("Cleaning up after partimagehack...");
 	log_msg(3, "Final fifo_number=%d", fifo_number);
 	paranoid_system("sync");
 	unlink(next_fifo);
+	paranoid_free(next_fifo);
+
 	unlink(curr_fifo);
+	paranoid_free(curr_fifo);
+
 	unlink(prev_fifo);
+	paranoid_free(prev_fifo);
+
 	log_to_screen("Finished cleaning up.");
 
 //  if (!lstat(sz_wait_for_this_file, &statbuf))
@@ -799,15 +707,12 @@ int dynamically_create_pipes_and_copy_from_them_to_output_file(char
 	log_msg(2, "Waiting for pthread_join() to join.");
 	pthread_join(partimage_thread, NULL);
 	res = sz_call_to_partimage[1];
+	paranoid_free(sz_call_to_partimage);
 	log_msg(2, "pthread_join() joined OK.");
 	log_msg(1, "Partimagehack(save) returned %d", res);
 	unlink(tmpstub);
-	paranoid_free(curr_fifo);
-	paranoid_free(prev_fifo);
-	paranoid_free(next_fifo);
 	paranoid_free(tmpstub);
-	paranoid_free(tmp);
-	paranoid_free(command);
+
 	return (res);
 }
 
@@ -836,9 +741,6 @@ int feed_into_partimage(char *input_device, char *output_fname)
 }
 
 
-
-
-
 int run_external_binary_with_percentage_indicator_OLD(char *tt, char *cmd)
 {
 
@@ -852,28 +754,27 @@ int run_external_binary_with_percentage_indicator_OLD(char *tt, char *cmd)
 	/*@ buffers *********************************************************** */
 	char *command;
 	char *tempfile;
-	char *title;
 	/*@ pointers ********************************************************** */
 	FILE *pin;
 
-	malloc_string(title);
-	malloc_string(command);
-	malloc_string(tempfile);
 	assert_string_is_neither_NULL_nor_zerolength(cmd);
-	assert_string_is_neither_NULL_nor_zerolength(title);
 
-	strcpy(title, tt);
-	strcpy(tempfile,
+	asprintf(&tempfile,
 		   call_program_and_get_last_line_of_output
 		   ("mktemp -q /tmp/mondo.XXXXXXXX"));
-	sprintf(command, "%s >> %s 2>> %s; rm -f %s", cmd, tempfile, tempfile,
+	asprintf(&command, "%s >> %s 2>> %s; rm -f %s", cmd, tempfile, tempfile,
 			tempfile);
 	log_msg(3, command);
-	open_evalcall_form(title);
+	open_evalcall_form(tt);
+
 	if (!(pin = popen(command, "r"))) {
 		log_OS_error("fmt err");
+		paranoid_free(command);
+		paranoid_free(tempfile);
 		return (1);
 	}
+	paranoid_free(command);
+
 	maxpc = 100;
 // OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD
 	for (sleep(1); does_file_exist(tempfile); sleep(1)) {
@@ -885,8 +786,7 @@ int run_external_binary_with_percentage_indicator_OLD(char *tt, char *cmd)
 		percentage = pcno * 100 / maxpc;
 		if (pcno <= 5 && last_pcno > 40) {
 			close_evalcall_form();
-			strcpy(title, "Verifying...");
-			open_evalcall_form(title);
+			open_evalcall_form("Verifying...");
 		}
 		last_pcno = pcno;
 		update_evalcall_form(percentage);
@@ -898,13 +798,9 @@ int run_external_binary_with_percentage_indicator_OLD(char *tt, char *cmd)
 		log_OS_error("Unable to pclose");
 	}
 	unlink(tempfile);
-	paranoid_free(command);
 	paranoid_free(tempfile);
-	paranoid_free(title);
 	return (res);
 }
-
-
 
 
 void *run_prog_in_bkgd_then_exit(void *info)
@@ -925,8 +821,6 @@ void *run_prog_in_bkgd_then_exit(void *info)
 }
 
 
-
-
 int run_external_binary_with_percentage_indicator_NEW(char *tt, char *cmd)
 {
 
@@ -940,7 +834,6 @@ int run_external_binary_with_percentage_indicator_NEW(char *tt, char *cmd)
 
 	/*@ buffers *********************************************************** */
 	char *command;
-	char *title;
 	/*@ pointers ********************************************************** */
 	static int chldres = 0;
 	int *pchild_result;
@@ -951,10 +844,7 @@ int run_external_binary_with_percentage_indicator_NEW(char *tt, char *cmd)
 	assert_string_is_neither_NULL_nor_zerolength(tt);
 	*pchild_result = 999;
 
-	malloc_string(title);
-	malloc_string(command);
-	strcpy(title, tt);
-	sprintf(command, "%s 2>> %s", cmd, MONDO_LOGFILE);
+	asprintf(&command, "%s 2>> %s", cmd, MONDO_LOGFILE);
 	log_msg(3, "command = '%s'", command);
 	if ((res =
 		 pthread_create(&childthread, NULL, run_prog_in_bkgd_then_exit,
@@ -963,7 +853,7 @@ int run_external_binary_with_percentage_indicator_NEW(char *tt, char *cmd)
 	}
 
 	log_msg(8, "Parent running");
-	open_evalcall_form(title);
+	open_evalcall_form(tt);
 	for (sleep(1); command[0] != '\0'; sleep(1)) {
 		pcno = grab_percentage_from_last_line_of_file(MONDO_LOGFILE);
 		if (pcno <= 0 || pcno > 100) {
@@ -973,8 +863,7 @@ int run_external_binary_with_percentage_indicator_NEW(char *tt, char *cmd)
 		percentage = pcno * 100 / maxpc;
 		if (pcno <= 5 && last_pcno >= 40) {
 			close_evalcall_form();
-			strcpy(title, "Verifying...");
-			open_evalcall_form(title);
+			open_evalcall_form("Verifying...");
 		}
 		if (counter++ >= 5) {
 			counter = 0;
@@ -983,6 +872,8 @@ int run_external_binary_with_percentage_indicator_NEW(char *tt, char *cmd)
 		last_pcno = pcno;
 		update_evalcall_form(percentage);
 	}
+	paranoid_free(command);
+
 	log_file_end_to_screen(MONDO_LOGFILE, "");
 	close_evalcall_form();
 	pthread_join(childthread, (void *) (&pchild_result));
@@ -992,15 +883,10 @@ int run_external_binary_with_percentage_indicator_NEW(char *tt, char *cmd)
 		res = 666;
 	}
 	log_msg(3, "Parent res = %d", res);
-	paranoid_free(command);
-	paranoid_free(title);
 	return (res);
 }
 
-
-
 #define PIH_LOG "/var/log/partimage-debug.log"
-
 
 /**
  * Feed @p input_fifo through partimage (restore) to @p output_device.
@@ -1013,14 +899,13 @@ int feed_outfrom_partimage(char *output_device, char *input_fifo)
 {
 // RESTORE
 	char *tmp;
-//  char *command;
 	char *stuff;
 	char *sz_call_to_partimage;
 	pthread_t partimage_thread;
 	int res;
 	char *curr_fifo;
 	char *prev_fifo;
-	char *oldest_fifo;
+	char *oldest_fifo = NULL;
 	char *next_fifo;
 	char *afternxt_fifo;
 	int fifo_number = 0;
@@ -1028,38 +913,24 @@ int feed_outfrom_partimage(char *output_device, char *input_fifo)
 	FILE *fin;
 	FILE *fout;
 
-	malloc_string(curr_fifo);
-	malloc_string(prev_fifo);
-	malloc_string(next_fifo);
-	malloc_string(afternxt_fifo);
-	malloc_string(oldest_fifo);
-	malloc_string(tmp);
-	sz_call_to_partimage = malloc(1000);
-	malloc_string(stuff);
-	malloc_string(tmpstub);
-
 	log_msg(1, "output_device=%s", output_device);
 	log_msg(1, "input_fifo=%s", input_fifo);
-/* I don't trust g_tmpfs_mountpt
-  if (g_tmpfs_mountpt[0])
-    {
-      strcpy(tmpstub, g_tmpfs_mountpt);
-    }
-  else
-    {
-*/
-	strcpy(tmpstub, "/tmp");
-//    }
+	asprintf(&tmpstub, "/tmp");
+
 	log_msg(1, "tmpstub was %s", tmpstub);
-	strcpy(stuff, tmpstub);
-	sprintf(tmpstub, "%s/pih-fifo-%ld", stuff, (long int) random());
+	asprintf(&stuff, tmpstub);
+	paranoid_free(tmpstub);
+
+	asprintf(&tmpstub, "%s/pih-fifo-%ld", stuff, (long int) random());
+	paranoid_free(stuff);
+
 	log_msg(1, "tmpstub is now %s", tmpstub);
 	unlink("/tmp/PARTIMAGEHACK-POSITION");
 	unlink(PAUSE_PARTIMAGE_FNAME);
 	paranoid_system("rm -f /tmp/*PARTIMAGE*");
-	sprintf(curr_fifo, "%s.%03d", tmpstub, fifo_number);
-	sprintf(next_fifo, "%s.%03d", tmpstub, fifo_number + 1);
-	sprintf(afternxt_fifo, "%s.%03d", tmpstub, fifo_number + 2);
+	asprintf(&curr_fifo, "%s.%03d", tmpstub, fifo_number);
+	asprintf(&next_fifo, "%s.%03d", tmpstub, fifo_number + 1);
+	asprintf(&afternxt_fifo, "%s.%03d", tmpstub, fifo_number + 2);
 	mkfifo(PIH_LOG, S_IRWXU | S_IRWXG);
 	mkfifo(curr_fifo, S_IRWXU | S_IRWXG);
 	mkfifo(next_fifo, S_IRWXU | S_IRWXG);	// make sure _next_ fifo already exists before we call partimage
@@ -1076,11 +947,9 @@ int feed_outfrom_partimage(char *output_device, char *input_fifo)
 	if (!find_home_of_exe("partimagehack")) {
 		fatal_error("partimagehack not found");
 	}
-	sz_call_to_partimage[0] = 2;
-	sz_call_to_partimage[1] = 0;
-	sprintf(sz_call_to_partimage + 2,
-			"partimagehack " PARTIMAGE_PARAMS
-			" restore %s %s > /dev/null 2>> %s", output_device, curr_fifo,
+	asprintf(&sz_call_to_partimage,
+			"%c%cpartimagehack " PARTIMAGE_PARAMS
+			" restore %s %s > /dev/null 2>> %s", 2, 0, output_device, curr_fifo,
 			MONDO_LOGFILE);
 	log_msg(1, "output_device = %s", output_device);
 	log_msg(1, "curr_fifo = %s", curr_fifo);
@@ -1099,6 +968,10 @@ int feed_outfrom_partimage(char *output_device, char *input_fifo)
 	while (!does_file_exist("/tmp/PARTIMAGEHACK-POSITION")) {
 		log_msg(6, "Waiting for partimagehack (restore) to start");
 		sleep(1);
+	}
+
+	if (!(tmp = malloc(128))) {
+		fatal_error("Failed to malloc() tmp");
 	}
 	while (sz_call_to_partimage[0] > 0) {
 		if (fread(tmp, 1, 128, fin) != 128) {
@@ -1122,42 +995,52 @@ int feed_outfrom_partimage(char *output_device, char *input_fifo)
 		if (!(fout = fopen(curr_fifo, "w"))) {
 			fatal_error("Cannot openout to curr_fifo");
 		}
-		log_msg(6, "Deleting %s", oldest_fifo);
 		copy_from_src_to_dest(fout, fin, 'r');
 		paranoid_fclose(fout);
 		fifo_number++;
-		unlink(oldest_fifo);	// just in case
-		strcpy(oldest_fifo, prev_fifo);
-		strcpy(prev_fifo, curr_fifo);
-		strcpy(curr_fifo, next_fifo);
-		strcpy(next_fifo, afternxt_fifo);
-		sprintf(afternxt_fifo, "%s.%03d", tmpstub, fifo_number + 2);
+		if (oldest_fifo != NULL) {
+			log_msg(6, "Deleting %s", oldest_fifo);
+			unlink(oldest_fifo);	// just in case
+			paranoid_free(oldest_fifo);
+		}
+		oldest_fifo = prev_fifo;
+		prev_fifo = curr_fifo;
+		curr_fifo = next_fifo;
+		next_fifo = afternxt_fifo;
+		asprintf(&afternxt_fifo, "%s.%03d", tmpstub, fifo_number + 2);
 		log_msg(6, "Creating %s", afternxt_fifo);
 		mkfifo(afternxt_fifo, S_IRWXU | S_IRWXG);	// make sure _next_ fifo already exists before we access current fifo
 		fflush(fin);
 //      system("sync");
 		usleep(1000L * 100L);
 	}
+	paranoid_free(tmp);
+	paranoid_free(tmpstub);
+
 	paranoid_fclose(fin);
 	paranoid_system("sync");
 	log_msg(1, "Partimagehack has finished. Great. Fin-closing.");
 	log_msg(1, "Waiting for pthread_join");
 	pthread_join(partimage_thread, NULL);
 	res = sz_call_to_partimage[1];
+	paranoid_free(sz_call_to_partimage);
+
 	log_msg(1, "Yay. Partimagehack (restore) returned %d", res);
 	unlink(prev_fifo);
-	unlink(curr_fifo);
-	unlink(next_fifo);
-	unlink(afternxt_fifo);
-	unlink(PIH_LOG);
-	paranoid_free(tmp);
-	paranoid_free(sz_call_to_partimage);
-	paranoid_free(stuff);
 	paranoid_free(prev_fifo);
+
+	unlink(curr_fifo);
 	paranoid_free(curr_fifo);
+
+	unlink(next_fifo);
 	paranoid_free(next_fifo);
+
+	unlink(afternxt_fifo);
 	paranoid_free(afternxt_fifo);
+
+	unlink(PIH_LOG);
+	/* BERLIOS : pas de unlink(oldest_fifo) ??? */
 	paranoid_free(oldest_fifo);
-	paranoid_free(tmpstub);
+
 	return (res);
 }

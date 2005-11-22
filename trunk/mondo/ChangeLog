@@ -1,5 +1,6 @@
 MONDO CHANGES
 
+- now handles cifs correctly
 
 v2.05_berlios (Bruno Cornec <bcornec@users.berlios.de)
 - indent on source files

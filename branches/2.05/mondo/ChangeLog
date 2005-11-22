@@ -4,6 +4,7 @@ v2.05 (Bruno Cornec <bcornec@users.berlios.de)
 - -p options works better for NFS cases
 - ia64 is now working for rhel3
 - delivery process to BerliOS improved 
+- now handles cifs correctly
 
 v2.04_berlios (Bruno Cornec <bcornec@users.berlios.de)
 - Add -p option to generate ISO images file names with prefix. The new default

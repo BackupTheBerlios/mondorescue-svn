@@ -13,19 +13,6 @@ of /usr/local. If you have extreme needs and 50 media isn't enough,
 configure --with-maximum-noof-media=<big-number>. To make a statically
 linked mondorestore (not tested), configure --enable-static-mr.
 
-*** To compile XMondo, you must configure --with-x11. ***
-
-Yes, XMondo *does* exist :-) but seeing as many folks don't have Qt and
-KDE libraries, it's *NOT* compiled by default.
-
-
-
-
-
-
-
-
-
 
 [original entry]
 

@@ -51,17 +51,10 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}
 BuildRequires:	newt-devel >= 0.50, slang-devel >= 1.4.1, gcc
 %ifarch ia64
 Requires:	mindi >= 1.04_berlios, bzip2 >= 0.9, afio, mkisofs, binutils, elilo, newt >= 0.50, slang >= 1.4.1, buffer, parted
-%{!?_without_xmondo:BuildRequires:    gcc-c++, XFree86-devel, qt-devel, kdelibs-devel, libpng-devel}
 %else
 Requires:	mindi >= 1.04_berlios, bzip2 >= 0.9, afio, mkisofs, binutils, syslinux >= 1.52, newt >= 0.50, slang >= 1.4.1, cdrecord, buffer
-%{!?_without_xmondo:BuildRequires:    gcc-c++, XFree86-devel, qt-devel, kdelibs-devel, arts-devel, libart_lgpl-devel, libpng-devel}
 %endif
 
-#%package xmondo
-#Summary:	A QT based graphical front end for %{name}
-#Group:		Applications/Archiving
-#Requires:	%{name} = %{version}-${release}, qt, kdelibs
-#
 #%package %{name}-devel
 #Summary:	Header files for building against Mondo
 #%if %is_mandrake
@@ -99,15 +92,11 @@ Mondo es un programa que permite cualquier usuario de Linux a crear una CD
 de restoracion/rescate (o CDs, si su instalacion es >2GO aprox.).  Funciona 
 con cintas y NFS, tambien.
 
-#%description xmondo
-#Xmondo is a QT based graphical frontend to mondoarchive.  It can help you 
-#set up a backup by following onscreen prompts.
-
 %prep
 %setup -q -n %name-%{version}
 
 %build
-%configure %{!?_without_xmondo:--with-x11}
+%configure
 %{__make} VERSION=%{version} CFLAGS="-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_REENTRANT"
 
 %install
@@ -133,12 +122,6 @@ con cintas y NFS, tambien.
 %{_datadir}/%{name}
 %{_mandir}/*
 %{_libdir}/*
-
-#%{!?_without_xmondo:%files xmondo}
-#%{!?_without_xmondo:%{_sbindir}/xmondo}
-#%{!?_without_xmondo:%{_libdir}/libXmondo-%{libversion}.so}
-#%{!?_without_xmondo:%{_libdir}/libXmondo.so}
-#%{!?_without_xmondo:%{_datadir}/mondo/mondo.png}
 
 %changelog
 * Tue Oct 06 2005 Bruno Cornec <bcornec@users.berlios.de> 2.05_berlios

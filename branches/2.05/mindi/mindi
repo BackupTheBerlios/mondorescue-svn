@@ -2799,10 +2799,10 @@ TurnTgzIntoRdz() {
 		cp -a $MONDO_TMP/start-nfs $mountpoint/sbin
 		# For PXE boot
 		list_of_groovy_mods="$list_of_groovy_mods $NET_MODS"
-		    # Here we need the net busybox
-		    mv $mountpoint/bin/busybox.net $mountpoint/bin/busybox
+		# Here we need the net busybox
+		mv $mountpoint/bin/busybox.net $mountpoint/bin/busybox
 	else
-		    rm -f $mountpoint/bin/busybox.net
+		rm -f $mountpoint/bin/busybox.net
 	fi
 	[ -e "$floppy_modules_path" ] || LogIt "path $floppy_modules_path does not exist. If you're not using a modular kernel then you're NUTS."
 	for i in $list_of_groovy_mods ; do

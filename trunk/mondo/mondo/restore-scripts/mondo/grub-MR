@@ -5,6 +5,9 @@
 #
 #
 #
+# 2005/11/25
+# - try_grub_hack : do not return success when grub wrote 'Error '
+#
 # 2004/06/28
 # - added support for /dev/md0==GRUB
 #
@@ -117,12 +120,18 @@ try_grub_hack() {
 	setup (hd$driveno)\n\
 	quit \n" > /tmp/feed.txt
     cat /tmp/feed.txt
+	log_file=/tmp/grub.output
     if [ "$MNT_RESTORING" ] ; then
-        chroot /mnt/RESTORING grub --batch < /tmp/feed.txt 
+        chroot /mnt/RESTORING grub --batch < /tmp/feed.txt > $log_file
     else
-        grub --batch < /tmp/feed.txt
+        grub --batch < /tmp/feed.txt > $log_file
     fi
-    return $?
+	cat $log_file
+	if grep "Error [0-9]*: " $log_file >/dev/null; then
+			return 1
+	else
+			return 0
+	fi
 }
 
 

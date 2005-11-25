@@ -1436,7 +1436,7 @@ absolute_partition old_partition_fmt
 		if [ ! "$partition_mountpt" ] ; then
 		for qq in "" `find /dev/ida/c*d* ! -name '*p*'` ; do
 		partition_format=`$FDISK -l $qq 2>> $LOGFILE | grep -w "$c_p" | sed 's/12/|/' | tr -s '\t' ' ' | cut -d'|' -f2 | cut -d' ' -f2-9`
-		        echo "------- $FDISK -l log ------------" >> $LOGFILE
+		        echo "------- $FDISK -l $qq log ------------" >> $LOGFILE
 		        cat $FDISKLOG >> $LOGFILE
 		        echo "------- $FDISK log end ------------" >> $LOGFILE
 		[ "$partition_format" ] && break
@@ -2449,7 +2449,7 @@ SizeOfPartition() {
 #    res=`$FDISK -l 2>> $LOGFILE | grep -w "$device" | head -n1 | sort -u | tr '*' ' ' | tr -s '\t' '|' | tr -s ' ' ' ' | cut -d' ' -f4 | sed s/+// | sed s/-//`
 # patch from Bill <bill@iwizard.biz> - 2003/08/25
 	res=`$FDISK -s $device`
-	echo "------- $FDISK -l log ------------" >> $LOGFILE
+	echo "------- $FDISK -l $device log ------------" >> $LOGFILE
 	cat $FDISKLOG >> $LOGFILE
 	echo "------- $FDISK log end ------------" >> $LOGFILE
 # end patch

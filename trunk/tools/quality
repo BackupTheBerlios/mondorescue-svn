@@ -45,6 +45,6 @@ echo "monodrescue uses : `cat /tmp/mondo.quality | wc -l` getline without &"
 
 echo " "
 echo "Splint: "
-find . -name '*.c' -o -name '*.h' | xargs splint +posixlib -Dlinux
+find . -name '*.c' -o -name '*.h' | xargs splint +gnuextensions +posixlib -Dlinux
 
 rm -f /tmp/mondo.quality

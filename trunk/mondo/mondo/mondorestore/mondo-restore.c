@@ -387,7 +387,9 @@
 #include "mondo-restore.h"
 #include "mondo-rstr-compare-EXT.h"
 #include "mondo-rstr-tools-EXT.h"
+#ifndef S_SPLINT_S
 #include <pthread.h>
+#endif
 
 extern void success_message(void);
 extern void twenty_seconds_til_yikes(void);

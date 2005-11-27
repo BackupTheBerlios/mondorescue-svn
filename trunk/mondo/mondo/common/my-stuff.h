@@ -60,12 +60,16 @@
 #include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
+#ifndef S_SPLINT_S
 #include <signal.h>
+#endif
 //#include <curses.h>
 #include <newt.h>
 #include <ctype.h>
 #include <string.h>
+#ifndef S_SPLINT_S
 #include <pthread.h>
+#endif
 #include <assert.h>
 
 #if defined(DEBUG) && !__cplusplus
@@ -337,7 +341,7 @@ extern void _mondo_assert_fail(const char *file, const char *function,
 #define VANILLA_SCSI_TAPE	"/dev/st0"
 #define DONT_KNOW_HOW_TO_EVALUATE_THIS_DEVICE_TYPE	"/dev/md"
 #define RAID_DEVICE_STUB	DONT_KNOW_HOW_TO_EVALUATE_THIS_DEVICE_TYPE
-#define SANE_FORMATS		"swap image vfat ext2 ext3 xfs vfs jfs reiserfs dos minix coda nfs ntfs hpfs raid lvm"
+#define SANE_FORMATS		"swap image vfat ext2 ext3 xfs vfs jfs reiserfs dos minix coda nfs ntfs hpfs raid lvm cifs"
 #define ALT_TAPE		"/dev/ht0"
 #define MKE2FS_OR_NEWFS	"mke2fs"
 #define CP_BIN		"cp"

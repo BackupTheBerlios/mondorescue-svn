@@ -164,7 +164,9 @@ UPDATE LOG
 #include "../common/mondostructures.h"
 #include "mondo-cli-EXT.h"
 #include "../common/libmondo.h"
+#ifndef S_SPLINT_S
 #include <pthread.h>
+#endif
 
 #ifndef VERSION
 #define VERSION AUX_VER

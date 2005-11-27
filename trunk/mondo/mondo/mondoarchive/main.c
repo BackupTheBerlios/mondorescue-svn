@@ -107,7 +107,9 @@ Year: 2002
  */
 
 /************************* #include statements *************************/
+#ifndef S_SPLINT_S
 #include <pthread.h>
+#endif
 //#include <config.h>
 //#include "../../config.h"
 #include <stdio.h>

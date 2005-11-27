@@ -130,7 +130,9 @@ cvsid     : $Id: mondo-rstr-tools.c
 //#include "mondo-restore.h"
 //#include "mondo-rstr-compare-EXT.h"
 #include "mondo-rstr-tools.h"
+#ifndef S_SPLINT_S
 #include <pthread.h>
+#endif
 
 extern bool g_sigpipe_caught;
 extern bool g_ISO_restore_mode;	/* are we in Iso Mode? */

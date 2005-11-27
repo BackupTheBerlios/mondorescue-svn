@@ -62,7 +62,9 @@
 #include "mondo-rstr-compare.h"
 #include "mondo-restore-EXT.h"
 #include "mondo-rstr-tools-EXT.h"
+#ifndef S_SPLINT_S
 #include <pthread.h>
+#endif
 
 //static char cvsid[] = "$Id$";
 

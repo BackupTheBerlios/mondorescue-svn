@@ -8,7 +8,9 @@
 
 #include <unistd.h>
 #include <stdio.h>
+#ifndef S_SPLINT_S
 #include <signal.h>
+#endif
 #include <fcntl.h>
 #include <stdio.h>
 
@@ -19,7 +21,9 @@
 #include <sys/shm.h>
 #include <sys/sem.h>
 #include <sys/wait.h>
+#ifndef S_SPLINT_S
 #include <pthread.h>
+#endif
 
 #include "my-stuff.h"
 #include "mondostructures.h"

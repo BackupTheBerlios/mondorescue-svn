@@ -3632,20 +3632,14 @@ int verify_data(struct s_bkpinfo *bkpinfo)
 
 			}
 		}
-/*
-	  sprintf (tmp,
-		   "cat %s | grep \"afio: \" | cut -d'\"' -f2 | sort -u | awk '{print \"/\"$0;};' | tr -s '/' '/' | grep -vx \"/afio:.*\" > /tmp/changed.files",
-		   MONDO_LOGFILE);
-	  system (tmp);
-*/
 		asprintf(&tmp,
-				 "sed -n -e 's/afio: //p' %s | grep -vx '/dev/.*' >> /tmp/changed.files",
+				 "grep 'afio: ' %s | sed 's/afio: //' | grep -vx '/dev/.*' >> /tmp/changed.files",
 				 MONDO_LOGFILE);
 		system(tmp);
 		paranoid_free(tmp);
 
 		asprintf(&tmp,
-				 "sed -n -e 's/star: //p' %s | grep -vx '/dev/.*' >> /tmp/changed.files",
+				 "grep 'star: ' %s | sed 's/star: //' | grep -vx '/dev/.*' >> /tmp/changed.files",
 				 MONDO_LOGFILE);
 		system(tmp);
 		paranoid_free(tmp);

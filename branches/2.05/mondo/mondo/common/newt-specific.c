@@ -549,7 +549,7 @@ extern "C" {
 			sprintf(command, "grep '%s' %s | tail -n%d",
 					grep_for_me, filename, g_noof_log_lines);
 		} else {
-			sprintf(command, "cat %s | tail -n%d %s", g_noof_log_lines,
+			sprintf(command, "tail -n%d %s", g_noof_log_lines,
 					filename);
 		}
 		fin = popen(command, "r");

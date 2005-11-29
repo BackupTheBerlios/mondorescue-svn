@@ -1043,7 +1043,7 @@ int call_mindi_to_supply_boot_disks(struct s_bkpinfo *bkpinfo)
 		}
 	} else {
 		log_to_screen("Mindi failed to create your boot+data disks.");
-		sprintf(command, "grep 'Fatal error' %s", "/var/log/mindi.log");
+		strcpy(command, "grep 'Fatal error' /var/log/mindi.log");
 		strcpy(tmp, call_program_and_get_last_line_of_output(command));
 		if (strlen(tmp) > 1) {
 			log_to_screen(tmp);
@@ -3870,12 +3870,12 @@ int verify_data(struct s_bkpinfo *bkpinfo)
 	  system (tmp);
 */
 		sprintf(tmp,
-				"sed -n -e 's/afio: //p' %s | grep -vx '/dev/.*' >> /tmp/changed.files",
+				"grep 'afio: ' %s | sed 's/afio: //' | grep -vx '/dev/.*' >> /tmp/changed.files",
 				MONDO_LOGFILE);
 		system(tmp);
 
 		sprintf(tmp,
-				"sed -n -e 's/star: //p' %s | grep -vx '/dev/.*' >> /tmp/changed.files",
+				"grep 'star: ' %s | sed 's/star: //' | grep -vx '/dev/.*' >> /tmp/changed.files",
 				MONDO_LOGFILE);
 		system(tmp);
 		run_program_and_log_output("umount " MNT_CDROM, FALSE);

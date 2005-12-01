@@ -301,7 +301,6 @@ int run_program_and_log_to_screen(char *basic_call, char *what_i_am_doing)
 	/*@ int ******************************************************** */
 	int retval = 0;
 	int res = 0;
-	int n = 0;
 	int i;
 
 	/*@ pointers **************************************************** */
@@ -343,26 +342,11 @@ int run_program_and_log_to_screen(char *basic_call, char *what_i_am_doing)
 			log_msg(3, "Waiting for lockfile %s to exist", lockfile);
 		}
 	}
-#ifdef _XWIN
-	/* This only can update when newline goes into the file,
-	   but it's *much* prettier/faster on Qt. */
-	tmp = NULL;
-	while (does_file_exist(lockfile)) {
-		while (!feof(fin)) {
-			if (!getline(&tmp, &n, fin))
-				break;
-			log_to_screen(tmp);
-		}
-		usleep(500000);
-	}
-	paranoid_free(tmp);
-#else
 	/* This works on Newt, and it gives quicker updates. */
 	for (; does_file_exist(lockfile); sleep(1)) {
 		log_file_end_to_screen(MONDO_LOGFILE, "");
 		update_evalcall_form(1);
 	}
-#endif
 	/* Evaluate the status returned by pclose to get the exit code of the called program. */
 	errno = 0;
 	res = pclose(fin);
@@ -904,7 +888,7 @@ int feed_outfrom_partimage(char *output_device, char *input_fifo)
 	pthread_t partimage_thread;
 	int res;
 	char *curr_fifo;
-	char *prev_fifo;
+	char *prev_fifo = NULL;
 	char *oldest_fifo = NULL;
 	char *next_fifo;
 	char *afternxt_fifo;

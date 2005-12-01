@@ -331,7 +331,7 @@ int read_EXAT_files_from_tape(struct s_bkpinfo *bkpinfo,
 {
 	int res = 0;
 	int retval = 0;
-	char *fname = &res;			/* Should NOT be NULL */
+	char *fname = (char *)&res;			/* Should NOT be NULL */
 
 // xattr
 	res = read_header_block_from_stream(ptmp_size, fname, pctrl_chr);
@@ -342,7 +342,7 @@ int read_EXAT_files_from_tape(struct s_bkpinfo *bkpinfo,
 		fatal_error("Wrong order, sunshine.");
 	}
 	paranoid_free(fname);
-	fname = &res;
+	fname = (char *)&res;
 	read_file_from_stream_to_file(bkpinfo, xattr_fname, *ptmp_size);
 	res = read_header_block_from_stream(ptmp_size, NULL, pctrl_chr);
 	if (*pctrl_chr != BLK_STOP_EXAT_FILE) {
@@ -354,7 +354,7 @@ int read_EXAT_files_from_tape(struct s_bkpinfo *bkpinfo,
 		fatal_error("Wrong order, sunshine.");
 	}
 	paranoid_free(fname);
-	fname = &res;
+	fname = (char *)&res;
 	if (*pctrl_chr != BLK_START_EXAT_FILE) {
 		wrong_marker(BLK_START_EXAT_FILE, *pctrl_chr);
 	}
@@ -469,20 +469,9 @@ int maintain_collection_of_recent_archives(char *td, char *latest_fname)
 	char *command;
 	char *tmpdir;
 	char *old_fname;
-	char *p;
-	/* BERLIOS: useless
-	   char suffix[16];
-	 */
 
 	bufsize_K = (long long) (1024LL * (1 + g_tape_buffer_size_MB));
 	asprintf(&tmpdir, "%s/tmpfs/backcatalog", td);
-	/* BERLIOS: useless
-	   if ((p = strrchr(latest_fname, '.'))) {
-	   strcpy(suffix, ++p);
-	   } else {
-	   suffix[0] = '\0';
-	   }
-	 */
 	if (strstr(latest_fname, ".afio.") || strstr(latest_fname, ".star.")) {
 		type = fileset;
 	} else if (strstr(latest_fname, "slice")) {
@@ -695,7 +684,7 @@ int openin_tape(struct s_bkpinfo *bkpinfo)
 int openout_cdstream(char *cddev, int speed)
 {
 	/*@ buffers ***************************************************** */
-	char command;
+	char *command;
 
 	/*@ end vars *************************************************** */
 
@@ -822,8 +811,8 @@ read_file_from_stream_FULL(struct s_bkpinfo *bkpinfo, char *outfname,
 	/*@ buffers ***************************************************** */
 	char *tmp;
 	char *datablock;
-	char *temp_fname = bkpinfo;	/* Should NOT be NULL */
-	char *temp_cksum = bkpinfo;	/* Should NOT be NULL */
+	char *temp_fname = (char *)bkpinfo;	/* Should NOT be NULL */
+	char *temp_cksum = (char *)bkpinfo;	/* Should NOT be NULL */
 	char *actual_cksum;
 
 	/*@ int ********************************************************* */
@@ -1115,7 +1104,7 @@ int skip_incoming_files_until_we_find_this_one(char
 	char *pB;
 	int res;
 	int ctrl_chr;
-	char *temp_fname = &res;	/* should NOT be NULL */
+	char *temp_fname = (char *)&res;	/* should NOT be NULL */
 	char *datablock;
 	long long temp_size, size;
 	long bytes_to_write;
@@ -1141,7 +1130,7 @@ int skip_incoming_files_until_we_find_this_one(char
 		wrong_marker(BLK_START_AN_AFIO_OR_SLICE, ctrl_chr);
 		log_msg(3, "Still trying to re-sync w/ tape");
 		paranoid_free(temp_fname);
-		temp_fname = &res;
+		temp_fname = (char *)&res;
 	}
 	while (ctrl_chr != BLK_START_FILE) {
 		res =
@@ -1156,7 +1145,7 @@ int skip_incoming_files_until_we_find_this_one(char
 		/* Do not desallocate when the while condition is met */
 		if (ctrl_chr != BLK_START_FILE) {
 			paranoid_free(temp_fname);
-			temp_fname = &res;
+			temp_fname = (char *)&res;
 		}
 	}
 	pA = strrchr(temp_fname, '/');
@@ -1182,7 +1171,7 @@ int skip_incoming_files_until_we_find_this_one(char
 		}
 
 		paranoid_free(temp_fname);
-		temp_fname = &res;
+		temp_fname = (char *)&res;
 		res = read_header_block_from_stream(&temp_size, NULL, &ctrl_chr);
 		if (ctrl_chr != BLK_STOP_FILE) {
 			wrong_marker(BLK_STOP_FILE, ctrl_chr);

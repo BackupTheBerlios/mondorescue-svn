@@ -259,7 +259,7 @@ int chop_filelist(char *filelist, char *outdir, long maxsetsizeK)
 		log_OS_error("Cannot openout outfname");
 		return (0);
 	}
-	(void) fgets(&incoming, &n, fin);
+	(void) getline(&incoming, &n, fin);
 	while (!feof(fin)) {
 		lino++;
 		i = strlen(incoming) - 1;

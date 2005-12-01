@@ -185,7 +185,7 @@ static char *bkptype_to_string(t_bkptype bt)
 	default:
 		asprintf(&output, "default");
 	}
-	return (&output);
+	return (output);
 }
 
 

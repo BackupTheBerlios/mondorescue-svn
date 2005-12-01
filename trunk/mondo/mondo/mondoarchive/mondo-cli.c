@@ -367,9 +367,6 @@ process_switches(struct s_bkpinfo *bkpinfo,
 
 	long itbs;
 
-	malloc_string(tmp);
-	malloc_string(psz);
-
 	assert(bkpinfo != NULL);
 	assert(flag_val != NULL);
 	assert(flag_set != NULL);
@@ -531,10 +528,13 @@ process_switches(struct s_bkpinfo *bkpinfo,
 				("Tape device not specified. I couldn't find it either.");
 		}
 		flag_set['d'] = TRUE;
-		sprintf(tmp,
+		paranoid_free(tmp); // allocation from find_tape_device_and_size
+
+		asprintf(&tmp,
 				"You didn't specify a tape streamer device. I'm assuming %s",
 				flag_val['d']);
 		log_to_screen(tmp);
+		paranoid_free(tmp);
 		percent = 0;
 	}
 
@@ -615,11 +615,13 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		if (!flag_set['d']) {
 			strncpy(bkpinfo->nfs_remote_dir, "/", MAX_STR_LEN);
 		}
-		sprintf(tmp, "mount | grep -x \"%s .*\" | cut -d' ' -f3",
+		asprintf(&tmp, "mount | grep -x \"%s .*\" | cut -d' ' -f3",
 				bkpinfo->nfs_mount);
 		strncpy(bkpinfo->isodir,
 				call_program_and_get_last_line_of_output(tmp),
 				MAX_STR_LEN / 4);
+		paranoid_free(tmp);
+
 		if (strlen(bkpinfo->isodir) < 3) {
 			retval++;
 			log_to_screen("NFS share is not mounted. Please mount it.\n");
@@ -669,12 +671,13 @@ process_switches(struct s_bkpinfo *bkpinfo,
 	}
 	if (flag_set['N'])			// exclude NFS mounts & devices
 	{
-//      strncpy(psz, list_of_NFS_devices_and_mounts(), MAX_STR_LEN);
-		strncpy(psz, list_of_NFS_mounts_only(), MAX_STR_LEN);
+		psz = list_of_NFS_mounts_only();
 		if (bkpinfo->exclude_paths[0]) {
 			strncat(bkpinfo->exclude_paths, " ", MAX_STR_LEN);
 		}
 		strncat(bkpinfo->exclude_paths, psz, MAX_STR_LEN);
+		paranoid_free(psz);
+
 		log_msg(3, "-N means we're now excluding %s",
 				bkpinfo->exclude_paths);
 	}
@@ -683,7 +686,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 			("Your '-E' parameter is too long. Please use '-J'. (See manual.)");
 	}
 	if (flag_set['b']) {
-		strcpy(psz, flag_val['b']);
+		asprintf(&psz, flag_val['b']);
 		log_msg(1, "psz = '%s'", psz);
 		if (psz[strlen(psz) - 1] == 'k') {
 			psz[strlen(psz) - 1] = '\0';
@@ -691,6 +694,8 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		} else {
 			itbs = atol(psz);
 		}
+		paranoid_free(psz);
+
 		log_msg(1, "'%s' --> %ld", flag_val['b'], itbs);
 		log_msg(1, "Internal tape block size is now %ld bytes", itbs);
 		if (itbs % 512 != 0 || itbs < 256 || itbs > 1024L * 1024) {
@@ -724,10 +729,11 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		if (strcmp(bkpinfo->kernel_path, "FAILSAFE")
 			&& !does_file_exist(bkpinfo->kernel_path)) {
 			retval++;
-			sprintf(tmp,
+			asprintf(&tmp,
 					"You specified kernel '%s', which does not exist\n",
 					bkpinfo->kernel_path);
 			log_to_screen(tmp);
+			paranoid_free(tmp);
 		}
 	}
 	if (flag_set['p']) {
@@ -738,11 +744,12 @@ process_switches(struct s_bkpinfo *bkpinfo,
 	if (flag_set['d']) {		/* backup directory (if ISO/NFS) */
 		if (flag_set['i']) {
 			strncpy(bkpinfo->isodir, flag_val['d'], MAX_STR_LEN / 4);
-			sprintf(tmp, "ls -l %s", bkpinfo->isodir);
+			asprintf(&tmp, "ls -l %s", bkpinfo->isodir);
 			if (run_program_and_log_output(tmp, FALSE)) {
 				fatal_error
 					("output folder does not exist - please create it");
 			}
+			paranoid_free(tmp);
 		} else if (flag_set['n']) {
 			strncpy(bkpinfo->nfs_remote_dir, flag_val['d'], MAX_STR_LEN);
 		} else {				/* backup device (if tape/CD-R/CD-RW) */
@@ -752,15 +759,17 @@ process_switches(struct s_bkpinfo *bkpinfo,
 	}
 
 	if (flag_set['n']) {
-		sprintf(tmp, "echo hi > %s/%s/.dummy.txt", bkpinfo->isodir,
+		asprintf(&tmp, "echo hi > %s/%s/.dummy.txt", bkpinfo->isodir,
 				bkpinfo->nfs_remote_dir);
 		if (run_program_and_log_output(tmp, FALSE)) {
 			retval++;
-			sprintf(tmp,
+			paranoid_free(tmp);
+			asprintf(&tmp,
 					"Are you sure directory '%s' exists in remote dir '%s'?\nIf so, do you have rights to write to it?\n",
 					bkpinfo->nfs_remote_dir, bkpinfo->nfs_mount);
 			log_to_screen(tmp);
 		}
+		paranoid_free(tmp);
 	}
 
 	if (!flag_set['d']
@@ -801,14 +810,16 @@ process_switches(struct s_bkpinfo *bkpinfo,
 	if (flag_set['T']) {
 		sprintf(bkpinfo->tmpdir, "%s/tmp.mondo.%ld", flag_val['T'],
 				random() % 32768);
-		sprintf(tmp, "touch %s/.foo.dat", flag_val['T']);
+		asprintf(&tmp, "touch %s/.foo.dat", flag_val['T']);
 		if (run_program_and_log_output(tmp, 1)) {
 			retval++;
 			log_to_screen
 				("Please specify a tempdir which I can write to. :)");
 			fatal_error("I cannot write to the tempdir you specified.");
 		}
-		sprintf(tmp, "ln -sf %s/.foo.dat %s/.bar.dat", flag_val['T'],
+		paranoid_free(tmp);
+
+		asprintf(&tmp, "ln -sf %s/.foo.dat %s/.bar.dat", flag_val['T'],
 				flag_val['T']);
 		if (run_program_and_log_output(tmp, 1)) {
 			retval++;
@@ -816,6 +827,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 				("Please don't specify a SAMBA or VFAT or NFS tmpdir.");
 			fatal_error("I cannot write to the tempdir you specified.");
 		}
+		paranoid_free(tmp);
 	}
 	if (flag_set['A']) {
 		strncpy(bkpinfo->call_after_iso, flag_val['A'], MAX_STR_LEN);
@@ -850,19 +862,24 @@ process_switches(struct s_bkpinfo *bkpinfo,
 #undef BOOT_LOADER_CHARS
 	}
 	if (flag_set['f']) {
-		strncpy(bkpinfo->boot_device,
-				resolve_softlinks_to_get_to_actual_device_file(flag_val
-															   ['f']),
+		tmp = resolve_softlinks_to_get_to_actual_device_file(flag_val['f']);
+		strncpy(bkpinfo->boot_device, tmp,
 				MAX_STR_LEN / 4);
 	}
-	if (flag_set['P']) {
-		strncpy(bkpinfo->postnuke_tarball, flag_val['P'], MAX_STR_LEN);
-	}
 	if (flag_set['Q']) {
+		if (tmp == NULL) {
+			printf("-f option required when using -Q\n");
+			finish(-1);
+		}
 		i = which_boot_loader(tmp);
 		log_msg(3, "boot loader is %c, residing at %s", i, tmp);
 		printf("boot loader is %c, residing at %s\n", i, tmp);
 		finish(0);
+	}
+	paranoid_free(tmp);
+
+	if (flag_set['P']) {
+		strncpy(bkpinfo->postnuke_tarball, flag_val['P'], MAX_STR_LEN);
 	}
 	if (flag_set['L']) {
 		bkpinfo->use_lzo = TRUE;
@@ -927,8 +944,6 @@ process_switches(struct s_bkpinfo *bkpinfo,
 
 /* and finally... */
 
-	paranoid_free(tmp);
-	paranoid_free(psz);
 	return (retval);
 }
 

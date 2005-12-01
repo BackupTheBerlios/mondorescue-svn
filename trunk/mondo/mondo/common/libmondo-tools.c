@@ -18,7 +18,9 @@ misc tools
 #include <sys/socket.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#ifndef S_SPLINT_S
 #include <arpa/inet.h>
+#endif
 
 /*@unused@*/
 //static char cvsid[] = "$Id$";

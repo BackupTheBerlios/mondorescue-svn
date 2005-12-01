@@ -456,6 +456,8 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 			paranoid_free(tmp);
 			res++;
 		}
+		paranoid_free(part_table_fmt);
+
 		/* does partition /dev/hdNX exist more than once in the mountlist? */
 		for (i = 0, mountpoint_copies = 0, device_copies = 0;
 			 i < mountlist->entries; i++) {

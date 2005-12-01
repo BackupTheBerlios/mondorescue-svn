@@ -487,10 +487,10 @@ int do_my_funky_lvm_stuff(bool just_erase_existing_volumes,
 			log_it("%s... so I'll get creative.", tmp);
 			if (lvmversion == 2) {
 				strcpy(tmp, call_program_and_get_last_line_of_output
-					   ("tail -n5 /var/log/mondo-archive.log | grep Insufficient | tail -n1"));
+					   ("tail -n5 "MONDO_LOGFILE" | grep Insufficient | tail -n1"));
 			} else {
 				strcpy(tmp, call_program_and_get_last_line_of_output
-					   ("tail -n5 /var/log/mondo-archive.log | grep lvcreate | tail -n1"));
+					   ("tail -n5 "MONDO_LOGFILE" | grep lvcreate | tail -n1"));
 			}
 			for (p = tmp; *p != '\0' && !isdigit(*p); p++);
 			extents = atol(p);
@@ -1832,6 +1832,7 @@ int partition_device(FILE * pout_to_fdisk, const char *drive, int partno,
 			sprintf(output + strlen(output), "n\np\n%d\n", partno);
 		}
 	}
+	paranoid_free(part_table_fmt);
 	strcat(output + strlen(output), "\n");	/*start block (ENTER for next free blk */
 	if (partsize > 0) {
 		if (!strcmp(format, "7")) {

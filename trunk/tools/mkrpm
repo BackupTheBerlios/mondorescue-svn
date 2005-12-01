@@ -5,6 +5,7 @@
 # $Id$
 #
 
+umask 022
 dname=`dirname $0`
 prem=`echo $dname |cut -c1`
 if [ ${prem} == "/" ]; then

@@ -3301,7 +3301,7 @@ int main(int argc, char *argv[])
 	make_hole_for_dir("/tmp/tmpfs");	/* just in case... */
 	run_program_and_log_output("umount " MNT_CDROM, FALSE);
 	run_program_and_log_output
-		("ln -sf /var/log/mondo-archive.log /tmp/mondo-restore.log",
+		("ln -sf "MONDO_LOGFILE" /tmp/mondo-restore.log",
 		 FALSE);
 
 	run_program_and_log_output("rm -Rf /tmp/tmpfs/mondo.tmp.*", FALSE);

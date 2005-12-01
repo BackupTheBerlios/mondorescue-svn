@@ -114,9 +114,13 @@ extern void _mondo_assert_fail(const char *file, const char *function,
  * An assert macro that calls _mondo_assert_fail() when it fails.
  */
 #ifdef NDEBUG
-#define assert(exp) ((void)0)
+#	define assert(exp) ((void)0)
 #else
-#define assert(exp) ((exp)?((void)0):_mondo_assert_fail(__FILE__, __FUNCTION__, __LINE__, #exp))
+#	ifndef S_SPLINT_S
+#		define assert(exp) ((exp)?((void)0):_mondo_assert_fail(__FILE__, __FUNCTION__, __LINE__, #exp))
+#	else
+#		define assert(exp) ((void)0)
+#	endif
 #endif
 
 #define CRC_M16	0xA001			///< Mask for crc16.
@@ -239,9 +243,6 @@ extern void _mondo_assert_fail(const char *file, const char *function,
  * The maximum length of a filename in the tape catalog.
  */
 #define MAX_TAPECAT_FNAME_LEN 32
-
-//#define strcpy(y,x) strncpy(y, x, sizeof(y)-1)
-
 
 /**
  * Compatibility #define to ease the transition to logfile-in-a-variable.

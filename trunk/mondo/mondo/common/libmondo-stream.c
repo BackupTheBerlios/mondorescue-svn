@@ -208,7 +208,7 @@ bool mt_says_tape_exists(char *dev)
  * Determine the name and size of the tape device. Tries the SCSI tape for
  * this platform, then the IDE tape, then "/dev/st0", then "/dev/osst0".
  * @param dev Where to put the found tape device.
- * @param siz Where to put the tape size (a string like "4GB")
+ * @param siz Where to put the tape size (a string like "4GB"). Should be freed by caller
  * @return 0 if success, nonzero if failure (in which @p dev and @p siz are undefined).
  */
 int find_tape_device_and_size(char *dev, char *siz)
@@ -219,7 +219,8 @@ int find_tape_device_and_size(char *dev, char *siz)
 	int res;
 
 	log_to_screen("I am looking for your tape streamer. Please wait.");
-	dev[0] = siz[0] = '\0';
+	dev[0] = '\0';
+	siz = NULL;
 	if (find_home_of_exe("cdrecord")) {
 		asprintf(&cdr_exe, "cdrecord");
 	} else {
@@ -234,6 +235,8 @@ int find_tape_device_and_size(char *dev, char *siz)
 		log_it
 			("Either too few or too many tape streamers for me to detect...");
 		strcpy(dev, VANILLA_SCSI_TAPE);
+		paranoid_free(tmp);
+		paranoid_free(cdr_exe);
 		return 1;
 	}
 	paranoid_free(tmp);
@@ -245,6 +248,8 @@ int find_tape_device_and_size(char *dev, char *siz)
 	paranoid_free(command);
 	if (strlen(tmp) < 2) {
 		log_it("Could not find tape device");
+		paranoid_free(tmp);
+		paranoid_free(cdr_exe);
 		return 1;
 	}
 	paranoid_free(tmp);
@@ -302,22 +307,21 @@ awk '{for(i=1; i<NF; i++) { if (index($i, \"GB\")>0) { print $i;};};};'"));
 		}
 	}
 
-	siz[0] = '\0';
 	log_it("res=%d; dev=%s", res, dev);
 
 	if (res) {
+		paranoid_free(tmp);
 		return (res);
 	}
 
 	if (strlen(tmp) < 2) {
-		siz[0] = '\0';
 		log_it("Warning - size of tape unknown");
+		paranoid_free(tmp);
 		return (0);
 	} else {
-		strcpy(siz, tmp);
+		siz = tmp;
 		return (0);
 	}
-	paranoid_free(tmp);
 }
 
 int read_EXAT_files_from_tape(struct s_bkpinfo *bkpinfo,

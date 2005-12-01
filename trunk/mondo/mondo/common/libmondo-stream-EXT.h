@@ -22,8 +22,10 @@ extern int read_file_from_stream_FULL(struct s_bkpinfo *bkpinfo,
 									  long long orig_size);
 extern int read_header_block_from_stream(long long *plen, char *filename,
 										 int *pcontrol_char);
+#ifndef S_SPLINT_S
 extern int register_in_tape_catalog(t_archtype type, int number, long aux,
 									char *fn);
+#endif
 extern bool should_we_write_to_next_tape(long mediasize,
 										 long long
 										 length_of_incoming_file);

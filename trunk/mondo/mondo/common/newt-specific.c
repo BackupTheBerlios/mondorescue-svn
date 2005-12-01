@@ -312,7 +312,7 @@ extern "C" {
 		}
 
 		system
-			("gzip -9c /var/log/mondo-archive.log > /tmp/MA.log.gz 2> /dev/null");
+			("gzip -9c "MONDO_LOGFILE" > /tmp/MA.log.gz 2> /dev/null");
 		if (!strstr(g_version, "cvs") && !strstr(g_version, "svn")) {
 			printf("Please try the latest SVN version ");
 			printf
@@ -685,7 +685,7 @@ extern "C" {
  * Ask the user to enter a value.
  * @param title The title of the dialog box.
  * @param b The blurb (e.g. what you want the user to enter).
- * @param output The string to put the user's answer in.
+ * @param output The string to put the user's answer in. It has to be freed by the caller
  * @param maxsize The size in bytes allocated to @p output.
  * @return TRUE if the user pressed OK, FALSE if they pressed Cancel.
  */
@@ -706,24 +706,24 @@ extern "C" {
 		/*@ buffers ********************************************************** */
 		char *blurb;
 		char *original_contents;
+		int n = 0;
 
 		assert_string_is_neither_NULL_nor_zerolength(title);
 		assert(b != NULL);
-		assert(output != NULL);
 
 		if (g_text_mode) {
 			printf
 				("---promptstring---1--- %s\r\n---promptstring---2--- %s\r\n---promptstring---Q---\r\n-->  ",
 				 title, b);
-			(void) fgets(output, maxsize, stdin);
+			(void) getline(&output, &n, stdin);
 			if (output[strlen(output) - 1] == '\n')
 				output[strlen(output) - 1] = '\0';
 			return (TRUE);
 		}
 		asprintf(&blurb, b);
 		text = newtTextboxReflowed(2, 1, blurb, 48, 5, 5, 0);
-		asprintf(&original_contents, output);
-		output[0] = '\0';
+		original_contents = output;
+
 		type_here =
 			newtEntry(2, newtTextboxGetNumLines(text) + 2,
 					  original_contents, 50,
@@ -744,12 +744,13 @@ extern "C" {
 		newtPushHelpLine(blurb);
 		paranoid_free(blurb);
 		b_res = newtRunForm(myForm);
-		strcpy(output, entry_value);
+		output = entry_value;
 		newtPopHelpLine();
 		newtFormDestroy(myForm);
 		newtPopWindow();
 		if (b_res == b_2) {
-			strcpy(output, original_contents);
+			paranoid_free(output);
+			output = original_contents;
 			paranoid_free(original_contents);
 			return (FALSE);
 		} else {

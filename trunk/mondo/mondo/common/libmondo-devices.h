@@ -38,7 +38,6 @@ int what_number_cd_is_this(struct s_bkpinfo *bkpinfo);
 
 int eject_device(char *);
 
-char *list_of_NFS_devices_and_mounts();
 char *list_of_NFS_mounts_only();
 
 void sensibly_set_tmpdir_and_scratchdir(struct s_bkpinfo *bkpinfo);

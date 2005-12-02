@@ -19,8 +19,8 @@ initrd is mindi.rdz and kernel is vmlinuz
 Thus the PXE ROM will boot mondo's kernel and mondo's initrd in memory and will append all the right configuration options (as you find in syslinux.cfg on the mindi's floppy image) to which you need to add the keyword pxe.
 (You need to have backup your data using the NFS option of mondoarchive)
 
-If you used the -p option of mondoarchive, you'll have to specify the real name of mondo images to use during restore. To do that use prefix=machine on the initrd line, after the pxe keyword, to load the ISO images saved with -p machine.
-Without prefix keyword, images name mondorescue-1.iso, ... will be used.
+If you used the -p option of mondoarchive, you may specify the real name of mondo images to use during restore. To do that use prefix=machine on the initrd line, after the pxe keyword, to load the ISO images saved with -p machine.
+Without prefix keyword, the name of the images used during archiving with the -p option will be used (they may differ). If -p wasn't used then the name mondorescue-1.iso, ... will be used.
 
 During boot mondorestore will start your NFS configuration and mount mondo's content from the network rather than from a physical media.
 

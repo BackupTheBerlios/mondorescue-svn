@@ -54,7 +54,7 @@ SCSI_MODS="3c59x 3w-xxxx 53c7,8xx a100u2w a320raid aacraid advansys aha152x aha1
 # ide-probe-mod
 IDE_MODS="ide ide-generic ide-detect ide-mod ide-disk ide-cd ide_cd ide-cs ide-core ide_core libata edd paride ata_piix libata"
 PCMCIA_MODS="pcmcia_core ds yenta_socket"
-USB_MODS="usb-storage usb-ohci usb-uhci usbcore usb_storage hid uhci_hcd ehci_hcd uhci-hcd ehci-hcd"
+USB_MODS="usb-storage usb-ohci usb-uhci usbcore usb_storage hid uhci_hcd ehci_hcd uhci-hcd ehci-hcd usbkbd"
 CDROM_MODS="$TAPE_MODS $FLOPPY_MODS $IDE_MODS af_packet cdrom isocd isofs inflate_fs nls_iso8859-1 nls_cp437 sg sr_mod zlib_inflate $USB_MODS $PCMCIA_MODS"
 NET_MODS="sunrpc nfs nfsacl lockd loop e100 bcm5700 e1000 eepro100 tg3"
 EXTRA_MODS="$CDROM_MODS vfat fat loop linear raid0 raid1 raid5 lvm-mod dm-mod jfs xfs xfs_support pagebuf reiserfs ext2 ext3 minix nfs nfsd lockd sunrpc jbd"
@@ -1213,12 +1213,15 @@ MakeMondoConfigFile() {
 	echo "datestamp `date`" >> $outfile
 	[ "$ESTIMATED_TOTAL_NOOF_SLICES" ] && echo "total-slices $ESTIMATED_TOTAL_NOOF_SLICES" >> $outfile
    AddFileToCfgIfExists $MONDO_TMP/NFS-CLIENT-IPADDR nfs-client-ipaddr $outfile
+   AddFileToCfgIfExists $MONDO_TMP/NFS-CLIENT-NETMASK nfs-client-netmask $outfile
+   AddFileToCfgIfExists $MONDO_TMP/NFS-CLIENT-DEFGW  nfs-client-defgw  $outfile
    AddFileToCfgIfExists $MONDO_TMP/NFS-SERVER-MOUNT  nfs-server-mount  $outfile
    AddFileToCfgIfExists $MONDO_TMP/NFS-SERVER-PATH   nfs-server-path   $outfile
    AddFileToCfgIfExists $MONDO_TMP/NFS-DEV           nfs-dev           $outfile
    AddFileToCfgIfExists $MONDO_TMP/NFS-SERVER-IPADDR nfs-server-ipaddr $outfile
    AddFileToCfgIfExists $MONDO_TMP/ISO-DEV           iso-dev           $outfile
    AddFileToCfgIfExists $MONDO_TMP/ISO-MNT           iso-mnt           $outfile
+   AddFileToCfgIfExists $MONDO_TMP/ISO-PREFIX        iso-prefix        $outfile
    AddFileToCfgIfExists $MONDO_TMP/ISODIR            isodir            $outfile
    AddFileToCfgIfExists $MONDO_TMP/BOOTLOADER.DEVICE bootloader.device $outfile
    AddFileToCfgIfExists $MONDO_TMP/BOOTLOADER.NAME   bootloader.name   $outfile
@@ -2000,19 +2003,16 @@ Sorry, your kernel is too big for a boot/root floppy.\nI'll try the new boot/roo
 	echo -en "..."
 	rmdir $mountpoint || LogIt "Cannot rmdir (PBDI)\n"
 	if [ "$retval" -eq "0" ] ; then
-	echo -en "...$DONE\r"
-	if [ "$KERN_DISK_MADE" ] && [ "$disksize" != "2880" ] ; then
-		LogIt "... 1440KB boot+root disks were created OK\r"
+		echo -en "...$DONE\r"
+		if [ "$KERN_DISK_MADE" ] ; then
+			LogIt "... $disksize KB boot disks were created OK\r"
+		fi
 	else
-		LogIt "... "$disksize"KB boot disk was created OK\r"
-	fi
-	else
-	echo -en "...failed\r"
-	LogIt $disksize"KB boot disk was NOT created\r"
-	rm -f $imagefile
+		echo -en "...failed\r"
+		LogIt $disksize"KB boot disk was NOT created\r"
+		rm -f $imagefile
 	fi
 	[ "$retval" -ne "0" ] && LogIt "PrepareBootDiskImage() is returning nonzero\n"
-#0421#$imagesdir/mindi-boot.1440.img
 	return $retval
 }
 
@@ -2118,14 +2118,12 @@ Sorry, your kernel is too big for a boot/root floppy.\nI'll try the new boot/roo
 		echo -en "...$DONE\r"
 		if [ "$KERN_DISK_MADE" ] ; then
 		    rm -f $imagefile
-		    LogIt "... 1440KB boot+root disks were created OK\r"
-		else
-		    LogIt "... "$disksize"KB boot disk was created OK\r"
+		    LogIt "... $disksize KB boot disks were created OK\r"
 		fi
 	else
-	echo -en "...failed\r"
-	LogIt $disksize"KB boot disk was NOT created\r"
-	rm -f $imagefile
+		echo -en "...failed\r"
+		LogIt $disksize"KB boot disk was NOT created\r"
+		rm -f $imagefile
 	fi
 	[ "$retval" -ne "0" ] && LogIt "PrepareBootDiskImage() is returning nonzero\n"
 	return $retval

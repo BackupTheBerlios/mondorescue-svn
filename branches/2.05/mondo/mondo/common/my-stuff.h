@@ -211,6 +211,7 @@ char *trace_log_ptr;
 #endif							/* DEBUG */
 
 #define IA64_BOOT_SIZE "8192"	/* Should be coherent with mindi */
+#define STD_PREFIX "mondorescue"	/* Should be coherent with mindi */
 
 /**
  * The biggielist stub (appended to the directory where all.tar.gz was unpacked).

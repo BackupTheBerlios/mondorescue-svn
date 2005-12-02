@@ -1187,6 +1187,8 @@ void store_nfs_config(struct s_bkpinfo *bkpinfo)
 	char nfs_dev[MAX_STR_LEN];
 	char nfs_mount[MAX_STR_LEN];
 	char nfs_client_ipaddr[MAX_STR_LEN];
+	char nfs_client_netmask[MAX_STR_LEN];
+	char nfs_client_defgw[MAX_STR_LEN];
 	char nfs_server_ipaddr[MAX_STR_LEN];
 	char tmp[MAX_STR_LEN];
 	char command[MAX_STR_LEN * 2];
@@ -1214,6 +1216,14 @@ void store_nfs_config(struct s_bkpinfo *bkpinfo)
 			"ifconfig | tr '\n' '#' | sed s/##// | tr '#' ' ' | tr '' '\\n' | head -n1 | tr -s '\t' ' ' | cut -d' ' -f7 | cut -d':' -f2");
 	strcpy(nfs_client_ipaddr,
 		   call_program_and_get_last_line_of_output(command));
+	sprintf(command,
+			"ifconfig | tr '\n' '#' | sed s/##// | tr '#' ' ' | tr '' '\\n' | head -n1 | tr -s '\t' ' ' | cut -d' ' -f9 | cut -d':' -f2");
+	strcpy(nfs_client_netmask,
+		   call_program_and_get_last_line_of_output(command));
+	sprintf(command,
+			"route | egrep '^default' | awk '{printf $2}'");
+	strcpy(nfs_client_defgw,
+		   call_program_and_get_last_line_of_output(command));
 	sprintf(tmp,
 			"nfs_client_ipaddr=%s; nfs_server_ipaddr=%s; nfs_mount=%s",
 			nfs_client_ipaddr, nfs_server_ipaddr, nfs_mount);
@@ -1228,8 +1238,9 @@ void store_nfs_config(struct s_bkpinfo *bkpinfo)
 		fatal_error("Cannot store NFS config");
 	}
 	fprintf(fout, "ifconfig lo 127.0.0.1  # config loopback\n");
-	fprintf(fout, "ifconfig %s %s	# config client\n", nfs_dev,
-			nfs_client_ipaddr);
+	fprintf(fout, "ifconfig %s %s netmask %s	# config client\n", nfs_dev,
+			nfs_client_ipaddr, nfs_client_netmask);
+	fprintf(fout, "route add default gw %s  # default route\n", nfs_client_defgw);
 	fprintf(fout, "ping -c 1 %s	# ping server\n", nfs_server_ipaddr);
 	fprintf(fout, "mount -t nfs -o nolock %s /tmp/isodir\n",
 			bkpinfo->nfs_mount);
@@ -1248,12 +1259,18 @@ void store_nfs_config(struct s_bkpinfo *bkpinfo)
 
 	sprintf(tmp, "%s/NFS-CLIENT-IPADDR", bkpinfo->tmpdir);
 	write_one_liner_data_file(tmp, nfs_client_ipaddr);
+	sprintf(tmp, "%s/NFS-CLIENT-NETMASK", bkpinfo->tmpdir);
+	write_one_liner_data_file(tmp, nfs_client_netmask);
+	sprintf(tmp, "%s/NFS-CLIENT-DEFGW", bkpinfo->tmpdir);
+	write_one_liner_data_file(tmp, nfs_client_defgw);
 	sprintf(tmp, "%s/NFS-SERVER-IPADDR", bkpinfo->tmpdir);
 	write_one_liner_data_file(tmp, nfs_server_ipaddr);
 	sprintf(tmp, "%s/NFS-SERVER-MOUNT", bkpinfo->tmpdir);
 	write_one_liner_data_file(tmp, bkpinfo->nfs_mount);
 	sprintf(tmp, "%s/NFS-SERVER-PATH", bkpinfo->tmpdir);
 	write_one_liner_data_file(tmp, bkpinfo->nfs_remote_dir);
+	sprintf(tmp, "%s/ISO-PREFIX", bkpinfo->tmpdir);
+	write_one_liner_data_file(tmp, bkpinfo->prefix);
 	log_it("Finished storing NFS configuration");
 }
 

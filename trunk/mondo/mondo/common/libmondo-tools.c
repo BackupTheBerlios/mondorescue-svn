@@ -606,7 +606,10 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 		paranoid_free(tmp);
 		log_it("isodir: %s", iso_path);
 		paranoid_free(iso_path);
-
+		asprintf(&tmp, "%s/ISO-PREFIX", bkpinfo->tmpdir);
+		write_one_liner_data_file(tmp, bkpinfo->prefix);
+		log_it("iso-prefix: %s",  bkpinfo->prefix);
+		paranoid_free(tmp);
 /* End patch */
 	}							// end of iso code
 
@@ -742,7 +745,7 @@ void reset_bkpinfo(struct s_bkpinfo *bkpinfo)
 	} else {
 		strcpy(bkpinfo->isodir, "/root/images/mondo");
 	}
-	strcpy(bkpinfo->prefix, "mondorescue");
+	strcpy(bkpinfo->prefix, STD_PREFIX);
 
 	bkpinfo->scratchdir[0] = '\0';
 	bkpinfo->make_filelist = TRUE;	// unless -J supplied to mondoarchive
@@ -1040,8 +1043,8 @@ int read_cfg_var(char *config_file, char *label, char *value)
 				label, value);
 		return (0);
 	} else {
-		asprintf(&command, "cat %s | grep \"%s .*\" | cut -d' ' -f2,3,4,5",
-				 config_file, label);
+		asprintf(&command, "grep '%s .*' %s| cut -d' ' -f2,3,4,5",
+				label, config_file);
 		strcpy(value, call_program_and_get_last_line_of_output(command));
 		paranoid_free(command);
 		if (strlen(value) == 0) {
@@ -1274,8 +1277,8 @@ int write_cfg_var(char *config_file, char *label, char *value)
 			 call_program_and_get_last_line_of_output
 			 ("mktemp -q /tmp/mojo-jojo.blah.XXXXXX"));
 	if (does_file_exist(config_file)) {
-		asprintf(&command, "cat %s | grep -vx \"%s .*\" > %s", config_file,
-				 label, tempfile);
+		asprintf(&command, "grep -vx '%s .*' %s > %s",
+				label, config_file, tempfile);
 		paranoid_system(command);
 		paranoid_free(command);
 	}

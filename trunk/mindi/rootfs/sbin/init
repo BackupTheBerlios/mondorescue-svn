@@ -621,14 +621,17 @@ fi
 #if [ -e "/tmp/2880.siz" ] ; then
 #    HandleCDROMorFloppies
 #el
-if [ "`cat /tmp/mondo-restore.cfg | grep "tape "`" ] || [ "`cat /tmp/mondo-restore.cfg | grep udev`" ] ; then
+if [ "`| grep -i 'tape ' /tmp/mondo-restore.cfg`" ] || [ "`grep -i udev /tmp/mondo-restore.cfg`" ] ; then
     HandleTape
 else
-	if [ "`cat /proc/cmdline | grep -i pxe`" ] ; then
+	if [ "`cat /proc/cmdline | grep -i pxe`" ] || [ "`grep -i iso-prefix /tmp/mondo-restore.cfg`" ] ; then
 		LogIt "PXE boot found"
-		imgname="mondorescue"
+		imgname=`grep iso-prefix /tmp/mondo-restore.cfg | cut -d' ' -f2-`
+		if [ "$imgname" = "" ]; then
+			imgname="mondorescue"
+		fi
 		if [ "`cat /proc/cmdline | grep -i prefix`" ] ; then
-			for i in "`cat /proc/cmdline`" ; do
+			for i in `cat /proc/cmdline` ; do
 				if [ "`echo $i | grep -i prefix`" ] ; then
 					imgname=`echo $i | cut -d'=' -f2`
 				fi

@@ -736,25 +736,25 @@ int mount_cdrom(struct s_bkpinfo *bkpinfo)
 			log_msg(1, "isodir is being set to %s", bkpinfo->isodir);
 		}
 #ifdef __FreeBSD__
-		sprintf(mount_cmd, "/mnt/isodir/%s/%s/%d.iso", bkpinfo->isodir,
-				bkpinfo->nfs_remote_dir, g_current_media_number);
+		sprintf(mount_cmd, "/mnt/isodir/%s/%s/%s-%d.iso", bkpinfo->isodir,
+				bkpinfo->nfs_remote_dir, bkpinfo->prefix, g_current_media_number);
 		mddev = make_vn(mount_cmd);
 		sprintf(mount_cmd, "mount_cd9660 -r %s " MNT_CDROM, mddev);
 #else
-		sprintf(mount_cmd, "mount %s/%s/%d.iso -t iso9660 -o loop,ro %s",
+		sprintf(mount_cmd, "mount %s/%s/%s-%d.iso -t iso9660 -o loop,ro %s",
 				bkpinfo->isodir, bkpinfo->nfs_remote_dir,
-				g_current_media_number, MNT_CDROM);
+				bkpinfo->prefix, g_current_media_number, MNT_CDROM);
 #endif
 
 	} else if (bkpinfo->backup_media_type == iso) {
 #ifdef __FreeBSD__
-		sprintf(mount_cmd, "%s/%d.iso", bkpinfo->isodir,
-				g_current_media_number);
+		sprintf(mount_cmd, "%s/%s-%d.iso", bkpinfo->isodir,
+				bkpinfo->prefix, g_current_media_number);
 		mddev = make_vn(mount_cmd);
 		sprintf(mount_cmd, "mount_cd9660 -r %s %s", mddev, MNT_CDROM);
 #else
-		sprintf(mount_cmd, "mount %s/%d.iso -t iso9660 -o loop,ro %s",
-				bkpinfo->isodir, g_current_media_number, MNT_CDROM);
+		sprintf(mount_cmd, "mount %s/%s-%d.iso -t iso9660 -o loop,ro %s",
+				bkpinfo->isodir, bkpinfo->prefix, g_current_media_number, MNT_CDROM);
 #endif
 	} else if (strstr(bkpinfo->media_device, "/dev/"))
 #ifdef __FreeBSD__
@@ -1034,10 +1034,20 @@ int read_cfg_file_into_bkpinfo(char *cfgf, struct s_bkpinfo *bkpinfo)
 						("Re-jigging configuration AGAIN. CD-R, not ISO.");
 				} else {
 					bkpinfo->backup_media_type = iso;
+					if (read_cfg_var(cfg_file, "iso-prefix", value) == 0) {
+							strcpy(bkpinfo->prefix,value);
+					} else {
+							strcpy(bkpinfo->prefix,STD_PREFIX);
+					}
 				}
 			}
 		} else if (!strcmp(value, "nfs")) {
 			bkpinfo->backup_media_type = nfs;
+			if (read_cfg_var(cfg_file, "iso-prefix", value) == 0) {
+					strcpy(bkpinfo->prefix,value);
+			} else {
+					strcpy(bkpinfo->prefix,STD_PREFIX);
+			}
 		} else if (!strcmp(value, "tape")) {
 			bkpinfo->backup_media_type = tape;
 		} else if (!strcmp(value, "udev")) {
@@ -1200,7 +1210,7 @@ int read_cfg_file_into_bkpinfo(char *cfgf, struct s_bkpinfo *bkpinfo)
 					}
 				}
 			}
-			/* bkpinfo->isodir should now be the true path to 1.iso etc... */
+			/* bkpinfo->isodir should now be the true path to prefix-1.iso etc... */
 			if (bkpinfo->backup_media_type == iso) {
 				sprintf(bkpinfo->isodir, "%s%s", iso_mnt, iso_path);
 			}

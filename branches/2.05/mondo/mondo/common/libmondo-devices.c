@@ -2897,7 +2897,9 @@ char *which_partition_format(const char *drive)
 	char *tmp;
 	char *command;
 	char *fdisk;
+#ifdef __IA64__
 	struct stat buf;
+#endif
 
 	malloc_string(tmp);
 	malloc_string(command);

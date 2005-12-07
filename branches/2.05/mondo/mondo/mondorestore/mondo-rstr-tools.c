@@ -202,7 +202,7 @@ void ask_about_these_imagedevs(char *infname, char *outfname)
 	char *incoming_ptr;
 	char *question_ptr;
 
-	char incoming[MAX_STR_LEN];
+	char incoming[MAX_STR_LEN] = "\0";
 	char question[MAX_STR_LEN];
 
 	assert_string_is_neither_NULL_nor_zerolength(infname);

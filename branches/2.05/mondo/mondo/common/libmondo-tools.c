@@ -705,6 +705,9 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 					mondo_mkisofs_sz,
 					extra_cdrom_params, bkpinfo->media_device);
 		}
+		if (getenv ("SUDO_COMMAND")) {
+			fatal_error("Can't write DVDs as sudo because growisofs doesn't support this - see the growisofs manpage for details.");
+		}
 		log_msg(2, "call_make_iso (DVD res) is ... %s",
 				bkpinfo->call_make_iso);
 	}							// end of DVD code

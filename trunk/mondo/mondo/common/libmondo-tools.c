@@ -370,6 +370,7 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 	char *cdr_exe;
 	char *tmp;
 	char *tmp1;
+	char call_before_iso_user[MAX_STR_LEN] = "\0";
 	int rdsiz_MB;
 	char *iso_path;
 
@@ -540,9 +541,17 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 			asprintf(&mondo_mkisofs_sz, MONDO_MKISOFS_REGULAR_SYSLINUX);
 		}
 		if (bkpinfo->manual_cd_tray) {
+			if (bkpinfo->call_before_iso[0] == '\0') {
 			sprintf(bkpinfo->call_before_iso,
-					"%s -o %s/temporary.iso . 2>> _ERR_", mondo_mkisofs_sz,
-					bkpinfo->tmpdir);
+						"%s -o %s/temporary.iso . 2>> _ERR_",
+						mondo_mkisofs_sz, bkpinfo->tmpdir);
+           		} else {
+				strncpy(call_before_iso_user, bkpinfo->call_before_iso, MAX_STR_LEN);
+				sprintf (bkpinfo->call_before_iso,
+                     				"( %s -o %s/temporary.iso . 2>> _ERR_ ; %s )",
+						mondo_mkisofs_sz, bkpinfo->tmpdir, call_before_iso_user);
+			}
+			log_it("bkpinfo->call_before_iso = %s", bkpinfo->call_before_iso);
 			sprintf(bkpinfo->call_make_iso,
 					"%s %s -v %s fs=4m dev=%s speed=%d %s/temporary.iso",
 					cdr_exe, (bkpinfo->please_dont_eject) ? " " : "-eject",

@@ -949,7 +949,6 @@ long get_phys_size_of_drive(char *drive)
 
 	if (outvalB <= 0) {
 		log_msg(1, "Error getting size of %s: %s", drive, strerror(errno));
-	}
 #if linux
 	fileid = open(drive, O_RDONLY);
 	if (fileid) {
@@ -978,7 +977,7 @@ long get_phys_size_of_drive(char *drive)
 		log_msg(1, "Failed to get harddisk geometry, using old mode");
 	}
 #endif
-
+	}
 // OLDER DISKS will give ridiculously low value for outvalB (so outvalA is returned) :)
 // NEWER DISKS will give sane value for outvalB (close to outvalA, in other words) :)
 

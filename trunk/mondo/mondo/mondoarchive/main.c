@@ -528,16 +528,6 @@ int main(int argc, char *argv[])
 
 	run_program_and_log_output("mount", 2);
 
-	if (bkpinfo->please_dont_eject) {
-		log_msg(5, "Not ejecting at end. Fair enough.");
-	} else {
-		log_msg(5, "Ejecting at end.");
-		if (!find_cdrom_device(tmp, FALSE) || !find_dvd_device(tmp, FALSE)) {
-			log_msg(1, "Ejecting %s", tmp);
-			eject_device(tmp);
-		}
-	}
-
 	system("rm -f /var/cache/mondo-archive/last-backup.aborted");
 	system("rm -Rf /tmp.mondo.* /mondo.scratch.*");
 	if (!retval) {

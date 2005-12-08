@@ -1,22 +1,36 @@
 MONDO CHANGES
 
-- now handles cifs correctly
-
-v2.05_berlios (Bruno Cornec <bcornec@users.berlios.de)
+trunk:
 - indent on source files
 - asprintf used instead of malloc_string + sprintf/strcpy/strcat without 
   verifications. Optimisations on memory consumption (allocate only size
   needed + remove memory leaks)
 
-v2.04_berlios (Bruno Cornec <bcornec@users.berlios.de)
+v2.06 (xxx)
+- better error handling of failed commands/mindi (Andree Leidenfrost)
+- fix compiler warnings (Andree Leidenfrost)
+- -p improvements for NFS/PXE/ISO modes (Bruno Cornec)
+- support of default route and netmask for PXE/NFS (Bruno Cornec)
+- fix for restoring mondo backups on md-raid systems (Philippe De Muyter)
+- remove excessive 'cat' commands (Philippe De Muyter)
+- fix to force growisofs to use speed=1 for DVD burning (Philippe De Muyter)
+- now handles cifs correctly
+
+v2.05 (2005-11-19)
+- -p options works better for NFS cases  (Bruno Cornec)
+- ia64 is now working for rhel3  (Bruno Cornec)
+- delivery process to BerliOS improved (Bruno Cornec)
+- now handles cifs correctly (Bruno Cornec)
+
+v2.04_berlios
 - Add -p option to generate ISO images file names with prefix. The new default
   name for ISO images is mondorescue-1.iso, ... For PXE environment, you have
-  to use the prefix option on the command line (read README.pxe)
-- Mandrake 2005 support
+  to use the prefix option on the command line (read README.pxe) 
+  (Bruno Cornec)
+- Mandrake 2005 support (Bruno Cornec)
 - NFS patches (Yann Aubert <technique@alixen.fr>)
 - mondorestore shouldn't now ask final questions with -H 
-  (this is an unattended mode)
-
+  (this is an unattended mode) (Bruno Cornec)
 
 v2.04
 - made mondo more clever about finding its home. Avoids mondo considering

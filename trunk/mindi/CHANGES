@@ -1,5 +1,14 @@
 MINDI                            CHANGES
 
+1.06 (xxx)
+- mindi manpage added (Andree Leidenfrost)
+- clean up remaining mount points, mindi.err at the end (Wolfgang Rosenauer)
+- fix bugs for SuSE distro around tar, tr and find arguments order 
+  (Wolfgang Rosenauer)
+- new busybox version used for better PXE support (Bruno Cornec)
+- USB keyboard support (Bruno Cornec)
+- -p should now work with ISO/PXE/NFS modes (Bruno Cornec)
+
 1.05 (2005-11-19)
 - Bug fix for ldd output incorrectly handled, leading to "grep not found" error
   (Andree Leidenfrost)
@@ -11,7 +20,6 @@ MINDI                            CHANGES
   (Philippe De Muyter)
 - Speed up fdisk'ing dev/ida raid devices
   (Philippe De Muyter)
-
 
 1.04
 - support exec-shield

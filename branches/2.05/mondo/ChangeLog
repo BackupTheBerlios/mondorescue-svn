@@ -8,6 +8,7 @@ v2.06 (xxx)
 - fix for restoring mondo backups on md-raid systems (Philippe De Muyter)
 - remove excessive 'cat' commands (Philippe De Muyter)
 - fix to force growisofs to use speed=1 for DVD burning (Philippe De Muyter)
+- now handles cifs correctly (Bruno Cornec)
 - fix issue where mondoarchive ejects CD/DVD despite writing iso images 
   (Andree Leidenfrost)
 - Add -P option to df calls (Andree Leidenfrost/Chuan-kai Lin)

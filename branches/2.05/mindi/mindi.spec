@@ -64,9 +64,10 @@ export DONT_RELINK=1
 %{__rm} -rf $RPM_BUILD_ROOT
 MINDIDIR=$RPM_BUILD_ROOT%{_datadir}/mindi
 
-%{__mkdir_p} $MINDIDIR $RPM_BUILD_ROOT%{_bindir} $RPM_BUILD_ROOT%{_sysconfdir}/mindi $RPM_BUILD_ROOT%{_sbindir}
+%{__mkdir_p} $MINDIDIR $RPM_BUILD_ROOT%{_bindir} $RPM_BUILD_ROOT%{_sysconfdir}/mindi $RPM_BUILD_ROOT%{_sbindir} $RPM_BUILD_ROOT/%{_mandir}/man8
 %{__cp} deplist.txt $RPM_BUILD_ROOT%{_sysconfdir}/mindi/
 %{__cp} -af * $MINDIDIR
+%{__cp} -af mindi.8 $RPM_BUILD_ROOT/%{_mandir}/man8
 
 %ifarch ia64
 	%{__make} -f Makefile.parted2fdisk DEST=${MINDIDIR}/ install
@@ -83,7 +84,7 @@ MINDIDIR=$RPM_BUILD_ROOT%{_datadir}/mindi
 # These are installed twice if not removed here
 #
 ( cd $MINDIDIR
-%{__rm} -f CHANGES INSTALL COPYING README TODO README.ia64 README.pxe
+%{__rm} -f CHANGES INSTALL COPYING README TODO README.ia64 README.pxe mindi.8
 )
 
 # Symlinks
@@ -116,6 +117,7 @@ cd $RPM_BUILD_ROOT%{_sbindir}
 %attr(755,root,root) %{_sbindir}/mindi
 %attr(755,root,root) %{_sbindir}/analyze-my-lvm
 %{_datadir}/mindi
+%{_mandir}
 %attr(755,root,root) %{_datadir}/mindi/analyze-my-lvm
 %attr(755,root,root) %{_datadir}/mindi/mindi
 %attr(755,root,root) %{_datadir}/mindi/parted2fdisk.pl

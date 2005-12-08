@@ -12,6 +12,7 @@ if uname -a | grep Knoppix > /dev/null || [ -e "/ramdisk/usr" ] ; then
 fi
 
 mkdir -p $local/share/mindi
+mkdir -p $local/share/man/man8
 mkdir -p $local/sbin
 
 #for i in aux-tools dev rootfs ; do
@@ -25,6 +26,7 @@ mkdir -p $local/sbin
 cp --parents -pRdf * $local/share/mindi/
 ln -sf $local/share/mindi/mindi $local/sbin/
 chmod +x $local/sbin/mindi
+cp -a mindi.8 $local/share/man/man8
 echo $PATH | grep $local/sbin > /dev/null || echo "Warning - your PATH environmental variable is BROKEN. Please add $local/sbin to your PATH."
 ( cd $local/share/mindi/rootfs && tar -xzf symlinks.tgz )
 ARCH=`/bin/arch`

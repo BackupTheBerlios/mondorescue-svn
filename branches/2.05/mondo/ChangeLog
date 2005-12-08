@@ -8,6 +8,12 @@ v2.06 (xxx)
 - fix for restoring mondo backups on md-raid systems (Philippe De Muyter)
 - remove excessive 'cat' commands (Philippe De Muyter)
 - fix to force growisofs to use speed=1 for DVD burning (Philippe De Muyter)
+- fix issue where mondoarchive ejects CD/DVD despite writing iso images 
+  (Andree Leidenfrost)
+- Add -P option to df calls (Andree Leidenfrost/Chuan-kai Lin)
+- fix usage of joint -B and -m options (Andree Leidenfrost/Efraim Feinstein)
+- Quadrupled ARBITRARY_MAXIMUM from 500 to 2000 for mondorestore's filebrowser
+  (Andree Leidenfrost)
 
 v2.05 (2005-11-19)
 - -p options works better for NFS cases  (Bruno Cornec)

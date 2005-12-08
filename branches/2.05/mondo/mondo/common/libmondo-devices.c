@@ -1208,34 +1208,33 @@ long get_phys_size_of_drive(char *drive)
 
 	if (outvalB <= 0) {
 		log_msg(1, "Error getting size of %s: %s", drive, strerror(errno));
-	}
 #if linux
-	fileid = open(drive, O_RDONLY);
-	if (fileid) {
-		if (ioctl(fileid, HDIO_GETGEO, &hdgeo) != -1) {
-			if (hdgeo.cylinders && hdgeo.heads && hdgeo.sectors) {
-				cylindersleft = cylinders = hdgeo.cylinders;
-				cylindersize = hdgeo.heads * hdgeo.sectors / 2;
-				outvalA = cylindersize * cylinders / 1024;
-				log_msg(2, "Got Harddisk geometry, C:%d, H:%d, S:%d",
-						hdgeo.cylinders, hdgeo.heads, hdgeo.sectors);
-				gotgeo = 1;
+		fileid = open(drive, O_RDONLY);
+		if (fileid) {
+			if (ioctl(fileid, HDIO_GETGEO, &hdgeo) != -1) {
+				if (hdgeo.cylinders && hdgeo.heads && hdgeo.sectors) {
+					cylindersleft = cylinders = hdgeo.cylinders;
+					cylindersize = hdgeo.heads * hdgeo.sectors / 2;
+					outvalA = cylindersize * cylinders / 1024;
+					log_msg(2, "Got Harddisk geometry, C:%d, H:%d, S:%d",
+							hdgeo.cylinders, hdgeo.heads, hdgeo.sectors);
+					gotgeo = 1;
+				} else {
+					log_msg(1, "Harddisk geometry wrong");
+				}
 			} else {
-				log_msg(1, "Harddisk geometry wrong");
+				log_msg(1,
+						"Error in ioctl() getting new hard disk geometry (%s), resizing in unsafe mode",
+						strerror(errno));
 			}
+			close(fileid);
 		} else {
-			log_msg(1,
-					"Error in ioctl() getting new hard disk geometry (%s), resizing in unsafe mode",
+			log_msg(1, "Failed to open %s for reading: %s", drive,
 					strerror(errno));
 		}
-		close(fileid);
-	} else {
-		log_msg(1, "Failed to open %s for reading: %s", drive,
-				strerror(errno));
-	}
-	if (!gotgeo) {
-		log_msg(1, "Failed to get harddisk geometry, using old mode");
-	}
+		if (!gotgeo) {
+			log_msg(1, "Failed to get harddisk geometry, using old mode");
+		}
 /*  
   if ((fd = open (drive, O_RDONLY)) != -1) {
       if (ioctl (fd, HDIO_GETGEO, &hdgeo) != -1)  {
@@ -1248,7 +1247,7 @@ long get_phys_size_of_drive(char *drive)
       close (fd);
  */
 #endif
-
+	}
 // OLDER DISKS will give ridiculously low value for outvalB (so outvalA is returned) :)
 // NEWER DISKS will give sane value for outvalB (close to outvalA, in other words) :)
 
@@ -2900,7 +2899,6 @@ char *which_partition_format(const char *drive)
 #ifdef __IA64__
 	struct stat buf;
 #endif
-
 	malloc_string(tmp);
 	malloc_string(command);
 	malloc_string(fdisk);

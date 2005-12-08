@@ -19,8 +19,6 @@ int get_trackno_from_logfile(char *logfile);
 int grab_percentage_from_last_line_of_file(char *filename);
 char *last_line_of_file(char *filename);
 long long length_of_file(char *filename);
-int make_checksum_list_file(char *filelist, char *cksumlist,
-							char *comppath);
 int make_hole_for_file(char *outfile_fname);
 void make_list_of_files_to_ignore(char *ignorefiles_fname,
 								  char *filelist_fname,
@@ -50,3 +48,4 @@ int make_grub_install_scriptlet(char *outfile);
 
 int read_one_liner_data_file(char *fname, char *contents);
 int mode_of_file(char *fname);
+void paranoid_alloc(char *alloc, char *orig);

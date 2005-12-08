@@ -36,7 +36,6 @@ extern int pre_param_configuration(struct s_bkpinfo *bkpinfo);
 
 extern void mount_boot_if_necessary(void);
 extern void unmount_boot_if_necessary(void);
-extern void restart_autofs_if_necessary(void);
 extern void malloc_libmondo_global_strings(void);
 extern void free_libmondo_global_strings(void);
 
@@ -48,5 +47,3 @@ extern bool does_nonMS_partition_exist(void);
 
 extern void stop_magicdev_if_necessary(void);
 extern void restart_magicdev_if_necessary(void);
-extern void stop_autofs_if_necessary(void);
-extern void restart_autofs_if_necessary(void);

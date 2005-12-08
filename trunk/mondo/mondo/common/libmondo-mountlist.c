@@ -568,7 +568,7 @@ evaluate_mountlist(struct mountlist_itself *mountlist, char *flaws_str_A,
 	assert(flaws_str_B != NULL);
 	assert(flaws_str_C != NULL);
 
-	asprintf(&flaws_str, "");
+	asprintf(&flaws_str, " ");
 
 	make_list_of_drives_in_mountlist(mountlist, drivelist);
 
@@ -582,7 +582,7 @@ evaluate_mountlist(struct mountlist_itself *mountlist, char *flaws_str_A,
 					 drivelist->el[i].device);
 			log_it(tmp);
 		} else {
-			asprintf(&tmp, "");
+			asprintf(&tmp, " ");
 			// BERLIOS : tmp was NOT initialized ???
 			if (!evaluate_drive_within_mountlist
 				(mountlist, drivelist->el[i].device, tmp)) {

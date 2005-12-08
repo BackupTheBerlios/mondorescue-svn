@@ -297,7 +297,7 @@ archive_this_fileset(struct s_bkpinfo *bkpinfo, char *filelist,
 
 	/*@ buffers ******************************************************** */
 	char *command;
-	char *zipparams;
+	char *zipparams = NULL;
 	char *tmp, *tmp1;
 
 	assert(bkpinfo != NULL);
@@ -324,7 +324,7 @@ archive_this_fileset(struct s_bkpinfo *bkpinfo, char *filelist,
 	paranoid_free(tmp)
 
 
-		if (bkpinfo->compression_level > 0) {
+	if (bkpinfo->compression_level > 0) {
 		asprintf(&tmp, "%s/do-not-compress-these", g_mondo_home);
 		//       -b %ld, TAPE_BLOCK_SIZE
 		asprintf(&zipparams, "-Z -P %s -G %d -T 3k", bkpinfo->zip_exe,
@@ -332,14 +332,14 @@ archive_this_fileset(struct s_bkpinfo *bkpinfo, char *filelist,
 		if (does_file_exist(tmp)) {
 			asprintf(&tmp1, "%s -E %s", zipparams, tmp);
 			paranoid_free(zipparams)
-				zipparams = tmp1;
+			zipparams = tmp1;
 		} else {
-			asprintf(&zipparams, "");
+			asprintf(&zipparams, " ");
 			log_msg(3, "%s not found. Cannot exclude zipfiles, etc.", tmp);
 		}
 		paranoid_free(tmp)
 	} else {
-		asprintf(&zipparams, "");
+		asprintf(&zipparams, " ");
 	}
 
 //  make_hole_for_file(fname);
@@ -581,10 +581,10 @@ int call_mindi_to_supply_boot_disks(struct s_bkpinfo *bkpinfo)
 	paranoid_free(tmp);
 	if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
 		asprintf(&tape_size_sz, "%ld", bkpinfo->media_size[1]);
-		asprintf(&tape_device, "%s", bkpinfo->media_device);
+		asprintf(&tape_device, bkpinfo->media_device);
 	} else {
-		asprintf(&tape_size_sz, "");
-		asprintf(&tape_device, "");
+		asprintf(&tape_size_sz, " ");
+		asprintf(&tape_device, " ");
 	}
 	if (bkpinfo->use_lzo) {
 		asprintf(&use_lzo_sz, "yes");
@@ -824,7 +824,7 @@ int call_mindi_to_supply_boot_disks(struct s_bkpinfo *bkpinfo)
 	if (bkpinfo->nonbootable_backup) {
 		asprintf(&tmp, " NONBOOTABLE");
 	} else {
-		asprintf(&tmp, "");
+		asprintf(&tmp, " ");
 	}
 
 	asprintf(&command,
@@ -2006,6 +2006,8 @@ make_slices_and_images(struct s_bkpinfo *bkpinfo, char *biggielist_fname)
 	open_progress_form("Backing up big files", tmp,
 					   "Please wait. This may take some time.", "",
 					   estimated_total_noof_slices);
+	paranoid_free(tmp);
+
 	if (!(fin = fopen(biggielist_fname, "r"))) {
 		log_OS_error("Unable to openin biggielist");
 		return (1);
@@ -2077,10 +2079,9 @@ make_slices_and_images(struct s_bkpinfo *bkpinfo, char *biggielist_fname)
 									partimagehack_fifo, biggie_file_number,
 									noof_biggie_files, use_partimagehack);
 			if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
-				write_header_block_to_stream(0,
-											 calc_checksum_of_file
-											 (bigfile_fname),
-											 BLK_STOP_A_BIGGIE);
+				tmp = calc_checksum_of_file(bigfile_fname);
+				write_header_block_to_stream(0, tmp, BLK_STOP_A_BIGGIE);
+				paranoid_free(tmp);
 			}
 			retval += res;
 			p = strrchr(bigfile_fname, '/');
@@ -2089,7 +2090,6 @@ make_slices_and_images(struct s_bkpinfo *bkpinfo, char *biggielist_fname)
 			} else {
 				p = bigfile_fname;
 			}
-			paranoid_free(tmp);
 			if (res) {
 				asprintf(&tmp, "Archiving %s ... Failed!", bigfile_fname);
 			} else {
@@ -2771,51 +2771,32 @@ _move_files_to_stream(struct s_bkpinfo *bkpinfo, char *files_to_add, ...)
  */
 /**
  * Make sure the user has a valid CD-R(W) in the CD drive.
- * @param cdrw_dev Set to the CD-R(W) device checked.
+ * @param cdrw_device Set to the CD-R(W) device checked.
  * @param keep_looping If TRUE, keep pestering user until they insist
  * or insert a correct CD; if FALSE, only check once.
  * @return 0 (there was an OK CD in the drive) or 1 (there wasn't).
  */
-int
-interrogate_disk_currently_in_cdrw_drive(char *cdrw_dev, bool keep_looping)
+char *interrogate_disk_currently_in_cdrw_drive()
 {
-	int res = 0;
-	char *bkp;
 	char *cdrecord;
+	char *cdrw_device;
 
-	asprintf(&bkp, "%s", cdrw_dev);
-	if (find_cdrw_device(cdrw_dev)) {
-		strcpy(cdrw_dev, bkp);
-	} else {
+	if ((cdrw_device = find_cdrw_device()) != NULL) {
 		if (!system("which cdrecord > /dev/null 2> /dev/null")) {
-			asprintf(&cdrecord, "cdrecord dev=%s -atip", cdrw_dev);
+			asprintf(&cdrecord, "cdrecord dev=%s -atip", cdrw_device);
 		} else if (!system("which dvdrecord > /dev/null 2> /dev/null")) {
-			asprintf(&cdrecord, "cdrecord dev=%s -atip", cdrw_dev);
+			asprintf(&cdrecord, "cdrecord dev=%s -atip", cdrw_device);
 		} else {
-			asprintf(&cdrecord, "%s", "");
-			log_msg(2, "Oh well. I guess I'll just pray then.");
+			asprintf(&cdrecord, " ");
+			log_msg(2, "Found no cdrecord nor dvdrecord in path.");
 		}
 		if (cdrecord[0]) {
-			if (!keep_looping) {
 				retract_CD_tray_and_defeat_autorun();
-				res = run_program_and_log_output(cdrecord, 5);
-			} else {
-				while ((res = run_program_and_log_output(cdrecord, 5))) {
-					retract_CD_tray_and_defeat_autorun();
-					if (ask_me_yes_or_no
-						("Unable to examine CD. Are you sure this is a valid CD-R(W) CD?"))
-					{
-						log_msg(1, "Well, he insisted...");
-						break;
-					}
-				}
-			}
+				run_program_and_log_output(cdrecord, 5);
 		}
 		paranoid_free(cdrecord);
 	}
-	paranoid_free(bkp);
-//  retract_CD_tray_and_defeat_autorun();
-	return (res);
+	return(cdrw_device);
 }
 
 
@@ -2833,7 +2814,7 @@ pause_and_ask_for_cdr(int ask_for_one_if_more_than_this, bool * pmountable)
 	char *tmp1;
 	char *szmsg;
 	char *cdrom_dev;
-	char *cdrw_dev;
+	char *cdrw_device = NULL;
 	char *our_serial_str;
 	bool ok_go_ahead_burn_it;
 	int cd_number = -1;
@@ -2842,9 +2823,6 @@ pause_and_ask_for_cdr(int ask_for_one_if_more_than_this, bool * pmountable)
 	char *szcdno;
 	char *szserfname;
 	char *szunmount;
-
-	malloc_string(cdrom_dev);
-	malloc_string(cdrw_dev);
 
 	asprintf(&szmsg, "I am about to burn %s #%d",
 			 media_descriptor_string(g_backup_media_type),
@@ -2861,7 +2839,8 @@ pause_and_ask_for_cdr(int ask_for_one_if_more_than_this, bool * pmountable)
 
   gotos_make_me_puke:
 	ok_go_ahead_burn_it = TRUE;
-	if (!find_cdrom_device(cdrom_dev, FALSE)) {
+	cdrom_dev = find_cdrom_device(FALSE);
+	if (cdrom_dev != NULL) {
 /* When enabled, it made CD eject-and-retract when wrong CD inserted.. Weird
       log_msg(2, "paafcd: Retracting CD-ROM drive if possible" );
       retract_CD_tray_and_defeat_autorun();
@@ -2879,17 +2858,6 @@ pause_and_ask_for_cdr(int ask_for_one_if_more_than_this, bool * pmountable)
 			log_msg(4, "Failed to mount %s at %s", cdrom_dev, mtpt);
 			log_to_screen("If there's a CD/DVD in the drive, it's blank.");
 			asprintf(&our_serial_str, "%s", "");
-			/*
-			   if (interrogate_disk_currently_in_cdrw_drive(cdrw_dev, FALSE))
-			   {
-			   ok_go_ahead_burn_it = FALSE;
-			   log_to_screen("There isn't a writable CD/DVD in the drive.");
-			   }
-			   else
-			   {
-			   log_to_screen("Confirmed. There is a blank CD/DVD in the drive.");
-			   }
-			 */
 		} else if (!does_file_exist(szcdno)
 				   || !does_file_exist(szserfname)) {
 			log_to_screen
@@ -2937,11 +2905,12 @@ pause_and_ask_for_cdr(int ask_for_one_if_more_than_this, bool * pmountable)
 		log_msg(2,
 				"paafcd: Can't find CD-ROM drive. Perhaps it has a blank %s in it?",
 				media_descriptor_string(g_backup_media_type));
-		if (interrogate_disk_currently_in_cdrw_drive(cdrw_dev, FALSE)) {
+		if ((cdrw_device = interrogate_disk_currently_in_cdrw_drive(cdrw_device)) != NULL) {
 			ok_go_ahead_burn_it = FALSE;
 			log_to_screen("There isn't a writable %s in the drive.",
 						  media_descriptor_string(g_backup_media_type));
 		}
+		paranoid_free(cdrw_device);
 	}
 	paranoid_free(mtpt);
 
@@ -2966,6 +2935,7 @@ pause_and_ask_for_cdr(int ask_for_one_if_more_than_this, bool * pmountable)
 	} else {
 		log_msg(2, "paafcd: OK, going ahead and burning it.");
 	}
+	paranoid_free(cdrom_dev);
 
 	log_msg(2,
 			"paafcd: OK, I assume I have a blank/reusable %s in the drive...",
@@ -2973,8 +2943,6 @@ pause_and_ask_for_cdr(int ask_for_one_if_more_than_this, bool * pmountable)
 
 	log_to_screen("Proceeding w/ %s in drive.",
 				  media_descriptor_string(g_backup_media_type));
-	paranoid_free(cdrom_dev);
-	paranoid_free(cdrw_dev);
 	if (pmountable) {
 		if (attempt_to_mount_returned_this) {
 			*pmountable = FALSE;
@@ -3496,13 +3464,14 @@ int write_iso_and_go_on(struct s_bkpinfo *bkpinfo, bool last_cd)
 		if (g_current_media_number == 1 && !res
 			&& (bkpinfo->backup_media_type == cdr
 				|| bkpinfo->backup_media_type == cdrw)) {
-			if (find_cdrom_device(tmp, FALSE))	// make sure find_cdrom_device() finds, records CD-R's loc
+			if ((tmp = find_cdrom_device(FALSE)) == NULL)	// make sure find_cdrom_device() finds, records CD-R's loc
 			{
 				log_msg(3, "*Sigh* Mike, I hate your computer.");
 				bkpinfo->manual_cd_tray = TRUE;
 			}					// if it can't be found then force pausing
 			else {
 				log_msg(3, "Great. Found Mike's CD-ROM drive.");
+				paranoid_free(tmp);
 			}
 		}
 		if (bkpinfo->verify_data && !res) {
@@ -3593,7 +3562,8 @@ int verify_data(struct s_bkpinfo *bkpinfo)
 		mvaddstr_and_log_it(g_currentY, 0,
 							"Verifying archives against live filesystem");
 		if (bkpinfo->backup_media_type == cdstream) {
-			strcpy(bkpinfo->media_device, "/dev/cdrom");
+			paranoid_alloc(bkpinfo->media_device, 
+							"/dev/cdrom");
 		}
 		verify_tape_backups(bkpinfo);
 		mvaddstr_and_log_it(g_currentY++, 74, "Done.");
@@ -3607,7 +3577,8 @@ int verify_data(struct s_bkpinfo *bkpinfo)
 	} else {
 		g_current_media_number = cdno;
 		if (bkpinfo->backup_media_type != iso) {
-			find_cdrom_device(bkpinfo->media_device, FALSE);	// replace 0,0,0 with /dev/cdrom
+			paranoid_free(bkpinfo->media_device);
+			bkpinfo->media_device = find_cdrom_device(FALSE);
 		}
 		chdir("/");
 		for (cdno = 1; cdno < 99 && bkpinfo->verify_data; cdno++) {
@@ -3646,10 +3617,7 @@ int verify_data(struct s_bkpinfo *bkpinfo)
 		paranoid_free(tmp);
 
 		run_program_and_log_output("umount " MNT_CDROM, FALSE);
-//        if (bkpinfo->backup_media_type != iso && !bkpinfo->please_dont_eject_when_restoring)
-//{
 		eject_device(bkpinfo->media_device);
-//}
 	}
 	diffs = count_lines_in_file("/tmp/changed.files");
 

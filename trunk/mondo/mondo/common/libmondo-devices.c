@@ -1,7 +1,6 @@
-/* libmondo-devices.c                 Subroutines for handling devices
-   $Id$
-*/
-
+/* $Id$
+ * Subroutines for handling devices
+ */
 /**
  * @file
  * Functions to handle interactions with backup devices.
@@ -42,9 +41,9 @@ extern struct s_bkpinfo *g_bkpinfo_DONTUSETHIS;
 extern char *g_erase_tmpdir_and_scratchdir;
 extern char *g_selfmounted_isodir;
 
-static char g_cdrw_drive_is_here[MAX_STR_LEN / 4] = "";
-static char g_cdrom_drive_is_here[MAX_STR_LEN / 4] = "";
-static char g_dvd_drive_is_here[MAX_STR_LEN / 4] = "";
+static char *g_cdrw_drive_is_here = NULL;
+static char *g_cdrom_drive_is_here = NULL;
+static char *g_dvd_drive_is_here = NULL;
 
 
 /**
@@ -60,8 +59,14 @@ extern t_bkptype g_backup_media_type;	// set by main()
 
 void set_g_cdrom_and_g_dvd_to_bkpinfo_value(struct s_bkpinfo *bkpinfo)
 {
-	strcpy(g_cdrom_drive_is_here, bkpinfo->media_device);	// just in case
-	strcpy(g_dvd_drive_is_here, bkpinfo->media_device);	// just in case
+	if (bkpinfo->media_device != NULL) {
+		paranoid_free(g_cdrom_drive_is_here);
+		asprintf(&g_cdrom_drive_is_here, bkpinfo->media_device);	// just in case
+	}
+	if (bkpinfo->media_device != NULL) {
+		paranoid_free(g_dvd_drive_is_here);
+		asprintf(&g_dvd_drive_is_here, bkpinfo->media_device);	// just in case
+	}
 }
 
 
@@ -151,9 +156,9 @@ bool am_I_in_disaster_recovery_mode(void)
  * @note The returned string points to static storage that will be overwritten with each call.
  * @ingroup stringGroup
  */
-static char *bkptype_to_string(t_bkptype bt)
+char *bkptype_to_string(t_bkptype bt)
 {
-	static char *output = NULL;
+	char *output = NULL;
 
 	paranoid_free(output);
 
@@ -318,7 +323,7 @@ int does_partition_exist(const char *drive, int partno)
 
 	/*@ ints ******************************************************* */
 	int res = 0;
-	int n = 0;
+	size_t n = 0;
 
 	/*@ pointers *************************************************** */
 	FILE *fin;
@@ -431,29 +436,30 @@ bool does_string_exist_in_first_N_blocks(char *dev, char *str, int n)
  * @return 0 for success, nonzero for failure.
  * @see mount_CDROM_here
  */
-int find_and_mount_actual_cd(struct s_bkpinfo *bkpinfo, char *mountpoint)
+bool find_and_mount_actual_cd(struct s_bkpinfo *bkpinfo, char *mountpoint)
 {
 	/*@ buffers ***************************************************** */
 
 	/*@ int's  ****************************************************** */
-	int res;
-	char *dev;
+	bool res = TRUE;
+	char *dev = NULL;
 
 	/*@ end vars **************************************************** */
 
-	malloc_string(dev);
 	assert(bkpinfo != NULL);
 	assert_string_is_neither_NULL_nor_zerolength(mountpoint);
 
 	if (g_backup_media_type == dvd) {
-		strcpy(dev, g_dvd_drive_is_here);
-		if (!dev[0]) {
-			find_dvd_device(dev, FALSE);
+		if (g_dvd_drive_is_here != NULL) {
+			asprintf(&dev, g_dvd_drive_is_here);
+		} else {
+			dev = find_dvd_device();
 		}
 	} else {
-		strcpy(dev, g_cdrom_drive_is_here);
-		if (!dev[0]) {
-			find_cdrom_device(dev, FALSE);
+		if (g_cdrom_drive_is_here != NULL) {
+			asprintf(&dev, g_cdrom_drive_is_here);
+		} else {
+			dev = find_cdrom_device(FALSE);
 		}
 	}
 
@@ -461,11 +467,11 @@ int find_and_mount_actual_cd(struct s_bkpinfo *bkpinfo, char *mountpoint)
 		retract_CD_tray_and_defeat_autorun();
 	}
 
-	if (!dev[0] || (res = mount_CDROM_here(dev, mountpoint))) {
+	if ((dev == NULL) || (! mount_CDROM_here(dev, mountpoint))) {
 		if (!popup_and_get_string
 			("CD-ROM device", "Please enter your CD-ROM's /dev device",
 			 dev, MAX_STR_LEN / 4)) {
-			res = 1;
+			res = FALSE;
 		} else {
 			res = mount_CDROM_here(dev, mountpoint);
 		}
@@ -476,32 +482,33 @@ int find_and_mount_actual_cd(struct s_bkpinfo *bkpinfo, char *mountpoint)
 		log_msg(1, "mount succeeded with %s", dev);
 	}
 	paranoid_free(dev);
-	return (res);
+	return(res);
 }
 
 
 /**
  * Locate a CD-R/W writer's SCSI node.
- * @param cdrw_device SCSI node will be placed here.
- * @return 0 for success, nonzero for failure.
+ * @param cdrw_device SCSI node will be placed here. Caller needs to free it.
+ * @return the cdrw device or NULL if not found
  */
-int find_cdrw_device(char *cdrw_device)
+char *find_cdrw_device(void)
 {
 	/*@ buffers ************************ */
 	char *comment;
 	char *tmp;
 	char *cdr_exe;
 	char *command;
+	char *cdrw_device;
 
-	if (g_cdrw_drive_is_here[0]) {
-		strcpy(cdrw_device, g_cdrw_drive_is_here);
+	if (g_cdrw_drive_is_here != NULL) {
+		asprintf(&cdrw_device, g_cdrw_drive_is_here);
 		log_msg(3, "Been there, done that. Returning %s", cdrw_device);
-		return (0);
+		return(cdrw_device);
 	}
 	if (g_backup_media_type == dvd) {
 		log_msg(1,
 				"This is dumb. You're calling find_cdrw_device() but you're backing up to DVD. WTF?");
-		return (1);
+		return(NULL);
 	}
 	run_program_and_log_output("insmod ide-scsi", -1);
 	if (find_home_of_exe("cdrecord")) {
@@ -516,23 +523,23 @@ int find_cdrw_device(char *cdrw_device)
 		asprintf(&tmp, call_program_and_get_last_line_of_output(command));
 		paranoid_free(command);
 	} else {
-		asprintf(&tmp, "");
+		asprintf(&tmp, " ");
 	}
 	paranoid_free(cdr_exe);
 
 	if (strlen(tmp) < 2) {
 		paranoid_free(tmp);
-		return 1;
+		return(NULL);
 	} else {
-		strcpy(cdrw_device, tmp);
-		paranoid_free(tmp);
+		cdrw_device = tmp;
 
 		asprintf(&comment, "Found CDRW device - %s", cdrw_device);
 		log_it(comment);
 		paranoid_free(comment);
 
-		strcpy(g_cdrw_drive_is_here, cdrw_device);
-		return (0);
+		paranoid_free(g_cdrw_drive_is_here);
+		asprintf(&g_cdrw_drive_is_here, cdrw_device);
+		return(cdrw_device);
 	}
 }
 
@@ -541,20 +548,20 @@ int find_cdrw_device(char *cdrw_device)
  * Attempt to locate a CD-ROM device's /dev entry.
  * Several different methods may be used to find the device, including
  * calling @c cdrecord, searching @c dmesg, and trial-and-error.
- * @param output Where to put the located /dev entry.
+ * @param output Where to put the located /dev entry. Needs to be freed by the caller.
  * @param try_to_mount Whether to mount the CD as part of the test; if mount
  * fails then return failure.
- * @return 0 for success, nonzero for failure.
+ * @return output if success or NULL otherwise.
  */
-int find_cdrom_device(char *output, bool try_to_mount)
+char *find_cdrom_device(bool try_to_mount)
 {
 	/*@ pointers **************************************************** */
 	FILE *fin;
 	char *p;
 	char *q;
 	char *r;
-	int n = 0;
-	int retval = 0;
+	char *output = NULL;
+	size_t n = 0;
 
 	/*@ bool's ****************************************************** */
 	bool found_it = FALSE;
@@ -570,23 +577,19 @@ int find_cdrom_device(char *output, bool try_to_mount)
 	char *mountpoint;
 	static char the_last_place_i_found_it[MAX_STR_LEN] = "";
 
-	/*@ intialize *************************************************** */
-
-	output[0] = '\0';
-
 	/*@ end vars **************************************************** */
 
-	if (g_cdrom_drive_is_here[0] && !isdigit(g_cdrom_drive_is_here[0])) {
-		strcpy(output, g_cdrom_drive_is_here);
+	if ((g_cdrom_drive_is_here != NULL) && !isdigit(g_cdrom_drive_is_here[0])) {
+		asprintf(&output, g_cdrom_drive_is_here);
 		log_msg(3, "Been there, done that. Returning %s", output);
-		return(0);
+		return(output);
 	}
 	if (the_last_place_i_found_it[0] != '\0' && !try_to_mount) {
-		strcpy(output, the_last_place_i_found_it);
+		asprintf(&output, the_last_place_i_found_it);
 		log_msg(3,
 				"find_cdrom_device() --- returning last found location - '%s'",
 				output);
-		return(0);
+		return(output);
 	}
 
 	if (find_home_of_exe("cdrecord")) {
@@ -595,15 +598,16 @@ int find_cdrom_device(char *output, bool try_to_mount)
 		asprintf(&cdr_exe, "dvdrecord");
 	}
 	if (!find_home_of_exe(cdr_exe)) {
-		strcpy(output, "/dev/cdrom");
+		asprintf(&output, "/dev/cdrom");
 		log_msg(4, "Can't find cdrecord; assuming %s", output);
 		if (!does_device_exist(output)) {
 			log_msg(4, "That didn't work. Sorry.");
 			paranoid_free(cdr_exe);
-			return(1);
+			paranoid_free(output);
+			return(NULL);
 		} else {
 			paranoid_free(cdr_exe);
-			return(0);
+			return(output);
 		}
 	}
 
@@ -614,7 +618,7 @@ int find_cdrom_device(char *output, bool try_to_mount)
 		log_OS_error("Cannot popen command");
 		paranoid_free(cdr_exe);
 		paranoid_free(command);
-		return (1);
+		return (NULL);
 	}
 	paranoid_free(command);
 
@@ -671,7 +675,7 @@ int find_cdrom_device(char *output, bool try_to_mount)
 									"Ignoring '%s' because it's a DVD drive",
 									tmp);
 						} else {
-							sprintf(output, "/dev/%s", tmp);
+							asprintf(&output, "/dev/%s", tmp);
 							found_it = TRUE;
 						}
 					}
@@ -712,7 +716,7 @@ int find_cdrom_device(char *output, bool try_to_mount)
 															  "/dev/cd1")))
 								{
 									paranoid_free(cdr_exe);
-									return(1);
+									return(NULL);
 								}
 							}
 						}
@@ -726,7 +730,8 @@ int find_cdrom_device(char *output, bool try_to_mount)
 		if (!found_it && strlen(dvd_last_resort) > 0) {
 			log_msg(4, "Well, I'll use the DVD - %s - as a last resort",
 					dvd_last_resort);
-			strcpy(output, dvd_last_resort);
+			paranoid_free(output);
+			asprintf(&output, dvd_last_resort);
 			found_it = TRUE;
 		}
 	}
@@ -740,7 +745,7 @@ int find_cdrom_device(char *output, bool try_to_mount)
 					"%s is not right. It's being SCSI-emulated. Continuing.",
 					output);
 			found_it = FALSE;
-			output[0] = '\0';
+			paranoid_free(output);
 		}
 		paranoid_free(tmp);
 	}
@@ -748,8 +753,9 @@ int find_cdrom_device(char *output, bool try_to_mount)
 	if (found_it) {
 		log_msg(4, "(find_cdrom_device) --> '%s'", output);
 		if (!does_device_exist(output)) {
-			found_it = FALSE;
 			log_msg(4, "OK, I was wrong, I haven't found it... yet.");
+			found_it = FALSE;
+			paranoid_free(output);
 		}
 	}
 
@@ -783,7 +789,7 @@ int find_cdrom_device(char *output, bool try_to_mount)
 																  g_cdrw_drive_is_here)))
 									{
 										paranoid_free(cdr_exe);
-										return(1);
+										return(NULL);
 									}
 								}
 							}
@@ -799,14 +805,16 @@ int find_cdrom_device(char *output, bool try_to_mount)
 	make_hole_for_dir(mountpoint);
 
 	if (found_it && try_to_mount) {
-		if (mount_CDROM_here(output, mountpoint)) {
+		if (! mount_CDROM_here(output, mountpoint)) {
 			log_msg(4, "[Cardigans] I've changed my mind");
 			found_it = FALSE;
+			paranoid_free(output);
 		} else {
 			asprintf(&tmp, "%s/archives", mountpoint);
 			if (!does_file_exist(tmp)) {
 				log_msg(4, "[Cardigans] I'll take it back");
 				found_it = FALSE;
+				paranoid_free(output);
 			} else {
 				asprintf(&command, "umount %s", output);
 				paranoid_system(command);
@@ -822,44 +830,47 @@ int find_cdrom_device(char *output, bool try_to_mount)
 	if (found_it) {
 		if (!does_file_exist(output)) {
 			log_msg(3, "I still haven't found it.");
-			return (1);
+			paranoid_free(output);
+			return(NULL);
 		}
 		log_msg(3, "(find_cdrom_device) --> '%s'", output);
 		strcpy(the_last_place_i_found_it, output);
-		strcpy(g_cdrom_drive_is_here, output);
-		return(0);
+		paranoid_free(g_cdrom_drive_is_here);
+		asprintf(&g_cdrom_drive_is_here, output);
+		return(output);
 	}
 
 	asprintf(&command,
 			"%s -scanbus | grep \"[0-9],[0-9],[0-9]\" | grep \"[D|C][V|D]\" | grep -n \"\" | grep \"%s\" | cut -d':' -f2",
 			cdr_exe, g_cdrw_drive_is_here);
+	paranoid_free(cdr_exe);
+
 	log_msg(1, "command=%s", command);
 	asprintf(&tmp, call_program_and_get_last_line_of_output(command));
 	paranoid_free(command);
 
 	if (tmp[0]) {
-		strcpy(output, tmp);
+		output = tmp;
 		log_msg(4, "Finally found it at %s", output);
-		retval = 0;
 	} else {
+		paranoid_free(tmp);
+		paranoid_free(output);
 		log_msg(4, "Still couldn't find it.");
-		retval = 1;
 	}
-	paranoid_free(tmp);
-	paranoid_free(cdr_exe);
-	return (retval);
+	return(output);
 }
 
 
-int find_dvd_device(char *output, bool try_to_mount)
+char *find_dvd_device()
 {
 	char *tmp;
 	int retval = 0, devno = -1;
+	char *output = NULL; 
 
-	if (g_dvd_drive_is_here[0]) {
-		strcpy(output, g_dvd_drive_is_here);
+	if (g_dvd_drive_is_here != NULL) {
+		asprintf(&output, g_dvd_drive_is_here);
 		log_msg(3, "Been there, done that. Returning %s", output);
-		return (0);
+		return (output);
 	}
 
 	asprintf(&tmp, call_program_and_get_last_line_of_output
@@ -879,18 +890,15 @@ int find_dvd_device(char *output, bool try_to_mount)
 
 	if (devno >= 0) {
 		retval = 0;
-		sprintf(output, "/dev/scd%d", devno);
-		strcpy(g_dvd_drive_is_here, output);
+		asprintf(&output, "/dev/scd%d", devno);
+		paranoid_free(g_dvd_drive_is_here);
+		asprintf(&g_dvd_drive_is_here, output);
 		log_msg(2, "I think DVD is at %s", output);
 	} else {
 		log_msg(2, "I cannot find DVD");
-		retval = 1;
 	}
 
-	if (try_to_mount) {
-		log_msg(1, "Ignoring the fact that try_to_mount==TRUE");
-	}
-	return (retval);
+	return(output);
 }
 
 
@@ -1063,7 +1071,7 @@ bool is_this_device_mounted(char *device_raw)
 	char *device_with_tab;
 	char *device_with_space;
 	char *tmp;
-	int n = 0;
+	size_t n = 0;
 
 #ifdef __FreeBSD__
 #define SWAPLIST_COMMAND "swapinfo"
@@ -1211,9 +1219,9 @@ int kick_vn(char *dname)
  * Mount the CD-ROM at @p mountpoint.
  * @param device The device (or file if g_ISO_restore_mode) to mount.
  * @param mountpoint The place to mount it.
- * @return 0 for success, nonzero for failure.
+ * @return TRUE for success, FALSE for failure.
  */
-int mount_CDROM_here(char *device, char *mountpoint)
+bool mount_CDROM_here(char *device, char *mountpoint)
 {
 	/*@ buffer ****************************************************** */
 	char *command;
@@ -1224,7 +1232,8 @@ int mount_CDROM_here(char *device, char *mountpoint)
 
 	make_hole_for_dir(mountpoint);
 	if (isdigit(device[0])) {
-		find_cdrom_device(device, FALSE);
+		paranoid_free(device);
+		device = find_cdrom_device(FALSE);
 	}
 	if (g_ISO_restore_mode) {
 
@@ -1237,8 +1246,8 @@ int mount_CDROM_here(char *device, char *mountpoint)
 					device);
 			fatal_error(command);
 		}
-		strcpy(device, dev);
-		paranoid_free(dev);
+		paranoid_free(device);
+		device = dev;
 #endif
 	}
 
@@ -1262,7 +1271,11 @@ int mount_CDROM_here(char *device, char *mountpoint)
 	log_msg(1, "system(%s) returned %d", command, retval);
 	paranoid_free(command);
 
-	return (retval);
+	if (retval == 0) {
+		return(TRUE);
+	} else {
+		return(FALSE);
+	}
 }
 
 
@@ -1330,7 +1343,7 @@ insist_on_this_cd_number(struct s_bkpinfo *bkpinfo, int cd_number_i_want)
 			}
 		}
 		log_msg(3, "Mounting %s at %s", tmp, MNT_CDROM);
-		if (mount_CDROM_here(tmp, MNT_CDROM)) {
+		if (! mount_CDROM_here(tmp, MNT_CDROM)) {
 			fatal_error("Mommy!");
 		}
 		paranoid_free(tmp);
@@ -1465,12 +1478,13 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 			asprintf(&comment, "What speed is your %s (re)writer?",
 					media_descriptor_string(bkpinfo->backup_media_type));
 			if (bkpinfo->backup_media_type == dvd) {
-				find_dvd_device(bkpinfo->media_device, FALSE);
+				paranoid_free(bkpinfo->media_device);
+				bkpinfo->media_device = find_dvd_device();
 				asprintf(&tmp, "1");
 				asprintf(&sz_size, "%d", DEFAULT_DVD_DISK_SIZE);	// 4.7 salesman's GB = 4.482 real GB = 4582 MB
 				log_msg(1, "Setting to DVD defaults");
 			} else {
-				strcpy(bkpinfo->media_device, VANILLA_SCSI_CDROM);
+				paranoid_alloc(bkpinfo->media_device,VANILLA_SCSI_CDROM );
 				asprintf(&tmp, "4");
 				asprintf(&sz_size, "650");
 				log_msg(1, "Setting to CD defaults");
@@ -1507,18 +1521,20 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 		}
 	case cdstream:
 		if (bkpinfo->disaster_recovery) {
-			strcpy(bkpinfo->media_device, "/dev/cdrom");
+			paranoid_alloc(bkpinfo->media_device, "/dev/cdrom");
 			log_msg(2, "CD-ROM device assumed to be at %s",
 					bkpinfo->media_device);
 		} else if (bkpinfo->restore_data
 				   || bkpinfo->backup_media_type == dvd) {
-			if (!bkpinfo->media_device[0]) {
-				strcpy(bkpinfo->media_device, "/dev/cdrom");
+			if (bkpinfo->media_device == NULL) {
+				paranoid_alloc(bkpinfo->media_device, "/dev/cdrom");
 			}					// just for the heck of it :)
 			log_msg(1, "bkpinfo->media_device = %s",
 					bkpinfo->media_device);
-			if (bkpinfo->backup_media_type == dvd
-				|| find_cdrom_device(bkpinfo->media_device, FALSE)) {
+			if ((bkpinfo->backup_media_type == dvd)
+				|| ((tmp = find_cdrom_device(FALSE)) != NULL)) {
+				paranoid_free(bkpinfo->media_device);
+				bkpinfo->media_device = tmp;
 				log_msg(1, "bkpinfo->media_device = %s",
 						bkpinfo->media_device);
 				asprintf(&comment,
@@ -1537,21 +1553,19 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 					media_descriptor_string(bkpinfo->backup_media_type),
 					bkpinfo->media_device);
 		} else {
-			if (find_cdrw_device(bkpinfo->media_device)) {
-				bkpinfo->media_device[0] = '\0';
-			}
-			if (bkpinfo->media_device[0]) {
+			paranoid_free(bkpinfo->media_device);
+			bkpinfo->media_device = find_cdrw_device();
+			if (bkpinfo->media_device != NULL) {
 				asprintf(&tmp,
 						"I think I've found your %s burner at SCSI node %s; am I right on the money?",
 						media_descriptor_string(bkpinfo->
 												backup_media_type),
 						bkpinfo->media_device);
 				if (!ask_me_yes_or_no(tmp)) {
-					bkpinfo->media_device[0] = '\0';
+					paranoid_free(bkpinfo->media_device);
 				}
 				paranoid_free(tmp);
-			}
-			if (!bkpinfo->media_device[0]) {
+			} else {
 				if (g_kernel_version < 2.6) {
 					i = popup_and_get_string("Device node?",
 											 "What is the SCSI node of your CD (re)writer, please?",
@@ -1583,16 +1597,17 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 		}
 	case tape:
 
+		paranoid_free(bkpinfo->media_device);
 		if (find_tape_device_and_size(bkpinfo->media_device, sz_size)) {
 			log_msg(3, "Ok, using vanilla scsi tape.");
-			strcpy(bkpinfo->media_device, VANILLA_SCSI_TAPE);
+			paranoid_alloc(bkpinfo->media_device,VANILLA_SCSI_TAPE );
 			if ((fin = fopen(bkpinfo->media_device, "r"))) {
 				paranoid_fclose(fin);
 			} else {
-				strcpy(bkpinfo->media_device, "/dev/osst0");
+				paranoid_alloc(bkpinfo->media_device,"/dev/osst0");
 			}
 		}
-		if (bkpinfo->media_device[0]) {
+		if (bkpinfo->media_device != NULL) {
 			if ((fin = fopen(bkpinfo->media_device, "r"))) {
 				paranoid_fclose(fin);
 			} else {
@@ -1605,11 +1620,11 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 					"I think I've found your tape streamer at %s; am I right on the money?",
 					bkpinfo->media_device);
 			if (!ask_me_yes_or_no(tmp)) {
-				bkpinfo->media_device[0] = '\0';
+				paranoid_free(bkpinfo->media_device);
 			}
 			paranoid_free(tmp);
 		}
-		if (!bkpinfo->media_device[0]) {
+		if (bkpinfo->media_device == NULL) {
 			if (!popup_and_get_string
 				("Device name?",
 				 "What is the /dev entry of your tape streamer?",
@@ -1906,11 +1921,10 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 
 #ifndef __FreeBSD__
 		if (!ask_me_yes_or_no
-			("Are you confident that your kernel is a sane, sensible, standard Linux kernel? Say 'no' if you are using a Gentoo <1.4 or Debian <3.0, please."))
-#endif
-		{
-			strcpy(bkpinfo->kernel_path, "FAILSAFE");
+			("Are you confident that your kernel is a sane, sensible, standard Linux kernel? Say 'no' if you are using a Gentoo <1.4 or Debian <3.0, please.")) {
+			paranoid_alloc(bkpinfo->kernel_path, "FAILSAFE");
 		}
+#endif
 
 		if (!ask_me_yes_or_no
 			("Are you sure you want to proceed? Hit 'no' to abort.")) {
@@ -2067,15 +2081,15 @@ void sensibly_set_tmpdir_and_scratchdir(struct s_bkpinfo *bkpinfo)
  * If we can read @p dev, set @p output to it.
  * If @p dev cannot be read, set @p output to "".
  * @param dev The device to check for.
- * @param output Set to @p dev if @p dev exists, "" otherwise.
+ * @param output Set to @p dev if @p dev exists, NULL otherwise. Needs to be freed by caller
  * @return TRUE if @p dev exists, FALSE if it doesn't.
  */
 bool set_dev_to_this_if_rx_OK(char *output, char *dev)
 {
 	char *command;
 
+	paranoid_free(output);
 	if (!dev || dev[0] == '\0') {
-		output[0] = '\0';
 		return (FALSE);
 	}
 	log_msg(10, "Injecting %s", dev);
@@ -2088,12 +2102,11 @@ bool set_dev_to_this_if_rx_OK(char *output, char *dev)
 			512L, dev);
 	if (!run_program_and_log_output(command, FALSE)
 		&& !run_program_and_log_output(command, FALSE)) {
-		strcpy(output, dev);
+		asprintf(&output, dev);
 		log_msg(4, "Found it - %s", dev);
 		paranoid_free(command);
 		return (TRUE);
 	} else {
-		output[0] = '\0';
 		log_msg(4, "It's not %s", dev);
 		paranoid_free(command);
 		return (FALSE);
@@ -2127,18 +2140,16 @@ int what_number_cd_is_this(struct s_bkpinfo *bkpinfo)
 		return (cd_number);
 	}
 
-	asprintf(&mountdev, bkpinfo->media_device);
-	if (!mountdev[0]) {
+	if (bkpinfo->media_device == NULL) {
 		log_it
 			("(what_number_cd_is_this) Warning - media_device unknown. Finding out...");
-		find_cdrom_device(bkpinfo->media_device, FALSE);
+		bkpinfo->media_device = find_cdrom_device(FALSE);
 	}
 	if (!is_this_device_mounted(MNT_CDROM)) {
-		mount_CDROM_here(mountdev, MNT_CDROM);
+		(void)mount_CDROM_here(bkpinfo->media_device, MNT_CDROM);
 	}
 	cd_number =
 		atoi(last_line_of_file(MNT_CDROM "/archives/THIS-CD-NUMBER"));
-	paranoid_free(mountdev);
 	return (cd_number);
 }
 
@@ -2242,7 +2253,7 @@ char which_boot_loader(char *which_device)
 	/*@ int ******************************************************** */
 	int count_lilos = 0;
 	int count_grubs = 0;
-	int n = 0;
+	size_t n = 0;
 
 	/*@ end vars *************************************************** */
 

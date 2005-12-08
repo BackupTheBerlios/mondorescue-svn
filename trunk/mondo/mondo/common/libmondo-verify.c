@@ -242,7 +242,7 @@ int verify_all_slices_on_CD(struct s_bkpinfo *bkpinfo, char *mtpt)
 			asprintf(&sz_exe, "bzip2");
 		}
 	} else {
-		asprintf(&sz_exe, "");
+		asprintf(&sz_exe, " ");
 	}
 
 	iamhere("before vsbf");
@@ -661,7 +661,7 @@ verify_a_biggiefile_from_stream(struct s_bkpinfo *bkpinfo,
 	paranoid_free(slice_fnam);
 
 	if (biggie_cksum[0] != '\0') {
-		asprintf(&orig_cksum, calc_checksum_of_file(biggie_fname));
+		orig_cksum = calc_checksum_of_file(biggie_fname);
 		if (strcmp(biggie_cksum, orig_cksum)) {
 			asprintf(&tmp, "orig cksum=%s; curr cksum=%s", biggie_cksum,
 					 orig_cksum);

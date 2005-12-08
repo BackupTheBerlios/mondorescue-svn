@@ -7,11 +7,10 @@ bool does_device_exist(char *device);
 int does_partition_exist(const char *drive, int partno);
 bool does_string_exist_in_boot_block(char *dev, char *str);
 int find_and_mount_actual_cd(struct s_bkpinfo *bkpinfo, char *mountpoint);
-int find_cdrom_device(char *output, bool try_to_mount);
-int find_dvd_device(char *output, bool try_to_mount);
+char *find_cdrom_device(bool try_to_mount);
+char *find_dvd_device(void);
 long get_phys_size_of_drive(char *drive);
 bool is_this_a_valid_disk_format(char *format);
-int mount_CDROM_here(char *device, char *mountpoint);
 int find_device_in_mountlist(struct mountlist_itself *mountlist,
 							 char *device);
 bool is_this_device_mounted(char *device_raw);
@@ -22,7 +21,7 @@ char which_boot_loader(char *which_device);
 
 
 
-int find_cdrw_device(char *cdrw_device);
+char *find_cdrw_device(void);
 
 int interactively_obtain_media_parameters_from_user(struct s_bkpinfo *,
 													bool);

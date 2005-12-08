@@ -27,7 +27,7 @@ extern bool does_file_exist(char *);
 extern void exclude_nonexistent_files(char *);
 extern void fatal_error(char *);
 extern int find_and_mount_actual_cd(struct s_bkpinfo *, char *);
-extern int find_cdrom_device(char *, bool);
+extern char *find_cdrom_device(bool);
 extern void finish(int);
 extern int get_last_filelist_number(struct s_bkpinfo *);
 extern long get_time(void);

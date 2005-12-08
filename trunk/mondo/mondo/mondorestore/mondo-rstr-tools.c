@@ -201,31 +201,13 @@ void ask_about_these_imagedevs(char *infname, char *outfname)
   /************************************************************************
    * allocate memory regions. test and set  -sab 16 feb 2003              *
    ************************************************************************/
-	char *incoming_ptr;
-	char *question_ptr;
+	char *incoming;
+	char *question;
 
-	char incoming[MAX_STR_LEN];
-	char question[MAX_STR_LEN];
+	size_t n = 0;
 
 	assert_string_is_neither_NULL_nor_zerolength(infname);
 	assert_string_is_neither_NULL_nor_zerolength(outfname);
-
-	incoming_ptr = malloc(sizeof(incoming));
-	if (incoming_ptr == NULL) {
-		fprintf(stderr, "Out of Memory\n");
-		exit(EXIT_FAILURE);
-	}
-
-	question_ptr = malloc(sizeof(question));
-	if (question_ptr == NULL) {
-		fprintf(stderr, "Out of Memory\n");
-		exit(EXIT_FAILURE);
-	}
-
-	memset(incoming_ptr, '\0', sizeof(incoming));
-	memset(question_ptr, '\0', sizeof(question));
-
-
 
 	if (!(fin = fopen(infname, "r"))) {
 		fatal_error("Cannot openin infname");
@@ -233,27 +215,25 @@ void ask_about_these_imagedevs(char *infname, char *outfname)
 	if (!(fout = fopen(outfname, "w"))) {
 		fatal_error("Cannot openin outfname");
 	}
-	for (fgets(incoming_ptr, MAX_STR_LEN, fin);
-		 !feof(fin); fgets(incoming_ptr, MAX_STR_LEN, fin)) {
-		strip_spaces(incoming_ptr);
+	for (getline(&incoming, &n, fin);
+		 !feof(fin); getline(&incoming, &n, fin)) {
+		strip_spaces(incoming);
 
 		if (incoming[0] == '\0') {
 			continue;
 		}
 
-		sprintf(question_ptr,
-				"Should I restore the image of %s ?", incoming_ptr);
+		asprintf(&question,
+				"Should I restore the image of %s ?", incoming);
 
-		if (ask_me_yes_or_no(question_ptr)) {
-			fprintf(fout, "%s\n", incoming_ptr);
+		if (ask_me_yes_or_no(question)) {
+			fprintf(fout, "%s\n", incoming);
 		}
 	}
 
   /*** free memory ***********/
-	paranoid_free(incoming_ptr);
-	incoming_ptr = NULL;
-	paranoid_free(question_ptr);
-	question_ptr = NULL;
+	paranoid_free(incoming);
+	paranoid_free(question);
 
 
 	paranoid_fclose(fout);
@@ -704,7 +684,7 @@ int mount_all_devices(struct mountlist_itself
  */
 int mount_cdrom(struct s_bkpinfo *bkpinfo)
 {
-	char *mount_cmd;
+	char *mount_cmd, *tmp;
 	int i, res;
 #ifdef __FreeBSD__
 	char mdd[32];
@@ -772,10 +752,13 @@ int mount_cdrom(struct s_bkpinfo *bkpinfo)
 	else {
 		if (bkpinfo->disaster_recovery
 			&& does_file_exist("/tmp/CDROM-LIVES-HERE")) {
-			strcpy(bkpinfo->media_device,
+			paranoid_free(bkpinfo->media_device);
+			asprintf(&tmp,
 				   last_line_of_file("/tmp/CDROM-LIVES-HERE"));
+			bkpinfo->media_device = tmp;
 		} else {
-			find_cdrom_device(bkpinfo->media_device, TRUE);
+			paranoid_free(bkpinfo->media_device);
+			bkpinfo->media_device = find_cdrom_device(TRUE);
 		}
 
 #ifdef __FreeBSD__
@@ -1060,23 +1043,21 @@ int read_cfg_file_into_bkpinfo(char *cfgf, struct s_bkpinfo *bkpinfo)
 	}
 	if (bkpinfo->disaster_recovery) {
 		if (bkpinfo->backup_media_type == cdstream) {
-			sprintf(bkpinfo->media_device, "/dev/cdrom");
-//          bkpinfo->media_size[0] = -1;
+			paranoid_alloc(bkpinfo->media_device, "/dev/cdrom");
 			bkpinfo->media_size[0] = 1999 * 1024;
 			bkpinfo->media_size[1] = 650;	/* good guess */
 		} else if (bkpinfo->backup_media_type == tape
 				   || bkpinfo->backup_media_type == udev) {
-			if (read_cfg_var(cfg_file, "media-dev", value)) {
+			if (read_cfg_var(cfg_file, "media-dev", bkpinfo->media_device)) {
 				fatal_error("Cannot get tape device name from cfg file");
 			}
-			strcpy(bkpinfo->media_device, value);
 			read_cfg_var(cfg_file, "media-size", value);
 			bkpinfo->media_size[1] = atol(value);
 			sprintf(tmp, "Backup medium is TAPE --- dev=%s",
 					bkpinfo->media_device);
 			log_msg(2, tmp);
 		} else {
-			strcpy(bkpinfo->media_device, "/dev/cdrom");	/* we don't really need this var */
+			paranoid_alloc(bkpinfo->media_device, "/dev/cdrom");
 			bkpinfo->media_size[0] = 1999 * 1024;	/* 650, probably, but we don't need this var anyway */
 			bkpinfo->media_size[1] = 1999 * 1024;	/* 650, probably, but we don't need this var anyway */
 			log_msg(2, "Backup medium is CD-R[W]");
@@ -1199,7 +1180,7 @@ int read_cfg_file_into_bkpinfo(char *cfgf, struct s_bkpinfo *bkpinfo)
 					log_msg(1,
 							"Unable to mount isodir. Perhaps this is really a CD backup?");
 					bkpinfo->backup_media_type = cdr;
-					strcpy(bkpinfo->media_device, "/dev/cdrom");	/* superfluous */
+					paranoid_alloc(bkpinfo->media_device, "/dev/cdrom");
 					bkpinfo->isodir[0] = iso_mnt[0] = iso_path[0] = '\0';
 					if (mount_cdrom(bkpinfo)) {
 						fatal_error
@@ -2386,6 +2367,7 @@ int get_cfg_file_from_archive(struct s_bkpinfo *bkpinfo)
 	char *cfg_file;
 	char *mounted_cfgf_path;
 	char *tmp;
+	char *sav;
 	char *mountpt;
 	char *ramdisk_fname;
 	char *mountlist_file;
@@ -2490,28 +2472,29 @@ int get_cfg_file_from_archive(struct s_bkpinfo *bkpinfo)
 			run_program_and_log_output("mkdir -p tmp", FALSE);
 
 			if (strlen(bkpinfo->media_device) == 0) {
-				strcpy(bkpinfo->media_device, "/dev/st0");
-				log_msg(2, "media_device is blank; assuming %s");
+				paranoid_alloc(bkpinfo->media_device, "/dev/st0");
+				log_msg(2, "media_device is blank; assuming %s", bkpinfo->media_device);
 			}
-			strcpy(tmp, bkpinfo->media_device);
+			asprintf(&sav,bkpinfo->media_device);
 			if (extract_cfg_file_and_mountlist_from_tape_dev
 				(bkpinfo->media_device)) {
-				strcpy(bkpinfo->media_device, "/dev/st0");
+				paranoid_alloc(bkpinfo->media_device, "/dev/st0");
 				if (extract_cfg_file_and_mountlist_from_tape_dev
 					(bkpinfo->media_device)) {
-					strcpy(bkpinfo->media_device, "/dev/osst0");
+					paranoid_alloc(bkpinfo->media_device, "/dev/osst0");
 					if (extract_cfg_file_and_mountlist_from_tape_dev
 						(bkpinfo->media_device)) {
-						strcpy(bkpinfo->media_device, "/dev/ht0");
+						paranoid_alloc(bkpinfo->media_device, "/dev/ht0");
 						if (extract_cfg_file_and_mountlist_from_tape_dev
 							(bkpinfo->media_device)) {
 							log_msg(3,
 									"I tried lots of devices but none worked.");
-							strcpy(bkpinfo->media_device, tmp);
+							paranoid_alloc(bkpinfo->media_device, sav);
 						}
 					}
 				}
 			}
+			paranoid_free(sav);
 
 			if (!does_file_exist("tmp/mondo-restore.cfg")) {
 				log_to_screen("Cannot find config info on tape/CD/floppy");

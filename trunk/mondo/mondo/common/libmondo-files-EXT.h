@@ -16,8 +16,6 @@ extern int get_trackno_from_logfile(char *logfile);
 extern int grab_percentage_from_last_line_of_file(char *filename);
 extern char *last_line_of_file(char *filename);
 extern long long length_of_file(char *filename);
-extern int make_checksum_list_file(char *filelist, char *cksumlist,
-								   char *comppath);
 extern int make_hole_for_file(char *outfile_fname);
 extern void make_list_of_files_to_ignore(char *ignorefiles_fname,
 										 char *filelist_fname,
@@ -50,3 +48,4 @@ extern long size_of_partition_in_mountlist_K(char *tmpdir, char *dev);
 extern int make_grub_install_scriptlet(char *outfile);
 extern int read_one_liner_data_file(char *fname, char *contents);
 extern int mode_of_file(char *fname);
+extern void paranoid_alloc(char *alloc, char *orig);

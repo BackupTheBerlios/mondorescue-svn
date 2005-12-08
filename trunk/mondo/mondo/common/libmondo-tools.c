@@ -604,7 +604,7 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 
 		log_it("isomnt: %s, %d", tmp, strlen(tmp));
 		if (strlen(bkpinfo->isodir) < strlen(tmp)) {
-			asprintf(&iso_path, "");
+			asprintf(&iso_path, " ");
 		} else {
 			asprintf(&iso_path, "%s", bkpinfo->isodir + strlen(tmp));
 		}
@@ -733,7 +733,7 @@ void reset_bkpinfo(struct s_bkpinfo *bkpinfo)
 	memset((void *) bkpinfo, 0, sizeof(struct s_bkpinfo));
 	bkpinfo->manual_cd_tray = FALSE;
 	bkpinfo->internal_tape_block_size = DEFAULT_INTERNAL_TAPE_BLOCK_SIZE;
-	bkpinfo->media_device[0] = '\0';
+	paranoid_free(bkpinfo->media_device);
 	for (i = 0; i <= MAX_NOOF_MEDIA; i++) {
 		bkpinfo->media_size[i] = -1;
 	}
@@ -1097,78 +1097,6 @@ void unmount_supermounts_if_necessary()
 }
 
 /**
- * Whether we had to stop autofs (if so, restart it at end).
- */
-bool g_autofs_stopped = FALSE;
-
-/**
- * Path to the autofs initscript ("" if none exists).
- */
-char g_autofs_exe[MAX_STR_LEN];
-
-/**
- * Autofs initscript in Xandros Linux distribution.
- */
-#define XANDROS_AUTOFS_FNAME "/etc/init.d/xandros-autofs"
-
-/**
- * Autofs initscript in most Linux distributions.
- */
-#define STOCK_AUTOFS_FNAME "/etc/rc.d/init.d/autofs"
-
-/**
- * If autofs is mounted, stop it (restart at end).
- */
-void stop_autofs_if_necessary()
-{
-	char *tmp;
-
-	g_autofs_exe[0] = '\0';
-	if (does_file_exist(XANDROS_AUTOFS_FNAME)) {
-		strcpy(g_autofs_exe, XANDROS_AUTOFS_FNAME);
-	} else if (does_file_exist(STOCK_AUTOFS_FNAME)) {
-		strcpy(g_autofs_exe, STOCK_AUTOFS_FNAME);
-	}
-
-	if (!g_autofs_exe[0]) {
-		log_msg(3, "No autofs detected.");
-	} else {
-		log_msg(3, "%s --- autofs detected", g_autofs_exe);
-// FIXME -- only disable it if it's running ---  sprintf(tmp, "%s status", autofs_exe);
-		asprintf(&tmp, "%s stop", g_autofs_exe);
-		if (run_program_and_log_output(tmp, 2)) {
-			log_it("Failed to stop autofs - I assume it wasn't running");
-		} else {
-			g_autofs_stopped = TRUE;
-			log_it("Stopped autofs OK");
-		}
-		paranoid_free(tmp);
-	}
-}
-
-/**
- * If autofs was stopped earlier, restart it.
- */
-void restart_autofs_if_necessary()
-{
-	char *tmp;
-
-	if (!g_autofs_stopped || !g_autofs_exe[0]) {
-		log_msg(3, "No autofs detected.");
-		return;
-	}
-	asprintf(&tmp, "%s start", g_autofs_exe);
-	if (run_program_and_log_output(tmp, 2)) {
-		log_it("Failed to start autofs");
-	} else {
-		g_autofs_stopped = FALSE;
-		log_it("Started autofs OK");
-	}
-	paranoid_free(tmp);
-}
-
-
-/**
  * If this is a distribution like Gentoo that doesn't keep /boot mounted, mount it.
  */
 void mount_boot_if_necessary()
@@ -1213,7 +1141,7 @@ void mount_boot_if_necessary()
 				asprintf(&tmp1, "mount %s", g_boot_mountpt);
 				if (run_program_and_log_output(tmp1, 5)) {
 					paranoid_free(g_boot_mountpt);
-					asprintf(&g_boot_mountpt, "");
+					asprintf(&g_boot_mountpt, " ");
 					log_msg(1, "Plan B");
 					if (!run_program_and_log_output("mount /boot", 5)) {
 						paranoid_free(g_boot_mountpt);

@@ -1,23 +1,6 @@
 /***************************************************************************
-                          mondostructures.h  -  description
-                             -------------------
-    begin                : Fri Apr 19 2002
-    copyright            : (C) 2002 by Stan Benoit
-    email                : troff@nakedsoul.org
-    cvsid                : $Id$
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
-
-
-/*
+ * $Id$
+ *
  * @file
  * The header file defining all of Mondo's structures.
  */
@@ -309,7 +292,7 @@ struct s_bkpinfo {
    * If backup_media_type is @b dvd, @b tape, or @b udev, this should be a /dev entry.
    * If backup_media_type is anything else, this should be blank.
    */
-	char media_device[MAX_STR_LEN / 4];
+	char *media_device;
 
   /**
    * An array containing the sizes of each media in our backup set, in MB.
@@ -339,7 +322,7 @@ struct s_bkpinfo {
    * This is a bit difficult to autodetect; you may want
    * to take truncate_to_drive_name() of where_is_root_mounted().
    */
-	char boot_device[MAX_STR_LEN / 4];
+	char *boot_device;
 
   /**
    * The compression program to use. Currently supported
@@ -367,7 +350,7 @@ struct s_bkpinfo {
    *
    * This is a useful feature, but use at your own risk.
    */
-	char image_devs[MAX_STR_LEN / 4];
+	char *image_devs;
 
   /**
    * The compression level (1-9) to use. 0 disables compression.
@@ -427,21 +410,21 @@ struct s_bkpinfo {
    * If backup_media_type is @b iso, then this is that directory.
    * If backup_media_type is anything else, this is ignored.
    */
-	char isodir[MAX_STR_LEN / 4];
+	char *isodir;
 
 /**
    * The prefix to put in front of media number
    * If backup_media_type is @b iso, then this is the prefix for the filename
    * If backup_media_type is anything else, this is ignored.
    */
-	char prefix[MAX_STR_LEN / 4];
+	char *prefix;
 
   /**
    * The scratch directory to use.
    * This is the "stage" that the CD image is made directly from.
    * As such, it needs to be at least as large as the largest CD/DVD/ISO.
    */
-	char scratchdir[MAX_STR_LEN / 4];
+	char *scratchdir;
 
   /**
    * The temp directory to use.
@@ -449,7 +432,7 @@ struct s_bkpinfo {
    * the main thread moves them to the scratchdir. You don't need a lot
    * of space here.
    */
-	char tmpdir[MAX_STR_LEN / 4];
+	char *tmpdir;
 
   /**
    * The optimal size for each fileset. This is set automatically in
@@ -495,7 +478,7 @@ struct s_bkpinfo {
   /**
    * A command to call BEFORE making an ISO image.
    */
-	char call_before_iso[MAX_STR_LEN];
+	char *call_before_iso;
 
   /**
    * A command to call to make an ISO image.
@@ -510,13 +493,13 @@ struct s_bkpinfo {
   /**
    * A command to call AFTER making an ISO image.
    */
-	char call_after_iso[MAX_STR_LEN];
+	char *call_after_iso;
 
   /**
    * Path to the user's kernel, or "FAILSAFE" or "SUCKS" to use the kernel
    * included with Mindi.
    */
-	char kernel_path[MAX_STR_LEN];
+	char *kernel_path;
 
   /**
    * The NFS mount to back up to/restore from.
@@ -524,19 +507,19 @@ struct s_bkpinfo {
    * It must contain a colon, and the server's address should be in dotted-decimal IP
    * address form. (Domain names will be resolved in post_param_configuration().)
    */
-	char nfs_mount[MAX_STR_LEN];
+	char *nfs_mount;
 
   /**
    * The directory, relative to the root of @p nfs_mount, to put
    * the backups in.
    */
-	char nfs_remote_dir[MAX_STR_LEN];
+	char *nfs_remote_dir;
 
   /**
    * A tarball containing a program called "usr/bin/post-nuke" that will be run
    * after nuking the system. If "", do not use a post-nuke tarball.
    */
-	char postnuke_tarball[MAX_STR_LEN];
+	char *postnuke_tarball;
 
   /**
    * If TRUE, then pass cdrecord the argument "blank=fast" to wipe the CDs before

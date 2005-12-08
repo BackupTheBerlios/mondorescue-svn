@@ -105,17 +105,35 @@ void center_string(char *in_out, int width)
 	in_out = out;
 }
 
+/* sout is allocated here and must be freed by the caller */
 
 inline void turn_wildcard_chars_into_literal_chars(char *sout, char *sin)
 {
-	char *p, *q;
+	char *p;
+	char *q = NULL;
+	char *sav;
+	char r;
+	bool end = FALSE;
 
-	for (p = sin, q = sout; *p != '\0'; *(q++) = *(p++)) {
+	asprintf(&sav, sin);
+	p = sav;
+	while ((*p != '\0') && (! end)) {
 		if (strchr("[]*?", *p)) {
-			*(q++) = '\\';
+			r = *p;					// keep the wildcard char
+			*p = '\0';				// trunc the final string
+			p++;					// continue on sav
+									// build the new string by recursion
+			turn_wildcard_chars_into_literal_chars(q,p);
+			asprintf(&sout, "%s\\%c%s", sav, r, q);
+			paranoid_free(q);
+			paranoid_free(sav);
+			end = TRUE;
 		}
+		p++;
 	}
-	*q = *p;					// for the final '\0'
+	if (!end) {
+		sout = sav;
+	}
 }
 
 
@@ -344,7 +362,7 @@ char *marker_to_string(int marker)
 		asprintf(&outstr, "%s", "BLK_STOP_FILE");
 		break;
 	default:
-		asprintf(&outstr, "%s", "BLK_UNKNOWN (%d)", marker);
+		asprintf(&outstr, "%s (%d)", "BLK_UNKNOWN", marker);
 		break;
 	}
 	return (outstr);
@@ -529,7 +547,7 @@ char *slice_fname(long bigfileno, long sliceno, char *path, char *s)
 	if (s[0] != '\0') {
 		asprintf(&suffix, ".%s", s);
 	} else {
-		asprintf(&suffix, "%s", "");
+		asprintf(&suffix, "%s", " ");
 	}
 	asprintf(&output, "%s/slice-%07ld.%05ld.dat%s", path, bigfileno,
 			 sliceno, suffix);

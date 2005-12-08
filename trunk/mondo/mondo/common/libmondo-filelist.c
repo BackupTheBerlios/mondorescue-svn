@@ -213,7 +213,7 @@ int chop_filelist(char *filelist, char *outdir, long maxsetsizeK)
 
 	/*@ int **************************************** */
 	int i;
-	int n = 0;
+	size_t n = 0;
 	long curr_set_no;
 
 	/*@ buffers ************************************* */
@@ -411,7 +411,7 @@ int call_exe_and_pipe_output_to_fd(char *syscall, FILE * pout)
 {
 	FILE *pattr;
 	char *tmp = NULL;
-	int n = 0;
+	size_t n = 0;
 
 	pattr = popen(syscall, "r");
 	if (!pattr) {
@@ -442,7 +442,7 @@ int gen_aux_list(char *filelist, char *syscall_sprintf,
 	char *tmp;
 	char *file_to_analyze = NULL;
 	int i;
-	int n = 0;
+	size_t n = 0;
 
 	if (!(fin = fopen(filelist, "r"))) {
 		log_msg(1, "Cannot openin filelist %s", filelist);
@@ -549,7 +549,7 @@ int set_EXAT_list(char *orig_msklist, char *original_exat_fname,
 	char *current_master_file, *masklist;
 	int retval = 0;
 	int i;
-	int n = 0;
+	size_t n = 0;
 	char *p, *q;
 	FILE *pin, *pout, *faclin;
 
@@ -858,7 +858,7 @@ struct s_node *load_filelist(char *filelist_fname)
 	char *fname = NULL;
 	char *tmp;
 	int pos_in_fname;
-	int n = 0;
+	size_t n = 0;
 	/*@ int ******************************************************** */
 	int percentage;
 
@@ -1768,13 +1768,6 @@ long save_filelist_entries_in_common(char *needles_list_fname,
 			fname[strlen(fname) - 1] = '\0';
 		}
 
-/*
-      if (strlen(fname)>3 && fname[strlen(fname)-1]=='/') { fname[strlen(fname)-1] = '\0'; }
-      if (strlen(fname)==0) { continue; }
-      sprintf(temporary_string, "echo \"Looking for '%s'\" >> /tmp/looking.txt", fname);
-      system(temporary_string);
-*/
-
 		log_msg(5, "Looking for '%s'", fname);
 		found_node = find_string_at_node(filelist, fname);
 		if (found_node) {
@@ -1787,6 +1780,7 @@ long save_filelist_entries_in_common(char *needles_list_fname,
 				log_msg(5, "Found '%s'", fname);
 				turn_wildcard_chars_into_literal_chars(tmp, fname);
 				fprintf(fout, "%s\n", tmp);
+				paranoid_free(tmp);
 				retval++;
 			}
 		}
@@ -1811,7 +1805,7 @@ int add_list_of_files_to_filelist(struct s_node *filelist,
 {
 	FILE *fin;
 	char *tmp = NULL;
-	int n = 0;
+	size_t n = 0;
 	struct s_node *nod;
 
 	log_msg(3, "Adding %s to filelist", list_of_files_fname);

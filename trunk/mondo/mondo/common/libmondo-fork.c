@@ -36,7 +36,7 @@ char *call_program_and_get_last_line_of_output(char *call)
 	/*@ pointers **************************************************** */
 	FILE *fin;
 
-	int n = 0;
+	size_t n = 0;
 
 	/*@******************************************************************** */
 
@@ -191,7 +191,7 @@ int run_program_and_log_output(char *program, int debug_level)
 	/*@ int ********************************************************* */
 	int res;
 	int i;
-	int n = 0;
+	size_t n = 0;
 	int len;
 	bool log_if_failure = FALSE;
 	bool log_if_success = FALSE;

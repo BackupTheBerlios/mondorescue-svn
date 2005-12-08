@@ -41,7 +41,6 @@ long free_space_on_given_partition(char *partition);
 void mount_boot_if_necessary(void);
 void unmount_boot_if_necessary(void);
 
-void restart_autofs_if_necessary(void);
 void malloc_libmondo_global_strings(void);
 void free_libmondo_global_strings(void);
 
@@ -50,5 +49,3 @@ char *get_architecture();
 bool does_nonMS_partition_exist(void);
 void stop_magicdev_if_necessary(void);
 void restart_magicdev_if_necessary(void);
-void stop_autofs_if_necessary(void);
-void restart_autofs_if_necessary(void);

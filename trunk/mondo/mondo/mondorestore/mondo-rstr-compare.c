@@ -683,7 +683,7 @@ int compare_to_cdstream(struct s_bkpinfo *bkpinfo)
 	int res;
 
   /** needs malloc **/
-	char *dir, *command;
+	char *dir, *command, *tmp;
 
 	assert(bkpinfo != NULL);
 	malloc_string(dir);
@@ -699,10 +699,13 @@ int compare_to_cdstream(struct s_bkpinfo *bkpinfo)
 
 	if (bkpinfo->disaster_recovery
 		&& does_file_exist("/tmp/CDROM-LIVES-HERE")) {
-		strcpy(bkpinfo->media_device,
+		asprintf(&tmp, 
 			   last_line_of_file("/tmp/CDROM-LIVES-HERE"));
+		paranoid_free(bkpinfo->media_device);
+		bkpinfo->media_device = tmp;
 	} else {
-		find_cdrom_device(bkpinfo->media_device, FALSE);
+		paranoid_free(bkpinfo->media_device);
+		bkpinfo->media_device = find_cdrom_device(FALSE);
 	}
 	res = verify_tape_backups(bkpinfo);
 	chdir(dir);

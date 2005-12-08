@@ -1291,9 +1291,10 @@ int restore_to_live_filesystem(struct s_bkpinfo *bkpinfo)
 		sleep(1);
 	}
 	interactively_obtain_media_parameters_from_user(bkpinfo, FALSE);
-	log_msg(2, "bkpinfo->media_device = %s", bkpinfo->media_device);
-	if (!bkpinfo->media_device[0]) {
+	if (bkpinfo->media_device == NULL) {
 		log_msg(2, "Warning - failed to find media dev");
+	} else {
+		log_msg(2, "bkpinfo->media_device = %s", bkpinfo->media_device);
 	}
 
 
@@ -1329,7 +1330,7 @@ int restore_to_live_filesystem(struct s_bkpinfo *bkpinfo)
 				"I probably don't need to unmount or eject the CD-ROM but I'm doing it anyway.");
 	}
 	run_program_and_log_output("umount " MNT_CDROM, FALSE);
-	if (!bkpinfo->please_dont_eject) {
+	if ((!bkpinfo->please_dont_eject) && (bkpinfo->media_device != NULL)) {
 		eject_device(bkpinfo->media_device);
 	}
 	paranoid_free(old_restpath);
@@ -3099,7 +3100,7 @@ restore_live_from_monitas_server(struct s_bkpinfo *bkpinfo,
 
 	unlink(datadisks_fname);
 	read_cfg_file_into_bkpinfo(g_mondo_cfg_file, bkpinfo);
-	retval = load_mountlist(&the_mountlist, g_mountlist_fname);	// in case read_cfg_file_into_bkpinfo   strcpy(bkpinfo->media_device, monitas_device);
+	retval = load_mountlist(&the_mountlist, g_mountlist_fname);
 
 
 	load_raidtab_into_raidlist(&the_raidlist, RAIDTAB_FNAME);

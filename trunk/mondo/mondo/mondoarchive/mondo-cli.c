@@ -1,160 +1,6 @@
 /***************************************************************************
-mondo-cli.c
--------------------
-begin                : Fri Apr 19 16:40:35 EDT 2002
-copyright	     : (C) 2002 Mondo  Hugo Rabson
-email                : Hugo Rabson <hugorabson@msn.com>
-edited by            : by Stan Benoit 4/2002
-email                : troff@nakedsoul.org
-cvsid                : $Id$
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
-
-/***************************************************************************
-UPDATE LOG
-
-
-08/04
-- if user specifies a dumb -T value, abort
-
-07/22
-- handle -Q sensibly (don't abort if only -Q supplied)
-
-07/17
-- better checking of NFS dir's validity
-
-06/19
-- added AUX_VER
-
-04/17
-- added '-b' support
-04/03
-- added star support
-
-02/06
-- fixed "Please give /dev entry" error msg
-
-01/20/2004
-- added 2.6.x-kernel "device = /dev/...." support to param reader
-- better handling of SCSI and /dev entries
-- touch /boot/boot.b if necessary
-
-09/26/2003
-- typo in command-line handling of 'r'
-
-09/25
-- added DVD write support
-
-09/24
-- if tape backup (-t) but user doesn't specify tape drive then
-  make an educated guess using find_tape_device_and_size()
-
-09/18
-- insist on partimagehack being present if -x found
-
-09/16
-- added support for multiple -I's and -E's in call to mondoarchive
-- the '-D' flag doesn't take a value now
-
-07/14
-- fatal error if -E too short
-
-05/14
-- if 'n' and user doesn't have rights to write to output dir
-  then error out
-
-05/05
-- added Joshua Oreman's FreeBSD patches
-
-05/04
-- added Herman Kuster's multi-level bkp patch
-
-05/02
-- write errors to screen, not just to log
-
-04/25
-- added lots of assert()'s and log_OS_error()'s
-
-04/21
-- line 570 --- resolve boot device if softlink
-
-04/08
-- changed a bunch of fprintf(stderr,...)'s to log_it()'s
-- fixed final / removal in retrieve_switches_from_command_line()
-
-04/04
-- added -e
-
-03/15
-- reject relative paths if -d flag (Alessandro Polverini)
-
-01/02/2003
-- added -J flag (to let user specify incoming filelist)
-
-12/13/2002
-- various strcpy() calls replaced with strncpy() calls
-
-12/10
-- added g_loglevel
-
-11/25
-- line 614 --- if commmand-line param ends in '/' then drop that '/'
-
-11/19
-- rewrote finish() to kill processes more softly
-- if user calls with '-l RAW' then 
-
-09/01 - 09/30
-- added -N to let user exclude all NFS-related mounts and devices
-- run_program_and_log_output() now takes boolean operator to specify
-  whether it will log its activities in the event of _success_
-
-08/01 - 08/31
-- if no device specified when backing up to tape streamer then assume /dev/st0
-- abort if tape user specifies tape size (just for testing porpoises)
-- tape users no longer need to specify tape size
-- added some comments
-- added bkpinfo->backup_media_type
-- renamed from mondo-archive.c to mondo-cli.c
-
-07/01 - 07/31
-- better check for mkfs.vfat
-- more sanity-checking for -d flag
-- if isodir does not exist then abort
-- removed "the rest are..." comment from log
-- do not permit '-H' and '-t' in the same command line
-- if not '-o' then insist on vfat-friendly kernel
-
-06/01 - 06/30
-- added signal-trapping
-- added '-W' (won't make bootable CD or floppies) flag
-- added missing 'j++' to -s switch's code
-- expanded -s switch
-- added -u switch
-- if dvdrecord exists and cdrecord doesn't then use
-  dvdrecord instead of cdrecord
-
-04/01 - 04/30
-- if CD-ROM is supermounted then unmount, run, and remount
-- replace MONDO_VERSION #define with VERSION from ../config.h
-- if CD-ROM is mounted at start then abort
-- improved homedir-locating code
-- improved "backup will occupy N CD's" calculation a bit
-- added -m (manual CD tray) flag
-
-
-*******************************************************************/
-
-/**
- * @file
+ * $Id$
+ * 
  * Functions for handling command-line arguments passed to mondoarchive.
  */
 
@@ -179,7 +25,6 @@ extern int g_loglevel;
 extern bool g_text_mode;
 extern bool g_skip_floppies;	///< Whether to skip the creation of boot disks
 extern char g_startdir[MAX_STR_LEN];	///< ????? @bug ?????
-extern char g_erase_tmpdir_and_scratchdir[MAX_STR_LEN];
 extern char g_tmpfs_mountpt[MAX_STR_LEN];
 extern bool g_sigpipe;
 
@@ -244,17 +89,15 @@ handle_incoming_parameters(int argc, char *argv[],
 
 	/*@ buffers *************** */
 	char *tmp;
-	char flag_val[128][MAX_STR_LEN];
+	char *flag_val[128];
 	bool flag_set[128];
 
-	malloc_string(tmp);
 	sensibly_set_tmpdir_and_scratchdir(bkpinfo);
+
 	for (i = 0; i < 128; i++) {
-		flag_val[i][0] = '\0';
+		flag_val[i] = NULL;
 		flag_set[i] = FALSE;
 	}
-	//  strcpy (bkpinfo->tmpdir, "/root/images/mondo");
-	//  strcpy (bkpinfo->scratchdir, "/home");
 	for (j = 1; j <= MAX_NOOF_MEDIA; j++) {
 		bkpinfo->media_size[j] = 650;
 	}							/* default */
@@ -274,31 +117,38 @@ handle_incoming_parameters(int argc, char *argv[],
 	log_msg(3, "Switches:-");
 	for (i = 0; i < 128; i++) {
 		if (flag_set[i]) {
-			sprintf(tmp, "-%c %s", i, flag_val[i]);
+			asprintf(&tmp, "-%c %s", i, flag_val[i]);
 			log_msg(3, tmp);
+			paranoid_free(tmp);
 		}
 	}
 //    }
-	sprintf(tmp, "rm -Rf %s/tmp.mondo.*", bkpinfo->tmpdir);
+	asprintf(&tmp, "rm -Rf %s/tmp.mondo.*", bkpinfo->tmpdir);
 	paranoid_system(tmp);
-	sprintf(tmp, "rm -Rf %s/mondo.scratch.*", bkpinfo->scratchdir);
+	paranoid_free(tmp);
+
+	asprintf(&tmp, "rm -Rf %s/mondo.scratch.*", bkpinfo->scratchdir);
 	paranoid_system(tmp);
+	paranoid_free(tmp);
+
 	sprintf(bkpinfo->tmpdir + strlen(bkpinfo->tmpdir), "/tmp.mondo.%ld",
 			random() % 32767);
 	sprintf(bkpinfo->scratchdir + strlen(bkpinfo->scratchdir),
 			"/mondo.scratch.%ld", random() % 32767);
-	sprintf(tmp, "mkdir -p %s/tmpfs", bkpinfo->tmpdir);
+
+	asprintf(&tmp, "mkdir -p %s/tmpfs", bkpinfo->tmpdir);
 	paranoid_system(tmp);
-	sprintf(tmp, "mkdir -p %s", bkpinfo->scratchdir);
+	paranoid_free(tmp);
+
+	asprintf(&tmp, "mkdir -p %s", bkpinfo->scratchdir);
 	paranoid_system(tmp);
+	paranoid_free(tmp);
+
 	if (bkpinfo->nfs_mount[0] != '\0') {
 		store_nfs_config(bkpinfo);
 	}
-	paranoid_free(tmp);
 	return (retval);
 }
-
-
 
 
 /**
@@ -311,7 +161,10 @@ handle_incoming_parameters(int argc, char *argv[],
 int process_the_s_switch(struct s_bkpinfo *bkpinfo, char *value)
 {
 	int j;
-	char tmp[MAX_STR_LEN], *p, comment[MAX_STR_LEN];
+	char *tmp;
+	char *p;
+	char *q;
+	char *comment;
 
 	assert(bkpinfo != NULL);
 	assert(value != NULL);
@@ -319,17 +172,22 @@ int process_the_s_switch(struct s_bkpinfo *bkpinfo, char *value)
 	bkpinfo->media_size[0] = -1;	/* dummy value */
 	for (j = 1, p = value; j < MAX_NOOF_MEDIA && strchr(p, ',');
 		 j++, p = strchr(p, ',') + 1) {
-		strncpy(tmp, p, MAX_STR_LEN);
-		*(strchr(tmp, ',')) = '\0';
+		asprintf(&tmp, p);
+		q = strchr(tmp, ',');
+		if (q != NULL) {
+			*q = '\0';
+		}
 		bkpinfo->media_size[j] = friendly_sizestr_to_sizelong(tmp);
-		sprintf(comment, "media_size[%d] = %ld", j,
+		paranoid_free(tmp);
+
+		asprintf(&comment, "media_size[%d] = %ld", j,
 				bkpinfo->media_size[j]);
 		log_msg(3, comment);
+		paranoid_free(comment);
 	}
 	for (; j <= MAX_NOOF_MEDIA; j++) {
 		bkpinfo->media_size[j] = friendly_sizestr_to_sizelong(p);
 	}
-//      bkpinfo->media_size[0] = bkpinfo->media_size[MAX_NOOF_MEDIA];
 	for (j = 1; j <= MAX_NOOF_MEDIA; j++) {
 		if (bkpinfo->media_size[j] <= 0) {
 			log_msg(1, "You gave media #%d an invalid size\n", j);
@@ -338,7 +196,6 @@ int process_the_s_switch(struct s_bkpinfo *bkpinfo, char *value)
 	}
 	return (0);
 }
-
 
 
 /**
@@ -353,7 +210,7 @@ int process_the_s_switch(struct s_bkpinfo *bkpinfo, char *value)
  */
 int
 process_switches(struct s_bkpinfo *bkpinfo,
-				 char flag_val[128][MAX_STR_LEN], bool flag_set[128])
+				 char *flag_val[128], bool flag_set[128])
 {
 
 	/*@ ints *** */
@@ -363,6 +220,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 
 	/*@ buffers ** */
 	char *tmp;
+	char *tmp2;
 	char *psz;
 
 	long itbs;
@@ -373,7 +231,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 
 	bkpinfo->internal_tape_block_size = DEFAULT_INTERNAL_TAPE_BLOCK_SIZE;
 
-/* compulsory */
+	/* compulsory */
 	i = flag_set['c'] + flag_set['i'] + flag_set['n'] +
 		flag_set['t'] + flag_set['u'] + flag_set['r'] +
 		flag_set['w'] + flag_set['C'];
@@ -501,12 +359,11 @@ process_switches(struct s_bkpinfo *bkpinfo,
 				log_to_screen
 					("You must use -L with -C. Therefore I am setting it for you.");
 				flag_set['L'] = 1;
-				flag_val['L'][0] = '\0';
+				flag_val['L'] = NULL;
 			}
 		} else {
 			log_msg(3, "flag_val['c'] = %s", flag_val['c']);
 			log_msg(3, "flag_val['w'] = %s", flag_val['w']);
-//    log_msg(3, "flag_set['r'] = %i", flag_set['r'] );
 			if (flag_set['c']) {
 				bkpinfo->cdrw_speed = atoi(flag_val['c']);
 			} else if (flag_set['w']) {
@@ -545,7 +402,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 				("Manual CD tray (-m) not yet supported in conjunction w/ DVD drives. Drop -m.");
 		}
 		if (!flag_set['d']) {
-			if (!find_dvd_device(flag_val['d'], FALSE)) {
+			if ((flag_val['d'] = find_dvd_device()) != NULL) {
 				flag_set['d'] = TRUE;
 				log_to_screen("I guess DVD drive is at %s", flag_val['d']);
 			}
@@ -563,18 +420,12 @@ process_switches(struct s_bkpinfo *bkpinfo,
 				("Please don't give a SCSI node. Give a _device_, preferably a /dev entry, for the parameter of the -d flag.");
 		}
 		if (!flag_set['s']) {
-			sprintf(flag_val['s'], "%d", DEFAULT_DVD_DISK_SIZE);	// 4.7 salesman's GB = 4.482 real GB = 4582 MB
-			strcat(flag_val['s'], "m");
+			asprintf(&flag_val['s'], "%dm", DEFAULT_DVD_DISK_SIZE);	// 4.7 salesman's GB = 4.482 real GB = 4582 MB
 			log_to_screen
 				("You did not specify a size (-s) for DVD. I'm guessing %s.",
 				 flag_val['s']);
 			flag_set['s'] = 1;
 		}
-/*
-      if (flag_set['Z']) {
-	  bkpinfo->blank_dvd_first = TRUE;
-      }
-*/
 	}
 
 	if (flag_set['t'] || flag_set['u']) {	/* tape size */
@@ -611,15 +462,16 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		}						/* CD-RW */
 	}
 	if (flag_set['n']) {
-		strncpy(bkpinfo->nfs_mount, flag_val['n'], MAX_STR_LEN);
+		asprintf(&tmp, flag_val['n']);
+		bkpinfo->nfs_mount = tmp;
 		if (!flag_set['d']) {
-			strncpy(bkpinfo->nfs_remote_dir, "/", MAX_STR_LEN);
+			asprintf(&tmp, "/");
+			bkpinfo->nfs_remote_dir = tmp;
 		}
 		asprintf(&tmp, "mount | grep -x \"%s .*\" | cut -d' ' -f3",
 				bkpinfo->nfs_mount);
-		strncpy(bkpinfo->isodir,
-				call_program_and_get_last_line_of_output(tmp),
-				MAX_STR_LEN / 4);
+		asprintf(&tmp2, call_program_and_get_last_line_of_output(tmp));
+		bkpinfo->isodir = tmp2;
 		paranoid_free(tmp);
 
 		if (strlen(bkpinfo->isodir) < 3) {
@@ -713,7 +565,8 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		}
 	}
 	if (flag_set['x']) {
-		strncpy(bkpinfo->image_devs, flag_val['x'], MAX_STR_LEN / 4);
+		asprintf(&tmp, flag_val['x']);
+		bkpinfo->image_devs = tmp;
 		if (run_program_and_log_output("which partimagehack", 2)) {
 			fatal_error("Please install partimagehack RPM/tarball.");
 		}
@@ -722,28 +575,33 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		bkpinfo->manual_cd_tray = TRUE;
 	}
 	if (flag_set['k']) {
-		strncpy(bkpinfo->kernel_path, flag_val['k'], MAX_STR_LEN);
-		if (!strcmp(bkpinfo->kernel_path, "failsafe")) {
-			strcpy(bkpinfo->kernel_path, "FAILSAFE");
-		}
-		if (strcmp(bkpinfo->kernel_path, "FAILSAFE")
-			&& !does_file_exist(bkpinfo->kernel_path)) {
-			retval++;
-			asprintf(&tmp,
+		if (strcasecmp(flag_val['k'], "FAILSAFE")) {
+			asprintf(&tmp, "FAILSAFE");
+			bkpinfo->kernel_path = tmp;
+
+			if (!does_file_exist(bkpinfo->kernel_path)) {
+				retval++;
+				asprintf(&tmp,
 					"You specified kernel '%s', which does not exist\n",
 					bkpinfo->kernel_path);
-			log_to_screen(tmp);
-			paranoid_free(tmp);
+				log_to_screen(tmp);
+				paranoid_free(tmp);
+			}
+		} else {
+			asprintf(&tmp, flag_val['k']);
+			bkpinfo->kernel_path = tmp;
 		}
 	}
 	if (flag_set['p']) {
-		strncpy(bkpinfo->prefix, flag_val['p'], MAX_STR_LEN / 4);
+		asprintf(&tmp, bkpinfo->prefix);
+		bkpinfo->prefix = tmp;
 	}
 
 
 	if (flag_set['d']) {		/* backup directory (if ISO/NFS) */
 		if (flag_set['i']) {
-			strncpy(bkpinfo->isodir, flag_val['d'], MAX_STR_LEN / 4);
+			asprintf(&tmp, flag_val['d']);
+			bkpinfo->isodir = tmp;
 			asprintf(&tmp, "ls -l %s", bkpinfo->isodir);
 			if (run_program_and_log_output(tmp, FALSE)) {
 				fatal_error
@@ -751,10 +609,11 @@ process_switches(struct s_bkpinfo *bkpinfo,
 			}
 			paranoid_free(tmp);
 		} else if (flag_set['n']) {
-			strncpy(bkpinfo->nfs_remote_dir, flag_val['d'], MAX_STR_LEN);
+			asprintf(&tmp, flag_val['d']);
+			bkpinfo->nfs_remote_dir = tmp;
 		} else {				/* backup device (if tape/CD-R/CD-RW) */
 
-			strncpy(bkpinfo->media_device, flag_val['d'], MAX_STR_LEN / 4);
+			paranoid_alloc(bkpinfo->media_device, flag_val['d']);
 		}
 	}
 
@@ -781,13 +640,15 @@ process_switches(struct s_bkpinfo *bkpinfo,
 				retval++;
 				log_to_screen("User opted to cancel.");
 			}
-		} else if (find_cdrw_device(bkpinfo->media_device)) {
+		} else if ((tmp = find_cdrw_device()) ==  NULL) {
+			paranoid_free(bkpinfo->media_device);
+			bkpinfo->media_device = tmp;
 			retval++;
 			log_to_screen
 				("Tried and failed to find CD-R[W] drive automatically.\n");
 		} else {
 			flag_set['d'] = TRUE;
-			strncpy(flag_val['d'], bkpinfo->media_device, MAX_STR_LEN / 4);
+			asprintf(&flag_val['d'], bkpinfo->media_device);
 		}
 	}
 
@@ -804,12 +665,14 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		}						/* not '\0' but '0' */
 	}
 	if (flag_set['S']) {
-		sprintf(bkpinfo->scratchdir, "%s/mondo.scratch.%ld", flag_val['S'],
+		asprintf(&tmp, "%s/mondo.scratch.%ld", flag_val['S'],
 				random() % 32768);
+		bkpinfo->scratchdir = tmp;
 	}
 	if (flag_set['T']) {
-		sprintf(bkpinfo->tmpdir, "%s/tmp.mondo.%ld", flag_val['T'],
+		asprintf(&tmp, "%s/tmp.mondo.%ld", flag_val['T'],
 				random() % 32768);
+		bkpinfo->tmpdir = tmp;
 		asprintf(&tmp, "touch %s/.foo.dat", flag_val['T']);
 		if (run_program_and_log_output(tmp, 1)) {
 			retval++;
@@ -830,10 +693,12 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		paranoid_free(tmp);
 	}
 	if (flag_set['A']) {
-		strncpy(bkpinfo->call_after_iso, flag_val['A'], MAX_STR_LEN);
+		asprintf(&tmp, flag_val['A']);
+		bkpinfo->call_after_iso = tmp;
 	}
 	if (flag_set['B']) {
-		strncpy(bkpinfo->call_before_iso, flag_val['B'], MAX_STR_LEN);
+		asprintf(&tmp, flag_val['B']);
+		bkpinfo->call_before_iso = tmp;
 	}
 	if (flag_set['F']) {
 		g_skip_floppies = TRUE;
@@ -863,8 +728,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 	}
 	if (flag_set['f']) {
 		tmp = resolve_softlinks_to_get_to_actual_device_file(flag_val['f']);
-		strncpy(bkpinfo->boot_device, tmp,
-				MAX_STR_LEN / 4);
+		bkpinfo->boot_device = tmp;
 	}
 	if (flag_set['Q']) {
 		if (tmp == NULL) {
@@ -879,7 +743,8 @@ process_switches(struct s_bkpinfo *bkpinfo,
 	paranoid_free(tmp);
 
 	if (flag_set['P']) {
-		strncpy(bkpinfo->postnuke_tarball, flag_val['P'], MAX_STR_LEN);
+		asprintf(&tmp, flag_val['P']);
+		bkpinfo->postnuke_tarball = tmp;
 	}
 	if (flag_set['L']) {
 		bkpinfo->use_lzo = TRUE;
@@ -893,7 +758,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 	if (!flag_set['o']
 		&&
 		!run_program_and_log_output
-		("cat /etc/issue.net | grep -i suse | grep 64", TRUE)) {
+		("grep -i suse /etc/issue.net | grep 64", TRUE)) {
 		bkpinfo->make_cd_use_lilo = TRUE;
 		log_to_screen
 			("Forcing you to use LILO. SuSE 9.0 (64-bit) has a broken mkfs.vfat binary.");
@@ -962,12 +827,12 @@ process_switches(struct s_bkpinfo *bkpinfo,
  */
 int
 retrieve_switches_from_command_line(int argc, char *argv[],
-									char flag_val[128][MAX_STR_LEN],
+									char *flag_val[128],
 									bool flag_set[128])
 {
 	/*@ ints ** */
 	int opt = 0;
-	char tmp[MAX_STR_LEN];
+	char *tmp;
 	int i = 0;
 	int len;
 
@@ -978,7 +843,7 @@ retrieve_switches_from_command_line(int argc, char *argv[],
 	assert(flag_set != NULL);
 
 	for (i = 0; i < 128; i++) {
-		flag_val[i][0] = '\0';
+		flag_val[i] = NULL;
 		flag_set[i] = FALSE;
 	}
 	while ((opt =
@@ -991,9 +856,10 @@ retrieve_switches_from_command_line(int argc, char *argv[],
 		} else {
 			if (flag_set[optopt]) {
 				bad_switches = TRUE;
-				sprintf(tmp, "Switch -%c previously defined as %s\n", opt,
+				asprintf(&tmp, "Switch -%c previously defined as %s\n", opt,
 						flag_val[i]);
 				log_to_screen(tmp);
+				paranoid_free(tmp);
 			} else {
 				flag_set[opt] = TRUE;
 				if (optarg) {
@@ -1007,22 +873,24 @@ retrieve_switches_from_command_line(int argc, char *argv[],
 					if (opt == 'd') {
 						if (strchr(flag_val[opt], '/')
 							&& flag_val[opt][0] != '/') {
-							sprintf(tmp,
+							asprintf(&tmp,
 									"-%c flag --- must be absolute path --- '%s' isn't absolute",
 									opt, flag_val[opt]);
 							log_to_screen(tmp);
+							paranoid_free(tmp);
 							bad_switches = TRUE;
 						}
 					}
-					strcpy(flag_val[opt], optarg);
+					asprintf(&flag_val[opt], optarg);
 				}
 			}
 		}
 	}
 	for (i = optind; i < argc; i++) {
 		bad_switches = TRUE;
-		sprintf(tmp, "Invalid arg -- %s\n", argv[i]);
+		asprintf(&tmp, "Invalid arg -- %s\n", argv[i]);
 		log_to_screen(tmp);
+		paranoid_free(tmp);
 	}
 	return (bad_switches);
 }
@@ -1046,50 +914,50 @@ void help_screen()
  */
 void terminate_daemon(int sig)
 {
-	char tmp[64];
-	char tmp2[MAX_STR_LEN];
-	//  char command[512];
-	//  pid_t pid;
+	char *tmp;
+	char *tmp2;
 
 	switch (sig) {
 	case SIGINT:
-		sprintf(tmp, "SIGINT");
-		strcpy(tmp2, "You interrupted me :-)");
+		asprintf(&tmp, "SIGINT signal received from OS");
+		asprintf(&tmp2, "You interrupted me :-)");
 		break;
 	case SIGKILL:
-		sprintf(tmp, "SIGKILL");
-		strcpy(tmp2,
+		asprintf(&tmp, "SIGKILL signal received from OS");
+		asprintf(&tmp2,
 			   "I seriously have no clue how this signal even got to me. Something's wrong with your system.");
 		break;
 	case SIGTERM:
-		sprintf(tmp, "SIGTERM");
-		strcpy(tmp2, "Got terminate signal");
+		asprintf(&tmp, "SIGTERM signal received from OS");
+		asprintf(&tmp2, "Got terminate signal");
 		break;
 	case SIGHUP:
-		sprintf(tmp, "SIGHUP");
-		strcpy(tmp2, "Hangup on line");
+		asprintf(&tmp, "SIGHUP signal received from OS");
+		asprintf(&tmp2, "Hangup on line");
 		break;
 	case SIGSEGV:
-		sprintf(tmp, "SIGSEGV");
-		strcpy(tmp2,
+		asprintf(&tmp, "SIGSEGV signal received from OS");
+		asprintf(&tmp2,
 			   "Internal programming error. Please send a backtrace as well as your log.");
 		break;
 	case SIGPIPE:
-		sprintf(tmp, "SIGPIPE");
-		strcpy(tmp2, "Pipe was broken");
+		asprintf(&tmp, "SIGPIPE signal received from OS");
+		asprintf(&tmp2, "Pipe was broken");
 		break;
 	case SIGABRT:
-		sprintf(tmp, "SIGABRT");
-		sprintf(tmp2,
+		asprintf(&tmp, "SIGABRT signal received from OS");
+		asprintf(&tmp2,
 				"Abort - probably failed assertion. I'm sleeping for a few seconds so you can read the message.");
 		break;
 	default:
-		sprintf(tmp, "(Unknown)");
+		asprintf(&tmp, "(Unknown)");
+		asprintf(&tmp2, "(Unknown)");
 	}
 
-	strcat(tmp, " signal received from OS");
 	log_to_screen(tmp);
 	log_to_screen(tmp2);
+	paranoid_free(tmp);
+	paranoid_free(tmp2);
 	if (sig == SIGABRT) {
 		sleep(10);
 	}
@@ -1098,8 +966,6 @@ void terminate_daemon(int sig)
 		("Mondoarchive is terminating in response to a signal from the OS");
 	finish(254);				// just in case
 }
-
-
 
 
 /**
@@ -1121,8 +987,6 @@ void set_signals(int on)
 		}
 	}
 }
-
-
 
 
 /**

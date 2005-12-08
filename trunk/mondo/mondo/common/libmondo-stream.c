@@ -606,7 +606,6 @@ int openin_tape(struct s_bkpinfo *bkpinfo)
 	set_tape_block_size_with_mt(bkpinfo->media_device,
 								bkpinfo->internal_tape_block_size);
 
-//  start_buffer_process( bkpinfo->media_device, g_tape_fifo, FALSE);
 	log_it("Opening IN tape");
 	if (!
 		(g_tape_stream =

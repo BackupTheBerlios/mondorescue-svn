@@ -706,7 +706,7 @@ extern "C" {
 		/*@ buffers ********************************************************** */
 		char *blurb;
 		char *original_contents;
-		int n = 0;
+		size_t n = 0;
 
 		assert_string_is_neither_NULL_nor_zerolength(title);
 		assert(b != NULL);
@@ -790,7 +790,7 @@ extern "C" {
 			} else {
 				printf("%s (%s or %s) --> ", p, button1, button2);
 			}
-			for (asprintf(&tmp, "");
+			for (asprintf(&tmp, " ");
 				 strcmp(tmp, button1) && (strlen(button2) == 0
 										  || strcmp(tmp, button2));) {
 				printf("--> ");

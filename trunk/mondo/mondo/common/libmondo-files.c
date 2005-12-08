@@ -1,80 +1,5 @@
-/* libmondo-files.c                                  file manipulation
-   $Id$
-.
-
-
-04/16/04
-- find_home_of_exe() really does return NULL now if file not found
-
-03/22/04
-- added mode_of_file()
-
-10/02/03
-- cleaned up grab_percentage_from_last_line_of_file()
-
-09/18
-- added int make_grub_install_scriptlet()
-
-09/16
-- cleaned up mkisofs feedback window
-
-09/12
-- fixed Teuton-hostile bug in size_of_all_biggiefiles_K()
-
-09/05
-- added size_of_partition_in_mountlist_K()
-- size_of_all_biggiefiles_K() now calls get_phys_size_of_drive(fname)
-
-07/02
-- fixed calls to popup_and_get_string()
-
-05/19
-- added CP_BIN
-
-05/05
-- added Joshua Oreman's FreeBSD patches
-
-05/04
-- find_home_of_exe() now returns NULL if file not found
-
-04/26
-- if >4 media est'd, say one meeeellion
-
-04/25
-- fixed minor bug in find_home_of_exe()
-
-04/24
-- added lots of assert()'s and log_OS_error()'s
-
-04/07
-- fix find_home_of_exe()
-- cleaned up code a bit
-
-03/27
-- copy_mondo_and_mindi_stuff --- if _homedir_/payload.tgz exists then untar it to CD
-
-01/14/2003
-- if backup media type == nfs then don't estimate no. of media reqd
-
-11/25/2002
-- don't log/echo estimated # of media required if >=50
-
-10/01 - 11/09
-- chmod uses 0x, not decimal :)
-- added is_this_file_compressed()
-- replace convoluted grep with wc (KP)
-
-09/01 - 09/30
-- only show "number of media" estimate if no -x
-- run_program_and_log_output() now takes boolean operator to specify
-  whether it will log its activities in the event of _success_
-
-08/01 - 08/31
-- handle unknown media sizes
-- cleaned up some log_it() calls
-
-07/24
-- created
+/*  $Id$
+ * file manipulation
 */
 
 /**
@@ -116,9 +41,10 @@ extern char *g_mondo_home;
 char *calc_checksum_of_file(char *filename)
 {
 	/*@ buffers ***************************************************** */
-	static char output[MAX_STR_LEN];
-	char command[MAX_STR_LEN * 2];
-	char tmp[MAX_STR_LEN];
+	static char *output = NULL;
+	char *command;
+	char *tmp;
+	size_t n = 0;
 
 	/*@ pointers **************************************************** */
 	char *p;
@@ -131,18 +57,22 @@ char *calc_checksum_of_file(char *filename)
 	/*@************************************************************** */
 
 	assert_string_is_neither_NULL_nor_zerolength(filename);
+
 	if (does_file_exist(filename)) {
-		sprintf(command, "md5sum \"%s\"", filename);
+		asprintf(&command, "md5sum \"%s\"", filename);
 		fin = popen(command, "r");
+		paranoid_free(command);
+
 		if (fin) {
-			(void) fgets(output, MAX_STR_LEN, fin);
+			(void) getline(&output, &n, fin);
 			p = strchr(output, ' ');
 			paranoid_pclose(fin);
 		}
 	} else {
-		sprintf(tmp, "File '%s' not found; cannot calc checksum",
+		asprintf(&tmp, "File '%s' not found; cannot calc checksum",
 				filename);
 		log_it(tmp);
+		paranoid_free(tmp);
 	}
 	if (p) {
 		*p = '\0';
@@ -162,28 +92,24 @@ char *calc_file_ugly_minichecksum(char *curr_fname)
 {
 
 	/*@ buffers ***************************************************** */
-	static char curr_cksum[1000];
+	char *curr_cksum;
 
 	/*@ pointers **************************************************** */
 
 	/*@ structures ************************************************** */
 	struct stat buf;
 
-	/*@ initialize data *************************************************** */
-	curr_cksum[0] = '\0';
-
 	/*@************************************************************** */
 
 	assert_string_is_neither_NULL_nor_zerolength(curr_fname);
 	if (lstat(curr_fname, &buf)) {
-		return (curr_cksum);	// empty
-	}
-
-	sprintf(curr_cksum, "%ld-%ld-%ld", (long) (buf.st_size),
+		asprintf(&curr_cksum, "");
+	} else {
+		asprintf(&curr_cksum, "%ld-%ld-%ld", (long) (buf.st_size),
 			(long) (buf.st_mtime), (long) (buf.st_ctime));
+	}
 	return (curr_cksum);
 }
-
 
 
 /**
@@ -196,42 +122,46 @@ long count_lines_in_file(char *filename)
 {
 
 	/*@ buffers ***************************************************** */
-	char command[MAX_STR_LEN * 2];
-	char incoming[MAX_STR_LEN];
-	char tmp[MAX_STR_LEN];
+	char *command;
+	char *incoming = NULL;
+	char *tmp;
 
 	/*@ long ******************************************************** */
 	long noof_lines = -1L;
 
+	/*@ int ******************************************************** */
+	size_t n = 0;
+
 	/*@ pointers **************************************************** */
 	FILE *fin;
 
-	/*@ initialize [0] to null ******************************************** */
-	incoming[0] = '\0';
-
 	assert_string_is_neither_NULL_nor_zerolength(filename);
 	if (!does_file_exist(filename)) {
-		sprintf(tmp,
+		asprintf(&tmp,
 				"%s does not exist, so I cannot found the number of lines in it",
 				filename);
 		log_it(tmp);
+		paranoid_free(tmp);
 		return (0);
 	}
-	sprintf(command, "cat %s | wc -l", filename);
+	asprintf(&command, "cat %s | wc -l", filename);
 	if (!does_file_exist(filename)) {
 		return (-1);
 	}
 	fin = popen(command, "r");
+	paranoid_free(command);
+
 	if (fin) {
 		if (feof(fin)) {
 			noof_lines = 0;
 		} else {
-			(void) fgets(incoming, MAX_STR_LEN - 1, fin);
+			(void) getline(&incoming, &n, fin);
 			while (strlen(incoming) > 0
 				   && incoming[strlen(incoming) - 1] < 32) {
 				incoming[strlen(incoming) - 1] = '\0';
 			}
 			noof_lines = atol(incoming);
+			paranoid_free(incoming);
 		}
 		paranoid_pclose(fin);
 	}
@@ -253,7 +183,7 @@ bool does_file_exist(char *filename)
 	/*@************************************************************** */
 
 	assert(filename != NULL);
-	//  assert_string_is_neither_NULL_nor_zerolength(filename);
+
 	if (lstat(filename, &buf)) {
 		log_msg(20, "%s does not exist", filename);
 		return (FALSE);
@@ -262,10 +192,6 @@ bool does_file_exist(char *filename)
 		return (TRUE);
 	}
 }
-
-
-
-
 
 
 /**
@@ -277,13 +203,14 @@ bool does_file_exist(char *filename)
  */
 void exclude_nonexistent_files(char *inout)
 {
-	char infname[MAX_STR_LEN];
-	char outfname[MAX_STR_LEN];
-	char tmp[MAX_STR_LEN];
-	char incoming[MAX_STR_LEN];
+	char *infname;
+	char *outfname;
+	char *tmp;
+	char *incoming = NULL;
 
 	/*@ int ********************************************************* */
 	int i;
+	size_t n = 0;
 
 	/*@ pointers **************************************************** */
 	FILE *fin, *fout;
@@ -292,20 +219,29 @@ void exclude_nonexistent_files(char *inout)
 	/*@ end vars *********************************************************** */
 
 	assert_string_is_neither_NULL_nor_zerolength(inout);
-	sprintf(infname, "%s.in", inout);
-	sprintf(outfname, "%s", inout);
-	sprintf(tmp, "cp -f %s %s", inout, infname);
+
+	asprintf(&infname, "%s.in", inout);
+
+	asprintf(&tmp, "cp -f %s %s", inout, infname);
 	run_program_and_log_output(tmp, FALSE);
+	paranoid_free(tmp);
+
 	if (!(fin = fopen(infname, "r"))) {
 		log_OS_error("Unable to openin infname");
+		paranoid_free(infname);
 		return;
 	}
+
+	asprintf(&outfname, "%s", inout);
 	if (!(fout = fopen(outfname, "w"))) {
 		log_OS_error("Unable to openout outfname");
+		paranoid_free(outfname);
 		return;
 	}
-	for (fgets(incoming, MAX_STR_LEN, fin); !feof(fin);
-		 fgets(incoming, MAX_STR_LEN, fin)) {
+	paranoid_free(outfname);
+
+	for (getline(&incoming, &n, fin); !feof(fin);
+		 getline(&incoming, &n, fin)) {
 		i = strlen(incoming) - 1;
 		if (i >= 0 && incoming[i] < 32) {
 			incoming[i] = '\0';
@@ -313,21 +249,17 @@ void exclude_nonexistent_files(char *inout)
 		if (does_file_exist(incoming)) {
 			fprintf(fout, "%s\n", incoming);
 		} else {
-			sprintf(tmp, "Excluding '%s'-nonexistent\n", incoming);
+			asprintf(&tmp, "Excluding '%s'-nonexistent\n", incoming);
 			log_it(tmp);
+			paranoid_free(tmp);
 		}
 	}
+	paranoid_free(incoming);
 	paranoid_fclose(fout);
 	paranoid_fclose(fin);
 	unlink(infname);
+	paranoid_free(infname);
 }
-
-
-
-
-
-
-
 
 
 /**
@@ -339,7 +271,7 @@ void exclude_nonexistent_files(char *inout)
  */
 int figure_out_kernel_path_interactively_if_necessary(char *kernel)
 {
-	char tmp[MAX_STR_LEN];
+	char *tmp;
 
 	if (!kernel[0]) {
 		strcpy(kernel,
@@ -359,15 +291,12 @@ int figure_out_kernel_path_interactively_if_necessary(char *kernel)
 			fatal_error
 				("Kernel not found. Please specify with the '-k' flag.");
 		}
-		sprintf(tmp, "User says kernel is at %s", kernel);
+		asprintf(&tmp, "User says kernel is at %s", kernel);
 		log_it(tmp);
+		paranoid_free(tmp);
 	}
 	return (0);
 }
-
-
-
-
 
 
 /**
@@ -386,55 +315,52 @@ char *find_home_of_exe(char *fname)
 	char *incoming;
 	char *command;
 
-	malloc_string(incoming);
-	malloc_string(command);
-	incoming[0] = '\0';
 	/*@******************************* */
 
 	assert_string_is_neither_NULL_nor_zerolength(fname);
-	sprintf(command, "which %s 2> /dev/null", fname);
-	strcpy(incoming, call_program_and_get_last_line_of_output(command));
+	asprintf(&command, "which %s 2> /dev/null", fname);
+	asprintf(&incoming, call_program_and_get_last_line_of_output(command));
+	paranoid_free(command);
+
 	if (incoming[0] == '\0') {
 		if (system("which file > /dev/null 2> /dev/null")) {
 			paranoid_free(incoming);
-			paranoid_free(command);
-			output[0] = '\0';
 			return (NULL);		// forget it :)
 		}
-		sprintf(command,
+		asprintf(&command,
 				"file %s 2> /dev/null | cut -d':' -f1 2> /dev/null",
 				incoming);
-		strcpy(incoming,
+		paranoid_free(incoming);
+
+		asprintf(&incoming,
 			   call_program_and_get_last_line_of_output(command));
+		paranoid_free(command);
 	}
 	if (incoming[0] == '\0')	// yes, it is == '\0' twice, not once :)
 	{
-		sprintf(command, "dirname %s 2> /dev/null", incoming);
-		strcpy(incoming,
+		asprintf(&command, "dirname %s 2> /dev/null", incoming);
+		paranoid_free(incoming);
+
+		asprintf(&incoming,
 			   call_program_and_get_last_line_of_output(command));
+		paranoid_free(command);
 	}
 	strcpy(output, incoming);
+	paranoid_free(incoming);
+
 	if (output[0] != '\0' && does_file_exist(output)) {
 		log_msg(4, "find_home_of_exe () --- Found %s at %s", fname,
-				incoming);
+				output);
 	} else {
 		output[0] = '\0';
 		log_msg(4, "find_home_of_exe() --- Could not find %s", fname);
 	}
-	paranoid_free(incoming);
-	paranoid_free(command);
 	if (!output[0]) {
 		return (NULL);
 	} else {
 		return (output);
 	}
 }
-
-
-
-
-
-
 
 
 /**
@@ -457,6 +383,7 @@ int get_trackno_from_logfile(char *logfile)
 	char datablock[32701];
 
 	assert_string_is_neither_NULL_nor_zerolength(logfile);
+
 	if (!(fin = fopen(logfile, "r"))) {
 		log_OS_error("Unable to open logfile");
 		fatal_error("Unable to open logfile to read trackno");
@@ -470,17 +397,8 @@ int get_trackno_from_logfile(char *logfile)
 	datablock[len--] = '\0';
 	for (; len > 0 && isdigit(datablock[len - 1]); len--);
 	trackno = atoi(datablock + len);
-	/*
-	   sprintf(tmp,"datablock=%s; trackno=%d",datablock+len, trackno);
-	   log_it(tmp);
-	 */
 	return (trackno);
 }
-
-
-
-
-
 
 
 /**
@@ -493,9 +411,8 @@ int grab_percentage_from_last_line_of_file(char *filename)
 {
 
 	/*@ buffers ***************************************************** */
-	char tmp[MAX_STR_LEN];
-	char lastline[MAX_STR_LEN];
-	char command[MAX_STR_LEN];
+	char *lastline;
+	char *command;
 	/*@ pointers **************************************************** */
 	char *p;
 
@@ -506,24 +423,26 @@ int grab_percentage_from_last_line_of_file(char *filename)
 		 i >= 0 && !strstr(err_log_lines[i], "% Done")
 		 && !strstr(err_log_lines[i], "% done"); i--);
 	if (i < 0) {
-		sprintf(command,
+		asprintf(&command,
 				"tail -n3 %s | fgrep -i \"%c\" | tail -n1 | awk '{print $0;}'",
 				filename, '%');
-		strcpy(lastline,
+		asprintf(&lastline,
 			   call_program_and_get_last_line_of_output(command));
+		paranoid_free(command);
 		if (!lastline[0]) {
+			paranoid_free(lastline);
 			return (0);
 		}
 	} else {
-		strcpy(lastline, err_log_lines[i]);
+		asprintf(&lastline, err_log_lines[i]);
 	}
 
 	p = strrchr(lastline, '%');
 	if (p) {
 		*p = '\0';
 	}
-//  log_msg(2, "lastline='%s', ", p, lastline);
 	if (!p) {
+		paranoid_free(lastline);
 		return (0);
 	}
 	*p = '\0';
@@ -532,15 +451,10 @@ int grab_percentage_from_last_line_of_file(char *filename)
 		p++;
 	}
 	i = atoi(p);
-
-	sprintf(tmp, "'%s' --> %d", p, i);
-//     log_to_screen(tmp);
+	paranoid_free(lastline);
 
 	return (i);
 }
-
-
-
 
 
 /**
@@ -553,8 +467,8 @@ char *last_line_of_file(char *filename)
 {
 	/*@ buffers ***************************************************** */
 	static char output[MAX_STR_LEN];
-	static char command[MAX_STR_LEN * 2];
-	static char tmp[MAX_STR_LEN];
+	static char *command;
+	static char *tmp;
 
 	/*@ pointers **************************************************** */
 	FILE *fin;
@@ -562,14 +476,18 @@ char *last_line_of_file(char *filename)
 	/*@ end vars **************************************************** */
 
 	if (!does_file_exist(filename)) {
-		sprintf(tmp, "Tring to get last line of nonexistent file (%s)",
+		asprintf(&tmp, "Tring to get last line of nonexistent file (%s)",
 				filename);
 		log_it(tmp);
+		paranoid_free(tmp);
+
 		output[0] = '\0';
 		return (output);
 	}
-	sprintf(command, "tail -n1 %s", filename);
+	asprintf(&command, "tail -n1 %s", filename);
 	fin = popen(command, "r");
+	paranoid_free(command);
+
 	(void) fgets(output, MAX_STR_LEN, fin);
 	paranoid_pclose(fin);
 	while (strlen(output) > 0 && output[strlen(output) - 1] < 32) {
@@ -577,6 +495,7 @@ char *last_line_of_file(char *filename)
 	}
 	return (output);
 }
+
 
 /**
  * Get the length of @p filename in bytes.
@@ -604,95 +523,6 @@ long long length_of_file(char *filename)
 }
 
 
-
-/**
- * ?????
- * @bug I don't know what this function does. However, it seems orphaned, so it should probably be removed.
- */
-int
-make_checksum_list_file(char *filelist, char *cksumlist, char *comppath)
-{
-	/*@ pointers **************************************************** */
-	FILE *fin;
-	FILE *fout;
-
-	/*@ int   ******************************************************* */
-	int percentage;
-	int i;
-	int counter = 0;
-
-	/*@ buffer ****************************************************** */
-	char stub_fname[1000];
-	char curr_fname[1000];
-	char curr_cksum[1000];
-	char tmp[1000];
-
-	/*@ long [long] ************************************************* */
-	long long filelist_length;
-	long curr_pos;
-	long start_time;
-	long current_time;
-	long time_taken;
-	long time_remaining;
-
-	/*@ end vars *************************************************** */
-
-	start_time = get_time();
-	filelist_length = length_of_file(filelist);
-	sprintf(tmp, "filelist = %s; cksumlist = %s", filelist, cksumlist);
-	log_it(tmp);
-	fin = fopen(filelist, "r");
-	if (fin == NULL) {
-		log_OS_error("Unable to fopen-in filelist");
-		log_to_screen("Can't open filelist");
-		return (1);
-	}
-	fout = fopen(cksumlist, "w");
-	if (fout == NULL) {
-		log_OS_error("Unable to openout cksumlist");
-		paranoid_fclose(fin);
-		log_to_screen("Can't open checksum list");
-		return (1);
-	}
-	for (fgets(stub_fname, 999, fin); !feof(fin);
-		 fgets(stub_fname, 999, fin)) {
-		if (stub_fname[(i = strlen(stub_fname) - 1)] < 32) {
-			stub_fname[i] = '\0';
-		}
-		sprintf(tmp, "%s%s", comppath, stub_fname);
-		strcpy(curr_fname, tmp + 1);
-		strcpy(curr_cksum, calc_file_ugly_minichecksum(curr_fname));
-		fprintf(fout, "%s\t%s\n", curr_fname, curr_cksum);
-		if (counter++ > 12) {
-			current_time = get_time();
-			counter = 0;
-			curr_fname[37] = '\0';
-			curr_pos = ftell(fin) / 1024;
-			percentage = (int) (curr_pos * 100 / filelist_length);
-			time_taken = current_time - start_time;
-			if (percentage == 0) {
-				/*              printf("%0d%% done      \r",percentage); */
-			} else {
-				time_remaining =
-					time_taken * 100 / (long) (percentage) - time_taken;
-				sprintf(tmp,
-						"%02d%% done   %02d:%02d taken   %02d:%02d remaining  %-37s\r",
-						percentage, (int) (time_taken / 60),
-						(int) (time_taken % 60),
-						(int) (time_remaining / 60),
-						(int) (time_remaining % 60), curr_fname);
-				log_to_screen(tmp);
-			}
-			sync();
-		}
-	}
-	paranoid_fclose(fout);
-	paranoid_fclose(fin);
-	log_it("Done.");
-	return (0);
-}
-
-
 /**
  * Create the directory @p outdir_fname and all parent directories. Equivalent to <tt>mkdir -p</tt>.
  * @param outdir_fname The directory to create.
@@ -701,12 +531,13 @@ make_checksum_list_file(char *filelist, char *cksumlist, char *comppath)
 /* BERLIOS: This function shouldn't call system at all */
 int make_hole_for_dir(char *outdir_fname)
 {
-	char tmp[MAX_STR_LEN * 2];
+	char *tmp;
 	int res = 0;
 
 	assert_string_is_neither_NULL_nor_zerolength(outdir_fname);
-	sprintf(tmp, "mkdir -p %s", outdir_fname);
+	asprintf(&tmp, "mkdir -p %s", outdir_fname);
 	res = system(tmp);
+	paranoid_free(tmp);
 	return (res);
 }
 
@@ -721,7 +552,7 @@ int make_hole_for_dir(char *outdir_fname)
 int make_hole_for_file(char *outfile_fname)
 {
 	/*@ buffer ****************************************************** */
-	char command[MAX_STR_LEN * 2];
+	char *command;
 
 	/*@ int  ******************************************************** */
 	int res = 0;
@@ -731,17 +562,21 @@ int make_hole_for_file(char *outfile_fname)
 	assert_string_is_neither_NULL_nor_zerolength(outfile_fname);
 	assert(!strstr(outfile_fname, MNT_CDROM));
 	assert(!strstr(outfile_fname, "/dev/cdrom"));
-	sprintf(command, "mkdir -p \"%s\" 2> /dev/null", outfile_fname);
+
+	asprintf(&command, "mkdir -p \"%s\" 2> /dev/null", outfile_fname);
 	res += system(command);
-	sprintf(command, "rmdir \"%s\" 2> /dev/null", outfile_fname);
+	paranoid_free(command);
+
+	asprintf(&command, "rmdir \"%s\" 2> /dev/null", outfile_fname);
 	res += system(command);
-	sprintf(command, "rm -f \"%s\" 2> /dev/null", outfile_fname);
+	paranoid_free(command);
+
+	asprintf(&command, "rm -f \"%s\" 2> /dev/null", outfile_fname);
 	res += system(command);
+	paranoid_free(command);
 	unlink(outfile_fname);
 	return (0);
 }
-
-
 
 
 /**
@@ -759,8 +594,9 @@ long noof_lines_that_match_wildcard(char *filelist_fname, char *wildcard)
 	FILE *fin;
 
 	/*@ buffers **************************************************** */
-	char incoming[MAX_STR_LEN];
+	char *incoming = NULL;
 
+	size_t n = 0;
 	/*@ end vars *************************************************** */
 
 
@@ -770,18 +606,17 @@ long noof_lines_that_match_wildcard(char *filelist_fname, char *wildcard)
 		log_OS_error("Unable to openin filelist_fname");
 		return (0);
 	}
-	(void) fgets(incoming, MAX_STR_LEN - 1, fin);
+	(void) getline(&incoming, &n, fin);
 	while (!feof(fin)) {
 		if (strstr(incoming, wildcard)) {
 			matches++;
 		}
-		(void) fgets(incoming, MAX_STR_LEN - 1, fin);
+		(void) getline(&incoming, &n, fin);
 	}
 	paranoid_fclose(fin);
+	paranoid_free(incoming);
 	return (matches);
 }
-
-
 
 
 /**
@@ -793,42 +628,50 @@ long noof_lines_that_match_wildcard(char *filelist_fname, char *wildcard)
  */
 void register_pid(pid_t pid, char *name_str)
 {
-	char tmp[MAX_STR_LEN + 1], lockfile_fname[MAX_STR_LEN + 1];
+	char *tmp;
+    char *lockfile_fname;
 	int res;
+	size_t n = 0;
 	FILE *fin;
 
-	sprintf(lockfile_fname, "/var/run/monitas-%s.pid", name_str);
+	asprintf(&lockfile_fname, "/var/run/monitas-%s.pid", name_str);
 	if (!pid) {
 		log_it("Unregistering PID");
 		if (unlink(lockfile_fname)) {
 			log_it("Error unregistering PID");
 		}
+		paranoid_free(lockfile_fname);
 		return;
 	}
 	if (does_file_exist(lockfile_fname)) {
-		tmp[0] = '\0';
 		if ((fin = fopen(lockfile_fname, "r"))) {
-			(void) fgets(tmp, MAX_STR_LEN, fin);
+			(void) getline(&tmp, &n, fin);
 			paranoid_fclose(fin);
 		} else {
 			log_OS_error("Unable to openin lockfile_fname");
 		}
 		pid = (pid_t) atol(tmp);
-		sprintf(tmp, "ps %ld > /dev/null 2> /dev/null", (long int) pid);
+		paranoid_free(tmp);
+
+		asprintf(&tmp, "ps %ld > /dev/null 2> /dev/null", (long int) pid);
 		res = system(tmp);
+		paranoid_free(tmp);
 		if (!res) {
 			log_it
 				("I believe the daemon is already running. If it isn't, please delete %s and try again.",
 				 lockfile_fname);
 		}
 	}
-	sprintf(tmp, "echo %ld > %s 2> /dev/null", (long int) getpid(),
+	asprintf(&tmp, "echo %ld > %s 2> /dev/null", (long int) getpid(),
 			lockfile_fname);
+	paranoid_free(lockfile_fname);
+
 	if (system(tmp)) {
 		fatal_error("Cannot register PID");
 	}
+	paranoid_free(tmp);
+	return;
 }
-
 
 
 /**
@@ -839,21 +682,22 @@ void register_pid(pid_t pid, char *name_str)
  */
 long size_of_partition_in_mountlist_K(char *tmpdir, char *dev)
 {
-	char command[MAX_STR_LEN];
-	char mountlist[MAX_STR_LEN];
-	char sz_res[MAX_STR_LEN];
+	char *command;
+	char *sz_res;
 	long file_len_K;
 
-	sprintf(mountlist, "%s/mountlist.txt", tmpdir);
-	sprintf(command,
-			"cat %s/mountlist.txt | grep \"%s \" | head -n1 | awk '{print $4;}'",
-			tmpdir, dev);
+	asprintf(&command,
+			"grep '%s ' %s/mountlist.txt | head -n1 | awk '{print $4;}'",
+			dev, tmpdir);
 	log_it(command);
-	strcpy(sz_res, call_program_and_get_last_line_of_output(command));
+	asprintf(&sz_res, call_program_and_get_last_line_of_output(command));
 	file_len_K = atol(sz_res);
 	log_msg(4, "%s --> %s --> %ld", command, sz_res, file_len_K);
+	paranoid_free(command);
+	paranoid_free(sz_res);
 	return (file_len_K);
 }
+
 
 /**
  * Calculate the total size (in KB) of all the biggiefiles in this backup.
@@ -873,22 +717,20 @@ long size_of_all_biggiefiles_K(struct s_bkpinfo *bkpinfo)
 
 	/*@ pointers *************************************************** */
 	FILE *fin = NULL;
+	size_t n = 0;
 
 	/*@ end vars *************************************************** */
 
-	malloc_string(fname);
-	malloc_string(biggielist);
-	malloc_string(comment);
 	log_it("Calculating size of all biggiefiles (in total)");
-	sprintf(biggielist, "%s/biggielist.txt", bkpinfo->tmpdir);
+	asprintf(&biggielist, "%s/biggielist.txt", bkpinfo->tmpdir);
 	log_it("biggielist = %s", biggielist);
 	if (!(fin = fopen(biggielist, "r"))) {
 		log_OS_error
 			("Cannot open biggielist. OK, so estimate is based on filesets only.");
 	} else {
 		log_msg(4, "Reading it...");
-		for (fgets(fname, MAX_STR_LEN, fin); !feof(fin);
-			 fgets(fname, MAX_STR_LEN, fin)) {
+		for (getline(&fname, &n, fin); !feof(fin);
+			 getline(&fname, &n, fin)) {
 			if (fname[strlen(fname) - 1] <= 32) {
 				fname[strlen(fname) - 1] = '\0';
 			}
@@ -901,23 +743,26 @@ long size_of_all_biggiefiles_K(struct s_bkpinfo *bkpinfo)
 				scratchL += file_len_K;
 				log_msg(4, "%s --> %ld K", fname, file_len_K);
 			}
-			sprintf(comment,
+			asprintf(&comment,
 					"After adding %s, scratchL+%ld now equals %ld", fname,
 					file_len_K, scratchL);
 			log_msg(4, comment);
+			paranoid_free(comment);
+
 			if (feof(fin)) {
 				break;
 			}
 		}
+		paranoid_free(fname);
 	}
+	paranoid_free(biggielist);
+
 	log_it("Closing...");
 	paranoid_fclose(fin);
 	log_it("Finished calculating total size of all biggiefiles");
-	paranoid_free(fname);
-	paranoid_free(biggielist);
-	paranoid_free(comment);
 	return (scratchL);
 }
+
 
 /**
  * Determine the amount of space (in KB) occupied by a mounted CD.
@@ -928,18 +773,21 @@ long size_of_all_biggiefiles_K(struct s_bkpinfo *bkpinfo)
 long long space_occupied_by_cd(char *mountpt)
 {
 	/*@ buffer ****************************************************** */
-	char tmp[MAX_STR_LEN];
-	char command[MAX_STR_LEN * 2];
+	char *tmp = NULL;
+	char *command;
 	long long llres;
+	size_t n = 0;
 	/*@ pointers **************************************************** */
 	char *p;
 	FILE *fin;
 
 	/*@ end vars *************************************************** */
 
-	sprintf(command, "du -sk %s", mountpt);
+	asprintf(&command, "du -sk %s", mountpt);
 	fin = popen(command, "r");
-	(void) fgets(tmp, MAX_STR_LEN, fin);
+	paranoid_free(command);
+
+	(void) getline(&tmp, &n, fin);
 	paranoid_pclose(fin);
 	p = strchr(tmp, '\t');
 	if (p) {
@@ -949,6 +797,7 @@ long long space_occupied_by_cd(char *mountpt)
 		llres *= 10;
 		llres += (int) (*p - '0');
 	}
+	paranoid_free(tmp);
 	return (llres);
 }
 
@@ -968,6 +817,7 @@ unsigned int updcrc(unsigned int crc, unsigned int c)
 	return crc;
 }
 
+
 /**
  * Update a reverse CRC checksum to include another character.
  * @param crc The original CRC checksum.
@@ -984,8 +834,6 @@ unsigned int updcrcr(unsigned int crc, unsigned int c)
 }
 
 
-
-
 /**
  * Check for an executable on the user's system; write a message to the
  * screen and the log if we can't find it.
@@ -995,28 +843,29 @@ unsigned int updcrcr(unsigned int crc, unsigned int c)
 int whine_if_not_found(char *fname)
 {
 	/*@ buffers *** */
-	char command[MAX_STR_LEN * 2];
-	char errorstr[MAX_STR_LEN];
+	char *command;
+	char *errorstr;
+	int res = 0;
 
 
-	sprintf(command, "which %s > /dev/null 2> /dev/null", fname);
-	sprintf(errorstr,
+	asprintf(&command, "which %s > /dev/null 2> /dev/null", fname);
+	res = system(command);
+	paranoid_free(command);
+
+	if (res) {
+		asprintf(&errorstr,
 			"Please install '%s'. I cannot find it on your system.",
 			fname);
-	if (system(command)) {
 		log_to_screen(errorstr);
+		paranoid_free(errorstr);
 		log_to_screen
-			("There may be hyperlink at http://www.mondorescue.com which");
+			("There may be an hyperlink at http://www.mondorescue.org which");
 		log_to_screen("will take you to the relevant (missing) package.");
 		return (1);
 	} else {
 		return (0);
 	}
 }
-
-
-
-
 
 
 /**
@@ -1047,7 +896,6 @@ int write_one_liner_data_file(char *fname, char *contents)
 	paranoid_fclose(fout);
 	return (res);
 }
-
 
 
 /**
@@ -1084,13 +932,6 @@ int read_one_liner_data_file(char *fname, char *contents)
 }
 
 
-
-
-
-
-
-
-
 /**
  * Copy the files that Mondo/Mindi need to run to the scratchdir or tempdir.
  * Currently this includes: copy Mondo's home directory to scratchdir, untar "mondo_home/payload.tgz"
@@ -1104,8 +945,8 @@ int read_one_liner_data_file(char *fname, char *contents)
 void copy_mondo_and_mindi_stuff_to_scratchdir(struct s_bkpinfo *bkpinfo)
 {
 	/*@ Char buffers ** */
-	char command[MAX_STR_LEN * 2];
-	char tmp[MAX_STR_LEN];
+	char *command;
+	char *tmp;
 	char old_pwd[MAX_STR_LEN];
 
 	mvaddstr_and_log_it(g_currentY, 0,
@@ -1117,62 +958,66 @@ void copy_mondo_and_mindi_stuff_to_scratchdir(struct s_bkpinfo *bkpinfo)
 		paranoid_free(g_mondo_home);
 		g_mondo_home = find_and_store_mondoarchives_home();
 	}
-	sprintf(command, CP_BIN " --parents -pRdf %s %s", g_mondo_home,
+	asprintf(&command, CP_BIN " --parents -pRdf %s %s", g_mondo_home,
 			bkpinfo->scratchdir);
 
 	log_msg(4, "command = %s", command);
 	if (run_program_and_log_output(command, 1)) {
 		fatal_error("Failed to copy Mondo's stuff to scratchdir");
 	}
+	paranoid_free(command);
 
-	sprintf(tmp, "%s/payload.tgz", g_mondo_home);
+	asprintf(&tmp, "%s/payload.tgz", g_mondo_home);
 	if (does_file_exist(tmp)) {
 		log_it("Untarring payload %s to scratchdir %s", tmp,
 			   bkpinfo->scratchdir);
 		(void) getcwd(old_pwd, MAX_STR_LEN - 1);
 		chdir(bkpinfo->scratchdir);
-		sprintf(command, "tar -zxvf %s", tmp);
+		asprintf(&command, "tar -zxvf %s", tmp);
 		if (run_program_and_log_output(command, FALSE)) {
 			fatal_error("Failed to untar payload");
 		}
+		paranoid_free(command);
 		chdir(old_pwd);
 	}
+	paranoid_free(tmp);
 
-	sprintf(command, "cp -f %s/LAST-FILELIST-NUMBER %s", bkpinfo->tmpdir,
+	asprintf(&command, "cp -f %s/LAST-FILELIST-NUMBER %s", bkpinfo->tmpdir,
 			bkpinfo->scratchdir);
-
 	if (run_program_and_log_output(command, FALSE)) {
 		fatal_error("Failed to copy LAST-FILELIST-NUMBER to scratchdir");
 	}
+	paranoid_free(command);
 
-	strcpy(tmp,
+	asprintf(&tmp,
 		   call_program_and_get_last_line_of_output("which mondorestore"));
 	if (!tmp[0]) {
 		fatal_error
 			("'which mondorestore' returned null. Where's your mondorestore? `which` can't find it. That's odd. Did you install mondorestore?");
 	}
-	sprintf(command, "cp -f %s %s", tmp, bkpinfo->tmpdir);
+	asprintf(&command, "cp -f %s %s", tmp, bkpinfo->tmpdir);
+	paranoid_free(tmp);
+
 	if (run_program_and_log_output(command, FALSE)) {
 		fatal_error("Failed to copy mondorestore to tmpdir");
 	}
+	paranoid_free(command);
 
-	sprintf(command, "hostname > %s/HOSTNAME", bkpinfo->scratchdir);
+	asprintf(&command, "hostname > %s/HOSTNAME", bkpinfo->scratchdir);
 	paranoid_system(command);
+	paranoid_free(command);
 
 	if (bkpinfo->postnuke_tarball[0]) {
-		sprintf(command, "cp -f %s %s/post-nuke.tgz",
+		asprintf(&command, "cp -f %s %s/post-nuke.tgz",
 				bkpinfo->postnuke_tarball, bkpinfo->tmpdir);
 		if (run_program_and_log_output(command, FALSE)) {
 			fatal_error("Unable to copy post-nuke tarball to tmpdir");
 		}
+		paranoid_free(command);
 	}
-
 
 	mvaddstr_and_log_it(g_currentY++, 74, "Done.");
 }
-
-
-
 
 
 /**
@@ -1187,15 +1032,15 @@ void store_nfs_config(struct s_bkpinfo *bkpinfo)
 {
 
 	/*@ buffers ******** */
-	char outfile[MAX_STR_LEN];
-	char nfs_dev[MAX_STR_LEN];
-	char nfs_mount[MAX_STR_LEN];
-	char nfs_client_ipaddr[MAX_STR_LEN];
-	char nfs_client_netmask[MAX_STR_LEN];
-	char nfs_client_defgw[MAX_STR_LEN];
-	char nfs_server_ipaddr[MAX_STR_LEN];
-	char tmp[MAX_STR_LEN];
-	char command[MAX_STR_LEN * 2];
+	char *outfile;
+	char *nfs_dev;
+	char *nfs_mount;
+	char *nfs_client_ipaddr;
+	char *nfs_client_netmask;
+	char *nfs_client_defgw;
+	char *nfs_server_ipaddr;
+	char *tmp;
+	char *command;
 
 	/*@ pointers ***** */
 	char *p;
@@ -1204,40 +1049,56 @@ void store_nfs_config(struct s_bkpinfo *bkpinfo)
 
 
 	log_it("Storing NFS configuration");
-	strcpy(tmp, bkpinfo->nfs_mount);
+	asprintf(&tmp, bkpinfo->nfs_mount);
 	p = strchr(tmp, ':');
 	if (!p) {
 		fatal_error
 			("NFS mount doesn't have a colon in it, e.g. 192.168.1.4:/home/nfs");
 	}
 	*(p++) = '\0';
-	strcpy(nfs_server_ipaddr, tmp);
-	strcpy(nfs_mount, p);
-	sprintf(command,
+	asprintf(&nfs_server_ipaddr, tmp);
+	paranoid_free(tmp);
+
+	asprintf(&nfs_mount, p);
+	asprintf(&command,
 			"ifconfig | tr '\n' '#' | sed s/##// | tr '#' ' ' | tr '' '\n' | head -n1 | cut -d' ' -f1");
-	strcpy(nfs_dev, call_program_and_get_last_line_of_output(command));
-	sprintf(command,
+	asprintf(&nfs_dev, call_program_and_get_last_line_of_output(command));
+	paranoid_free(command);
+
+	asprintf(&command,
 			"ifconfig | tr '\n' '#' | sed s/##// | tr '#' ' ' | tr '' '\\n' | head -n1 | tr -s '\t' ' ' | cut -d' ' -f7 | cut -d':' -f2");
-	strcpy(nfs_client_ipaddr,
+	asprintf(&nfs_client_ipaddr,
 		   call_program_and_get_last_line_of_output(command));
-	sprintf(command,
+	paranoid_free(command);
+
+	asprintf(&command,
 			"ifconfig | tr '\n' '#' | sed s/##// | tr '#' ' ' | tr '' '\\n' | head -n1 | tr -s '\t' ' ' | cut -d' ' -f9 | cut -d':' -f2");
-	strcpy(nfs_client_netmask,
+	asprintf(&nfs_client_netmask,
 		   call_program_and_get_last_line_of_output(command));
-	sprintf(command,
+	paranoid_free(command);
+
+	asprintf(&command,
 			"route | egrep '^default' | awk '{printf $2}'");
-	strcpy(nfs_client_defgw,
+	asprintf(&nfs_client_defgw,
 		   call_program_and_get_last_line_of_output(command));
-	sprintf(tmp,
-			"nfs_client_ipaddr=%s; nfs_server_ipaddr=%s; nfs_mount=%s",
-			nfs_client_ipaddr, nfs_server_ipaddr, nfs_mount);
+	paranoid_free(command);
+
+	asprintf(&tmp,
+			"nfs_client_ipaddr=%s; nfs_client_netmask=%s; nfs_server_ipaddr=%s; nfs_mount=%s; nfs_client_defgw=%s;  ",
+			nfs_client_ipaddr, nfs_client_netmask, nfs_server_ipaddr, nfs_mount, nfs_client_defgw);
+	paranoid_free(nfs_mount);
+	log_it(tmp);
+	paranoid_free(tmp);
+
 	if (strlen(nfs_dev) < 2) {
 		fatal_error
 			("Unable to find ethN (eth0, eth1, ...) adapter via NFS mount you specified.");
 	}
-	sprintf(outfile, "%s/start-nfs", bkpinfo->tmpdir);
-	sprintf(tmp, "outfile = %s", outfile);
+	asprintf(&outfile, "%s/start-nfs", bkpinfo->tmpdir);
+	asprintf(&tmp, "outfile = %s", outfile);
 	log_it(tmp);
+	paranoid_free(tmp);
+
 	if (!(fout = fopen(outfile, "w"))) {
 		fatal_error("Cannot store NFS config");
 	}
@@ -1255,32 +1116,51 @@ void store_nfs_config(struct s_bkpinfo *bkpinfo)
 
 //  paranoid_system ("mkdir -p /var/cache/mondo-archive 2> /dev/null");
 
-	sprintf(tmp, "cp -f %s /var/cache/mondo-archive", outfile);
+	asprintf(&tmp, "cp -f %s /var/cache/mondo-archive", outfile);
+	paranoid_free(outfile);
+
 	run_program_and_log_output(tmp, FALSE);
+	paranoid_free(tmp);
 
-	sprintf(tmp, "%s/NFS-DEV", bkpinfo->tmpdir);
+	asprintf(&tmp, "%s/NFS-DEV", bkpinfo->tmpdir);
 	write_one_liner_data_file(tmp, nfs_dev);
+	paranoid_free(nfs_dev);
+	paranoid_free(tmp);
 
-	sprintf(tmp, "%s/NFS-CLIENT-IPADDR", bkpinfo->tmpdir);
+	asprintf(&tmp, "%s/NFS-CLIENT-IPADDR", bkpinfo->tmpdir);
 	write_one_liner_data_file(tmp, nfs_client_ipaddr);
-	sprintf(tmp, "%s/NFS-CLIENT-NETMASK", bkpinfo->tmpdir);
+	paranoid_free(nfs_client_ipaddr);
+	paranoid_free(tmp);
+
+	asprintf(&tmp, "%s/NFS-CLIENT-NETMASK", bkpinfo->tmpdir);
 	write_one_liner_data_file(tmp, nfs_client_netmask);
-	sprintf(tmp, "%s/NFS-CLIENT-DEFGW", bkpinfo->tmpdir);
+	paranoid_free(nfs_client_netmask);
+	paranoid_free(tmp);
+
+	asprintf(&tmp, "%s/NFS-CLIENT-DEFGW", bkpinfo->tmpdir);
 	write_one_liner_data_file(tmp, nfs_client_defgw);
-	sprintf(tmp, "%s/NFS-SERVER-IPADDR", bkpinfo->tmpdir);
+	paranoid_free(nfs_client_defgw);
+	paranoid_free(tmp);
+
+	asprintf(&tmp, "%s/NFS-SERVER-IPADDR", bkpinfo->tmpdir);
 	write_one_liner_data_file(tmp, nfs_server_ipaddr);
-	sprintf(tmp, "%s/NFS-SERVER-MOUNT", bkpinfo->tmpdir);
+	paranoid_free(nfs_server_ipaddr);
+	paranoid_free(tmp);
+
+	asprintf(&tmp, "%s/NFS-SERVER-MOUNT", bkpinfo->tmpdir);
 	write_one_liner_data_file(tmp, bkpinfo->nfs_mount);
-	sprintf(tmp, "%s/NFS-SERVER-PATH", bkpinfo->tmpdir);
+	paranoid_free(tmp);
+
+	asprintf(&tmp, "%s/NFS-SERVER-PATH", bkpinfo->tmpdir);
 	write_one_liner_data_file(tmp, bkpinfo->nfs_remote_dir);
-	sprintf(tmp, "%s/ISO-PREFIX", bkpinfo->tmpdir);
+	paranoid_free(tmp);
+
+	asprintf(&tmp, "%s/ISO-PREFIX", bkpinfo->tmpdir);
 	write_one_liner_data_file(tmp, bkpinfo->prefix);
+	paranoid_free(tmp);
+
 	log_it("Finished storing NFS configuration");
 }
-
-
-
-
 
 
 /**
@@ -1303,7 +1183,7 @@ void
 estimate_noof_media_required(struct s_bkpinfo *bkpinfo, long noof_sets)
 {
 	/*@ buffers *************** */
-	char tmp[MAX_STR_LEN];
+	char *tmp;
 
 	/*@ long long ************* */
 	long long scratchLL;
@@ -1328,38 +1208,18 @@ estimate_noof_media_required(struct s_bkpinfo *bkpinfo, long noof_sets)
 		scratchLL++;
 	}
 	if (scratchLL <= 1) {
-		sprintf(tmp,
+		asprintf(&tmp,
 				"Your backup will probably occupy a single %s. Maybe two.",
 				media_descriptor_string(bkpinfo->backup_media_type));
 	} else {
-		sprintf(tmp, "Your backup will occupy approximately %s media.",
+		asprintf(&tmp, "Your backup will occupy approximately %s media.",
 				number_to_text((int) (scratchLL + 1)));
 	}
 	if (!bkpinfo->image_devs[0] && (scratchLL < 50)) {
 		log_to_screen(tmp);
 	}
-}
-
-
-/**
- * Get the last suffix of @p instr.
- * If @p instr was "httpd.log.gz", we would return "gz".
- * @param instr The filename to get the suffix of.
- * @return The suffix (without a dot), or "" if none.
- * @note The returned string points to static storage that will be overwritten with each call.
- */
-char *sz_last_suffix(char *instr)
-{
-	static char outstr[MAX_STR_LEN];
-	char *p;
-
-	p = strrchr(instr, '.');
-	if (!p) {
-		outstr[0] = '\0';
-	} else {
-		strcpy(outstr, p);
-	}
-	return (outstr);
+	paranoid_free(tmp);
+	return;
 }
 
 
@@ -1371,30 +1231,37 @@ char *sz_last_suffix(char *instr)
  */
 bool is_this_file_compressed(char *filename)
 {
-	char do_not_compress_these[MAX_STR_LEN];
-	char tmp[MAX_STR_LEN];
+	char *do_not_compress_these;
+	char *tmp;
 	char *p;
 
-	sprintf(tmp, "%s/do-not-compress-these", g_mondo_home);
+	asprintf(&tmp, "%s/do-not-compress-these", g_mondo_home);
 	if (!does_file_exist(tmp)) {
+		paranoid_free(tmp);
 		return (FALSE);
 	}
-	strcpy(do_not_compress_these, last_line_of_file(tmp));
+	paranoid_free(tmp);
+
+	asprintf(&do_not_compress_these, last_line_of_file(tmp));
 	for (p = do_not_compress_these; p != NULL; p++) {
-		strcpy(tmp, p);
+		asprintf(&tmp, p);
 		if (strchr(tmp, ' ')) {
 			*(strchr(tmp, ' ')) = '\0';
 		}
-		if (!strcmp(sz_last_suffix(filename), tmp)) {	/*printf("MATCH\n"); */
+		if (!strcmp(strrchr(filename, '.'), tmp)) {
+			paranoid_free(do_not_compress_these);
+			paranoid_free(tmp);
 			return (TRUE);
 		}
+		paranoid_free(tmp);
+
 		if (!(p = strchr(p, ' '))) {
 			break;
 		}
 	}
+	paranoid_free(do_not_compress_these);
 	return (FALSE);
 }
-
 
 
 int mode_of_file(char *fname)
@@ -1410,8 +1277,6 @@ int mode_of_file(char *fname)
 }
 
 
-
-
 /**
  * Create a small script that mounts /boot, calls @c grub-install, and syncs the disks.
  * @param outfile Where to put the script.
@@ -1423,20 +1288,27 @@ int make_grub_install_scriptlet(char *outfile)
 	char *tmp;
 	int retval = 0;
 
-	malloc_string(tmp);
 	if ((fout = fopen(outfile, "w"))) {
 		fprintf(fout,
 				"#!/bin/sh\n\nmount /boot > /dev/null 2> /dev/null\ngrub-install $@\nres=$?\nsync;sync;sync\nexit $res\n");
 		paranoid_fclose(fout);
 		log_msg(2, "Created %s", outfile);
-		sprintf(tmp, "chmod +x %s", outfile);
+		asprintf(&tmp, "chmod +x %s", outfile);
 		paranoid_system(tmp);
+		paranoid_free(tmp);
+
 		retval = 0;
 	} else {
 		retval = 1;
 	}
-	paranoid_free(tmp);
 	return (retval);
 }
 
 /* @} - end fileGroup */
+
+void paranoid_alloc(char *alloc, char *orig) 
+{
+		paranoid_free(alloc); 
+		asprintf(&alloc, orig);
+}
+

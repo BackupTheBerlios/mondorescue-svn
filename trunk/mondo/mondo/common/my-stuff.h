@@ -1,6 +1,6 @@
 /* $Id$ */
 
-#define AUX_VER "2.05_berlios"
+#define AUX_VER "2.11"
 #define HAVE_MALLOC 1
 
 // Extra info for ACLs and SELINUX users
@@ -18,6 +18,7 @@
 
 /* Required for the use of getline, ... */
 #define __USE_GNU
+#define _GNU_SOURCE
 
 #include <stdio.h>
 
@@ -288,7 +289,7 @@ extern void _mondo_assert_fail(const char *file, const char *function,
 /**
  * Free @p x and set it to NULL.
  */
-#define paranoid_free(x) {if (x != NULL) free(x); x=NULL;}
+#define paranoid_free(x) {if ((x) != NULL) free(x); (x)=NULL;}
 
 /**
  * Free variables and call finish(@p x).

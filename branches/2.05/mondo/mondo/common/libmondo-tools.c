@@ -804,7 +804,7 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
  */
 
 		log_it("isodir = %s", bkpinfo->isodir);
-		sprintf(command, "df %s | tail -n1 | cut -d' ' -f1",
+		sprintf(command, "df -P %s | tail -n1 | cut -d' ' -f1",
 				bkpinfo->isodir);
 		log_it("command = %s", command);
 		log_it("res of it = %s",

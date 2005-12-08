@@ -580,7 +580,7 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
  */
 
 		log_it("isodir = %s", bkpinfo->isodir);
-		asprintf(&command, "df %s | tail -n1 | cut -d' ' -f1",
+		asprintf(&command, "df -P %s | tail -n1 | cut -d' ' -f1",
 				 bkpinfo->isodir);
 		log_it("command = %s", command);
 		asprintf(&tmp, call_program_and_get_last_line_of_output(command));

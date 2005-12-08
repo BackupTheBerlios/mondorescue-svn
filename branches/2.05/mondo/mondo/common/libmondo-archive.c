@@ -3352,6 +3352,7 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
 		log_msg(2,
 				"Not calculating checksum for %s: it would take too long",
 				biggie_filename);
+		totallength = get_phys_size_of_drive(biggie_filename)*1024*1024LL;
 	} else {
 		file_to_openin = biggie_filename;
 		sprintf(command, "md5sum '%s'", biggie_filename);
@@ -3361,6 +3362,7 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
 		}
 		(void) fgets(checksum_line, MAX_STR_LEN, fin);
 		pclose(fin);
+		totallength = length_of_file (biggie_filename);
 	}
 	lstat(biggie_filename, &biggiestruct.properties);
 	strcpy(biggiestruct.filename, biggie_filename);
@@ -3377,7 +3379,6 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
 	fout = fopen(tmp, "w");
 	(void) fwrite((void *) &biggiestruct, 1, sizeof(biggiestruct), fout);
 	paranoid_fclose(fout);
-	totallength = length_of_file(biggie_filename);
 	length = totallength / optimal_set_size / 1024;
 	log_msg(1, "Opening in %s; slicing it and writing to CD/tape",
 			file_to_openin);

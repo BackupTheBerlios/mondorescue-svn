@@ -3280,7 +3280,7 @@ if [ "$imagesdir" != "/root/images/mindi" ] ; then
 fi
 [ "$TMP_ROOT" != "/tmp" ] && rm -Rf $TMP_ROOT
 # cleanup
-rm -f /tmp/mountlist.txt.$$ $FDISKLOG /tmp/mindilinux
+rm -fR /tmp/mountlist.txt.$$ $FDISKLOG /tmp/mindilinux
 LogIt "$FRIENDLY_OUTSTRING"
 ListUnsavedKernelModules
 for mtpt in $FLOPPY_WAS_MOUNTED ; do

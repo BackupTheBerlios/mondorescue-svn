@@ -1,48 +1,94 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ ! -f "mindi" ] ; then
     echo "Please 'cd' to the directory you have just untarred." >> /dev/stderr
     exit 1
 fi
-local=/usr
-# local=/usr/local
+
+if [ "_$PREFIX" = "_" ]; then
+	local=$PREFIX/usr
+	if [ -f /usr/local/sbin/mindi ]; then
+		echo "WARNING: /usr/local/sbin/mindi exists. You should probably remove it !"
+	fi
+	conf=$PREFIX/etc/mindi
+else
+	local=/usr/local
+	if [ -f /usr/sbin/mindi ]; then
+		echo "WARNING: /usr/sbin/mindi exists. You should probably remove the mindi package !"
+	fi
+	conf=$local/etc/mindi
+fi
+
 if uname -a | grep Knoppix > /dev/null || [ -e "/ramdisk/usr" ] ; then
     local=/ramdisk/usr
     export PATH=/ramdisk/usr/sbin:/ramdisk/usr/bin:/$PATH
 fi
 
-mkdir -p $local/share/mindi
+echo "mindi will be installed under $local"
+
+echo "Creating target directories ..."
+mkdir -p $local/lib/mindi
+mkdir -p $local/share/doc/mindi
 mkdir -p $local/share/man/man8
 mkdir -p $local/sbin
+mkdir -p $conf
 
-#for i in aux-tools dev rootfs ; do
-#    [ -e "$i.tgz" ] && continue
-#    cd $i
-#    tar -c * | gzip -9 > ../$i.tgz
-#    cd ..
-#    rm -Rf $i
-#done
+echo "Copying files ..."
+cp deplist.txt $conf
+cp -af rootfs aux-tools isolinux.cfg msg-txt sys-disk.raw.gz isolinux-H.cfg parted2fdisk.pl syslinux.cfg syslinux-H.cfg dev.tgz Mindi $local/lib/mindi
+chmod 755 $local/lib/mindi/rootfs/bin/*
+chmod 755 $local/lib/mindi/rootfs/sbin/*
+chmod 755 $local/lib/mindi/aux-tools/sbin/*
 
-cp --parents -pRdf * $local/share/mindi/
-ln -sf $local/share/mindi/mindi $local/sbin/
-chmod +x $local/sbin/mindi
+cp -af analyze-my-lvm parted2fdisk.pl $local/sbin
+if [ "$RPMBUILDMINDI" = "true" ]; then
+	sed -e "s~^MINDI_PREFIX=XXX~MINDI_PREFIX=/usr~" -e "s~^MINDI_CONF=YYY~MINDI_CONF=/etc/mindi~" mindi > $local/sbin/mindi
+else
+	sed -e "s~^MINDI_PREFIX=XXX~MINDI_PREFIX=$local~" -e "s~^MINDI_CONF=YYY~MINDI_CONF=$conf~" mindi > $local/sbin/mindi
+fi
+chmod 755 $local/sbin/mindi
+chmod 755 $local/sbin/analyze-my-lvm
+chmod 755 $local/sbin/parted2fdisk.pl
+
 cp -a mindi.8 $local/share/man/man8
+cp -a CHANGES COPYING README README.busybox README.ia64 README.pxe TODO INSTALL $local/share/doc/mindi
+
 echo $PATH | grep $local/sbin > /dev/null || echo "Warning - your PATH environmental variable is BROKEN. Please add $local/sbin to your PATH."
-( cd $local/share/mindi/rootfs && tar -xzf symlinks.tgz )
+
+echo "Extracting symlinks ..."
+( cd $local/lib/mindi/rootfs && tar -xzf symlinks.tgz )
+
 ARCH=`/bin/arch`
 echo $ARCH | grep -x "i[0-9]86" &> /dev/null && ARCH=i386
 export ARCH
-( cd $local/share/mindi/rootfs && mv bin/busybox-$ARCH bin/busybox)
-if [ "$ARCH" = "i386" ] ; then
-	( cd $local/share/mindi/rootfs && mv bin/busybox-$ARCH.net bin/busybox.net)
-fi
-if [ "$ARCH" = "ia64" ] ; then
-	make -f Makefile.parted2fdisk
-	make -f Makefile.parted2fdisk install
-	( cd $local/share/mindi/rootfs && mv sbin/parted2fdisk-ia64 sbin/parted2fdisk)
+
+if [ -f $local/lib/mindi/rootfs/bin/busybox-$ARCH ]; then
+		echo "Installing busybox ..."
+		mv $local/lib/mindi/rootfs/bin/busybox-$ARCH $local/lib/mindi/rootfs/bin/busybox
 else
-	( cd $local/share/mindi/rootfs/sbin && ln -sf fdisk parted2fdisk)
+		echo "WARNING: no busybox found, mindi will not work on this arch ($ARCH)"
 fi
-ls /etc/mindi/* > /dev/null 2>/dev/null
-[ "$?" -ne "0" ] && rm -Rf /etc/mindi
+
+if [ "$ARCH" = "i386" ] ; then
+	if [ -f $local/lib/mindi/rootfs/bin/busybox-$ARCH.net ]; then
+		echo "Installing busybox.net ..."
+		mv $local/lib/mindi/rootfs/bin/busybox-$ARCH.net $local/lib/mindi/rootfs/bin/busybox.net
+	else
+		echo "WARNING: no busybox.net found, mindi will not work on this arch ($ARCH) with network"
+	fi
+fi
+
+if [ "$ARCH" = "ia64" ] ; then
+	make -f Makefile.parted2fdisk DEST=$local/lib/mindi install
+	if [ -f $local/lib/mindi/rootfs/sbin/parted2fdisk-$ARCH ]; then
+		echo "Installing parted2fdisk ..."
+		mv $local/lib/mindi/rootfs/sbin/parted2fdisk-$ARCH $local/lib/mindi/rootfs/sbin/parted2fdisk
+	else
+		echo "WARNING: no parted2fdisk found, mindi will not work on this arch ($ARCH)"
+	fi
+else
+	echo "Symlinking fdisk to parted2fdisk"
+	( cd $local/lib/mindi/rootfs/sbin && ln -sf fdisk parted2fdisk)
+fi
+
 exit 0

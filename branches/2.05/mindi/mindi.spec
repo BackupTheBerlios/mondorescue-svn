@@ -62,50 +62,28 @@ verify packages, etc.
 export DONT_RELINK=1
 
 %{__rm} -rf $RPM_BUILD_ROOT
-MINDIDIR=$RPM_BUILD_ROOT%{_datadir}/mindi
+MINDIDIR=$RPM_BUILD_ROOT%{_libdir}/mindi
+export PREFIX=${RPM_BUILD_ROOT}
+export RPMBUILDMINDI="true"
 
-%{__mkdir_p} $MINDIDIR $RPM_BUILD_ROOT%{_bindir} $RPM_BUILD_ROOT%{_sysconfdir}/mindi $RPM_BUILD_ROOT%{_sbindir} $RPM_BUILD_ROOT/%{_mandir}/man8
-%{__cp} deplist.txt $RPM_BUILD_ROOT%{_sysconfdir}/mindi/
-%{__cp} -af * $MINDIDIR
-%{__cp} -af mindi.8 $RPM_BUILD_ROOT/%{_mandir}/man8
+./install.sh
 
-%ifarch ia64
-	%{__make} -f Makefile.parted2fdisk DEST=${MINDIDIR}/ install
-	%{__mv} $MINDIDIR/rootfs/bin/busybox-ia64 $MINDIDIR/rootfs/bin/busybox
-	%{__mv} $MINDIDIR/rootfs/sbin/parted2fdisk-ia64 $MINDIDIR/rootfs/sbin/parted2fdisk
-%else
-	%{__mv} $MINDIDIR/rootfs/bin/busybox-i386 $MINDIDIR/rootfs/bin/busybox
-	%{__mv} $MINDIDIR/rootfs/bin/busybox-i386.net $MINDIDIR/rootfs/bin/busybox.net
-	%{__ln_s} fdisk $MINDIDIR/rootfs/sbin/parted2fdisk
-%endif
 %{__rm} -f $MINDIDIR/rootfs/bin/busybox-ia64 $MINDIDIR/rootfs/sbin/parted2fdisk-ia64 $MINDIDIR/rootfs/bin/busybox-i386 $MINDIDIR/rootfs/bin/busybox-i386.net
-
-#
-# These are installed twice if not removed here
-#
-( cd $MINDIDIR
-%{__rm} -f CHANGES INSTALL COPYING README TODO README.ia64 README.pxe mindi.8
-)
-
-# Symlinks
-
-cd $RPM_BUILD_ROOT%{_sbindir}
-%{__ln_s} -f %{_datadir}/mindi/mindi .
-%{__ln_s} -f %{_datadir}/mindi/analyze-my-lvm .
-%ifarch ia64
-%{__ln_s} -f %{_datadir}/mindi/parted2fdisk.pl .
-%endif
 
 %clean
 %{__rm} -rf $RPM_BUILD_ROOT
 
 %post
+if [ -f /usr/local/sbin/mindi ]; then
+	echo "WARNING: /usr/local/sbin/mindi exists. You should probably remove your manual mindi installation !"
+fi
+
 %ifarch ia64
 	%{__mkdir_p} /usr/local/bin
 	if [ "`file /sbin/fdisk |grep 'LF 64-bit LSB executable'`" ] ; then
 		%{__cp} /sbin/fdisk /sbin/fdisk.mondosav
 		%{__mv} /sbin/fdisk /usr/local/bin/fdisk
-		%{__ln_s} -f /usr/share/mindi/parted2fdisk.pl /sbin/fdisk
+		%{__ln_s} -f /usr/sbin/parted2fdisk.pl /sbin/fdisk
 		echo "Warning: you fdisk binary is now under /usr/local/bin"
 	fi
 %endif
@@ -113,23 +91,16 @@ cd $RPM_BUILD_ROOT%{_sbindir}
 %files
 %defattr(644,root,root,755)
 %config(noreplace) %{_sysconfdir}/mindi/deplist.txt
-%doc CHANGES INSTALL COPYING README TODO README.ia64 README.pxe
-%attr(755,root,root) %{_sbindir}/mindi
-%attr(755,root,root) %{_sbindir}/analyze-my-lvm
-%{_datadir}/mindi
+%doc CHANGES INSTALL COPYING README TODO README.ia64 README.pxe README.busybox
+%{_sbindir}
+%{_libdir}/mindi
 %{_mandir}
-%attr(755,root,root) %{_datadir}/mindi/analyze-my-lvm
-%attr(755,root,root) %{_datadir}/mindi/mindi
-%attr(755,root,root) %{_datadir}/mindi/parted2fdisk.pl
-%attr(755,root,root) %{_datadir}/mindi/aux-tools/sbin/*
-%attr(755,root,root) %{_datadir}/mindi/rootfs/bin/*
-%attr(755,root,root) %{_datadir}/mindi/rootfs/sbin/*
 
 %changelog
 * Fri Nov 05 2005 Bruno Cornec <bcornec@users.berlios.de> 1.05
 - ia64 is now working
-- NFS related bug fixed
-- ldd related bugs fixed
+- use install.sh script
+- use libdir for binary data
 
 * Tue Sep 06 2005 Bruno Cornec <bcornec@users.berlios.de> 1.04_berlios
 - Merge of patches mentionned on mondo ML + ia64 updates

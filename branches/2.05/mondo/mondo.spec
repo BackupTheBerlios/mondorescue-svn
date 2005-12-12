@@ -123,8 +123,8 @@ con cintas y NFS, tambien.
 %doc INSTALL COPYING README TODO AUTHORS NEWS
 
 %attr(755,root,root) %{_sbindir}/*
-%attr(755,root,root) %{_datadir}/%{name}/restore-scripts/%{name}
-%{_datadir}/%{name}
+%attr(755,root,root) %{_libdir}/%{name}/restore-scripts/%{name}
+%{_libdir}/%{name}
 %{_mandir}/*
 %{_libdir}/*
 
@@ -138,6 +138,7 @@ con cintas y NFS, tambien.
 * Fri Nov 05 2005 Bruno Cornec <bcornec@users.berlios.de> 1.05
 - ia64 is now working
 - -p option related bug fixed
+- use libdir instead of datadir
 
 * Tue Sep 06 2005 Bruno Cornec <bcornec@users.berlios.de> 2.04_berlios
 - Merge of patches mentionned on mondo ML + ia64 updates

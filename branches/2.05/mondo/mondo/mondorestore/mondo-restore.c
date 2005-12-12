@@ -3370,6 +3370,7 @@ int main(int argc, char *argv[])
 		}
 		toggle_node_selection(filelist, FALSE);
 		toggle_all_root_dirs_on(filelist);
+		// BERLIOS: /usr/lib ???
 		toggle_path_selection(filelist, "/usr/share", TRUE);
 //      show_filelist(filelist);
 		save_filelist(filelist, "/tmp/out.txt");

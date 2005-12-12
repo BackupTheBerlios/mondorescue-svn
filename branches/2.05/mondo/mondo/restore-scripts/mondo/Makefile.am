@@ -1,4 +1,4 @@
-restoremondodir      = $(pkgdatadir)/restore-scripts/mondo
+restoremondodir      = $(pkglibdir)/restore-scripts/mondo
 restoremondo_SCRIPTS = ISO ask-me-a-question compare-me compare-subroutine-me \
                        edit-mountlist grub-MR hack-fstab hack-grub hack-lilo hack-elilo \
                        ide-opt ide-opt-off label-partitions-as-necessary \

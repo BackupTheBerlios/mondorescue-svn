@@ -6,7 +6,7 @@ xmondo_SOURCES  = xmondobackup.cpp xmondorestore.cpp xmondo.cpp main.cpp xmondo.
 AM_CPPFLAGS     = $(all_includes) @my_qt_includes@ @my_kde_includes@ -I../common -UDEBUG -Ubool -DMONDORESTORE_MODULE
 xmondo_LDADD    = ../common/libXmondo.la $(LIB_KDEUI) $(LIB_KDECORE) $(LIB_QT) $(LIBSOCKET) -L/usr/local/lib -L/usr/X11R6/lib
 xmondo_LDFLAGS  = $(all_libraries) @my_qt_libraries@ @my_kde_libraries@ $(KDE_RPATH)
-pkgdata_DATA    = mondo.png
+pkglib_DATA    = mondo.png
 
 xmondobackup.moc.cpp: xmondobackup.h
 	@MOC@ ./xmondobackup.h -o xmondobackup.moc.cpp

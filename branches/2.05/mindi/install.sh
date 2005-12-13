@@ -11,12 +11,15 @@ if [ "_$PREFIX" != "_" ]; then
 		echo "WARNING: /usr/local/sbin/mindi exists. You should probably remove it !"
 	fi
 	conf=$PREFIX/etc/mindi
+	echo $PATH | grep /usr/sbin > /dev/null || echo "Warning - your PATH environmental variable is BROKEN. Please add /usr/sbin to your PATH."
 else
 	local=/usr/local
 	if [ -f /usr/sbin/mindi ]; then
 		echo "WARNING: /usr/sbin/mindi exists. You should probably remove the mindi package !"
 	fi
 	conf=$local/etc/mindi
+	echo $PATH | grep $local/sbin > /dev/null || echo "Warning - your PATH environmental variable is BROKEN. Please add $local/sbin to your PATH."
+
 fi
 
 if uname -a | grep Knoppix > /dev/null || [ -e "/ramdisk/usr" ] ; then
@@ -28,7 +31,6 @@ echo "mindi will be installed under $local"
 
 echo "Creating target directories ..."
 mkdir -p $local/lib/mindi
-mkdir -p $local/share/doc/mindi
 mkdir -p $local/share/man/man8
 mkdir -p $local/sbin
 mkdir -p $conf
@@ -51,9 +53,7 @@ chmod 755 $local/sbin/analyze-my-lvm
 chmod 755 $local/sbin/parted2fdisk.pl
 
 cp -a mindi.8 $local/share/man/man8
-cp -a CHANGES COPYING README README.busybox README.ia64 README.pxe TODO INSTALL $local/share/doc/mindi
-
-echo $PATH | grep $local/sbin > /dev/null || echo "Warning - your PATH environmental variable is BROKEN. Please add $local/sbin to your PATH."
+cp -a CHANGES COPYING README README.busybox README.ia64 README.pxe TODO INSTALL $local/share/lib/mindi
 
 echo "Extracting symlinks ..."
 ( cd $local/lib/mindi/rootfs && tar -xzf symlinks.tgz )

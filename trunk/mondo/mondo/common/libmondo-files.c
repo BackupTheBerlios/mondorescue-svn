@@ -1078,7 +1078,7 @@ void store_nfs_config(struct s_bkpinfo *bkpinfo)
 	paranoid_free(command);
 
 	asprintf(&command,
-			"route | egrep '^default' | awk '{printf $2}'");
+			"route -n | grep '^0.0.0.0' | awk '{printf $2}'");
 	asprintf(&nfs_client_defgw,
 		   call_program_and_get_last_line_of_output(command));
 	paranoid_free(command);

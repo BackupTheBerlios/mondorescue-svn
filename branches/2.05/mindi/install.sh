@@ -70,7 +70,7 @@ else
 fi
 
 if [ "$ARCH" = "i386" ] ; then
-	(cd $local/sbin && ln -s fdisk parted2fdisk)
+	(cd $local/sbin && ln -s /sbin/fdisk parted2fdisk)
 	if [ -f $local/lib/mindi/rootfs/bin/busybox-$ARCH.net ]; then
 		echo "Installing busybox.net ..."
 		mv $local/lib/mindi/rootfs/bin/busybox-$ARCH.net $local/lib/mindi/rootfs/bin/busybox.net

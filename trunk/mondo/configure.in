@@ -54,7 +54,7 @@ case $build in
 		standardthread=0
 		AC_ARG_ENABLE(standard-pthreads, AS_HELP_STRING(--enable-standard-pthreads,(FreeBSD only) Compile with FreeBSD "standard" pthreads instead of LinuxThreads -- *MAY BE UNSTABLE*), standardthread=1, standardthread=0)
 		if test $standardthread -eq 0; then
-			CPPFLAGS="$CPPFLAGS -D_THREAD_SAFE -D_REENTRANT -I/usr/local/include/pthread/linuxthreads"
+			CPPFLAGS=$CPPFLAGS -D_THREAD_SAFE -D_REENTRANT -I/usr/local/include/pthread/linuxthreads
 			PTHREAD="-L/usr/local/lib -llthread -llgcc_r";
 			if ! test -f /usr/local/include/pthread/linuxthreads/pthread.h; then
 				echo "*** Cannot find pthread.h: are you SURE you have linuxthreads installed?"

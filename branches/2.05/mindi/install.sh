@@ -36,7 +36,7 @@ mkdir -p $local/sbin
 mkdir -p $conf
 
 echo "Copying files ..."
-cp deplist.txt $conf
+cp -a deplist.txt $conf
 cp -af rootfs aux-tools isolinux.cfg msg-txt sys-disk.raw.gz isolinux-H.cfg parted2fdisk.pl syslinux.cfg syslinux-H.cfg dev.tgz Mindi $local/lib/mindi
 chmod 755 $local/lib/mindi/rootfs/bin/*
 chmod 755 $local/lib/mindi/rootfs/sbin/*
@@ -53,7 +53,7 @@ chmod 755 $local/sbin/analyze-my-lvm
 chmod 755 $local/sbin/parted2fdisk.pl
 
 cp -a mindi.8 $local/share/man/man8
-cp -a CHANGES COPYING README README.busybox README.ia64 README.pxe TODO INSTALL $local/share/lib/mindi
+cp -a CHANGES COPYING README README.busybox README.ia64 README.pxe TODO INSTALL $local/lib/mindi
 
 echo "Extracting symlinks ..."
 ( cd $local/lib/mindi/rootfs && tar -xzf symlinks.tgz )

@@ -2,7 +2,9 @@
 ## Process this file with Automake to generate `Makefile.in'
 ##
 
+AM_CPPFLAGS = -DMONDO_LIB=\"$(pkglibdir)\"
 ## Headers
+
 noinst_HEADERS       = libmondo-archive.h libmondo-devices.h \
                        libmondo-filelist.h libmondo-files.h libmondo-fork.h \
                        libmondo-gui.h libmondo-mountlist.h libmondo-raid.h \
@@ -26,7 +28,7 @@ libmondo_la_SOURCES  = libmondo-archive.c libmondo-devices.c libmondo-fifo.c \
                        libmondo-filelist.c libmondo-files.c libmondo-fork.c \
                        libmondo-mountlist.c libmondo-raid.c \
                        libmondo-stream.c libmondo-string.c libmondo-tools.c \
-                       libmondo-verify.c 
+                       libmondo-verify.c
 libmondo_la_LDFLAGS  = -version-info 2:3:0 -shrext .so
 libmondo_la_LIBADD   = @LIBS@
 

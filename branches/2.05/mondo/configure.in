@@ -29,7 +29,7 @@ AC_PROG_MAKE_SET
 
 dnl --with/--enable stuff
 do_static_mr=
-AC_ARG_WITH(x11, AS_HELP_STRING(--with-x11,Create libXmondo and XMondo for X11/KDE support), do_x=$withval, do_x= )
+AC_ARG_ENABLE(x11, AS_HELP_STRING(--enable-x11,Create libXmondo and XMondo for X11/KDE support), do_x=$withval, do_x= )
 AC_ARG_ENABLE(static-mr, AS_HELP_STRING(--enable-static-mr,Link mondorestore statically), do_static_mr=$withval, do_static_mr= )
 AC_ARG_ENABLE(debug, AS_HELP_STRING(--enable-debug,Add debugging flags), CFLAGS="$CFLAGS -g", )
 AC_ARG_WITH(max-noof-media, AS_HELP_STRING(--with-max-noof-media=NUM,Compile for a certain maximum number of media (default 50)), max_noof_media=$withval, max_noof_media=50)
@@ -42,7 +42,7 @@ fi
 AC_SUBST(MONDORESTORE_STATIC)
 AC_DEFINE_UNQUOTED(MAX_NOOF_MEDIA, $max_noof_media, [Maximum number of media])
 AC_DEFINE_UNQUOTED(EXTTAPE, $exttape, [Tape blocksize])
-if test -n "$do_x"; then
+if test x$do_x = xyes; then
 	AC_DEFINE(WITH_X, 1, [Define if compiled with X support])
 else
 	AC_DEFINE(WITH_X, 0, [Define if compiled with X support])
@@ -61,7 +61,7 @@ case $build in
 		standardthread=0
 		AC_ARG_ENABLE(standard-pthreads, AS_HELP_STRING(--enable-standard-pthreads,(FreeBSD only) Compile with FreeBSD "standard" pthreads instead of LinuxThreads -- *MAY BE UNSTABLE*), standardthread=1, standardthread=0)
 		if test $standardthread -eq 0; then
-			CPPFLAGS="$CPPFLAGS -D_THREAD_SAFE -D_REENTRANT -I/usr/local/include/pthread/linuxthreads"
+			CPPFLAGS=$CPPFLAGS -D_THREAD_SAFE -D_REENTRANT -I/usr/local/include/pthread/linuxthreads
 			PTHREAD="-L/usr/local/lib -llthread -llgcc_r";
 			if ! test -f /usr/local/include/pthread/linuxthreads/pthread.h; then
 				echo "*** Cannot find pthread.h: are you SURE you have linuxthreads installed?"

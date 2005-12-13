@@ -351,20 +351,8 @@ else { print $0;};}' > $file ; fi ; done");
 int find_and_store_mondoarchives_home(char *home_sz)
 {
 	assert(home_sz != NULL);
-	strcpy(home_sz,
-		   call_program_and_get_last_line_of_output
-		   ("find /usr/lib/ /usr/local/ /usr/share/ /usr/local/share/ /opt/ /ramdisk/usr/share/ -type d -maxdepth 2 -name include -prune -o -type d -maxdepth 2 -path '*/mondo/restore-scripts' -printf '%h\n' 2> /dev/null"));
-
-	if (home_sz[0] == '\0') {
-		strcpy(home_sz,
-			   call_program_and_get_last_line_of_output
-			   ("find /usr -type d -path '*/mondo/restore-scripts' -follow -maxdepth 3 -printf '%h\n' 2> /dev/null"));
-	}
-	if (home_sz[0] == '\0') {
-		return (1);
-	} else {
-		return (0);
-	}
+	strcpy(home_sz, MONDO_LIB);
+	return (0);
 }
 
 

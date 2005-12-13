@@ -7,7 +7,7 @@ So I've written a perl script called parted2fdisk.pl that will take as input all
 To use it on the system to backup, please do the following as root:
 
 mv /sbin/fdisk /usr/local/bin/fdisk
-ln -sf /usr/share/mindi/parted2fdisk.pl /sbin/fdisk
+ln -sf /sbin/parted2fdisk.pl /sbin/fdisk
 Verify that /usr/local/bin is in your path or add it.
 
 The mindi.rpm package will do that automatically for you.

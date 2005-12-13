@@ -22,6 +22,7 @@ v2.06 (xxx)
   (Bruno Cornec)
 - disable x11 build by default (Bruno Cornec)
 - remove sbminst (Bruno Cornec/Andree Leidenfrost)
+- use parted2fdisk everywhere (Bruno Cornec)
 
 v2.05 (2005-11-19)
 - -p options works better for NFS cases  (Bruno Cornec)

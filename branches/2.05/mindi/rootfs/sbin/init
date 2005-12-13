@@ -677,14 +677,7 @@ if [ -e "/dev/md0" ] && [ ! -e "/dev/md/0" ] && [ "`cat /tmp/mountlist.txt | gre
     cp -af /dev/md1 /dev/md/1 2> /dev/null
     cp -af /dev/md2 /dev/md/2 2> /dev/null
 fi
-# As described in the README.ia64 we replaced on the native system
-# /sbin/fdisk by parted2fdisk.pl now we need the reverse for mindi's
-# boot environment
 export ARCH=`/bin/arch`
-if [ "$ARCH" = "ia64" ] ; then
-	rm -f /sbin/fdisk
-	ln /sbin/parted2fdisk /sbin/fdisk
-fi
 WelcomeMessage
 # SpaceTests; # Mandrake Linux 8.1 doesn't like this
 [ -e "/tmp/mountlist.txt" ] && cp -f /tmp/mountlist.txt /tmp/mountlist.original

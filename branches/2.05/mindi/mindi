@@ -131,7 +131,7 @@ AbortIfYourDistroIsAPieceOfStercus() {
 	which mke2fs > /dev/null 2> /dev/null || Die "Please put mke2fs in system path"
 	which afio > /dev/null 2> /dev/null || LogIt "afio not found... mindi doesn't need afio but Mondo does... Be aware...\n"
 	[ ! -e "/etc/issue.net" ] && > /etc/issue.net
-	FDISK=$MINDI_SBIN/parted2fdisk.pl
+	FDISK=$MINDI_SBIN/parted2fdisk
 	FDISKLOG=/tmp/parted2fdisk.log
 	touch $FDISKLOG
 #    if [ "`cat /etc/issue.net 2> /dev/null | fgrep -i "debian"`" ] ; then
@@ -1206,6 +1206,7 @@ MakeMondoConfigFile() {
 	[ "$ESTIMATED_TOTAL_NOOF_SLICES" ] && echo "total-slices $ESTIMATED_TOTAL_NOOF_SLICES" >> $outfile
    AddFileToCfgIfExists $MONDO_TMP/NFS-CLIENT-IPADDR nfs-client-ipaddr $outfile
    AddFileToCfgIfExists $MONDO_TMP/NFS-CLIENT-NETMASK nfs-client-netmask $outfile
+   AddFileToCfgIfExists $MONDO_TMP/NFS-CLIENT-BROADCAST nfs-client-broadcast $outfile
    AddFileToCfgIfExists $MONDO_TMP/NFS-CLIENT-DEFGW  nfs-client-defgw  $outfile
    AddFileToCfgIfExists $MONDO_TMP/NFS-SERVER-MOUNT  nfs-server-mount  $outfile
    AddFileToCfgIfExists $MONDO_TMP/NFS-SERVER-PATH   nfs-server-path   $outfile
@@ -1326,10 +1327,6 @@ absolute_partition old_partition_fmt
 	echo -en "\rHang on...\r"
 	all_partitions=""
 	
-# Workaround until fdisk2parted.pl is fixed
-	[ "$ARCH" != "ia64" ] && FDISK=`which fdisk`
-# End workaround - Hugo, 06/20/2004
-
 	if [ -d "/proc/lvm" ] || [ -d "/dev/mapper" ]; then
 	echo -en "\rAnalyzing LVM...\r"
 	all_partitions=`$MINDI_SBIN/analyze-my-lvm | fgrep ">>>" | cut -d' ' -f2-32`

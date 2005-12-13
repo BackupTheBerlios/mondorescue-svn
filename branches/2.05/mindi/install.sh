@@ -70,6 +70,7 @@ else
 fi
 
 if [ "$ARCH" = "i386" ] ; then
+	(cd $local/sbin && ln -s fdisk parted2fdisk)
 	if [ -f $local/lib/mindi/rootfs/bin/busybox-$ARCH.net ]; then
 		echo "Installing busybox.net ..."
 		mv $local/lib/mindi/rootfs/bin/busybox-$ARCH.net $local/lib/mindi/rootfs/bin/busybox.net
@@ -79,6 +80,7 @@ if [ "$ARCH" = "i386" ] ; then
 fi
 
 if [ "$ARCH" = "ia64" ] ; then
+	(cd $local/sbin && ln -s parted2fdisk.pl parted2fdisk)
 	make -f Makefile.parted2fdisk DEST=$local/lib/mindi install
 	if [ -f $local/lib/mindi/rootfs/sbin/parted2fdisk-$ARCH ]; then
 		echo "Installing parted2fdisk ..."

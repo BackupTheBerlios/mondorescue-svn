@@ -165,7 +165,7 @@ if echo $bootpart | grep "/md" > /dev/null ; then
     base=`basename $bootpart`
     line=`cat /proc/mdstat | grep $base | head -n1`
     echo "mbrpart was $mbrpart"
-    mbrpart=`fdisk -l | grep /dev/ | head -n1 | tr ':' ' ' \
+    mbrpart=`parted2fdisk -l | grep /dev/ | head -n1 | tr ':' ' ' \
 | cut -d' ' -f2`
     echo "mbrpart is $mbrpart"
     partno="0"; # cheating - FIXME    

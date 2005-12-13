@@ -27,7 +27,7 @@ GetPartitionFdiskType() {
     local drive device ftype
     device=$1
     drive=$2
-    ftype=`fdisk -l $drive | grep $device | tr '*' ' ' | tr -s '\t' ' ' | cut -d' ' -f5`
+    ftype=`parted2fdisk -l $drive | grep $device | tr '*' ' ' | tr -s '\t' ' ' | cut -d' ' -f5`
     case $ftype in
 #   "b" | "c")
 #   the above is correct but mondorestore creates partition with FAT12, so:

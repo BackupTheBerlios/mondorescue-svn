@@ -2747,8 +2747,7 @@ char which_boot_loader(char *which_device)
 	//       "fdisk -l | grep /dev | grep cyl | tr ':' ' ' | cut -d' ' -f2");
 
 	sprintf(list_drives_cmd,
-			// "parted2fdisk
-			"fdisk -l 2>/dev/null | grep \"/dev/.*:\" | tr -s ':' ' ' | tr -s ' ' '\n' | grep /dev/; echo %s",
+			"parted2fdisk -l 2>/dev/null | grep \"/dev/.*:\" | tr -s ':' ' ' | tr -s ' ' '\n' | grep /dev/; echo %s",
 			where_is_root_mounted());
 	log_it("list_drives_cmd = %s", list_drives_cmd);
 
@@ -2903,15 +2902,7 @@ char *which_partition_format(const char *drive)
 	malloc_string(command);
 	malloc_string(fdisk);
 	log_msg(0, "Looking for partition table format type");
-// BERLIOS: Do that temporarily: we need to put back parted2fdisk everywhere
-#ifdef __IA64__
-	sprintf(fdisk, "/usr/local/bin/fdisk");
-	if (stat(fdisk, &buf) != 0) {
-#endif
-		sprintf(fdisk, "/sbin/fdisk");
-#ifdef __IA64__
-	}
-#endif
+	sprintf(fdisk, "/sbin/parted2fdisk");
 	log_msg(1, "Using %s", fdisk);
 	sprintf(command, "%s -l %s | grep 'EFI GPT'", fdisk, drive);
 	strcpy(tmp, call_program_and_get_last_line_of_output(command));

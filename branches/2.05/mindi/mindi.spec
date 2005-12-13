@@ -78,16 +78,6 @@ if [ -f /usr/local/sbin/mindi ]; then
 	echo "WARNING: /usr/local/sbin/mindi exists. You should probably remove your manual mindi installation !"
 fi
 
-%ifarch ia64
-	%{__mkdir_p} /usr/local/bin
-	if [ "`file /sbin/fdisk |grep 'LF 64-bit LSB executable'`" ] ; then
-		%{__cp} /sbin/fdisk /sbin/fdisk.mondosav
-		%{__mv} /sbin/fdisk /usr/local/bin/fdisk
-		%{__ln_s} -f /usr/sbin/parted2fdisk.pl /sbin/fdisk
-		echo "Warning: you fdisk binary is now under /usr/local/bin"
-	fi
-%endif
-
 %files
 %defattr(644,root,root,755)
 %config(noreplace) %{_sysconfdir}/mindi/deplist.txt

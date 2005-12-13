@@ -1219,7 +1219,7 @@ int some_basic_system_sanity_checks()
 		retval++;
 	}
 
-	if (!run_program_and_log_output("fdisk -l | grep -i raid", 1)
+	if (!run_program_and_log_output("parted2fdisk -l | grep -i raid", 1)
 		&& !does_file_exist("/etc/raidtab")) {
 		log_to_screen
 			("You have RAID partitions but no /etc/raidtab - creating one from /proc/mdstat");

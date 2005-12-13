@@ -12,6 +12,7 @@ MINDI                            CHANGES
   (Bruno Cornec/Andree Leidenfrost)
 - manage non ambiguous delivery under /usr (packages) or /usr/local (tar ball)
   (Bruno Cornec)
+- use parted2fdisk everywhere (Bruno Cornec)
 
 1.05 (2005-11-19)
 - Bug fix for ldd output incorrectly handled, leading to "grep not found" error

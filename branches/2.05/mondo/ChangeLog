@@ -15,6 +15,13 @@ v2.06 (xxx)
 - fix usage of joint -B and -m options (Andree Leidenfrost/Efraim Feinstein)
 - Quadrupled ARBITRARY_MAXIMUM from 500 to 2000 for mondorestore's filebrowser
   (Andree Leidenfrost)
+- remove the renice of mondoarchive (Hugo Rabson)
+- relocate what was under /usr/share to /usr/lib (FHS compliance) 
+  (Bruno Cornec/Andree Leidenfrost)
+- manage non ambiguous delivery under /usr (packages) or /usr/local (tar ball)
+  (Bruno Cornec)
+- disable x11 build by default (Bruno Cornec)
+- remove sbminst (Bruno Cornec/Andree Leidenfrost)
 
 v2.05 (2005-11-19)
 - -p options works better for NFS cases  (Bruno Cornec)

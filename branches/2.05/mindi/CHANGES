@@ -8,6 +8,10 @@ MINDI                            CHANGES
 - new busybox version used for better PXE support (Bruno Cornec)
 - USB keyboard support (Bruno Cornec)
 - -p should now work with ISO/PXE/NFS modes (Bruno Cornec)
+- relocate what was under /usr/share to /usr/lib (FHS compliance) 
+  (Bruno Cornec/Andree Leidenfrost)
+- manage non ambiguous delivery under /usr (packages) or /usr/local (tar ball)
+  (Bruno Cornec)
 
 1.05 (2005-11-19)
 - Bug fix for ldd output incorrectly handled, leading to "grep not found" error

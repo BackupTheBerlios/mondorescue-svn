@@ -121,7 +121,6 @@ con cintas y NFS, tambien.
 %attr(755,root,root) %{_libdir}/%{name}/restore-scripts/%{name}
 %{_libdir}/%{name}
 %{_mandir}/*
-%{_libdir}/*
 
 %changelog
 * Tue Oct 06 2005 Bruno Cornec <bcornec@users.berlios.de> 2.05_berlios

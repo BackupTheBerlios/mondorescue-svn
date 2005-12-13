@@ -1221,7 +1221,7 @@ void store_nfs_config(struct s_bkpinfo *bkpinfo)
 	strcpy(nfs_client_netmask,
 		   call_program_and_get_last_line_of_output(command));
 	sprintf(command,
-			"route | egrep '^default' | awk '{printf $2}'");
+			"route -n | grep '^0.0.0.0' | awk '{printf $2}'");
 	strcpy(nfs_client_defgw,
 		   call_program_and_get_last_line_of_output(command));
 	sprintf(tmp,

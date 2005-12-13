@@ -1037,6 +1037,7 @@ void store_nfs_config(struct s_bkpinfo *bkpinfo)
 	char *nfs_mount;
 	char *nfs_client_ipaddr;
 	char *nfs_client_netmask;
+	char *nfs_client_broadcast;;
 	char *nfs_client_defgw;
 	char *nfs_server_ipaddr;
 	char *tmp;
@@ -1078,6 +1079,10 @@ void store_nfs_config(struct s_bkpinfo *bkpinfo)
 	paranoid_free(command);
 
 	asprintf(&command,
+			"ifconfig | tr '\n' '#' | sed s/##// | tr '#' ' ' | tr '' '\\n' | head -n1 | tr -s '\t' ' ' | cut -d' ' -f8 | cut -d':' -f2");
+	strcpy(nfs_client_broadcast,
+		   call_program_and_get_last_line_of_output(command));
+	sprintf(command,
 			"route -n | grep '^0.0.0.0' | awk '{printf $2}'");
 	asprintf(&nfs_client_defgw,
 		   call_program_and_get_last_line_of_output(command));
@@ -1103,8 +1108,8 @@ void store_nfs_config(struct s_bkpinfo *bkpinfo)
 		fatal_error("Cannot store NFS config");
 	}
 	fprintf(fout, "ifconfig lo 127.0.0.1  # config loopback\n");
-	fprintf(fout, "ifconfig %s %s netmask %s	# config client\n", nfs_dev,
-			nfs_client_ipaddr, nfs_client_netmask);
+	fprintf(fout, "ifconfig %s %s netmask %s broadcast %s	# config client\n", nfs_dev,
+			nfs_client_ipaddr, nfs_client_netmask, nfs_client_broadcast);
 	fprintf(fout, "route add default gw %s  # default route\n", nfs_client_defgw);
 	fprintf(fout, "ping -c 1 %s	# ping server\n", nfs_server_ipaddr);
 	fprintf(fout, "mount -t nfs -o nolock %s /tmp/isodir\n",
@@ -1140,6 +1145,11 @@ void store_nfs_config(struct s_bkpinfo *bkpinfo)
 	asprintf(&tmp, "%s/NFS-CLIENT-DEFGW", bkpinfo->tmpdir);
 	write_one_liner_data_file(tmp, nfs_client_defgw);
 	paranoid_free(nfs_client_defgw);
+	paranoid_free(tmp);
+
+	asprintf(&tmp, "%s/NFS-CLIENT-BROADCAST", bkpinfo->tmpdir);
+	write_one_liner_data_file(tmp, nfs_client_broadcast);
+	paranoid_free(nfs_client_broadcast);
 	paranoid_free(tmp);
 
 	asprintf(&tmp, "%s/NFS-SERVER-IPADDR", bkpinfo->tmpdir);

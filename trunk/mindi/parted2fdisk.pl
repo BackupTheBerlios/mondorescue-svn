@@ -305,24 +305,7 @@ sub is_lsb {
 
 my $cmd = shift;
 my $basename = basename($cmd);
-my $mindifdisk="/usr/local/bin/fdisk";
 
-if ($cmd =~ /fdisk/) {
-	if ($arch =~ /^ia64/) {
-		if (-l $cmd) {
-			print FLOG "Your system is ready for mondo-archive on ia64\n";
-		} else {
-			print FLOG "Your system is ready for mondo-restore on ia64\n";
-		}
-		if (-x $mindifdisk) {
-			$cmd = $mindifdisk;
-		} else {
-			print FLOG "Your system doesn't provide $mindifdisk\n";
-			print FLOG "Please use mindi-x.yz-ia64.rpm on the system to backup\n";
-			myexit(-1);
-		}
-	}
-}
 if (not (-x $cmd)) {
 	print FLOG "Your system is not LSB/mondo compliant: $basename was not found as $cmd\n";
 	print FLOG "Searching elswhere...";

@@ -44,9 +44,6 @@ loadkeys
 mount
 ping devfsd burnBX burnK6 burnK7 burnMMX burnP5 burnP6 lucifer tiobench tiotest bonnie++ mprime ide-smart
 
-# For ia64
-/usr/local/bin/fdisk
-
 # ------------------------------- for X (Hugo) --------------------------------
 #tar
 #ldd lddlibc4

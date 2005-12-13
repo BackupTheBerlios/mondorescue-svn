@@ -187,7 +187,6 @@ int main(int argc, char *argv[])
 
 	register_pid(g_main_pid, "mondo");
 	set_signals(TRUE);			// catch SIGTERM, etc.
-	nice(10);
 	run_program_and_log_output("date", 1);
 	run_program_and_log_output("dmesg -n1", TRUE);
 

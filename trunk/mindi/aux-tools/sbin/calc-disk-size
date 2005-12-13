@@ -5,10 +5,10 @@
 
 CalcDiskSize() {
     local res cylinders sectorsize disksize i curr stub out
-    res=`fdisk -l $1 2> /dev/null | grep -i "cylinders of"`
+    res=`parted2fdisk -l $1 2> /dev/null | grep -i "cylinders of"`
     cylinders=`echo "$res" | cut -d' ' -f5`
     sectorsize=`echo "$res" | cut -d' ' -f7`
-    cylindermod=`fdisk -l $1 2> /dev/null | grep -i $1:`; # note colon at end to make sure it's not the /dev/sda# partition info
+    cylindermod=`parted2fdisk -l $1 2> /dev/null | grep -i $1:`; # note colon at end to make sure it's not the /dev/sda# partition info
     cylnum=`echo "$cylindermod" | cut -d' ' -f7`
     predisksize=$(($cylinders*$sectorsize/1024))
     disksize=$(($predisksize*$cylnum/1024)); # this works on larger drives; I imagine it'll work on smaller drives with fewer cylinders...

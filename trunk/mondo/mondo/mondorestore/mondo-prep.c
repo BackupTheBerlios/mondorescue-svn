@@ -1524,15 +1524,10 @@ int partition_drive(struct mountlist_itself *mountlist, char *drivename)
 	pout_to_fdisk = NULL;
 #else
 	make_hole_for_file(FDISK_LOG);
-#ifdef __IA64__
-	sprintf(tmp, "parted2fdisk %s >> %s 2>> %s", drivename, FDISK_LOG,
-			FDISK_LOG);
-#else
-	sprintf(tmp, "fdisk %s >> %s 2>> %s", drivename, FDISK_LOG, FDISK_LOG);
-#endif
+	sprintf(tmp, "parted2fdisk %s >> %s 2>> %s", drivename, FDISK_LOG, FDISK_LOG);
 	pout_to_fdisk = popen(tmp, "w");
 	if (!pout_to_fdisk) {
-		log_to_screen("Cannot call fdisk to configure %s", drivename);
+		log_to_screen("Cannot call parted2fdisk to configure %s", drivename);
 		paranoid_free(device_str);
 		paranoid_free(format);
 		paranoid_free(tmp);

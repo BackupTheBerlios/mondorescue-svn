@@ -30,10 +30,6 @@ for i in `cat $1 | tr -s '\t' ' ' | cut -d' ' -f1 | grep -v "/dev/fd" | grep -v 
         elif [ "$mountpt" = "/boot" ] ; then
             boot_drv=$drive
             boot_part=$partno
-#       if [ "$mountpt" = "/" ] || [ "$mountpt" = "/boot" ] || [ "$format" = "vfat" ] ; then
-#           LogIt "Making $i bootable (drive=$drive, partno=$partno)"
-#           echo -e -n "a\n$partno\nw\n" | fdisk $drive >> $LOGFILE 2>> $LOGFILE
-#            HAVE_ACTIVE="true"
         fi
     fi
 done

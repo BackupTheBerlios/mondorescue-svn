@@ -92,7 +92,7 @@ fi
 %defattr(644,root,root,755)
 %config(noreplace) %{_sysconfdir}/mindi/deplist.txt
 %doc CHANGES INSTALL COPYING README TODO README.ia64 README.pxe README.busybox
-%{_sbindir}
+%attr(755,root,root) %{_sbindir}/*
 %{_libdir}/mindi
 %{_mandir}
 

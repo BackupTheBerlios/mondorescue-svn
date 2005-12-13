@@ -110,6 +110,7 @@ con cintas y NFS, tambien.
 
 %post
 /sbin/ldconfig
+%{__chmod} 755 %{_libdir}/%{name}/restore-scripts/%{name}/*
 
 %postun
 /sbin/ldconfig
@@ -123,9 +124,9 @@ con cintas y NFS, tambien.
 %doc INSTALL COPYING README TODO AUTHORS NEWS
 
 %attr(755,root,root) %{_sbindir}/*
-%attr(755,root,root) %{_libdir}/%{name}/restore-scripts/%{name}
-%{_libdir}/%{name}
-%{_mandir}/*
+#%attr(755,root,root) %{_libdir}/%{name}/restore-scripts/%{name}/*
+%{_libdir}
+%{_mandir}
 
 #%{!?_without_xmondo:%files xmondo}
 #%{!?_without_xmondo:%{_sbindir}/xmondo}

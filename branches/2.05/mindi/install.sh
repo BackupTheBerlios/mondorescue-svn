@@ -5,7 +5,7 @@ if [ ! -f "mindi" ] ; then
     exit 1
 fi
 
-if [ "_$PREFIX" = "_" ]; then
+if [ "_$PREFIX" != "_" ]; then
 	local=$PREFIX/usr
 	if [ -f /usr/local/sbin/mindi ]; then
 		echo "WARNING: /usr/local/sbin/mindi exists. You should probably remove it !"

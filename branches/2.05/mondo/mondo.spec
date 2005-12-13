@@ -126,7 +126,6 @@ con cintas y NFS, tambien.
 %attr(755,root,root) %{_libdir}/%{name}/restore-scripts/%{name}
 %{_libdir}/%{name}
 %{_mandir}/*
-%{_libdir}/*
 
 #%{!?_without_xmondo:%files xmondo}
 #%{!?_without_xmondo:%{_sbindir}/xmondo}

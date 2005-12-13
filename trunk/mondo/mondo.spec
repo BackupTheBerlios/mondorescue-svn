@@ -34,16 +34,10 @@ Summary:	A program which a Linux user can utilize to create a rescue/restore CD/
 Summary(fr):	Un programme pour les utilisateurs de Linux pour cr�r un CD/tape de sauvegarde/restauration
 Summary(it):	Un programma per utenti Linux per creare un CD/tape di rescue
 Summary(sp):	Un programa para los usuarios de Linux por crear una CD/cinta de restoracion/rescate
-<<<<<<< .working
-Name:		mondo
-Version:	2.05_berlios
-Release:	1
-=======
 
 Name:		%{name}
 Version:	%{version}
 Release:	%{mrel}
->>>>>>> .merge-right.r54
 License:	GPL
 Url:		http://mondorescue.berlios.de
 Source:		%{src}

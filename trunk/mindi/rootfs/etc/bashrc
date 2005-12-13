@@ -1,4 +1,4 @@
-PATH=/mondo:/usr/share/mondo:/usr/share/mindi:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/X11R6/bin:.
+PATH=/mondo:/usr/lib/mondo:/usr/lib/mindi:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/X11R6/bin:.
 HOSTNAME="mondo"
 TERM=linux
 PS1="[\u@\h \W]\\$ "

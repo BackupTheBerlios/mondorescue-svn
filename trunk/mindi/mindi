@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# $Id$
+#
 #-----------------------------------------------------------------------------
 # mindi - mini-Linux distro based on the user's filesystem & distribution
 #
@@ -24,6 +26,10 @@ RUN_AFTER_BOOT_PHASE_COMPLETE="ide-opt"
 	# run this command.
 
 MINDI_VERSION=1.04_berlios
+MINDI_PREFIX=XXX
+MINDI_CONF=YYY
+MINDI_SBIN=${MINDI_PREFIX}/sbin
+MINDI_LIB=${MINDI_PREFIX}/lib/mindi
 
 EXTRA_SPACE=24576         ; # increase if you run out of ramdisk space
 IA64_BOOT_SIZE=8192       ; # size of the ia64 boot disk
@@ -42,7 +48,7 @@ USE_OWN_KERNEL="no"
 	# If set to "no", you will be prompted for whether or not
 	# you want to use your own kernel, or the supplied default.
 	# If "yes" mindi will automatically use your own kernel.
-MINDI_CONFIG="/etc/mindi/mindi.conf"
+MINDI_CONFIG="$MINDI_CONF/mindi.conf"
 if [ -f $MINDI_CONFIG ]; then
 	. $MINDI_CONFIG
 fi
@@ -103,7 +109,7 @@ HackSyslinuxFile() {
 		echo -en "\n"
 		incoming=`ReadLine`
 	done
-	if [ -e "$MINDI_HOME/memtest.img" ] ; then
+	if [ -e "$MINDI_LIB/memtest.img" ] ; then
 #        echo -en "label memtest\n  kernel memtest.bin\n\n"
 		echo -en "label memtest\n  kernel memdisk\n  append initrd=memtest.img\n\n"
 #        echo "Yep, this is a multi-function CD" > $2/MULTIFUNC
@@ -125,7 +131,7 @@ AbortIfYourDistroIsAPieceOfStercus() {
 	which mke2fs > /dev/null 2> /dev/null || Die "Please put mke2fs in system path"
 	which afio > /dev/null 2> /dev/null || LogIt "afio not found... mindi doesn't need afio but Mondo does... Be aware...\n"
 	[ ! -e "/etc/issue.net" ] && > /etc/issue.net
-	FDISK=$MINDI_HOME/parted2fdisk.pl
+	FDISK=$MINDI_SBIN/parted2fdisk.pl
 	FDISKLOG=/tmp/parted2fdisk.log
 	touch $FDISKLOG
 #    if [ "`cat /etc/issue.net 2> /dev/null | fgrep -i "debian"`" ] ; then
@@ -213,7 +219,7 @@ AddKeyboardMappingFile() {
 	local mappath r included_list included_item i res ii sss
 	mappath=$1
 	KBDEPTH=$(($KBDEPTH+1))
-	[ "$KBDEPTH" -gt "128" ] && Die "Edit $MINDI_HOME/mindi and disable FindAndAddUserKeyboardMappingFile (line 1170, approx.)"
+	[ "$KBDEPTH" -gt "128" ] && Die "Edit $MINDI_SBIN/mindi and disable FindAndAddUserKeyboardMappingFile (line 1170, approx.)"
 	if [ -e "$bigdir/$mappath" ] ; then
 	echo "$mappath already added" >> $LOGFILE
 	return
@@ -621,10 +627,6 @@ FindHomeOfMindiAndMondo() {
 		   done
 
 		   if [ $SYMLINK -ne 1 ] ; then
-		      if [ -d "$mh/mindi" ] && [ -e "$mh/mindi/aux-tools" ] ; then
-		      [ "$MINDI_HOME" ] && Die "You have multiple instances of Mindi - one at $MINDI_HOME and one at $mh/mindi"
-		              MINDI_HOME=$mh/mindi
-		      fi
 		  if [ -d "$mh/mondo" ] && [ -e "$mh/mondo/restore-scripts" ] ; then
 		      [ "$MONDO_HOME" ] && Die "You have multiple instances of Mondo - one at $MONDO_HOME and one at $mh/mondo"
 		      MONDO_HOME=$mh/mondo
@@ -634,22 +636,12 @@ FindHomeOfMindiAndMondo() {
 	done
 # end patch
 
-#	for mh in /usr/share /usr/local /usr/local/share /usr/share/local /opt /opt/share /usr ; do
-#	    if [ -d "$mh/mindi" ] && [ -e "$mh/mindi/aux-tools" ] ; then
-#		[ "$MINDI_HOME" ] && Die "You have multiple instances of Mindi - one at $MINDI_HOME and one at $mh/mindi"
-#		MINDI_HOME=$mh/mindi
-#	    fi
-#	    if [ -d "$mh/mondo" ] && [ -e "$mh/mondo/restore-scripts" ] ; then
-#		[ "$MONDO_HOME" ] && Die "You have multiple instances of Mondo - one at $MONDO_HOME and one at $mh/mondo"
-#		MONDO_HOME=$mh/mondo
-#	    fi
-#	done
-
-	[ "$MINDI_HOME" = "" ] && Die "Unable to locate Mindi's home directory"
-	echo "MINDI_HOME = $MINDI_HOME" >> $LOGFILE
-	echo "MONDO_HOME = $MONDO_HOME" >> $LOGFILE
-	[ -e "/etc/mindi" ] && MINDI_CONF=/etc/mindi || MINDI_CONF=$MINDI_HOME
+	[ "$MINDI_PREFIX" = "XXX" ] && Die "Mindi has not been installed correctly."
+	echo "MINDI_LIB = $MINDI_LIB" >> $LOGFILE
+	echo "MINDI_SBIN = $MINDI_SBIN" >> $LOGFILE
+	[ "$MINDI_CONF" = "YYY" ] && Die "Mindi has not been installed correctly."
 	echo "MINDI_CONF = $MINDI_CONF" >> $LOGFILE
+	echo "MONDO_HOME = $MONDO_HOME" >> $LOGFILE
 	mkdir -p $CACHE_LOC
 }
 
@@ -1340,7 +1332,7 @@ absolute_partition old_partition_fmt
 
 	if [ -d "/proc/lvm" ] || [ -d "/dev/mapper" ]; then
 	echo -en "\rAnalyzing LVM...\r"
-	all_partitions=`$MINDI_HOME/analyze-my-lvm | fgrep ">>>" | cut -d' ' -f2-32`
+	all_partitions=`$MINDI_SBIN/analyze-my-lvm | fgrep ">>>" | cut -d' ' -f2-32`
 	fi
 	all_partitions="$all_partitions `ListAllPartitions 2> /dev/null`"
 #    echo "all partitions = $all_partitions" > /dev/stderr
@@ -1504,9 +1496,9 @@ MakeSyslinuxMessageFile() {
 	rmdir $1
 	echo -en "  " > $1
 	if [ "`cat /etc/issue.net 2> /dev/null | fgrep -i "debian"`" ] ; then
-		cat $MINDI_HOME/msg-txt | sed s/ZZZZZ/$MINDI_VERSION/ | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s%DDDDD%"Debian GNU\/`uname -s` `cat /etc/issue.net | cut -d ' ' -f 3` `hostname`"% | sed s/KKKKK/"Kernel `uname  -r` on a `uname -m`"/ | sed s/TTTTT/"`LC_TIME=C date`"/ >> $1.tmp
+		cat $MINDI_LIB/msg-txt | sed s/ZZZZZ/$MINDI_VERSION/ | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s%DDDDD%"Debian GNU\/`uname -s` `cat /etc/issue.net | cut -d ' ' -f 3` `hostname`"% | sed s/KKKKK/"Kernel `uname  -r` on a `uname -m`"/ | sed s/TTTTT/"`LC_TIME=C date`"/ >> $1.tmp
 	else
-		cat $MINDI_HOME/msg-txt | sed s/ZZZZZ/$MINDI_VERSION/ | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s/DDDDD/"`cat /etc/issue.net | grep -i "linux" | head -n1 | tr -s ' ' ' '`"/ | sed s/KKKKK/"`cat /etc/issue.net | grep -i "kernel" | head -n1 | tr -s ' ' ' '`"/ | sed s/TTTTT/"`LC_TIME=C date`"/ | sed s/' '\\r' 'on' 'an' '\/' '`uname -r`' 'on' 'an' '`uname -m`/ >> $1.tmp
+		cat $MINDI_LIB/msg-txt | sed s/ZZZZZ/$MINDI_VERSION/ | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s/DDDDD/"`cat /etc/issue.net | grep -i "linux" | head -n1 | tr -s ' ' ' '`"/ | sed s/KKKKK/"`cat /etc/issue.net | grep -i "kernel" | head -n1 | tr -s ' ' ' '`"/ | sed s/TTTTT/"`LC_TIME=C date`"/ | sed s/' '\\r' 'on' 'an' '\/' '`uname -r`' 'on' 'an' '`uname -m`/ >> $1.tmp
 	fi
 	cat $1.tmp | sed s/%r/"`uname -r`"/ | sed s/%t/"`hostname`"/ > $1
 	rm -f $1.tmp
@@ -1515,7 +1507,7 @@ MakeSyslinuxMessageFile() {
 		    echo -en "Press <enter> to continue.\n" >> $1
 		elif [ ! "$MONDO_TMP" ] ; then
 		    echo -en "FYI, this is _not_ a Mondo Rescue CD.\n" >> $1
-		    if [ -e "$MINDI_HOME/memtest.img" ] ; then
+		    if [ -e "$MINDI_LIB/memtest.img" ] ; then
 		        echo -en "Type 'memtest' <Enter> to test your PC's memory intensively.\nJust press <Enter> to go to the main test menu.\n" >> $1
 		    fi
 		else
@@ -1608,10 +1600,10 @@ OfferToMakeBootableISO() {
 	old_pwd=`pwd`
 	cd $TMP_ROOT/iso
 	mkdir -p $MONDO_ROOT/iso/isolinux
-	echo "mindi_home = $MINDI_HOME" >> $LOGFILE
-	cp $MINDI_HOME/mem{test,disk}* $MONDO_ROOT 2>> $LOGFILE
+	echo "mindi_lib = $MINDI_LIB" >> $LOGFILE
+	cp $MINDI_LIB/mem{test,disk}* $MONDO_ROOT 2>> $LOGFILE
 	for i in memdisk memtest.bin memtest.img ; do
-	j=$MINDI_HOME/$i
+	j=$MINDI_LIB/$i
 	k=$TMP_ROOT/iso/isolinux
 	if [ -e "$j" ] ; then
 		LogIt "Copying $j to $k"
@@ -1673,9 +1665,9 @@ MakeMessageFile() {
 	local disksize
 	disksize=$1
 	if [ "`cat /etc/issue.net 2> /dev/null | fgrep -i "debian"`" ] ; then
-		cat $MINDI_HOME/msg-txt | sed s/ZZZZZ/$MINDI_VERSION/ | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s%DDDDD%"Debian GNU\/`uname -s` `cat /etc/issue.net | cut -d ' ' -f 3` `hostname`"% | sed s/KKKKK/"Kernel `uname  -r` on a `uname -m`"/ | sed s/TTTTT/"`LC_TIME=C date`"/
+		cat $MINDI_LIB/msg-txt | sed s/ZZZZZ/$MINDI_VERSION/ | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s%DDDDD%"Debian GNU\/`uname -s` `cat /etc/issue.net | cut -d ' ' -f 3` `hostname`"% | sed s/KKKKK/"Kernel `uname  -r` on a `uname -m`"/ | sed s/TTTTT/"`LC_TIME=C date`"/
 	else
-		cat $MINDI_HOME/msg-txt | sed s/ZZZZZ/$MINDI_VERSION/ | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s/DDDDD/"`cat /etc/issue.net | grep -i "linux" | head -n1 | tr -s ' ' ' '`"/ | sed s/KKKKK/"`cat /etc/issue.net | grep -i "kernel" | head -n1 | tr -s ' ' ' '`"/ | sed s/TTTTT/"`LC_TIME=C date`"/ | sed s/' 'r' 'on' 'an' 'm/' '`uname -r`' 'on' 'an' '`uname -m`/
+		cat $MINDI_LIB/msg-txt | sed s/ZZZZZ/$MINDI_VERSION/ | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s/DDDDD/"`cat /etc/issue.net | grep -i "linux" | head -n1 | tr -s ' ' ' '`"/ | sed s/KKKKK/"`cat /etc/issue.net | grep -i "kernel" | head -n1 | tr -s ' ' ' '`"/ | sed s/TTTTT/"`LC_TIME=C date`"/ | sed s/' 'r' 'on' 'an' 'm/' '`uname -r`' 'on' 'an' '`uname -m`/
 	fi
 	if [ "$disksize" -gt "2880" ] ; then
 	if [ "`DidMondoCallMe`" ] ; then
@@ -1732,7 +1724,7 @@ write_full_floppy_of_kernel() {
 	rdev -R vmlinuz 0
 	rdev -r vmlinuz 49152
 
-	tar -zxf $MINDI_HOME/dev.tgz || LogIt "Cannot untar dev.tgz\n"
+	tar -zxf $MINDI_LIB/dev.tgz || LogIt "Cannot untar dev.tgz\n"
 	losetup /dev/loop0 > /dev/null 2> /dev/null
 	[ "$?" -eq "0" ] || losetup /dev/loop0 -d || Die "Please free up /dev/loop0 by typing 'losetup /dev/loop0 -d'.\nReboot if necessary.\n"
 	CopyBootBFile $mtpt/boot.b
@@ -1859,15 +1851,6 @@ MakeLiloConfFile() {
 
 
 
-#MINDI_HOME=/usr/share/mindi
-#rm -f /tmp/boot.img*
-#write_full_floppy_of_kernel /usr/share/mindi/vmlinuz /tmp/boot.img 1440
-#exit $?
-
-
-
-
-
 PrepareBootDiskImage_LILO() {
 	local disksize imagesdir dev imagefile mountpoint fname i kernelpath ramdisksize cfg_file testpath options retval outstr old_pwd ooo max_kernel_size liloconf
 	imagesdir=$1
@@ -1878,7 +1861,7 @@ PrepareBootDiskImage_LILO() {
 	retval=0
 	[ ! -e "$kernelpath" ] && Die "PBDI - cannot find $kernelpath kernel"
 	echo -en "Making "$disksize"KB boot disk..."
-	TurnTgzIntoRdz $MINDI_HOME/rootfs $TMP_ROOT/mindi.rdz $ramdisksize $disksize `du -sk $kernelpath | cut -f1` || Die "Could not turn rootfs into mindi.rdz; are you SURE your kernel supports loopfs?"
+	TurnTgzIntoRdz $MINDI_LIB/rootfs $TMP_ROOT/mindi.rdz $ramdisksize $disksize `du -sk $kernelpath | cut -f1` || Die "Could not turn rootfs into mindi.rdz; are you SURE your kernel supports loopfs?"
 	if [ "$ARCH" != "ia64" ] ; then
 		[ "$disksize" != "1722" ] && [ "$disksize" != "2880" ] && [ "$disksize" != "5760" ] && Die "PDBI - disksize is $disksize - bad size"
 	fi
@@ -1907,7 +1890,7 @@ PrepareBootDiskImage_LILO() {
 	old_pwd=`pwd`
 	cd $mountpoint
 	if [ "$ARCH" != "ia64" ] ; then
-		tar -zxf $MINDI_HOME/dev.tgz || LogIt "Cannot untar dev.tgz\n"
+		tar -zxf $MINDI_LIB/dev.tgz || LogIt "Cannot untar dev.tgz\n"
 	fi
 	cd $old_pwd
 	losetup /dev/loop0 > /dev/null 2> /dev/null
@@ -1930,7 +1913,7 @@ PrepareBootDiskImage_LILO() {
 
 	mkdir -p $mountpoint/tmp
 	cp -f $TMP_ROOT/mondo-restore.cfg $mountpoint/tmp &> /dev/null
-	if [ -e "$MINDI_HOME/memtest.img" ] ; then
+	if [ -e "$MINDI_LIB/memtest.img" ] ; then
 		echo -en "image=/memtest.bin\nlabel=memtest\nn" >> $liloconf
 		echo -en "image=/memdisk\nlabel=memtest\nappend=\"initrd=memtest.img\"\n" >> $liloconf
 #        echo "Yep, this is a multi-function CD" > $mountpoint/MULTIFUNC
@@ -1971,7 +1954,7 @@ Sorry, your kernel is too big for a boot/root floppy.\nI'll try the new boot/roo
 	echo "Max kernel size on $disksize KB floppy (est'd) = $max_kernel_size K" >> $LOGFILE
 # make it bootable
 	rm -f $mountpoint/zero
-	[ -e "$MINDI_HOME/memdisk" ] && cp -f $MINDI_HOME/memdisk $mountpoint
+	[ -e "$MINDI_LIB/memdisk" ] && cp -f $MINDI_LIB/memdisk $mountpoint
 	if [ "$disksize" -gt "2880" ] && [ ! "$KERN_DISK_MADE" ] ; then
 		if [ "$ARCH" != "ia64" ] ; then
 		$LILO_EXE $LILO_OPTIONS -r $mountpoint >> $LOGFILE 2>> $LOGFILE
@@ -2030,7 +2013,7 @@ PrepareBootDiskImage_SYSLINUX() {
 	retval=0
 	[ ! -e "$kernelpath" ] && Die "PBDI - cannot find $kernelpath kernel"
 	echo -en "Making "$disksize"KB boot disk..."
-	TurnTgzIntoRdz $MINDI_HOME/rootfs $TMP_ROOT/mindi.rdz $ramdisksize $disksize `du -sk $kernelpath | cut -f1` || Die "Could not turn rootfs into mindi.rdz; are you SURE your kernel supports loopfs?"
+	TurnTgzIntoRdz $MINDI_LIB/rootfs $TMP_ROOT/mindi.rdz $ramdisksize $disksize `du -sk $kernelpath | cut -f1` || Die "Could not turn rootfs into mindi.rdz; are you SURE your kernel supports loopfs?"
 	[ "$disksize" != "1722" ] && [ "$disksize" != "2880" ] && [ "$disksize" != "5760" ] && Die "PDBI - disksize is $disksize - bad size"
 	echo -en "..."
 	imagefile=$imagesdir/mindi-bootroot.$disksize.img
@@ -2043,7 +2026,7 @@ PrepareBootDiskImage_SYSLINUX() {
 # image _is_ bootable. I don't know why syslinux and/or mkfs.vfat won't
 # play nicely and I don't care. :) I have worked around the problem. -Hugo, 06/27/2002
 	if [ "$disksize" = "1722" ] ; then
-		gzip -dc $MINDI_HOME/sys-disk.raw.gz > $imagefile || Die "Cannot dd blank file"
+		gzip -dc $MINDI_LIB/sys-disk.raw.gz > $imagefile || Die "Cannot dd blank file"
 	else
 		dd if=/dev/zero of=$imagefile bs=1k count=$disksize &> /dev/null || Die "Cannot dd blank file"
 		mkfs.vfat $imagefile
@@ -2055,7 +2038,7 @@ PrepareBootDiskImage_SYSLINUX() {
 	MakeSyslinuxMessageFile $mountpoint/message.txt
 	cd $mountpoint
 	[ -e "$sys_cfg_file" ] || Die "Obi Wan, word up?"
-#    tar -zxf $MINDI_HOME/dev.tgz || LogIt "Cannot untar dev.tgz\n" <--- present for LILO; is it nec. for SYSLINUX too?
+#    tar -zxf $MINDI_LIB/dev.tgz || LogIt "Cannot untar dev.tgz\n" <--- present for LILO; is it nec. for SYSLINUX too?
 	cat $sys_cfg_file | HackSyslinuxFile $ramdisk_size $mountpoint > syslinux.cfg || Die "Cannot copy syslinux.cfg from mindi_home to tmp_root"
 	if [ -e "$MONDO_TMP/start-nfs" ] ; then
 	mv syslinux.cfg syslinux.cfg.orig
@@ -2109,7 +2092,7 @@ Sorry, your kernel is too big for a boot/root floppy.\nI'll try the new boot/roo
 # make it bootable
 	rm -f $mountpoint/zero
 	mkdir -p $mountpoint/etc
-	[ -e "$MINDI_HOME/memdisk" ] && cp -f $MINDI_HOME/memdisk $mountpoint
+	[ -e "$MINDI_LIB/memdisk" ] && cp -f $MINDI_LIB/memdisk $mountpoint
 	umount $mountpoint || Die "Cannot unmount mountpoint ($mountpoint)"
 	echo -en "..."
 	rmdir $mountpoint || LogIt "Cannot rmdir (PBDI)\n"
@@ -2215,18 +2198,18 @@ PrepareDataDiskImages() {
 	fi
 
 # more stuff
-#    cp -f $MINDI_HOME/embleer* $bigdir
+#    cp -f $MINDI_LIB/embleer* $bigdir
 	old_pwd=`pwd`
 	cd $bigdir
 
-	[ -e "$MINDI_HOME/aux-tools" ] || Die "aux-tools not found in Mindi's home dir. Do you have multiple copies of Mindi lying around? Please delete them. No, don't e-mail me and ask how. ;) Use 'rm'."
-	cp -Rdf $MINDI_HOME/aux-tools/* . 2>> $LOGFILE || LogIt "Warning - error occurred while unzipping aux-tools\n"
-	if [ -e "$MINDI_HOME/x11-tools.tgz" ] ; then
-	tar -zxf $MINDI_HOME/x11-tools.tgz 2>> $LOGFILE || LogIt "Warning - error occurred while unzipping x11-tools.tgz\n"
+	[ -e "$MINDI_LIB/aux-tools" ] || Die "aux-tools not found in Mindi's home dir. Do you have multiple copies of Mindi lying around? Please delete them. No, don't e-mail me and ask how. ;) Use 'rm'."
+	cp -Rdf $MINDI_LIB/aux-tools/* . 2>> $LOGFILE || LogIt "Warning - error occurred while unzipping aux-tools\n"
+	if [ -e "$MINDI_LIB/x11-tools.tgz" ] ; then
+	tar -zxf $MINDI_LIB/x11-tools.tgz 2>> $LOGFILE || LogIt "Warning - error occurred while unzipping x11-tools.tgz\n"
 	fi
 	if [ -e "$MONDO_HOME/restore-scripts" ] ; then
 		cp -Rdf $MONDO_HOME/restore-scripts/* . 2>> $LOGFILE
-		[ "$?" -ne "0" ] && [ "`DidMondoCallMe`" ] && Die "Cannot find/install $MINDI_HOME/restore-scripts"
+		[ "$?" -ne "0" ] && [ "`DidMondoCallMe`" ] && Die "Cannot find/install $MINDI_LIB/restore-scripts"
 	fi
 	[ -d "/lib/dev-state" ] && cp --parents -pRdf /lib/dev-state .
 	cd $old_pwd
@@ -2245,8 +2228,8 @@ PrepareDataDiskImages() {
 	cp -f $TMP_ROOT/mountlist.txt $minidir_root/$noof_disks/tmp/mountlist.txt || Die "Cannot copy mountlist.txt from $TMP_ROOT to data disk"
 	cp -f $TMP_ROOT/mountlist.txt $CACHE_LOC
 	[ "`DidMondoCallMe`" ] && cp -f $minidir_root/$noof_disks/tmp/mountlist.txt $MONDO_TMP/.
-	[ -d "/proc/lvm" ] && $MINDI_HOME/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
-	[ -d "/dev/mapper" ] && $MINDI_HOME/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
+	[ -d "/proc/lvm" ] && $MINDI_SBIN/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
+	[ -d "/dev/mapper" ] && $MINDI_SBIN/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
 	cat $minidir_root/$noof_disks/tmp/mountlist.txt >> $LOGFILE
 	ZipMinidirsIntoTarballs $minidir_root $tardir $noof_disks
 	CreateDataDiskImagesFromTarballs $tardir $imagesdir $noof_disks
@@ -2727,7 +2710,7 @@ TurnTgzIntoRdz() {
 	echo -en "..."
 	old_pwd=`pwd`
 	cd $mountpoint
-#    [ -e "$MINDI_HOME/memtest.img" ] && echo "Yep, this is a multi-function CD" > MULTIFUNC
+#    [ -e "$MINDI_LIB/memtest.img" ] && echo "Yep, this is a multi-function CD" > MULTIFUNC
 	cp -Rdf $tgz_dir_fname/* . 2>> $LOGFILE >> $LOGFILE
 	tar -zxf symlinks.tgz || Die "Cannot untar symlinks.tgz"
 	cd dev || Die "Can't cd to dev"
@@ -2819,11 +2802,11 @@ TurnTgzIntoRdz() {
 #	    cp --parents -pRdf $i $mountpoint/ 2>> $LOGFILE
 #	done
 #    fi
-	if [ ! -e "/sbin/devfsd" ] || [ "$disksize" -lt "2880" ] || [ "$kernelpath" = "$MINDI_HOME/vmlinuz" ] ; then
+	if [ ! -e "/sbin/devfsd" ] || [ "$disksize" -lt "2880" ] || [ "$kernelpath" = "$MINDI_LIB/vmlinuz" ] ; then
 		echo "Deleting devfsd daemon from ramdisk" >> $LOGFILE
 		[ ! -e "/sbin/devfsd" ] && echo "...because /sbin/devfsd not found" >> $LOGFILE
 		[ "$disksize" -lt "2880" ] && echo "...because disksize = $disksize" >> $LOGFILE
-		[ "$kernelpath" = "$MINDI_HOME/vmlinuz" ] && echo "...because kernel is failsafe" >> $LOGFILE
+		[ "$kernelpath" = "$MINDI_LIB/vmlinuz" ] && echo "...because kernel is failsafe" >> $LOGFILE
 #        ls -l $mountpoint/sbin/devfsd &> /dev/null || Die "Can't find devfsd daemon on ramdisk"
 		rm -f $mountpoint/sbin/devfsd
 	fi
@@ -2981,7 +2964,7 @@ else
   [ ! -e "/etc/modules.conf" ] && Die "/etc/modules.conf not found; you may have to create a softlink from /etc/conf.modules to /etc/modules.conf; of course, all good distros use modules.conf anyway..."
 fi
 FixPathIfBroken
-[ -f "$MINDI_HOME/vmlinuz" ] && FAILSAFE_KVER=`strings $MINDI_HOME/vmlinuz 2> /dev/null | grep "2\.4" | cut -d' ' -f1`
+[ -f "$MINDI_LIB/vmlinuz" ] && FAILSAFE_KVER=`strings $MINDI_LIB/vmlinuz 2> /dev/null | grep "2\.4" | cut -d' ' -f1`
 AbortIfMkfsVfatMissing
 ### BCO
 ### Fix as it's not mandatory on ia64
@@ -3107,11 +3090,11 @@ fi
 #ScanCDandTape
 [ "$CDRECOVERY" = "yes" ] || CDRECOVERY=no
 if [ "$CDRECOVERY" = "yes" ] ; then
-	iso_cfg_file=$MINDI_HOME/isolinux-H.cfg
-	sys_cfg_file=$MINDI_HOME/syslinux-H.cfg
+	iso_cfg_file=$MINDI_LIB/isolinux-H.cfg
+	sys_cfg_file=$MINDI_LIB/syslinux-H.cfg
 else
-	iso_cfg_file=$MINDI_HOME/isolinux.cfg
-	sys_cfg_file=$MINDI_HOME/syslinux.cfg
+	iso_cfg_file=$MINDI_LIB/isolinux.cfg
+	sys_cfg_file=$MINDI_LIB/syslinux.cfg
 fi
 
 
@@ -3133,8 +3116,8 @@ TMP_ROOT=$TMP_ROOT/mindilinux/$$
 mkdir -p $TMP_ROOT
 mkdir -p $imagesdir
 if [ ! "`DidMondoCallMe`" ] ; then
-	LogIt "Mindi Linux mini-distro generator v$MINDI_VERSION by Hugo Rabson"
-	LogIt "Latest Mindi is available from http://www.mondorescue.org"
+	LogIt "Mindi Linux mini-distro generator v$MINDI_VERSION"
+	LogIt "Latest Mindi is available from http://mondorescue.berlios.de"
 	LogIt "BusyBox sources are available from http://www.busybox.net"
 	LogIt "------------------------------------------------------------------------------"
 else
@@ -3196,13 +3179,13 @@ if [ ! "`DidMondoCallMe`" ] ; then
 	fi
 fi
 if [ "$YOUR_KERNEL_SUCKS" != "" ] || [ "$kernelpath" = "" ] || [ "$kernelpath" = "SUCKS" ] || [ "$kernelpath" = "FAILSAFE" ] ; then
-	kernelpath=$MINDI_HOME/vmlinuz
+	kernelpath=$MINDI_LIB/vmlinuz
 	LogIt "I shall include Mindi's failsafe kernel, not your kernel, in the boot disks."
 	LogIt "However, you are still running your kernel. If Mindi fails to create your"
 	LogIt "disks then it may still be a result of a problem with your kernel."
 	pwd=`pwd`
 	cd $TMP_ROOT
-	bzip2 -dc $MINDI_HOME/lib.tar.bz2 | tar -x || Die "Cannot unzip lib.tar.bz2"
+	bzip2 -dc $MINDI_LIB/lib.tar.bz2 | tar -x || Die "Cannot unzip lib.tar.bz2"
 	cd $pwd
 	YOUR_KERNEL_SUCKS="Your kernel sucks"
 fi
@@ -3246,7 +3229,7 @@ fi
 
 
 
-[ -e "$MINDI_HOME/memtest.img" ] && BOOT_MEDIA_MESSAGE="$BOOT_MEDIA_MESSAGE\n\
+[ -e "$MINDI_LIB/memtest.img" ] && BOOT_MEDIA_MESSAGE="$BOOT_MEDIA_MESSAGE\n\
 ...Or type 'memtest' to test your PC's RAM thoroughly.\n"
 
 

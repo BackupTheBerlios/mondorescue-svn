@@ -74,6 +74,7 @@ export RPMBUILDMINDI="true"
 %{__rm} -rf $RPM_BUILD_ROOT
 
 %post
+%{__chmod} 755 %{_libdir}/mindi/aux-tools/sbin/* %{_libdir}/mindi/rootfs/bin/* %{_libdir}/mindi/rootfs/sbin/*
 if [ -f /usr/local/sbin/mindi ]; then
 	echo "WARNING: /usr/local/sbin/mindi exists. You should probably remove your manual mindi installation !"
 fi
@@ -84,9 +85,9 @@ fi
 %doc CHANGES INSTALL COPYING README TODO README.ia64 README.pxe README.busybox
 %{_mandir}
 %{_libdir}/mindi
-%attr(755,root,root) %{_libdir}/mindi/aux-tools/sbin/*
-%attr(755,root,root) %{_libdir}/mindi/rootfs/bin/*
-%attr(755,root,root) %{_libdir}/mindi/rootfs/sbin/*
+#%attr(755,root,root) %{_libdir}/mindi/aux-tools/sbin/*
+#%attr(755,root,root) %{_libdir}/mindi/rootfs/bin/*
+#%attr(755,root,root) %{_libdir}/mindi/rootfs/sbin/*
 %attr(755,root,root) %{_sbindir}/*
 
 %changelog

@@ -82,9 +82,12 @@ fi
 %defattr(644,root,root,755)
 %config(noreplace) %{_sysconfdir}/mindi/deplist.txt
 %doc CHANGES INSTALL COPYING README TODO README.ia64 README.pxe README.busybox
-%attr(755,root,root) %{_sbindir}/*
-%{_libdir}/mindi
 %{_mandir}
+%{_libdir}/mindi
+%attr(755,root,root) %{_libdir}/mindi/aux-tools/sbin/*
+%attr(755,root,root) %{_libdir}/mindi/rootfs/bin/*
+%attr(755,root,root) %{_libdir}/mindi/rootfs/sbin/*
+%attr(755,root,root) %{_sbindir}/*
 
 %changelog
 * Fri Nov 05 2005 Bruno Cornec <bcornec@users.berlios.de> 1.05

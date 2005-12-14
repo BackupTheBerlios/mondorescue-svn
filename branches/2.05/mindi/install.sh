@@ -70,6 +70,7 @@ else
 fi
 
 if [ "$ARCH" = "i386" ] ; then
+	# FHS requires fdisk under /sbin
 	(cd $local/sbin && ln -s /sbin/fdisk parted2fdisk)
 	if [ -f $local/lib/mindi/rootfs/bin/busybox-$ARCH.net ]; then
 		echo "Installing busybox.net ..."

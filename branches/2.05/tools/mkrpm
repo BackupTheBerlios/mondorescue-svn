@@ -23,7 +23,22 @@ if [ "$1" = "" ]; then
 else
 	c=$1
 fi
-if [ "`echo $c | grep mindi`" != "" ]; then
+if [ "`echo $c | grep mindi-kernel`" != "" ]; then
+	cd ${BASE}/svn
+	echo "Management of mindi-kernel ${MINDI_VER}"
+	rm -fr mindi-kernel-${MINDI_VER}
+	cp -a ${VER}/mindi-kernel mindi-kernel-${MINDI_VER}
+	find mindi-kernel-${MINDI_VER} -type d -name .svn | xargs rm -rf
+	find mindi-kernel-${MINDI_VER} -type f -name '.*.swp' | xargs rm -rf
+	find mindi-kernel-${MINDI_VER} -type f -name '*~' | xargs rm -rf
+	mkdir -p ${TOPDIR}/SOURCES 
+	tar cvfhz ${TOPDIR}/SOURCES/mindi-kernel-${MINDI_VER}.tgz mindi-kernel-${MINDI_VER}
+	tar cvfhj ${TOPDIR}/SOURCES/mindi-kernel-${MINDI_VER}.tar.bz2 mindi-kernel-${MINDI_VER}
+	sed "s/^%define mrel..*/%define mrel	${rev}.${suf}/" mindi-kernel-${MINDI_VER}/mindi-kernel.spec > ${TOPDIR}/SPECS/mindi-kernel.spec
+	rm -f ${TMP}/mindi-kernel*-root
+	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mindi-kernel-${MINDI_VER}-${rev}.${suf}.${ARCH}.rpm"
+fi
+if [ "`echo $c | grep -v kernel | grep mindi`" != "" ]; then
 	cd ${BASE}/svn
 	echo "Management of mindi ${MINDI_VER}"
 	rm -fr mindi-${MINDI_VER}
@@ -39,7 +54,7 @@ if [ "`echo $c | grep mindi`" != "" ]; then
 	rm -f ${TMP}/mindi-*-root
 	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mindi-${MINDI_VER}-${rev}.${suf}.${ARCH}.rpm"
 	# ATTENTION: This could be dangerous for your setup
-	opt="rm -rf /usr/share/mindi ;"
+	opt="rm -rf /usr/lib/mindi ;"
 fi
 if [ "`echo $c | grep  mondo`" != "" ]; then
 	cd ${BASE}/svn
@@ -60,10 +75,13 @@ if [ "`echo $c | grep  mondo`" != "" ]; then
 	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mondo-${MONDO_VER}-${rev}.${suf}.${ARCH}.rpm"
 fi
 cd ${TOPDIR}/SPECS
-if [ "`echo $c | grep mindi`" != "" ]; then
+if [ "`echo $c | grep kernel`" != "" ]; then
+	rpmbuild -ba mindi-kernel.spec
+fi
+if [ "`echo $c | grep -v kernel | grep mindi`" != "" ]; then
 	rpmbuild -ba mindi.spec
 fi
 if [ "`echo $c | grep mondo`" != "" ]; then
-	rpmbuild -ba --without xmondo mondo.spec
+	rpmbuild -ba mondo.spec
 fi
 su - -c "$opt rpm -Uvh --force $pkg"

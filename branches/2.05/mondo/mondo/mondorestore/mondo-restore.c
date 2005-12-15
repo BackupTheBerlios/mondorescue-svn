@@ -399,13 +399,6 @@ extern void twenty_seconds_til_yikes(void);
 #define g_ISO_restore_mode __mondorestore_g_ISO_restore_mode
 #endif
 
-#ifndef VERSION
-#define VERSION AUX_VER
-#endif
-
-char g_version[] = VERSION;
-
-
 //static char cvsid[] = "$Id$";
 
 /**************************************************************************
@@ -3192,10 +3185,6 @@ int main(int argc, char *argv[])
 	int res;
 //  int c;
 	char *tmp;
-
-#ifndef VERSION
-#define VERSION "1.7x_cvs"
-#endif
 
 	struct mountlist_itself *mountlist;
 	struct raidlist_itself *raidlist;

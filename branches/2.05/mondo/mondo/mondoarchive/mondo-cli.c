@@ -166,14 +166,6 @@ UPDATE LOG
 #include "mondo-cli-EXT.h"
 #include "../common/libmondo.h"
 
-
-
-#ifndef VERSION
-#define VERSION AUX_VER
-#endif
-
-
-
 //static char cvsid[] = "$Id$";
 
 extern int g_loglevel;

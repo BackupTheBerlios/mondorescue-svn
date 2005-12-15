@@ -677,7 +677,7 @@ if [ -e "/dev/md0" ] && [ ! -e "/dev/md/0" ] && [ "`cat /tmp/mountlist.txt | gre
     cp -af /dev/md1 /dev/md/1 2> /dev/null
     cp -af /dev/md2 /dev/md/2 2> /dev/null
 fi
-export ARCH=`/bin/arch`
+export ARCH=`uname -m`
 WelcomeMessage
 # SpaceTests; # Mandrake Linux 8.1 doesn't like this
 [ -e "/tmp/mountlist.txt" ] && cp -f /tmp/mountlist.txt /tmp/mountlist.original

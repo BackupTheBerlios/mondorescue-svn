@@ -1083,7 +1083,7 @@ void store_nfs_config(struct s_bkpinfo *bkpinfo)
 	strcpy(nfs_client_broadcast,
 		   call_program_and_get_last_line_of_output(command));
 	sprintf(command,
-			"route -n | grep '^0.0.0.0' | awk '{printf $2}'");
+			"route -n | grep '^0.0.0.0' | awk '{print $2}'");
 	asprintf(&nfs_client_defgw,
 		   call_program_and_get_last_line_of_output(command));
 	paranoid_free(command);

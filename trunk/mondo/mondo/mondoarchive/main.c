@@ -21,14 +21,6 @@
 #include "../common/libmondo.h"
 #include "mondo-cli-EXT.h"
 
-#ifndef VERSION
-#define VERSION AUX_VER
-#endif
-
-
-char g_version[] = VERSION;
-
-
 // for CVS
 //static char cvsid[] = "$Id$";
 

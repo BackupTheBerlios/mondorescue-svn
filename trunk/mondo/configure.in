@@ -6,7 +6,10 @@ dnl Process this file with autoconf >=2.53 to produce a configure script.
 dnl
 dnl $Id$
 dnl
-AC_INIT([Mondo Rescue],[2.05_berlios],[mondo-devel@lists.sourceforge.net])
+define(MONDO_VER,2.05)
+define(MONDO_REV,m4_normalize(esyscmd(echo '$Rev$' | awk '{print r$2}')))
+define(MONDO_TAG,MONDO_VER-MONDO_REV)
+AC_INIT([Mondo Rescue],MONDO_TAG,[mondo-devel@lists.sourceforge.net])
 AC_CONFIG_SRCDIR([mondo/mondoarchive/main.c])
 AM_CONFIG_HEADER(config.h)
 
@@ -14,7 +17,7 @@ AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 AC_ARG_PROGRAM
 
-AM_INIT_AUTOMAKE([mondo], [2.05_berlios])
+AM_INIT_AUTOMAKE([mondo], MONDO_VER)
 AM_MAINTAINER_MODE
 
 AM_PROG_LIBTOOL

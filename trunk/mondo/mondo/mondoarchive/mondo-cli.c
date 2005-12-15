@@ -14,11 +14,6 @@
 #include <pthread.h>
 #endif
 
-#ifndef VERSION
-#define VERSION AUX_VER
-#endif
-
-
 //static char cvsid[] = "$Id$";
 
 extern int g_loglevel;

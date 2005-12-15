@@ -34,8 +34,6 @@ extern "C" {
 	extern char *g_tmpfs_mountpt;
 	extern char *g_mondo_home;
 
-	extern char g_version[];
-
 	extern void set_signals(int);
 
 /**
@@ -313,26 +311,12 @@ extern "C" {
 
 		system
 			("gzip -9c "MONDO_LOGFILE" > /tmp/MA.log.gz 2> /dev/null");
-		if (!strstr(g_version, "cvs") && !strstr(g_version, "svn")) {
-			printf("Please try the latest SVN version ");
-			printf
-				("to see if that fixes the problem.\nPlease don't bother the mailing list with");
-			printf
-				("your problem UNTIL you've tried the snapshot.\nThe snapshot contains bugfixes");
-			printf
-				("which might help you.\nGo to http://mondorescue.berlios.de");
-			printf(" for more information.\n");
-			log_msg(0,
-					"Please DON'T contact the mailing list. Try the SNAPSHOTS.");
-		} else {
-			printf
+		printf
 				("If you require technical support, please contact the mailing list.\n");
-			printf("See http://www.mondorescue.org for details.\n");
-			printf
+		printf("See http://www.mondorescue.org for details.\n");
+		printf
 				("The list's members can help you, if you attach that file to your e-mail.\n");
-		}
 		printf("Log file: %s\n", MONDO_LOGFILE);
-		//  printf("VERSION=%s\n", g_version);
 		if (does_file_exist("/tmp/MA.log.gz")) {
 			printf
 				("FYI, I have gzipped the log and saved it to /tmp/MA.log.gz\n");

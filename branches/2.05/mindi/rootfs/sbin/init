@@ -637,8 +637,12 @@ else
 				fi
 			done
 		fi
-		LogIt "Mounting NFS image $imgname-1.iso on /mnt/cdrom in loopback"
-		losetup /dev/loop7 /tmp/isodir/$imgname-1.iso
+		dirimg=`grep nfs-server-path /tmp/mondo-restore.cfg | cut -d' ' -f2-`
+		if [ "$dirimg" = "" ]; then
+			imgname="/"
+		fi
+		LogIt "Mounting NFS image $imgname-1.iso in $dirimg on /mnt/cdrom in loopback"
+		losetup /dev/loop7 /tmp/isodir/$dirimg/$imgname-1.iso
 		mount -t iso9660 /dev/loop7 /mnt/cdrom
 		# Simulate a local CD
 		echo "/mnt/cdrom" > /tmp/CDROM-LIVES-HERE

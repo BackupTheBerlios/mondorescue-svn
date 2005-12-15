@@ -43,7 +43,7 @@ my $fake = 0;
 if (defined ($ENV{ARCH})) {
 	$arch = $ENV{ARCH};
 } else {
-	$arch = `"/bin/arch"`;
+	$arch = `"uname -m"`;
 	chomp($arch);
 }
 

@@ -1,4 +1,4 @@
-docdir              = $(datadir)/doc/mondo-@PACKAGE_VERSION@
+docdir              = $(datadir)/doc/mondo-@VERSION@
 dist_doc_DATA       = aboutthisguide.html acknowledgements.html backup.html backupcommands.html \
                       backuptrying.html compare.html faq.html faqbackup.html \
                       faqbooting.html faqcompare.html faqgeneral.html faqhardwarerelated.html \

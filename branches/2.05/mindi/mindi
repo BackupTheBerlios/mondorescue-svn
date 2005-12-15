@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# $Id$
+# $Id: mindi 205 2005-12-14 16:15:57Z bcornec $
 #
 #-----------------------------------------------------------------------------
 # mindi - mini-Linux distro based on the user's filesystem & distribution
@@ -25,7 +25,7 @@ RUN_AFTER_BOOT_PHASE_COMPLETE="ide-opt"
 	# before the init script runs mondorestore, it will
 	# run this command.
 
-MINDI_VERSION=1.05
+MINDI_VERSION=1.05-$Rev$
 MINDI_PREFIX=XXX
 MINDI_CONF=YYY
 MINDI_SBIN=${MINDI_PREFIX}/sbin

@@ -2208,7 +2208,7 @@ PrepareDataDiskImages() {
 	fi
 	if [ -e "$MONDO_HOME/restore-scripts" ] ; then
 		cp -Rdf $MONDO_HOME/restore-scripts/* . 2>> $LOGFILE
-		[ "$?" -ne "0" ] && [ "`DidMondoCallMe`" ] && Die "Cannot find/install $MINDI_LIB/restore-scripts"
+		[ "$?" -ne "0" ] && [ "`DidMondoCallMe`" ] && Die "Cannot find/install $MONDO_HOME/restore-scripts"
 	fi
 	[ -d "/lib/dev-state" ] && cp --parents -pRdf /lib/dev-state .
 	cd $old_pwd

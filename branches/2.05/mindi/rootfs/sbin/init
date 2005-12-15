@@ -624,8 +624,10 @@ fi
 if [ "`grep -i 'tape ' /tmp/mondo-restore.cfg`" ] || [ "`grep -i udev /tmp/mondo-restore.cfg`" ] ; then
     HandleTape
 else
-	if [ "`cat /proc/cmdline | grep -i pxe`" ] || [ "`grep -i iso-prefix /tmp/mondo-restore.cfg`" ] ; then
-		LogIt "PXE boot found"
+	if [ -e "/sbin/start-nfs" ]; then
+		if [ "`cat /proc/cmdline | grep -i pxe`" ]; then
+			LogIt "PXE boot found"
+		fi
 		imgname=`grep iso-prefix /tmp/mondo-restore.cfg | cut -d' ' -f2-`
 		if [ "$imgname" = "" ]; then
 			imgname="mondorescue"

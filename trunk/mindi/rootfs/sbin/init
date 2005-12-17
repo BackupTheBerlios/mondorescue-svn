@@ -641,7 +641,7 @@ else
 		fi
 		dirimg=`grep nfs-server-path /tmp/mondo-restore.cfg | cut -d' ' -f2-`
 		if [ "$dirimg" = "" ]; then
-			imgname="/"
+			dirimg="/"
 		fi
 		LogIt "Mounting NFS image $imgname-1.iso in $dirimg on /mnt/cdrom in loopback"
 		losetup /dev/loop7 /tmp/isodir/$dirimg/$imgname-1.iso

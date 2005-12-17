@@ -1671,13 +1671,13 @@ MakeMessageFile() {
 	if [ "$disksize" -gt "2880" ] ; then
 	if [ "`DidMondoCallMe`" ] ; then
 		if [ "$CDRECOVERY" != "yes" ] ; then
-		        if [ -e "$MONDO_TMP/start-nfs" ] ; then
-		            echo -en "Press <enter> to continue.\n"
-		elif [ ! "$MONDO_TMP" ] ; then
-		    echo -en "FYI, this is _not_ a Mondo Rescue CD.\n"
-		        else
-		            echo -en "$BOOT_MEDIA_MESSAGE"
-		        fi
+			if [ -e "$MONDO_TMP/start-nfs" ] ; then
+				echo -en "Press <enter> to continue.\n"
+			elif [ ! "$MONDO_TMP" ] ; then
+				echo -en "FYI, this is _not_ a Mondo Rescue CD.\n"
+			else
+				echo -en "$BOOT_MEDIA_MESSAGE"
+			fi
 		fi
 	fi
 	fi

@@ -648,26 +648,27 @@ else
 		mount -t iso9660 /dev/loop7 /mnt/cdrom
 		# Simulate a local CD
 		echo "/mnt/cdrom" > /tmp/CDROM-LIVES-HERE
+        CD_MOUNTED_OK=yes
 	else
     		HandleCDROMorFloppies
 	fi
 fi
 res=$?
-echo "Please wait."
-insert-all-my-modules > /dev/null &
-sleep 7
+echo "Inserting modules ..."
+insert-all-my-modules > $LOGFILE 2> $LOGFILE
+echo "Installing additional tools ..."
 install-additional-tools
 SwapTheMountExecs
 ConfigureLoggingDaemons
-echo "Please wait."
-insert-all-my-modules &
-sleep 7
+echo "Inserting modules again ..."
+insert-all-my-modules > $LOGFILE 2> $LOGFILE
 if [ -e "/tmp/USE-DEVFS" ] ; then
     umount /mnt/cdrom 2> /dev/null
     mv /dev/cdrom /cdrom.lnk 2> /dev/null
     CD_MOUNTED_OK=""
     RunDevfsd
 fi
+echo "Starting potential Raid/LVMs ..."
 PauseForRaids
 StartRaids
 StartLvms

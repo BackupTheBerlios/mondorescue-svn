@@ -1242,14 +1242,36 @@ void store_nfs_config(struct s_bkpinfo *bkpinfo)
 	if (!(fout = fopen(outfile, "w"))) {
 		fatal_error("Cannot store NFS config");
 	}
+	fprintf(fout, "#!/bin/sh\n");
+	fprintf(fout, "# number of ping\n");
+	fprintf(fout, "ipcount=3\n");
+    fprintf(fout, "for i in `cat /proc/cmdline` ; do\n");
+    fprintf(fout, "    echo $i | grep -qi ping= && ipcount=`echo $i | cut -d= -f2`\n");
+    fprintf(fout, "done\n");
 	fprintf(fout, "ifconfig lo 127.0.0.1  # config loopback\n");
-	fprintf(fout, "ifconfig %s %s netmask %s broadcast %s	# config client\n", nfs_dev,
-			nfs_client_ipaddr, nfs_client_netmask, nfs_client_broadcast);
-	fprintf(fout, "route add default gw %s  # default route\n", nfs_client_defgw);
-	fprintf(fout, "ping -c 1 %s	# ping server\n", nfs_server_ipaddr);
+	fprintf(fout, "ipaddress=%s\n", nfs_client_ipaddr);
+	fprintf(fout, "ipnetmask=%s\n", nfs_client_netmask);
+	fprintf(fout, "ipbroadcast=%s\n", nfs_client_broadcast);
+	fprintf(fout, "ipgateway=%s\n", nfs_client_defgw);
+	fprintf(fout, "ipconf=\n");
+    fprintf(fout, "for i in `cat /proc/cmdline` ; do\n");
+    fprintf(fout, "    echo $i | grep -qi ipconf= && ipconf=`echo $i | cut -d= -f2`\n");
+    fprintf(fout, "done\n");
+    fprintf(fout, "if [ \"$ipconf\" = \"dhcp\" ]; then\n");
+    fprintf(fout, "    udhcpc -i %s\n", nfs_dev);
+    fprintf(fout, "else\n");
+    fprintf(fout, "    if [ \"$ipconf\" != \"\" ]; then\n");
+    fprintf(fout, "        ipaddress=`echo $ipconf | cut -d: -f1`\n");
+    fprintf(fout, "        ipnetmask=`echo $ipconf | cut -d: -f2`\n");
+    fprintf(fout, "        ipbroadcast=`echo $ipconf | cut -d: -f3`\n");
+    fprintf(fout, "        ipgateway=`echo $ipconf | cut -d: -f4`\n");
+    fprintf(fout, "    fi\n");
+	fprintf(fout, "    ifconfig %s $ipaddress netmask $ipnetmask broadcast $ipbroadcast\n", nfs_dev);
+	fprintf(fout, "    route add default gw $ipgateway\n");
+    fprintf(fout, "fi\n");
+	fprintf(fout, "ping -c $ipcount %s	# ping server\n", nfs_server_ipaddr);
 	fprintf(fout, "mount -t nfs -o nolock %s /tmp/isodir\n",
 			bkpinfo->nfs_mount);
-	fprintf(fout, "exit 0\n");
 	paranoid_fclose(fout);
 	chmod(outfile, 0777);
 	make_hole_for_dir("/var/cache/mondo-archive");

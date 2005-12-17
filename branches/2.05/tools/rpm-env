@@ -51,8 +51,14 @@ elif [ -e /etc/redhat-release ]; then
 		export suf="${dver}rh"
 	fi
 elif [ -e /etc/SuSE-release ]; then
-	export ddir="suse"
-	export dver=`cat /etc/SuSE-release | head -1 | awk '{print $3}'`
+	grep -q Enterprise /etc/SuSE-release
+	if [ $? -eq 0 ]; then
+		export ddir="sles"
+		export dver=`cat /etc/SuSE-release | head -1 | awk '{print $5}'`
+	else
+		export ddir="suse"
+		export dver=`cat /etc/SuSE-release | head -1 | awk '{print $3}'`
+	fi
 else
 	export dver=""
 	export ddir="generic"

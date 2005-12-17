@@ -29,6 +29,10 @@ Group:			Archiving/Backup
 Autoreqprov:	no
 %endif
 
+%if %is_suse
+%define	src		%{name}-%{version}.tgz
+Group:			Archiving/Backup
+%endif
 
 Summary:	A program which a Linux user can utilize to create a rescue/restore CD/tape
 Summary(fr):	Un programme pour les utilisateurs de Linux pour cr�r un CD/tape de sauvegarde/restauration

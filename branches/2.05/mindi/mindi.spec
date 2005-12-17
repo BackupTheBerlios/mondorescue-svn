@@ -29,6 +29,11 @@ Group:			Archiving/Backup
 Autoreqprov: no
 %endif
 
+%if %is_suse
+%define	src		%{name}-%{version}.tgz
+Group:			Archiving/Backup
+%endif
+
 Summary:	Mindi creates emergency boot disks/CDs using your kernel, tools and modules
 Name:		%name
 Version:	%version

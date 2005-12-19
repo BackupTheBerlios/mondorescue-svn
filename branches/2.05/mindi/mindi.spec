@@ -67,13 +67,11 @@ verify packages, etc.
 export DONT_RELINK=1
 
 %{__rm} -rf $RPM_BUILD_ROOT
-MINDIDIR=$RPM_BUILD_ROOT%{_libdir}/mindi
-export PREFIX=${RPM_BUILD_ROOT}
+export PREFIX=${RPM_BUILD_ROOT}%{_exec_prefix}
+export CONFDIR=${RPM_BUILD_ROOT}%{_sysconfdir}
 export RPMBUILDMINDI="true"
 
 ./install.sh
-
-%{__rm} -f $MINDIDIR/rootfs/bin/busybox-ia64 $MINDIDIR/rootfs/sbin/parted2fdisk-ia64 $MINDIDIR/rootfs/bin/busybox-i386 $MINDIDIR/rootfs/bin/busybox-i386.net
 
 %clean
 %{__rm} -rf $RPM_BUILD_ROOT
@@ -90,9 +88,6 @@ fi
 %doc CHANGES INSTALL COPYING README TODO README.ia64 README.pxe README.busybox
 %{_mandir}
 %{_libdir}/mindi
-#%attr(755,root,root) %{_libdir}/mindi/aux-tools/sbin/*
-#%attr(755,root,root) %{_libdir}/mindi/rootfs/bin/*
-#%attr(755,root,root) %{_libdir}/mindi/rootfs/sbin/*
 %attr(755,root,root) %{_sbindir}/*
 
 %changelog

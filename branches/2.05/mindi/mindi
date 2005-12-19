@@ -221,7 +221,7 @@ AddKeyboardMappingFile() {
 	local mappath r included_list included_item i res ii sss
 	mappath=$1
 	KBDEPTH=$(($KBDEPTH+1))
-	[ "$KBDEPTH" -gt "128" ] && Die "Edit $MINDI_SBIN/mindi and disable FindAndAddUserKeyboardMappingFile (line 1170, approx.)"
+	[ "$KBDEPTH" -gt "128" ] && Die "Edit $MINDI_SBIN/mindi and disable FindAndAddUserKeyboardMappingFile (line 2160, approx.)"
 	if [ -e "$bigdir/$mappath" ] ; then
 	echo "$mappath already added" >> $LOGFILE
 	return
@@ -421,7 +421,7 @@ CreateDataDiskImagesFromTarballs() {
 	echo -en "Creating data disk "
 	while [ "$diskno" -le "$noof_disks" ] ; do
 	echo -en "#$diskno..."
-	cp -f $tardir/$diskno.tar.gz $outdir || LogIt "[line 250] Cannot copy $tardir/$diskno.tar.gz to $outdir"
+	cp -f $tardir/$diskno.tar.gz $outdir || LogIt "[line 424] Cannot copy $tardir/$diskno.tar.gz to $outdir"
 		CreateOneDataDiskImage $tardir/$diskno.tar.gz $outdir/mindi-data-$diskno.img $diskno $noof_disks
 		diskno=$(($diskno+1))
 	done
@@ -3257,7 +3257,7 @@ else
 fi
 if [ "$imagesdir" != "/root/images/mindi" ] ; then
 	for i in `find $imagesdir -maxdepth 1 -name "*.iso" -o -name "*.img"` ; do
-	cp -f $i /root/images/mindi || LogIt "[line 1613] Cannot copy $i to /root/images/mindi"
+	cp -f $i /root/images/mindi || LogIt "[line 3260] Cannot copy $i to /root/images/mindi"
 	done
 fi
 [ "$TMP_ROOT" != "/tmp" ] && rm -Rf $TMP_ROOT

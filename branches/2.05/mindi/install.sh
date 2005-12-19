@@ -6,11 +6,11 @@ if [ ! -f "mindi" ] ; then
 fi
 
 if [ "_$PREFIX" != "_" ]; then
-	local=$PREFIX/usr
+	local=$PREFIX
 	if [ -f /usr/local/sbin/mindi ]; then
 		echo "WARNING: /usr/local/sbin/mindi exists. You should probably remove it !"
 	fi
-	conf=$PREFIX/etc/mindi
+	conf=$CONFDIR/mindi
 	echo $PATH | grep /usr/sbin > /dev/null || echo "Warning - your PATH environmental variable is BROKEN. Please add /usr/sbin to your PATH."
 else
 	local=/usr/local
@@ -19,7 +19,6 @@ else
 	fi
 	conf=$local/etc/mindi
 	echo $PATH | grep $local/sbin > /dev/null || echo "Warning - your PATH environmental variable is BROKEN. Please add $local/sbin to your PATH."
-
 fi
 
 if uname -a | grep Knoppix > /dev/null || [ -e "/ramdisk/usr" ] ; then
@@ -30,68 +29,72 @@ fi
 echo "mindi will be installed under $local"
 
 echo "Creating target directories ..."
-mkdir -p $local/lib/mindi
-mkdir -p $local/share/man/man8
-mkdir -p $local/sbin
-mkdir -p $conf
+install -g root -o root -m 755 -d $conf $local/lib/mindi $local/share/man/man8 $local/sbin $local/doc/mindi
 
 echo "Copying files ..."
-cp -a deplist.txt $conf
-cp -af rootfs aux-tools isolinux.cfg msg-txt sys-disk.raw.gz isolinux-H.cfg parted2fdisk.pl syslinux.cfg syslinux-H.cfg dev.tgz Mindi $local/lib/mindi
+install -g root -o root -m 644 isolinux.cfg msg-txt sys-disk.raw.gz isolinux-H.cfg syslinux.cfg syslinux-H.cfg dev.tgz $local/lib/mindi
+install -g root -o root -m 644 deplist.txt $conf
+
+cp -a rootfs aux-tools Mindi $local/lib/mindi
 chmod 755 $local/lib/mindi/rootfs/bin/*
 chmod 755 $local/lib/mindi/rootfs/sbin/*
 chmod 755 $local/lib/mindi/aux-tools/sbin/*
+chown -R root:root $local/lib/mindi
 
-cp -af analyze-my-lvm parted2fdisk.pl $local/sbin
 if [ "$RPMBUILDMINDI" = "true" ]; then
 	sed -e "s~^MINDI_PREFIX=XXX~MINDI_PREFIX=/usr~" -e "s~^MINDI_CONF=YYY~MINDI_CONF=/etc/mindi~" mindi > $local/sbin/mindi
 else
 	sed -e "s~^MINDI_PREFIX=XXX~MINDI_PREFIX=$local~" -e "s~^MINDI_CONF=YYY~MINDI_CONF=$conf~" mindi > $local/sbin/mindi
 fi
 chmod 755 $local/sbin/mindi
-chmod 755 $local/sbin/analyze-my-lvm
-chmod 755 $local/sbin/parted2fdisk.pl
+chown root:root $local/sbin/mindi
+install -g root -o root -m 755 analyze-my-lvm parted2fdisk.pl $local/sbin
 
-cp -a mindi.8 $local/share/man/man8
-cp -a CHANGES COPYING README README.busybox README.ia64 README.pxe TODO INSTALL $local/lib/mindi
-
-echo "Extracting symlinks ..."
-( cd $local/lib/mindi/rootfs && tar -xzf symlinks.tgz )
+install -g root -o root -m 644 mindi.8 $local/share/man/man8
+install -g root -o root -m 644 CHANGES COPYING README README.busybox README.ia64 README.pxe TODO INSTALL $local/doc/mindi
 
 ARCH=`/bin/arch`
 echo $ARCH | grep -x "i[0-9]86" &> /dev/null && ARCH=i386
+# For the moment, we don't build specific x86_64 busybox binaries
+echo $ARCH | grep -x "x86_64" &> /dev/null && ARCH=i386
 export ARCH
 
+# Managing busybox
 if [ -f $local/lib/mindi/rootfs/bin/busybox-$ARCH ]; then
 		echo "Installing busybox ..."
-		mv $local/lib/mindi/rootfs/bin/busybox-$ARCH $local/lib/mindi/rootfs/bin/busybox
+		install -s -g root -o root -m 755 $local/lib/mindi/rootfs/bin/busybox-$ARCH $local/lib/mindi/rootfs/bin/busybox
 else
 		echo "WARNING: no busybox found, mindi will not work on this arch ($ARCH)"
 fi
-
 if [ "$ARCH" = "i386" ] ; then
-	# FHS requires fdisk under /sbin
-	(cd $local/sbin && ln -s /sbin/fdisk parted2fdisk)
 	if [ -f $local/lib/mindi/rootfs/bin/busybox-$ARCH.net ]; then
 		echo "Installing busybox.net ..."
-		mv $local/lib/mindi/rootfs/bin/busybox-$ARCH.net $local/lib/mindi/rootfs/bin/busybox.net
+		install -s -g root -o root -m 755 $local/lib/mindi/rootfs/bin/busybox-$ARCH.net $local/lib/mindi/rootfs/bin/busybox.net
 	else
 		echo "WARNING: no busybox.net found, mindi will not work on this arch ($ARCH) with network"
 	fi
 fi
+# Remove left busybox
+rm -f $local/lib/mindi/rootfs/bin/busybox-*
 
+# Managing parted2fdisk
 if [ "$ARCH" = "ia64" ] ; then
-	(cd $local/sbin && ln -s parted2fdisk.pl parted2fdisk)
+	(cd $local/sbin && ln -sf parted2fdisk.pl parted2fdisk)
 	make -f Makefile.parted2fdisk DEST=$local/lib/mindi install
 	if [ -f $local/lib/mindi/rootfs/sbin/parted2fdisk-$ARCH ]; then
 		echo "Installing parted2fdisk ..."
-		mv $local/lib/mindi/rootfs/sbin/parted2fdisk-$ARCH $local/lib/mindi/rootfs/sbin/parted2fdisk
+		install -s -g root -o root -m 755 $local/lib/mindi/rootfs/sbin/parted2fdisk-$ARCH $local/lib/mindi/rootfs/sbin/parted2fdisk
+		install -s -g root -o root -m 755 $local/lib/mindi/rootfs/sbin/parted2fdisk-$ARCH $local/sbin/parted2fdisk
 	else
 		echo "WARNING: no parted2fdisk found, mindi will not work on this arch ($ARCH)"
 	fi
 else
+	# FHS requires fdisk under /sbin
+	(cd $local/sbin && ln -sf /sbin/fdisk parted2fdisk)
 	echo "Symlinking fdisk to parted2fdisk"
 	( cd $local/lib/mindi/rootfs/sbin && ln -sf fdisk parted2fdisk)
 fi
+# Remove left parted2fdisk
+rm -f $local/lib/mindi/rootfs/sbin/parted2fdisk-*
 
 exit 0

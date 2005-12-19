@@ -17,4 +17,4 @@ clean:
 	rm -f $(PRG) $(PRG).c
 
 install: $(PRG)
-	cp -a $(PRG) $(DEST)$(SUB)/$(PRG)-$(ARCH)
+	cp -a $(PRG) $(DEST)/$(SUB)/$(PRG)-$(ARCH)

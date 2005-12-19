@@ -1713,7 +1713,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 			run_program_and_log_output(command, 5);
 			paranoid_free(command);
 
-			asprintf(&tmp, "mount %s -t nfs %s", bkpinfo->nfs_mount,
+			asprintf(&tmp, "mount -t nfs -o nolock %s %s", bkpinfo->nfs_mount,
 					bkpinfo->isodir);
 			run_program_and_log_output(tmp, 5);
 			paranoid_free(tmp);

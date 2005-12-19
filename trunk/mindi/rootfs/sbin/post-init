@@ -1,50 +1,7 @@
 #!/bin/sh
 #
+# $Id$
 #
-# 07/14/04
-# - if interactive then not expert :)
-#
-# 06/12/04
-# - tell user to call mondorestore --mbr after nuking
-#
-# 08/02/03
-# - don't call multifunc cd, even if it is one
-#
-# 05/30/03
-# - added hooks for multi-function CD
-#
-# 05/04/03
-# - better handling of mondorestore softlinks
-# - no more 'mondo-restore' --- it's 'mondorestore'
-#
-# 03/26/03
-# - report if mount-me, unmount-me, mondorestore missing
-# - call mondorestore instead of mondo-restore
-#
-# 07/15/02
-# - copy mountlist.txt to logfile at start
-#
-# 07/11/02
-# - exit w/o calling mondorestore, if non-mondo CD/floppy
-#
-# 06/28/02
-# - RESTORE == nuke_mode
-#
-# 06/24/02
-# - disabled isonuke
-#
-# 06/13/02
-# - added isonuke
-#
-# 02/03/02
-# - softlink mondo-restore -> mondorestore if mondorestore exists but m-r not
-#
-# 12/10/01
-# - removed the 'clear' from the start of the script
-#
-# 12/09/01
-# - broke up spaghetti code; made lots of subroutines
-# - moved some subroutines to /sbin/init, where they belong
 #------------------------------------------------------------
 
 
@@ -104,7 +61,7 @@ cat /tmp/mountlist.txt >> /tmp/mondo-restore.log
 iso=`cat /proc/cmdline | grep "iso"`
 nuke=`cat /proc/cmdline | grep "nuke"`
 if [ "$nuke" = "" ] ; then
-    nuke=`cat /proc/cmdline | grep "RESTORE "`
+    nuke=`cat /proc/cmdline | grep -i "RESTORE "`
 fi
 expert=`cat /proc/cmdline | grep "expert"`
 compare=`cat /proc/cmdline | grep "compare"`
@@ -147,14 +104,6 @@ for i in mount-me unmount-me mondorestore ; do
     fi
 done
 
-#if [ "$iso" ] && [ "$nuke" ] ; then
-#    LogIt "------------------ISONUKE MODE-----------------" 1
-#    mondorestore --isonuke
-#el
-#if [ "$iso" ] ; then
-#    LogIt "--------------------ISO MODE-------------------" 1
-#    mondorestore --iso
-#el
 if [ "$compare" ] ; then
     LogIt "------------------COMPARE MODE-----------------" 1
     mondorestore --compare

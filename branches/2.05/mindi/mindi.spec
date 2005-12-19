@@ -8,7 +8,7 @@
 %define is_redhat %(test -e /etc/redhat-release && echo 1 || echo 0)
 
 %define name	mindi
-%define version	1.05
+%define version	VVV
 %define mrel	1
 
 %if %is_redhat

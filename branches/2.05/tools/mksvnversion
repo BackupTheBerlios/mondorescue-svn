@@ -19,11 +19,14 @@ fi
 # the right build version from SVN
 #
 rel=`svnversion $TOOLHOME/..`
-cat > $TOOLHOME/../mondo/svn_version.c << EOF
-const char* svn_version(void) {
-	const char* SVN_Version = "${rel}"; 
-	return SVN_Version; 
-}"
+cat > $TOOLHOME/../mondo/revision.h << EOF
+#define REVISION "${rel}" 
+EOF
+cat > $TOOLHOME/../mondo/REVISION << EOF
+${rel}
+EOF
+cat > $TOOLHOME/../mindi/REVISION << EOF
+${rel}
 EOF
 
 #

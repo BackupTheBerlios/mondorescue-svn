@@ -139,8 +139,6 @@
 - stuff
 */
 
-#define AUX_VER "2.05"
-
 #define HAVE_MALLOC 1
 
 

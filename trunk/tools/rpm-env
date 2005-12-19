@@ -29,8 +29,8 @@ fi
 cd ${TOPDIR}
 mkdir -p RPMS SRPMS SPECS SOURCES BUILD
 
-export MINDI_VER=`cat ${BASE}/svn/${VER}/mindi/mindi.spec | egrep '^%define version' | awk '{print $3}' | sed "s/[ 	]*//"`
-export MONDO_VER=`cat ${BASE}/svn/${VER}/mondo/mondo.spec | egrep '^%define version' | awk '{print $3}' | sed "s/[ 	]*//"`
+export MINDI_VER=`cat ${BASE}/svn/${VER}/mindi/VERSION`
+export MONDO_VER=`cat ${BASE}/svn/${VER}/mondo/VERSION`
 
 if [ -e /etc/mandriva-release ]; then
 	export ddir="mandriva"

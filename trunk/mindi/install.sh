@@ -26,20 +26,20 @@ if uname -a | grep Knoppix > /dev/null || [ -e "/ramdisk/usr" ] ; then
     export PATH=/ramdisk/usr/sbin:/ramdisk/usr/bin:/$PATH
 fi
 
-echo "mindi will be installed under $local"
+MINDIVER=`cat VERSION`
+echo "mindi $MINDIVER will be installed under $local"
 
 echo "Creating target directories ..."
-install -g root -o root -m 755 -d $conf $local/lib/mindi $local/share/man/man8 $local/sbin $local/doc/mindi
+install -m 755 -d $conf $local/lib/mindi $local/share/man/man8 $local/sbin $local/share/doc/mindi-$MINDIVER
 
 echo "Copying files ..."
-install -g root -o root -m 644 isolinux.cfg msg-txt sys-disk.raw.gz isolinux-H.cfg syslinux.cfg syslinux-H.cfg dev.tgz $local/lib/mindi
-install -g root -o root -m 644 deplist.txt $conf
+install -m 644 isolinux.cfg msg-txt sys-disk.raw.gz isolinux-H.cfg syslinux.cfg syslinux-H.cfg dev.tgz $local/lib/mindi
+install -m 644 deplist.txt $conf
 
 cp -af rootfs aux-tools Mindi $local/lib/mindi
 chmod 755 $local/lib/mindi/rootfs/bin/*
 chmod 755 $local/lib/mindi/rootfs/sbin/*
 chmod 755 $local/lib/mindi/aux-tools/sbin/*
-chown -R root:root $local/lib/mindi
 
 if [ "$RPMBUILDMINDI" = "true" ]; then
 	sed -e "s~^MINDI_PREFIX=XXX~MINDI_PREFIX=/usr~" -e "s~^MINDI_CONF=YYY~MINDI_CONF=/etc/mindi~" mindi > $local/sbin/mindi
@@ -47,11 +47,10 @@ else
 	sed -e "s~^MINDI_PREFIX=XXX~MINDI_PREFIX=$local~" -e "s~^MINDI_CONF=YYY~MINDI_CONF=$conf~" mindi > $local/sbin/mindi
 fi
 chmod 755 $local/sbin/mindi
-chown root:root $local/sbin/mindi
-install -g root -o root -m 755 analyze-my-lvm parted2fdisk.pl $local/sbin
+install -m 755 analyze-my-lvm parted2fdisk.pl $local/sbin
 
-install -g root -o root -m 644 mindi.8 $local/share/man/man8
-install -g root -o root -m 644 CHANGES COPYING README README.busybox README.ia64 README.pxe TODO INSTALL $local/doc/mindi
+install -m 644 mindi.8 $local/share/man/man8
+install -m 644 CHANGES COPYING README README.busybox README.ia64 README.pxe TODO INSTALL $local/share/doc/mindi-$MINDIVER
 
 ARCH=`/bin/arch`
 echo $ARCH | grep -x "i[0-9]86" &> /dev/null && ARCH=i386
@@ -62,14 +61,14 @@ export ARCH
 # Managing busybox
 if [ -f $local/lib/mindi/rootfs/bin/busybox-$ARCH ]; then
 		echo "Installing busybox ..."
-		install -s -g root -o root -m 755 $local/lib/mindi/rootfs/bin/busybox-$ARCH $local/lib/mindi/rootfs/bin/busybox
+		install -s -m 755 $local/lib/mindi/rootfs/bin/busybox-$ARCH $local/lib/mindi/rootfs/bin/busybox
 else
 		echo "WARNING: no busybox found, mindi will not work on this arch ($ARCH)"
 fi
 if [ "$ARCH" = "i386" ] ; then
 	if [ -f $local/lib/mindi/rootfs/bin/busybox-$ARCH.net ]; then
 		echo "Installing busybox.net ..."
-		install -s -g root -o root -m 755 $local/lib/mindi/rootfs/bin/busybox-$ARCH.net $local/lib/mindi/rootfs/bin/busybox.net
+		install -s -m 755 $local/lib/mindi/rootfs/bin/busybox-$ARCH.net $local/lib/mindi/rootfs/bin/busybox.net
 	else
 		echo "WARNING: no busybox.net found, mindi will not work on this arch ($ARCH) with network"
 	fi
@@ -83,8 +82,8 @@ if [ "$ARCH" = "ia64" ] ; then
 	make -f Makefile.parted2fdisk DEST=$local/lib/mindi install
 	if [ -f $local/lib/mindi/rootfs/sbin/parted2fdisk-$ARCH ]; then
 		echo "Installing parted2fdisk ..."
-		install -s -g root -o root -m 755 $local/lib/mindi/rootfs/sbin/parted2fdisk-$ARCH $local/lib/mindi/rootfs/sbin/parted2fdisk
-		install -s -g root -o root -m 755 $local/lib/mindi/rootfs/sbin/parted2fdisk-$ARCH $local/sbin/parted2fdisk
+		install -s -m 755 $local/lib/mindi/rootfs/sbin/parted2fdisk-$ARCH $local/lib/mindi/rootfs/sbin/parted2fdisk
+		install -s -m 755 $local/lib/mindi/rootfs/sbin/parted2fdisk-$ARCH $local/sbin/parted2fdisk
 	else
 		echo "WARNING: no parted2fdisk found, mindi will not work on this arch ($ARCH)"
 	fi
@@ -96,5 +95,13 @@ else
 fi
 # Remove left parted2fdisk
 rm -f $local/lib/mindi/rootfs/sbin/parted2fdisk-*
+
+if [ "$RPMBUILDMINDI" != "true" ]; then
+	chown -R root:root $local/lib/mindi $conf/mindi $conf $local/share/doc/mindi-$MINDIVER
+	chown root:root $local/sbin/mindi $local/share/man/man8/mindi.8 $local/sbin/analyze-my-lvm $local/sbin/parted2fdisk.pl 
+	if [ "$ARCH" = "ia64" ] ; then
+		chown root:root $local/sbin/parted2fdisk
+	fi
+fi
 
 exit 0

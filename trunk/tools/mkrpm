@@ -50,7 +50,7 @@ if [ "`echo $c | grep -v kernel | grep mindi`" != "" ]; then
 	mkdir -p ${TOPDIR}/SOURCES 
 	tar cvfhz ${TOPDIR}/SOURCES/mindi-${MINDI_VER}.tgz mindi-${MINDI_VER}
 	tar cvfhj ${TOPDIR}/SOURCES/mindi-${MINDI_VER}.tar.bz2 mindi-${MINDI_VER}
-	sed "s/^%define mrel..*/%define mrel	${rev}.${suf}/" mindi-${MINDI_VER}/mindi.spec > ${TOPDIR}/SPECS/mindi.spec
+	sed -e "s/^%define mrel..*/%define mrel	${rev}.${suf}/" -e "s/VVV/${MINDI_VER}/" mindi-${MINDI_VER}/mindi.spec > ${TOPDIR}/SPECS/mindi.spec
 	rm -f ${TMP}/mindi-*-root
 	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mindi-${MINDI_VER}-${rev}.${suf}.${ARCH}.rpm"
 	# ATTENTION: This could be dangerous for your setup
@@ -70,7 +70,7 @@ if [ "`echo $c | grep  mondo`" != "" ]; then
 	cd ..
 	tar cvfhz ${TOPDIR}/SOURCES/mondo-${MONDO_VER}.tgz mondo-${MONDO_VER}
 	tar cvfhj ${TOPDIR}/SOURCES/mondo-${MONDO_VER}.tar.bz2 mondo-${MONDO_VER}
-	sed "s/^%define mrel..*/%define mrel	${rev}.${suf}/" mondo-${MONDO_VER}/mondo.spec > ${TOPDIR}/SPECS/mondo.spec
+	sed -e "s/^%define mrel..*/%define mrel	${rev}.${suf}/" -e "s/VVV/${MONDO_VER}/" mondo-${MONDO_VER}/mondo.spec > ${TOPDIR}/SPECS/mondo.spec
 	rm -f ${TMP}/mondo-*-root
 	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mondo-${MONDO_VER}-${rev}.${suf}.${ARCH}.rpm"
 fi

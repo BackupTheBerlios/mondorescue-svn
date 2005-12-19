@@ -8,7 +8,7 @@
 %define is_redhat %(test -e /etc/redhat-release && echo 1 || echo 0)
 
 %define name	mondo
-%define version	2.04_berlios
+%define version	VVV
 %define mrel	1
 
 %if %is_redhat

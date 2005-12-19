@@ -1,6 +1,5 @@
 /* $Id$ */
 
-#define AUX_VER "2.11"
 #define HAVE_MALLOC 1
 
 // Extra info for ACLs and SELINUX users

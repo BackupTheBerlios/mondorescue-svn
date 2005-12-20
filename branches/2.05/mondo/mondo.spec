@@ -10,9 +10,10 @@
 %define name	mondo
 %define version	VVV
 %define mrel	1
+%define docname		%{name}-%{version}
+%define	src		%{name}-%{version}.tgz
 
 %if %is_redhat
-%define src		%{name}-%{version}.tgz
 Group:			Applications/Archiving
 Autoreq:		0
 %endif
@@ -30,8 +31,8 @@ Autoreqprov:	no
 %endif
 
 %if %is_suse
-%define	src		%{name}-%{version}.tgz
 Group:			Archiving/Backup
+%define docname		%{name}
 %endif
 
 Summary:	A program which a Linux user can utilize to create a rescue/restore CD/tape
@@ -109,6 +110,9 @@ con cintas y NFS, tambien.
 %install
 %{__rm} -rf $RPM_BUILD_ROOT
 %makeinstall
+%if %is_suse
+%{__rm} -rf $RPM_BUILD_ROOT/%{_datadir}/doc/%name-%{version}
+%endif
 
 %post
 /sbin/ldconfig

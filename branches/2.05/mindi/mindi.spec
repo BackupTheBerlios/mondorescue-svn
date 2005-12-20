@@ -10,9 +10,10 @@
 %define name	mindi
 %define version	VVV
 %define mrel	1
+%define docname		%{name}-%{version}
+%define	src		%{name}-%{version}.tgz
 
 %if %is_redhat
-%define	src		%{name}-%{version}.tgz
 Group:			Applications/Archiving
 Autoreq:	0
 %endif
@@ -30,8 +31,8 @@ Autoreqprov: no
 %endif
 
 %if %is_suse
-%define	src		%{name}-%{version}.tgz
 Group:			Archiving/Backup
+%define docname		%{name}
 %endif
 
 Summary:	Mindi creates emergency boot disks/CDs using your kernel, tools and modules
@@ -70,6 +71,7 @@ export DONT_RELINK=1
 export PREFIX=${RPM_BUILD_ROOT}%{_exec_prefix}
 export CONFDIR=${RPM_BUILD_ROOT}%{_sysconfdir}
 export RPMBUILDMINDI="true"
+export DOCDIR=${RPM_BUILD_ROOT}${RPM_DOC_DIR}/%{docname}
 
 ./install.sh
 

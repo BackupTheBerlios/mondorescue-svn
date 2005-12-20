@@ -29,7 +29,6 @@ fi
 MINDIVER=`cat VERSION`
 echo "mindi $MINDIVER will be installed under $local"
 
-# sles9 needs that
 if [ "_$DOCDIR" = "_" ]; then
 	DOCDIR=$local/share/doc/mindi-$MINDIVER
 fi

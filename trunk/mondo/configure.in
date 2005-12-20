@@ -125,4 +125,4 @@ AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([bzero getcwd memmove memset mkdir mkfifo setenv strcasecmp strchr strerror strrchr strstr getline asprintf trunc vasprintf])
 
-AC_OUTPUT([Makefile mondo/Makefile mondo/common/Makefile mondo/mondoarchive/Makefile mondo/mondorestore/Makefile mondo/docs/Makefile mondo/docs/en/Makefile mondo/docs/en/1.6x-howto/Makefile mondo/restore-scripts/Makefile mondo/restore-scripts/mondo/Makefile mondo/restore-scripts/usr/Makefile mondo/restore-scripts/usr/bin/Makefile])
+AC_OUTPUT([Makefile mondo/Makefile mondo/common/Makefile mondo/mondoarchive/Makefile mondo/mondorestore/Makefile mondo/docs/Makefile mondo/docs/en/Makefile mondo/docs/en/1.6x-howto/Makefile mondo/restore-scripts/Makefile mondo/restore-scripts/mondo/Makefile mondo/restore-scripts/usr/Makefile mondo/restore-scripts/usr/bin/Makefile mondo/xmondo/Makefile mondo/post-nuke.sample/Makefile mondo/post-nuke.sample/usr/Makefile mondo/post-nuke.sample/usr/bin/Makefile])

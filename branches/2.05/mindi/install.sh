@@ -27,7 +27,8 @@ if uname -a | grep Knoppix > /dev/null || [ -e "/ramdisk/usr" ] ; then
 fi
 
 MINDIVER=`cat VERSION`
-echo "mindi $MINDIVER will be installed under $local"
+MINDIREV=`cat REVISION`
+echo "mindi ${MINDIVER}-r${MINDIREV} will be installed under $local"
 
 if [ "_$DOCDIR" = "_" ]; then
 	DOCDIR=$local/share/doc/mindi-$MINDIVER
@@ -46,9 +47,9 @@ chmod 755 $local/lib/mindi/rootfs/sbin/*
 chmod 755 $local/lib/mindi/aux-tools/sbin/*
 
 if [ "$RPMBUILDMINDI" = "true" ]; then
-	sed -e "s~^MINDI_PREFIX=XXX~MINDI_PREFIX=/usr~" -e "s~^MINDI_CONF=YYY~MINDI_CONF=/etc/mindi~" mindi > $local/sbin/mindi
+	sed -e "s~^MINDI_PREFIX=XXX~MINDI_PREFIX=/usr~" -e "s~^MINDI_CONF=YYY~MINDI_CONF=/etc/mindi~" -e "s~^MINDI_VER=VVV~MINDI_VER=$MINDIVER~" -e "s~^MINDI_REV=RRR~MINDI_REV=$MINDIREV~" mindi > $local/sbin/mindi
 else
-	sed -e "s~^MINDI_PREFIX=XXX~MINDI_PREFIX=$local~" -e "s~^MINDI_CONF=YYY~MINDI_CONF=$conf~" mindi > $local/sbin/mindi
+	sed -e "s~^MINDI_PREFIX=XXX~MINDI_PREFIX=$local~" -e "s~^MINDI_CONF=YYY~MINDI_CONF=$conf~" -e "s~^MINDI_VER=VVV~MINDI_VER=$MINDIVER~" -e "s~^MINDI_REV=RRR~MINDI_REV=$MINDIREV~" mindi > $local/sbin/mindi
 fi
 chmod 755 $local/sbin/mindi
 install -m 755 analyze-my-lvm parted2fdisk.pl $local/sbin

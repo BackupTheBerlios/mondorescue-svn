@@ -50,7 +50,7 @@ BuildRequires:	newt-devel >= 0.50, slang-devel >= 1.4.1, gcc
 %ifarch ia64
 Requires:	mindi >= 1.05, bzip2 >= 0.9, afio, mkisofs, binutils, elilo, newt >= 0.50, slang >= 1.4.1, buffer, parted
 %else
-Requires:	mindi >= 1.05, bzip2 >= 0.9, afio, mkisofs, binutils, syslinux >= 1.52, newt >= 0.50, slang >= 1.4.1, cdrecord, buffer
+Requires:	mindi >= 1.05, bzip2 >= 0.9, afio, mkisofs, binutils, syslinux >= 1.52, newt >= 0.50, slang >= 1.4.1, buffer
 %endif
 
 #%package %{name}-devel

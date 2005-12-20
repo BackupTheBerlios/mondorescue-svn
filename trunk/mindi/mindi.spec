@@ -10,9 +10,10 @@
 %define name	mindi
 %define version	VVV
 %define mrel	1
+%define docname		%{name}-%{version}
+%define	src		%{name}-%{version}.tgz
 
 %if %is_redhat
-%define	src		%{name}-%{version}.tgz
 Group:			Applications/Archiving
 Autoreq:	0
 %endif
@@ -30,8 +31,8 @@ Autoreqprov: no
 %endif
 
 %if %is_suse
-%define	src		%{name}-%{version}.tgz
 Group:			Archiving/Backup
+%define docname		%{name}
 %endif
 
 Summary:	Mindi creates emergency boot disks/CDs using your kernel, tools and modules
@@ -70,6 +71,7 @@ export DONT_RELINK=1
 export PREFIX=${RPM_BUILD_ROOT}%{_exec_prefix}
 export CONFDIR=${RPM_BUILD_ROOT}%{_sysconfdir}
 export RPMBUILDMINDI="true"
+export DOCDIR=${RPM_BUILD_ROOT}${RPM_DOC_DIR}/%{docname}
 
 ./install.sh
 
@@ -77,7 +79,11 @@ export RPMBUILDMINDI="true"
 %{__rm} -rf $RPM_BUILD_ROOT
 
 %post
-%{__chmod} 755 %{_libdir}/mindi/aux-tools/sbin/* %{_libdir}/mindi/rootfs/bin/* %{_libdir}/mindi/rootfs/sbin/*
+for i in %{_libdir}/mindi/aux-tools/sbin/* %{_libdir}/mindi/rootfs/bin/* %{_libdir}/mindi/rootfs/sbin/* ; do
+	if [ ! -h $i ]; then
+		%{__chmod} 755 $i
+	fi
+done
 if [ -f /usr/local/sbin/mindi ]; then
 	echo "WARNING: /usr/local/sbin/mindi exists. You should probably remove your manual mindi installation !"
 fi

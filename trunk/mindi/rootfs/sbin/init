@@ -255,12 +255,12 @@ UntarTapeStuff() {
     old_pwd=`pwd`
     cd $GROOVY
     [ "$1" != "" ] && tapedev=$1
-    [ ! "$tapedev" ] && tapedev=`cat /tmp/mondo-restore.cfg | grep media-dev | tr -s ' ' ' ' | cut -d' ' -f2`
+    [ ! "$tapedev" ] && tapedev=`grep media-dev /tmp/mondo-restore.cfg | tr -s ' ' ' ' | cut -d' ' -f2`
 #    tar -zxf $tapedev
     dd if=$tapedev bs=32k count=1024 | tar -zx
     res=$?
     if [ "$res" -eq "0" ] ; then
-	cat /tmp/mondo-restore.cfg | grep -v media-dev > /tmp/mr.cfg
+	grep -v media-dev /tmp/mondo-restore.cfg > /tmp/mr.cfg
 	echo "media-dev $tapedev" >> /tmp/mr.cfg
         cp -f /tmp/mr.cfg /tmp/mondo-restore.cfg
     fi
@@ -441,7 +441,7 @@ StartLvms() {
 	else
 	    vgscan
 	fi
-        cat /tmp/i-want-my-lvm | grep -E "^#.*vgchange" | sed s/#// > /tmp/start-lvm
+        grep -E "^#.*vgchange" /tmp/i-want-my-lvm | sed s/#// > /tmp/start-lvm
         chmod +x /tmp/start-lvm
         echo -en "Starting LVM's..."
         /tmp/start-lvm &
@@ -475,9 +475,9 @@ StartNfs() {
 
 StartRaids() {
     local raid_devices i
-    raid_devices=`cat /tmp/mountlist.txt | grep /dev/md | cut -d' ' -f1`
+    raid_devices=`grep /dev/md /tmp/mountlist.txt | cut -d' ' -f1`
     for i in $raid_devices ; do
-        if cat /proc/mdstat | grep `basename $i` > /dev/null 2> /dev/null ; then
+        if grep `basename $i` /proc/mdstat > /dev/null 2> /dev/null ; then
             LogIt "$i is started already; no need to run 'raidstart $i'" 1
         else
 	    LogIt "Running 'raidstart $i'" 1
@@ -502,7 +502,7 @@ SwapTheMountExecs() {
 TryAgainToFindCD() {
     local res
     mount | grep /mnt/cdrom && return 0
-    [ "`cat /tmp/mondo-restore.cfg | grep "backup_media_type" | grep "cdstream"`" ] && return
+    [ "`grep "backup_media_type" /tmp/mondo-restore.cfg | grep "cdstream"`" ] && return
     LogIt "Trying to mount CD-ROM a 2nd time..."
     find-and-mount-cdrom --second-try
     res=$?
@@ -625,14 +625,14 @@ if [ "`grep -i 'tape ' /tmp/mondo-restore.cfg`" ] || [ "`grep -i udev /tmp/mondo
     HandleTape
 else
 	if [ -e "/sbin/start-nfs" ]; then
-		if [ "`cat /proc/cmdline | grep -i pxe`" ]; then
+		if [ "`grep -i pxe /proc/cmdline`" ]; then
 			LogIt "PXE boot found"
 		fi
 		imgname=`grep iso-prefix /tmp/mondo-restore.cfg | cut -d' ' -f2-`
 		if [ "$imgname" = "" ]; then
 			imgname="mondorescue"
 		fi
-		if [ "`cat /proc/cmdline | grep -i prefix`" ] ; then
+		if [ "`grep -i prefix /proc/cmdline`" ] ; then
 			for i in `cat /proc/cmdline` ; do
 				if [ "`echo $i | grep -i prefix`" ] ; then
 					imgname=`echo $i | cut -d'=' -f2`
@@ -677,7 +677,7 @@ LoadKeymap
 mkdir -p /tmp/tmpfs
 sleep 2
 #clear
-if [ -e "/dev/md0" ] && [ ! -e "/dev/md/0" ] && [ "`cat /tmp/mountlist.txt | grep /dev/md/`" != "" ] ; then
+if [ -e "/dev/md0" ] && [ ! -e "/dev/md/0" ] && [ "`grep /dev/md/ /tmp/mountlist.txt`" != "" ] ; then
     LogIt "Creating /dev/md/* softlinks just in case." 1
     mkdir -p /dev/md
     cp -af /dev/md0 /dev/md/0 2> /dev/null
@@ -689,7 +689,7 @@ WelcomeMessage
 # SpaceTests; # Mandrake Linux 8.1 doesn't like this
 [ -e "/tmp/mountlist.txt" ] && cp -f /tmp/mountlist.txt /tmp/mountlist.original
 
-if ! [ "`cat /proc/cmdline | grep -i "pxe"`" ] ; then
+if ! [ "`grep -i "pxe" /proc/cmdline`" ] ; then
 	res="`cat /mnt/cdrom/archives/THIS-CD-NUMBER 2> /dev/null`"
 	[ "$res" != "1" ] && [ "$res" != "" ] && Die "This is CD #$res in the series. Please insert CD #1."
 	[ -e "/cdrom.lnk" ] && mv -f /cdrom.lnk /dev/cdrom && mount /dev/cdrom /mnt/cdrom && CD_MOUNTED_OK=yes
@@ -704,7 +704,7 @@ openvt 8 /usr/bin/tail -f /tmp/mondo-restore.log
 #-------------------------------
 
 lsmod > /tmp/ramdisk-lsmod.txt 2> /dev/null
-cat /tmp/original-lsmod.txt /tmp/original-lsmod.txt /tmp/ramdisk-lsmod.txt | cut -d' ' -f1 | sort | uniq -d > /tmp/missing-modules.txt
+cut -d' ' -f1 /tmp/original-lsmod.txt /tmp/original-lsmod.txt /tmp/ramdisk-lsmod.txt | sort | uniq -d > /tmp/missing-modules.txt
 echo "Warning - these modules did not make it onto the ramdisk" >> $LOGFILE
 cat /tmp/missing-modules.txt >> $LOGFILE
 

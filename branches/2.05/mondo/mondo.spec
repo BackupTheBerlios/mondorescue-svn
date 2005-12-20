@@ -10,7 +10,6 @@
 %define name	mondo
 %define version	VVV
 %define mrel	1
-%define docname		%{name}-%{version}
 %define	src		%{name}-%{version}.tgz
 
 %if %is_redhat
@@ -32,7 +31,6 @@ Autoreqprov:	no
 
 %if %is_suse
 Group:			Archiving/Backup
-%define docname		%{name}
 %endif
 
 Summary:	A program which a Linux user can utilize to create a rescue/restore CD/tape

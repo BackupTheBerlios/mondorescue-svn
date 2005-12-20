@@ -30,12 +30,11 @@ MINDIVER=`cat VERSION`
 MINDIREV=`cat REVISION`
 echo "mindi ${MINDIVER}-r${MINDIREV} will be installed under $local"
 
-if [ "_$DOCDIR" = "_" ]; then
-	DOCDIR=$local/share/doc/mindi-$MINDIVER
-fi
+DOCDIR=$local/share/doc/mindi-$MINDIVER
+MANDIR=$local/share/man/man8
 
 echo "Creating target directories ..."
-install -m 755 -d $conf $local/lib/mindi $local/share/man/man8 $local/sbin $DOCDIR
+install -m 755 -d $conf $local/lib/mindi $MANDIR $local/sbin $DOCDIR
 
 echo "Copying files ..."
 install -m 644 isolinux.cfg msg-txt sys-disk.raw.gz isolinux-H.cfg syslinux.cfg syslinux-H.cfg dev.tgz $local/lib/mindi
@@ -54,7 +53,7 @@ fi
 chmod 755 $local/sbin/mindi
 install -m 755 analyze-my-lvm parted2fdisk.pl $local/sbin
 
-install -m 644 mindi.8 $local/share/man/man8
+install -m 644 mindi.8 $MANDIR
 install -m 644 CHANGES COPYING README README.busybox README.ia64 README.pxe TODO INSTALL $DOCDIR
 
 ARCH=`/bin/arch`
@@ -103,7 +102,7 @@ rm -f $local/lib/mindi/rootfs/sbin/parted2fdisk-*
 
 if [ "$RPMBUILDMINDI" != "true" ]; then
 	chown -R root:root $local/lib/mindi $conf/mindi $conf $DOCDIR
-	chown root:root $local/sbin/mindi $local/share/man/man8/mindi.8 $local/sbin/analyze-my-lvm $local/sbin/parted2fdisk.pl 
+	chown root:root $local/sbin/mindi $MANDIR/mindi.8 $local/sbin/analyze-my-lvm $local/sbin/parted2fdisk.pl 
 	if [ "$ARCH" = "ia64" ] ; then
 		chown root:root $local/sbin/parted2fdisk
 	fi

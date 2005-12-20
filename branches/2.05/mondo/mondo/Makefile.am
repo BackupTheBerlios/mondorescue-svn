@@ -3,7 +3,4 @@
 SUBDIRS        = common mondoarchive mondorestore @XMONDO@ docs restore-scripts
 DIST_SUBDIRS   = common mondoarchive mondorestore xmondo docs restore-scripts
 
-pkglib_DATA   = do-not-compress-these autorun
-
-install-data-hook: post-nuke.sample
-	cp -R post-nuke.sample $(pkglibdir)/
+pkglib_DATA   = do-not-compress-these autorun post-nuke.sample

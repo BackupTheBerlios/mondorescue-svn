@@ -1008,14 +1008,13 @@ int read_cfg_file_into_bkpinfo(char *cfgf, struct s_bkpinfo *bkpinfo)
 					run_program_and_log_output("mount /dev/cdrom "
 											   MNT_CDROM, 1);
 				}
-				if (does_file_exist(MNT_CDROM "/archives/filelist.0"))
-// End patch
-				{
+				if (does_file_exist(MNT_CDROM "/archives/filelist.0")) {
 					bkpinfo->backup_media_type = cdr;
 					run_program_and_log_output("umount " MNT_CDROM, 1);
 					log_it
 						("Re-jigging configuration AGAIN. CD-R, not ISO.");
 				}
+			}
 			if (read_cfg_var(cfg_file, "iso-prefix", value) == 0) {
 					strcpy(bkpinfo->prefix,value);
 			} else {

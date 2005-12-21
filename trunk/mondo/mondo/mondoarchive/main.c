@@ -52,7 +52,7 @@ extern int g_loglevel;
 void welcome_to_mondoarchive()
 {
 	log_msg(0, "Mondo Archive v%s --- http://www.mondorescue.org",
-			VERSION);
+			PACKAGE_VERSION);
 	log_msg(0, "running on %s architecture", get_architecture());
 	log_msg(0,
 			"-----------------------------------------------------------");
@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
 	if (argc == 2
 		&& (!strcmp(argv[argc - 1], "-v") || !strcmp(argv[argc - 1], "-V")
 			|| !strcmp(argv[argc - 1], "--version"))) {
-		printf("mondoarchive v%s\nSee man page for help\n", VERSION);
+		printf("mondoarchive v%s\nSee man page for help\n", PACKAGE_VERSION);
 		exit(0);
 	}
 

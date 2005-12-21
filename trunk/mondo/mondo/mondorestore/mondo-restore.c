@@ -3143,7 +3143,7 @@ char which_restore_mode(void);
  */
 void welcome_to_mondorestore()
 {
-	log_msg(0, "-------------- Mondo Restore v%s -------------", VERSION);
+	log_msg(0, "-------------- Mondo Restore v%s -------------", PACKAGE_VERSION);
 	log_msg(0,
 			"DON'T PANIC! Mondorestore logs almost everything, so please ");
 	log_msg(0,

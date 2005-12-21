@@ -1031,14 +1031,11 @@ int read_cfg_file_into_bkpinfo(char *cfgf, struct s_bkpinfo *bkpinfo)
 					run_program_and_log_output("umount " MNT_CDROM, 1);
 					log_it
 						("Re-jigging configuration AGAIN. CD-R, not ISO.");
-				} else {
-					bkpinfo->backup_media_type = iso;
-					if (read_cfg_var(cfg_file, "iso-prefix", value) == 0) {
-							strcpy(bkpinfo->prefix,value);
-					} else {
-							strcpy(bkpinfo->prefix,STD_PREFIX);
-					}
 				}
+			if (read_cfg_var(cfg_file, "iso-prefix", value) == 0) {
+					strcpy(bkpinfo->prefix,value);
+			} else {
+					strcpy(bkpinfo->prefix,STD_PREFIX);
 			}
 		} else if (!strcmp(value, "nfs")) {
 			bkpinfo->backup_media_type = nfs;

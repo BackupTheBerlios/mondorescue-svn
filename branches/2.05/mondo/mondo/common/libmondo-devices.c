@@ -2165,6 +2165,14 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 			sprintf(command, "echo hi > %s/%s/.dummy.txt", bkpinfo->isodir,
 					bkpinfo->nfs_remote_dir);
 		}
+		if (!popup_and_get_string
+			("Prefix.",
+			 "Please enter the prefix that will be prepended to your ISO filename.  Example: machine1 to obtain machine1-[1-9]*.iso files",
+			bkpinfo->prefix, MAX_STR_LEN / 4)) {
+			log_to_screen("User has chosen not to backup the PC");
+			finish(1);
+		}
+		log_msg(3, "prefix set to %s", bkpinfo->prefix);
 
 		for (i = 0; i <= MAX_NOOF_MEDIA; i++) {
 			bkpinfo->media_size[i] = 650;
@@ -2206,6 +2214,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 					log_to_screen("User has chosen not to backup the PC");
 					finish(1);
 				}
+				log_msg(3, "prefix set to %s", bkpinfo->prefix);
 			} else {
 				for (i = 0; i <= MAX_NOOF_MEDIA; i++) {
 					bkpinfo->media_size[i] = 650;
@@ -2361,6 +2370,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 	log_it("media size = %ld", bkpinfo->media_size[1]);
 	log_it("media type = %s",
 		   bkptype_to_string(bkpinfo->backup_media_type));
+	log_it("prefix = %s", bkpinfo->prefix);
 	log_it("compression = %ld", bkpinfo->compression_level);
 	log_it("include_paths = '%s'", bkpinfo->include_paths);
 	log_it("exclude_paths = '%s'", bkpinfo->exclude_paths);

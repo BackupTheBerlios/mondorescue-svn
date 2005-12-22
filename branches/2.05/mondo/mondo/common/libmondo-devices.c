@@ -2111,6 +2111,20 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 					bkpinfo->nfs_mount);
 			strcpy(bkpinfo->isodir,
 				   call_program_and_get_last_line_of_output(command));
+
+			sprintf(comment,
+					"How much data (in Megabytes) will each media store?");
+			if (!popup_and_get_string("Size", comment, sz_size, 5)) {
+				log_to_screen("User has chosen not to backup the PC");
+				finish(1);
+			}
+			for (i = 0; i <= MAX_NOOF_MEDIA; i++) {
+				bkpinfo->media_size[i] = atoi(sz_size);
+			}
+			if (bkpinfo->media_size[0] <= 0) {
+				log_to_screen("User has chosen not to backup the PC");
+				finish(1);
+			}
 		}
 		if (bkpinfo->disaster_recovery) {
 			system("umount /tmp/isodir 2> /dev/null");

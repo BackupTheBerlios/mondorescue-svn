@@ -6,9 +6,9 @@ As this README only focusses on the mondorescue part, please read how to do Linu
 To use it, please do the following on your deployment server:
 
 Add the following line to your default file:
-mondo
+label mondo
         kernel vmlinuz-mondo
-        initrd initrd-mondo load_ramdisk=1 prompt_ramdisk=0 ramdisk_size=36864 rw root=/dev/ram iso_mode acpi=off apm=off devfs=nomount exec-shield=0 pxe [prefix="machine"] [ipconf=(ipadr:netmask:broadcast:gateway|dhcp)] [ping=#] ...
+        append initrd=initrd-mondo load_ramdisk=1 prompt_ramdisk=0 ramdisk_size=36864 rw root=/dev/ram iso_mode acpi=off apm=off devfs=nomount exec-shield=0 pxe [prefix="machine"] [ipconf=(ipadr:netmask:broadcast:gateway|dhcp)] [ping=#] ...
 
 The initrd and kernel file come rom the first bootable media 
 created by mondoarchive. To get them, please issue:

@@ -3740,3 +3740,8 @@ int write_image_to_floppy(char *device, char *datafile)
 }
 
 /* @} - end of utilityGroup */
+
+void setenv_mondo_lib(void) {
+
+setenv("MONDO_LIB", MONDO_LIB, 1);
+}

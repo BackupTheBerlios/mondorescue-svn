@@ -41,3 +41,4 @@ int call_growisofs(struct s_bkpinfo *bkpinfo, char *destfile);
 int make_afioballs_and_images_SINGLETHREAD(struct s_bkpinfo *bkpinfo);
 int archive_this_fileset_with_star(struct s_bkpinfo *bkpinfo,
 								   char *filelist, char *fname, int setno);
+void setenv_mondo_lib(void);

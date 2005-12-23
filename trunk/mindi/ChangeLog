@@ -1,18 +1,33 @@
-MINDI                            CHANGES
+# $Id$
 
-1.06 (xxx)
+MINDI CHANGES
+
+1.06 (2005-12-23)
 - mindi manpage added (Andree Leidenfrost)
 - clean up remaining mount points, mindi.err at the end (Wolfgang Rosenauer)
 - fix bugs for SuSE distro around tar, tr and find arguments order 
   (Wolfgang Rosenauer)
-- new busybox version used for better PXE support (Bruno Cornec)
+- new busybox.net version used for better PXE support (Bruno Cornec)
 - USB keyboard support (Bruno Cornec)
 - -p should now work with ISO/PXE/NFS modes (Bruno Cornec)
 - relocate what was under /usr/share to /usr/lib (FHS compliance) 
   (Bruno Cornec/Andree Leidenfrost)
 - manage non ambiguous delivery under /usr (packages) or /usr/local (tar ball)
   (Bruno Cornec)
+- install script rewritten and used for RPM build, with new layout 
+  (Sébastien Aperghis-Tramoni/Bruno Cornec)
 - use parted2fdisk everywhere (Bruno Cornec)
+- use MONDO_LIB exported by mondoarchive instead of MONDO_HOME guessed 
+  (Bruno Cornec)
+- RPM build for fedora core 4, sles9, redhat 7.3, rhel 3/4, mandriva 2006.0, 
+  mandrake 10.2 (Bruno Cornec/Gary Granger)
+- VERSION/RELEASE Tag added (Bruno Cornec)
+- VMPlayer support
+- Code cleanup, small fixes, PXE/NFS code improvements 
+  (Wolfgang Rosenauer/Sébastien Aperghis-Tramoni/Bruno Cornec
+- New switches for PXE mode (ping & ipconf, Cf README.pxe) 
+  (Sébastien Aperghis-Tramoni/Bruno Cornec)
+- mindi-kernel added to SVN (Bruno Cornec)
 
 1.05 (2005-11-19)
 - Bug fix for ldd output incorrectly handled, leading to "grep not found" error

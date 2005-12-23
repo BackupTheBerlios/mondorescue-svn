@@ -45,6 +45,10 @@ elif [ -e /etc/redhat-release ]; then
 	if [ $? -eq 0 ]; then
 		export ddir="rhel"
 		export dver=`cat /etc/redhat-release | awk '{print $7}'`
+	elif grep -q Fedora /etc/redhat-release ; then
+		export ddir="fedora"
+		export dver=`cat /etc/redhat-release | awk '{print $4}'`
+		export suf="fc${dver}"
 	else
 		export ddir="redhat"
 		export dver=`cat /etc/redhat-release | awk '{print $5}' | sed "s/\.//"`

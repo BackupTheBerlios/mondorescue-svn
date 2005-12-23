@@ -1,6 +1,8 @@
-MONDO CHANGES                                                       2005-11-05
+# $Id$
 
-v2.06 (xxx)
+MONDO CHANGES
+
+v2.06 (2005-12-23)
 - better error handling of failed commands/mindi (Andree Leidenfrost)
 - fix compiler warnings (Andree Leidenfrost)
 - -p improvements for NFS/PXE/ISO modes (Bruno Cornec)
@@ -23,6 +25,15 @@ v2.06 (xxx)
 - disable x11 build by default (Bruno Cornec)
 - remove sbminst (Bruno Cornec/Andree Leidenfrost)
 - use parted2fdisk everywhere (Bruno Cornec)
+- exports MONDO_LIB (Bruno Cornec)
+- RPM build for fedora core 4, sles9, redhat 7.3, rhel 3/4, mandriva 2006.0, 
+  mandrake 10.2 (Bruno Cornec/Gary Granger)
+- interactive mode now asks for image size and prefix in NFS mode 
+  (Gallig Renaud/Bruno Cornec)
+- iso-prefix should be read in iso mode even when -H not given (Stan Benoit)
+- VERSION/RELEASE Tag added (Bruno Cornec)
+- many code cleanup, small fixes, PXE/NFS code improvements 
+  (Sébastien Aperghis-Tramoni/Bruno Cornec)
 
 v2.05 (2005-11-19)
 - -p options works better for NFS cases  (Bruno Cornec)

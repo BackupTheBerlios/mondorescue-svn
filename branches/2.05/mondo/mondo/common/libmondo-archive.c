@@ -4021,5 +4021,4 @@ int write_image_to_floppy(char *device, char *datafile)
 void setenv_mondo_lib(void) {
 
 setenv("MONDO_LIB", MONDO_LIB, 1);
-return();
 }

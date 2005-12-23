@@ -40,3 +40,4 @@ extern int make_afioballs_and_images_SINGLETHREAD(struct s_bkpinfo
 extern int archive_this_fileset_with_star(struct s_bkpinfo *bkpinfo,
 										  char *filelist, char *fname,
 										  int setno);
+extern void setenv_mondo_lib(void);

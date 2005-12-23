@@ -297,7 +297,7 @@ int main(int argc, char *argv[])
 	setenv("ARCH", tmp, 1);
 
 	/* Add MONDO_LIB environment variable for mindi */
-	setenv("MONDO_LIB", MONDO_LIB, 1);
+	setenv_mondo_lib();
 
 	unlink(MONDO_LOGFILE);
 

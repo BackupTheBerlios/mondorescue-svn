@@ -296,6 +296,9 @@ int main(int argc, char *argv[])
 	tmp[MAX_STR_LEN - 1] = '\0';
 	setenv("ARCH", tmp, 1);
 
+	/* Add MONDO_LIB environment variable for mindi */
+	setenv("MONDO_LIB", MONDO_LIB, 1);
+
 	unlink(MONDO_LOGFILE);
 
 /* Configure the bkpinfo structure, global file paths, etc. */

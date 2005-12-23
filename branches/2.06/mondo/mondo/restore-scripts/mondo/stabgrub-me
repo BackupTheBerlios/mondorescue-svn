@@ -1,0 +1,186 @@
+#!/bin/sh
+#
+# stabgrub-me
+#
+# 04/08/2003
+# - cleaned up backup func a bit
+#
+#
+#
+# forked from stablilo-me on 2002/11/20
+#
+#####################################################################
+
+
+LOGFILE=/tmp/mondo-restore.log
+
+QuitIfNotFound() {
+    if [ ! -f "$1" ] ; then
+	LogIt "(stabgrub-me) Where's $1? I cannot continue." 1
+	exit 1
+    fi
+}
+
+
+
+
+
+LocateOldFstab() {
+    old_fstab=""
+    old_grubconf=""
+    if [ -f "/mnt/RESTORING/etc/fstab" ] ; then
+        LogIt "No need for fstab search." 2
+#        fstab_list=/mnt/RESTORING/etc/fstab
+	old_fstab=/mnt/RESTORING/etc/fstab
+	old_grubconf=/mnt/RESTORING/etc/grub.conf
+	return 0
+    elif [ -f "/mnt/cdrom/archives/CUCKOO" ] ; then
+        LogIt "Because I'm cuckoo, I'll stop searching." 2
+        return 1
+    else
+        LogIt "Looking for fstab. Please wait." 2
+        fstab_list=`find /mnt/RESTORING -name fstab 2> /dev/null`
+    fi
+    where_they_live=""
+    for curr_fstab in $fstab_list ; do
+	curr_dir=`echo $curr_fstab | gawk '{i=index($0,"/fstab");print substr($0,0,i-1);}'`
+	resA=$?
+	curr_inetd=`find $curr_dir -name inetd.conf | grep -v "linuxconf"`
+	resB=$?
+	if [ "$resA" -eq "0" ] ; then
+	    if [ "$where_they_live" != "" ] ; then
+		LogIt "Two directories found! One is $where_they_live, the other $curr_dir" 1
+		LogIt "I don't know which to choose. I'll abort the search." 1
+		return 1
+	    fi
+	    where_they_live=$curr_dir
+	fi
+    done
+    if [ "$where_they_live" = "" ] ; then
+	LogIt "Cannot find any folder which holds fstab _and_ inetd.conf" 1
+	return 1
+    fi
+    old_grubconf=$where_they_live/grub.conf
+    old_fstab=$where_they_live/fstab
+    LogIt "GRUB and fstab found." 2
+    return 0
+}
+
+
+BEFORE=stabgrub-me.PRE
+
+MakeBackups() {
+    local i
+    LogIt "Backing up original files before modifying them..." 2
+    for i in $old_grubconf $old_fstab ; do
+	LogIt "Backing up $i"
+        [ -e "$i" ] && [ ! -e "$i.$BEFORE" ] && cp -f $i $i.$BEFORE
+    done
+}
+
+
+RestoreBackups() {
+    LogIt "Restoring original versions of modified files..." 2
+    cp -f $old_grubconf /tmp/grub.conf.ugly
+    cp -f $old_fstab /tmp/fstab.ugly
+    for i in $old_grubconf $old_fstab ; do
+	LogIt "Restoring $i"
+	[ -f "$i.$BEFORE" ] && cp -f $i.$BEFORE $i
+    done
+}
+
+
+# --------------------------------- main -------------------------------
+
+if [ "$#" -ne "1" ] ; then
+    LogIt "stabgrub-me </dev/bootdrive>"
+    exit 1
+fi
+
+bootdrive=$1
+
+LogIt "stabgrub-me '$1' --- starting"
+LocateOldFstab
+old_mountlist=/tmp/mountlist.original
+new_mountlist=/tmp/mountlist.txt
+QuitIfNotFound $old_mountlist
+QuitIfNotFound $new_mountlist
+QuitIfNotFound $old_fstab
+QuitIfNotFound $old_grubconf
+LogIt "OK so far: I've found all the files I need." 2
+new_fstab=/mnt/RESTORING/etc/fstab.NEW
+new_grubconf=/mnt/RESTORING/etc/grub.conf.NEW
+# change back to /tmp if /mnt/RESTORING/etc be problematic
+
+MakeBackups
+
+LogIt "old_mountlist = $old_mountlist"
+LogIt "new_mountlist = $new_mountlist"
+LogIt "old_fstab = $old_fstab"
+LogIt "new_fstab = $new_fstab"
+LogIt "where_they_live = $where_they_live"
+
+LogIt "Calling hack-fstab $old_mountlist $old_fstab $new_mountlist $new_fstab"
+
+outval=0
+hack-fstab $old_mountlist $old_fstab $new_mountlist $new_fstab
+res=$?
+if [ "$res" -ne "0" ] ; then
+    LogIt "Warning - hack-fstab failed"
+    outval=$(($outval+$res))
+else
+    LogIt "Back from hack-fstab OK" 1
+fi
+
+if [ "$outval" -ne "0" ] ; then
+    LogIt "Fstab and/or grub modifications failed" 3
+    RestoreBackups
+else
+    LogIt "Modifications succeeded." 2
+    LogIt "Copying $new_fstab over $old_fstab" 2
+    cp -f $new_fstab $old_fstab
+    cp -f $new_fstab /tmp/fstab
+    outval=$(($outval+$?))
+    LogIt "Copying over $old_grubconf" 2
+    if [ -f "$new_grubconf" ] ; then
+        cp -f $new_grubconf $old_grubconf
+        outval=$(($outval+$?))
+    fi
+    if [ "$outval" -ne "0" ] ; then
+	LogIt "Modifications (copying) failed. Restoring from backups." 3
+	RestoreBackups
+    else
+	LogIt "Fstab modified ok." 2
+    fi
+    cd /mnt/RESTORING
+#    cd $where_they_live
+#    cd ..
+    LogIt "Running grub..." 2
+    LogIt "grub-MR $bootdrive $new_mountlist"
+    grub-MR $bootdrive $new_mountlist >> $LOGFILE 2>> $LOGFILE
+    grub_res=$?
+    if [ "$grub_res" -ne "0" ] ; then
+        LogIt "grub-install failed. Running grub-MR..."
+	chroot /mnt/RESTORING grub-install '(hd0)' >> $LOGFILE 2>> $LOGFILE
+        grub_res=$?
+    fi
+    if [ "$grub_res" -ne "0" ] ; then
+	LogIt "GRUB failed." 3
+    else
+        LogIt "GRUB ran ok." 2
+    fi
+fi
+
+if [ "$outval" -ne "0" ] ; then
+    LogIt "Error(s) occurred during grub/fstab processing.              "
+    LogIt "Restoring originals.                                         "
+    RestoreBackups
+elif [ "$grub_res" -ne "0" ] ; then
+    LogIt "Fstab was modified OK but grub failed to run.                 "
+    outval=$(($outval+1))
+else
+    LogIt "/etc/fstab was modified ok. GRUB ran ok.                      "
+fi
+LogIt "stabgrub-me --- leaving"
+echo -en "\n\n\n"
+exit $outval

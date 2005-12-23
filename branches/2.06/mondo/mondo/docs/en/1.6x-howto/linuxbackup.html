@@ -1,0 +1,147 @@
+<HTML>
+ <HEAD>
+  <!-- $MVD$:app("MicroVision WebExpress","769") -->
+  <!-- $MVD$:template("","0","0") -->
+  <!-- $MVD$:color("18","840084","Custom #1","0") -->
+  <!-- $MVD$:color("19","80ff","Orange","1") -->
+  <!-- $MVD$:color("20","ffd6ce","Lavender","1") -->
+  <TITLE>Linux Backup </TITLE>
+  <META NAME="GENERATOR" CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+">
+ <LINK REL="HOME" HREF="index.html" TITLE=" Mondo Rescue and Mindi Linux HOWTO "><LINK REL="UP" HREF="overview.html" TITLE=" Overview "><LINK REL="PREVIOUS" HREF="mindilinux.html" TITLE=" Mindi Linux "><LINK REL="NEXT" HREF="windowsbackup.html" TITLE=" Windows Backup "></HEAD>
+ <BODY BGCOLOR="WHITE" TEXT="BLACK" LINK="BLUE" VLINK="#840084" ALINK="BLUE" CLASS="SECTION">
+  <DIV ALIGN=LEFT>
+  <P ALIGN=LEFT>
+   <TABLE WIDTH="100%" CELLPADDING="0" CELLSPACING="0" BORDER="0" SUMMARY="Header navigation table">
+    <TR>
+     <TD COLSPAN="3" VALIGN=CENTER>
+      <P ALIGN=CENTER>
+       Mondo Rescue and Mindi Linux HOWTO</TD>
+    </TR>
+    <TR>
+     <TD WIDTH="10%" VALIGN=BOTTOM>
+      <P ALIGN=LEFT>
+       <A HREF="mindilinux.html" ACCESSKEY="P">Prev</A></TD>
+     <TD WIDTH="80%" VALIGN=BOTTOM>
+      <P ALIGN=CENTER>
+       Chapter 3. Overview</TD>
+     <TD WIDTH="10%" VALIGN=BOTTOM>
+      <P ALIGN=RIGHT>
+       <A HREF="windowsbackup.html" ACCESSKEY="N">Next</A></TD>
+    </TR>
+   </TABLE>
+   <HR ALIGN=LEFT WIDTH="100%" SIZE="2">
+   </P>
+  </DIV>
+  <H1 CLASS="SECTION" ALIGN=LEFT>
+   <A NAME="LINUXBACKUP"></A>3.3. Linux Backup</H1>
+  <P ALIGN=JUSTIFY>
+   Mondo Rescue and Mindi Linux are used primarily as Linux backup and 
+   cloning tools. The fall in prices of CD-RW drives and writable discs 
+   will allow current users to keep good backups and future users to 
+   leverage the cloning capability.</P>
+  <P ALIGN=LEFT>
+   Tape drives are more likely to suit your needs if you run a larger 
+   installation (or have lots of MP3's). <B>Warning! OnStream drives do 
+   not play well with Mondo.</B> I do not know why. It is, in my 
+   opinion, something which OnStream should look into. Mondo uses 
+   fopen(), fread(), fwrite() and fclose() to interact with tape drives. 
+   That works for most drives but some drives just don't like that.</P>
+  <P ALIGN=JUSTIFY>
+   I have tested it thousands of times on my own computer with my own 
+   data and with no alternate backup regime. It worked for me. Thousands 
+   of users testify to Mondo's stability and its ease of use. However, 
+   please test it on your own system before you rely on it. In fact, do 
+   not rely on <I>any software </I>until you have tested it to see if it 
+   performs as expected.</P>
+  <P ALIGN=LEFT>
+   To establish that Mondo will behave well in an emergency, please be 
+   prepared. Run a test backup as follows:-</P>
+  <UL>
+   <LI CLASS="mvd-P">
+   <P ALIGN=LEFT>
+    Run mondoarchive without any command-line options.<BR>
+    <LI CLASS="mvd-P">Backup a subset of files - e.g. /usr/local - to CD 
+    or tape. Say 'yes' when asked if you want to verify them.<BR>
+    <LI CLASS="mvd-P">If you are not backing up to CD, please create boot 
+    floppies when prompted.</P>
+   </UL>
+  <P ALIGN=LEFT>
+   Next, restore archives to your live filesystem.</P>
+  <UL>
+   <LI CLASS="mvd-P">
+   <P ALIGN=LEFT>
+    When mondoarchive terminates, run mondorestore without any 
+    command-line options.<BR>
+    <LI CLASS="mvd-P">Insert the CD or the first boot floppy when 
+    prompted. Press &lt;Enter&gt;. Wait a moment.<BR>
+    <LI CLASS="mvd-P">Select a subset of files to restore, e.g. 
+    /usr/local/man and /usr/local/bin. Hit OK.<BR>
+    <LI CLASS="mvd-P">Restore files to /tmp or /root/RESTORED or 
+    something similar.<BR>
+    <LI CLASS="mvd-P">When mondorestore terminates, compare the restored 
+    files to the originals using cmp or diff.</P>
+   </UL>
+  <P ALIGN=LEFT>
+   Finally, simulate an emergency restore.</P>
+  <UL>
+   <LI CLASS="mvd-P">
+   <P ALIGN=LEFT>
+    Boot from CD/floppies.<BR>
+    <LI CLASS="mvd-P">Select 'Interactive Mode' at boot-time. (Type 
+    'interactive' and hit &lt;Enter&gt;.)<BR>
+    <LI CLASS="mvd-P">Hit OK when shown the mountlist. Say 'yes' when 
+    asked if you accept the mountlist.<BR>
+    <LI CLASS="mvd-P">Select files to restore, e.g. /usr/local/man and 
+    /usr/local/bin. Hit OK.<BR>
+    <LI CLASS="mvd-P">Restore files to /tmp or /root/RESTORED or 
+    something similar.<BR>
+    <LI CLASS="mvd-P">When mondorestore terminates, please reboot and 
+    compare the restored files to the originals.</P>
+   </UL>
+  <P ALIGN=JUSTIFY>
+   FYI, the subroutines to repartition and reformat your drives are very 
+   stable. If you are a RAID or LVM user, you <I>might</I>&nbsp;encounter
+    some difficulties when wiping and restoring from scratch because of 
+   the sheer range of filesystem layouts and the impossibility of 
+   testing Mondo on every single one. If you have trouble, just drop to 
+   the command-line and partition/format manually. Then, call 
+   mondorestore, select Interactive Mode, and say 'no' when asked if you 
+   want Mondo to partition or format your drives for you.</P>
+  <P ALIGN=JUSTIFY>
+   You see, even if you have trouble, you still have two hands and most 
+   of the tools you need - lvchange, pvcreate, fdisk, mkraid, etc. - to 
+   do it manually. After you have prepped and formatted your drives 
+   manually (if you have to), just run mondorestore again and say 'no' 
+   when asked if you want to prep or format your drives. What could be easier?</P>
+  <P ALIGN=LEFT>
+   <HR ALIGN=LEFT WIDTH="100%" SIZE="2">
+   </P>
+  <DIV ALIGN=LEFT>
+  <P ALIGN=LEFT>
+   <TABLE WIDTH="100%" CELLPADDING="0" CELLSPACING="0" BORDER="0" SUMMARY="Footer navigation table">
+    <TR>
+     <TD WIDTH="33%" VALIGN=TOP>
+      <P ALIGN=LEFT>
+       <A HREF="mindilinux.html" ACCESSKEY="P">Prev</A></TD>
+     <TD WIDTH="34%" VALIGN=TOP>
+      <P ALIGN=CENTER>
+       <A HREF="index.html" ACCESSKEY="H">Home</A></TD>
+     <TD WIDTH="33%" VALIGN=TOP>
+      <P ALIGN=RIGHT>
+       <A HREF="windowsbackup.html" ACCESSKEY="N">Next</A></TD>
+    </TR>
+    <TR>
+     <TD WIDTH="33%" VALIGN=TOP>
+      <P ALIGN=LEFT>
+       Mindi Linux</TD>
+     <TD WIDTH="34%" VALIGN=TOP>
+      <P ALIGN=CENTER>
+       <A HREF="overview.html" ACCESSKEY="U">Up</A></TD>
+     <TD WIDTH="33%" VALIGN=TOP>
+      <P ALIGN=RIGHT>
+       Windows Backup</TD>
+    </TR>
+   </TABLE>
+ </BODY>
+</HTML>

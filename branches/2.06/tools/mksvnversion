@@ -1,0 +1,35 @@
+#!/bin/bash
+########################################################
+# $Id$
+########################################################
+#
+# on every build, record the working copy revision string
+#
+dname=`dirname $0`
+prem=`echo $dname |cut -c1`
+if [ ${prem} == "/" ]; then
+	export TOOLHOME=$dname
+else
+	export TOOLHOME=${PWD}/$dname
+fi
+. $TOOLHOME/rpm-env
+
+#
+# Create a .c file for mondo to link with and get
+# the right build version from SVN
+#
+rel=`svnversion $TOOLHOME/..`
+cat > $TOOLHOME/../mondo/revision.h << EOF
+#define REVISION "${rel}" 
+EOF
+cat > $TOOLHOME/../mondo/REVISION << EOF
+${rel}
+EOF
+cat > $TOOLHOME/../mindi/REVISION << EOF
+${rel}
+EOF
+
+#
+# return the release
+#
+echo ${rel}

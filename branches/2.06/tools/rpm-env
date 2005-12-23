@@ -1,0 +1,73 @@
+#!/bin/bash
+#
+# Creates RPMs environment from SVN repository
+#
+# $Id$
+#
+
+# Adapt to your needs
+export BASE=${HOME}/mondo
+export SVNAUTH=bcornec@shell.berlios.de
+export DSTDIR=/home/groups/ftp/pub/mondorescue
+export FTPSERV="ftp.berlios.de"
+export FTPDIR="/incoming"
+
+# Should not be modified below
+export VER=branches/2.05
+export pkg=""
+export opt=""
+export ARCH=`rpm --showrc | egrep "^build arch" | awk '{print $4}'`
+
+mkdir -p ${BASE}/RPMS
+export TMP=${BASE}/tmp
+mkdir -p ${TMP}
+if [ -f ${HOME}/.rpmmacros ]; then
+	export TOPDIR=`egrep '^%_topdir' ${HOME}/.rpmmacros | awk '{print $2}'`
+else
+	export TOPDIR=${BASE}/RPMS
+fi
+cd ${TOPDIR}
+mkdir -p RPMS SRPMS SPECS SOURCES BUILD
+
+export MINDI_VER=`cat ${BASE}/svn/${VER}/mindi/VERSION`
+export MONDO_VER=`cat ${BASE}/svn/${VER}/mondo/VERSION`
+
+if [ -e /etc/mandriva-release ]; then
+	export ddir="mandriva"
+	export dver=`cat /etc/mandriva-release | awk '{print $4}'`
+	export suf="${dver}mdk"
+elif [ -e /etc/mandrake-release ]; then
+	export ddir="mandrake"
+	export dver=`cat /etc/mandrake-release | awk '{print $3}'`
+	export suf="${dver}mdk"
+elif [ -e /etc/redhat-release ]; then
+	grep -q Enterprise /etc/redhat-release
+	if [ $? -eq 0 ]; then
+		export ddir="rhel"
+		export dver=`cat /etc/redhat-release | awk '{print $7}'`
+	elif grep -q Fedora /etc/redhat-release ; then
+		export ddir="fedora"
+		export dver=`cat /etc/redhat-release | awk '{print $4}'`
+		export suf="fc${dver}"
+	else
+		export ddir="redhat"
+		export dver=`cat /etc/redhat-release | awk '{print $5}' | sed "s/\.//"`
+		export suf="rh${dver}"
+	fi
+elif [ -e /etc/SuSE-release ]; then
+	grep -q Enterprise /etc/SuSE-release
+	if [ $? -eq 0 ]; then
+		export ddir="sles"
+		export dver=`cat /etc/SuSE-release | head -1 | awk '{print $5}'`
+	else
+		export ddir="suse"
+		export dver=`cat /etc/SuSE-release | head -1 | awk '{print $3}'`
+	fi
+else
+	export dver=""
+	export ddir="generic"
+fi
+
+if [ _"$suf" = _"" ]; then
+	export suf="${ddir}${dver}"
+fi

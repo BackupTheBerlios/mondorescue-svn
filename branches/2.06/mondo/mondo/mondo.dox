@@ -1,0 +1,275 @@
+// -*- C -*- mondo.dox
+// This file contains documentation definitions for stuff that just didn't fit anywhere else.
+
+
+
+/****************************** BEGIN MAIN PAGE ****************************/
+/**
+ * @mainpage
+ *
+ * Welcome to the Mondo Rescue API manual!
+ *
+ * Mondo Rescue is a backup/disaster recovery program and library
+ * intended to allow backups to be restored completely and simply
+ * even if the hard drive has been wiped. No data loss has been
+ * reported since mid-2000.
+ *
+ * <b>If you are not a Mondo developer, don't want to become one,
+ * don't want to write an add-on, and don't want to know about Mondo's
+ * internals for some other reason, <i>this page is not for you</i></b>.
+ * This is not a user manual; it is a developer's manual. This is our
+ * internal documentation. It's intended to be complete, not easily
+ * comprehensible by non-programmers. You have been warned.
+ *
+ * Currently all functions except those involved in prepping hard
+ * drives and restoring data have been placed into a shared library
+ * which can be used in add-ons to Mondo (for example, a new interface
+ * or network transparency). Generally you'll want to call
+ * backup_data() or verify_data() to do the work for you, but if you
+ * want to do the steps yourself, that's OK too.  See the modules
+ * called "Mid-Level Backup Functions" and "Low-Level Backup
+ * Functions" for details.
+ *
+ * If you want to write a facelift for mondorestore, please note that
+ * the restore/prep functions are not in the shared library. If you
+ * wish to use those, please either:-
+ * - copy the code or file from the mondo/mondorestore directory to
+ *   where you want to put your add-on, or
+ * - pester us at <mondo-devel@lists.sourceforge.net> (please
+ *   subscribe first; see the Mondo "support" page for info on how) to
+ *   add it to libmondo. This is on the TODO list but it's not a high
+ *   priority, so if it's important please tell us. Hey, any work on
+ *   something useful for the project is good work for us :-)
+ *
+ * There are two versions of the libmondo library. One is a generic
+ * version (you must link in Newt to use it, though it doesn't
+ * actually @e use newt) which requires a separate GUI library; the
+ * other is an X library rather tightly coupled to XMondo. See the
+ * source code in mondo/xmondo/*.cpp for more details. Currently only
+ * a Newt add-on GUI library is available for the "generic" library;
+ * if you want another please copy newt-specific.c and change the
+ * function bodies. (If you think your work might be useful to us,
+ * please email the list). To link with the generic Mondo library, add
+ * these flags to your link command: \n
+ * @code -I/usr/include/mondo -I/usr/local/include/mondo -lmondo -lmondo-newt @endcode \n
+ * and #include \<my-stuff.h\>, \<mondostructures.h\>, and any other
+ * Mondo header files you are using.  A @c mondo-config script to
+ * generate the flags automatically may be coming; watch this space.
+ *
+ * To use the X library, compile with the flags as above but replace
+ * @c -lmondo @c -lmondo-net with @c -lXmondo. And <b>read the XMondo
+ * source code first</b>! Your problem may have already been solved.
+ *
+ * Mondo currently runs on i386 Linux and FreeBSD using a rather ugly
+ * mess of #ifdefs. Ports to other OSs may come someday, probably only
+ * if someone writes them.
+ *
+ * Mondo uses Mindi to create the boot disks. Mindi is rather system
+ * dependent; currently there are separate versions for each port (two),
+ * but eventually the two may be combined. The current version of Mindi
+ * is a shell script, but the next generation (goes live Nov. 1) is in
+ * Perl (and runs about 4 times faster). <b>If you are experiencing
+ * bugs related to the mountlist, or anything that happens before you
+ * get the mondorestore Newt screen, you should look at Mindi; Mondo
+ * does not control the boot process</b>.
+ *
+ * The s_bkpinfo structure (commonly referred to as "the bkpinfo") is
+ * the heart of Mondo. If you're new to the code, you really should read
+ * its documentation first. Trust us, that will help your understanding
+ * of the rest of it immensely. The functions in libmondo-archive.c are the
+ * most important; tackle those first. If you're writing an add-on, you may
+ * be able to get away with just those and the ones in newt-specific.c.
+ *
+ * Thank you for using Mondo Rescue, and good luck in your development!
+ *
+ * @section Glossary
+ * Here is a list of terms used throughout the documetation and what they mean.
+ * - @b afioball (or @b tarball): The @c afio archive for a particular fileset.
+ *   Sometimes "tarball" is used, even though the archives were not made by @c 
+ *   tar. @c afio provides many benefits, including the ability to compress
+ *   files individually so a bad block doesn't ruin the whole archive.
+ * - @b biggiefile (or @b bigfile): A file larger than 32MB. These are archived
+ *   separately from the regular files; they are split into
+ *   <tt>bkpinfo->optimal_set_size</tt>-sized chunks and compressed. The file's
+ *   stat() information (name, modification date, mode, owner, group, etc.), as
+ *   well as its checksum, is stored in the "zeroth" slice. This allows us to
+ *   split large files over multiple CDs, without resorting to things like the
+ *   "cutstream" method practiced by mkCDrec.
+ * - @b bkpinfo: The backup information structure (s_bkpinfo). This is
+ *   discussed above, and also in the structure's documentation.
+ * - @b filelist (or @b fileset): The small "chunks" that the normal-sized
+ *   files are divided up into. Each one is archived separately by afio, so we
+ *   can provide a better progress meter, faster selective restore, and better
+ *   reliability if an archive is corrupted. Filesets are usually about 8MB,
+ *   but this is controlled by @c bkpinfo->optimal_set_size.
+ * - @b imagedev: A device that is backed up like a biggiefile instead of as
+ *   individual files. Its size cannot be changed at restore-time. This is
+ *   most useful for NTFS partitions.
+ * - @b isodir (When backing up to ISOs/NFS): The directory where the ISO
+ *   images are to be stored (could be a remote NFS server).
+ * - @b mountlist: The list of all partitions on all hard drives. This is
+ *   created so Mondo knows exactly how to recreate the partitions at
+ *   restore-time.
+ * - @b raidlist: The list of RAID devices, along with additional information,
+ *   in the mountlist. This is used to create /etc/raidtab.
+ * - @b scratchdir: The directory where the ISO image tree is created.
+ *   This must be in a location with at least enough space for a complete
+ *   CD.
+ * - @b stream: A tape device, CD stream, or "udev" (allows one to use
+ *   stream format without an actual stream device). We give up speed and
+ *   flexibility (no selective restores without Mondo present) in exchange
+ *   for compatibility with some very common backup hardware.
+ * - @b tmpdir: The temporary directory where just-created files are kept
+ *   while waiting to put them in the scratchdir (possibly creating a CD in
+ *   the mean time).
+ */
+/***************************** END OF MAIN PAGE ****************************/
+
+
+
+
+
+/************************** BEGIN GROUP DEFINITIONS *************************
+ * The group hierarchy looks something like this:
+ * - Backup functions - mostly libmondo-archive.c
+ *   - backup_data()
+ *   - Mid-level general backup functions
+ *   - Low-level general backup functions
+ *   - Filelist creation functions
+ * - Verify functions
+ *   - verify_data()
+ *   - Low-level verify functions - libmondo-verify.c
+ * - Mountlist functions
+ *   - libmondo-mountlist.c
+ * - RAID functions
+ *   - libmondo-raid.c
+ * - Device functions
+ *   - libmondo-devices.c
+ *   - Tape functions
+ *     - libmondo-stream.c
+ * - Utility functions
+ *   - String functions
+ *     - libmondo-string.c
+ *   - File functions
+ *     - libmondo-files.c
+ *   - FIFO functions
+ *     - libmondo-fifo.c
+ *   - libmondo-tools.c
+ * - GUI functions
+ *   - newt-specific.c
+ * - Global variables
+ ***************************************************************************/
+/**
+ * @defgroup archiveGroup Backup Functions
+ * Functions for backing up data.
+ */
+/**
+ *  @defgroup MLarchiveGroup Mid-Level Backup Functions
+ *  @ingroup archiveGroup
+ *  Mid-level backup functions (the ones that backup_data calls directly).
+ */
+/**
+ *  @defgroup LLarchiveGroup Low-Level Backup Functions
+ *  @ingroup archiveGroup
+ *  Low-level backup functions (the ones that do the actual work).
+ */
+/**
+ * @defgroup verifyGroup Verification Functions
+ * Functions for verifying data while booted from the hard drive (as opposed
+ * to a "compare", which is done while booted from CD/floppy).
+ */
+/**
+ *  @defgroup LLverifyGroup Low-Level Verification Functions
+ *  @ingroup verifyGroup
+ *  Low-level verification functions (the ones that do the actual work).
+ */
+/**
+ * @defgroup compareGroup Compare Functions
+ * Functions for comparing data while booted from CD/floppy (as opposed
+ * to a "verify", which is done while booted from the hard drive).
+ */
+/**
+ *  @defgroup LLcompareGroup Low-Level Compare Functions
+ *  Low-level compare functions (the ones that do the actual work).
+ *  @ingroup compareGroup
+ */
+/**
+ * @defgroup restoreGroup Restoration Functions
+ * Functions for restoring data.
+ */
+/**
+ *  @defgroup prepGroup Disk Preparation Functions
+ *  Functions for prepping disks (partitioning, formatting, mounting, slicing, dicing, etc.)
+ *  @ingroup restoreGroup
+ */
+/**
+ *  @defgroup restoreGuiGroup GUI Restore Functions
+ *  Functions for editing mountlists, filelists, etc.
+ *  @ingroup restoreGroup
+ */
+/**
+ *  @defgroup LLrestoreGroup Low-Level Restoration Functions
+ *  Functions for individual restoration of filesets/biggiefiles.
+ *  @ingroup restoreGroup
+ */
+/**
+ *  @defgroup restoreUtilityGroup Restore Utility Functions
+ *  Utility functions to help with restores.
+ *  @ingroup restoreGroup
+ */
+/**
+ * @defgroup filelistGroup Filelist Creation Functions
+ * Filelist preparation/chopping/other tasks done during backup.
+ */
+/**
+ * @defgroup mountlistGroup Mountlist Functions
+ * Functions for loading, manipulating, and saving mountlists (but not doing
+ * any prep work with them).
+ */
+/**
+ * @defgroup raidGroup Software RAID Functions
+ * Functions for dealing with software RAID (md devices on Linux; vinum
+ * on FreeBSD).
+ */
+/**
+ * @defgroup deviceGroup Device Manipulation Functions
+ * Functions for dealing with backup devices.
+ */
+/**
+ *  @defgroup streamGroup Stream Functions
+ *  @ingroup deviceGroup
+ *  Functions for reading from and writing to tapes and other data streams.
+ */
+/**
+ * @defgroup utilityGroup Utility Functions
+ * General utility functions for doing small, specific, useful tasks.
+ */
+/**
+ *  @defgroup stringGroup String Functions
+ *  @ingroup utilityGroup
+ *  Functions for working with strings.
+ */
+/**
+ *  @defgroup fileGroup File Functions
+ *  @ingroup utilityGroup
+ *  Functions for working with files.
+ */
+/**
+ *  @defgroup fifoGroup FIFO Functions
+ *  @ingroup utilityGroup
+ *  Functions for dealing with the buffering of data as it is read from and
+ *  written to tape.
+ */
+/**
+ * @defgroup guiGroup GUI Functions
+ * GUI functions - things like progress indicators, dialog boxes, etc.
+ */
+/**
+ * @defgroup cliGroup Command-Line Interface Functions
+ * Functions for parsing command lines passed to mondoarchive. <b>Not in libmondo yet.</b>
+ */
+/**
+ * @defgroup globalGroup Global Variables
+ * Mondo's global variables.
+ */
+/*************************** END GROUP DEFINITIONS *************************/

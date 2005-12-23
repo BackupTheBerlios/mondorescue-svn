@@ -1,0 +1,18 @@
+Mindi uses the busybox (http://busybox.net) project to create the boot environement used during restore.
+
+If you want to modify the busybox support, you have to:
+
+1/ Get busybox sources and extract them
+2/ Copy as a base the .config file from the mindi directory under the name .config in this source directory.
+   3 files are proposed:
+   .config-busybox-i386.net : Configure busybox for Network support (NFS, PXE)
+   .config-busybox-i386     : Configure busybox for Normal support (CDs, DVD, Tapes)
+   .config-busybox-ia64     : Configure busybox for Normal and Network support on ia64/Itanium
+3/ Reconfigure busybox (make menuconfig)
+4/ Rebuild the new busybox (make busybox)
+5/ copy the new busybox binary from that directory to rootfs/bin under the mindi source tree
+   3 files are proposed:
+   busybox-i386.net : busybox with Network support (NFS, PXE)
+   busybox-i386     : busybox with Normal support (CDs, DVD, Tapes)
+   busybox-ia64     : busybox with Normal and Network support on ia64/Itanium
+6/ Relaunch mindi or mondoarchive if you use it.

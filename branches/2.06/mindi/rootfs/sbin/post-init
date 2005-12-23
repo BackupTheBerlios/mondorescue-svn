@@ -1,0 +1,155 @@
+#!/bin/sh
+#
+# $Id$
+#
+#------------------------------------------------------------
+
+
+call_multifunc_cd() {
+    echo "Hooray! I'm a multi-function CD. Oo! Oo!"
+    mount | grep cdrom > /dev/null 2> /dev/null || mount /dev/cdrom /mnt/cdrom >> $LOGFILE 2>> $LOGFILE
+    for i in bin lib usr sbin ; do
+        echo -en "\rNormalizing $i ...    "
+        if [ -d "/mnt/cdrom/$i" ] ; then
+            for j in `find /mnt/cdrom/$i` ; do
+                k=`echo "$j" | awk -F '/' '{for(i=4; i<=NF;i++) {printf("/%s",$i);};printf "\n"; }'`
+                mkdir -p $k
+                rmdir $k 2> /dev/null
+                ln -sf $j $k
+            done
+        fi
+    done
+    echo -en "\rNormalized softlinks OK.\n"
+    echo -en "Shall I run a CPU burn-in test in the background (y/n) ?"
+    read line
+    if [ "$line" = "y" ] || [ "$line" = "Y" ] || [ "$line" = "yes" ] || [ "$line" = "YES" ] ; then
+        for i in `find /usr/local/sbin/burn*` ; do basename $i ; done
+        echo -en "...Which one ?"
+        read line
+        $i || echo $? &
+    fi
+    for i in lucifer mprime ; do
+# tiobench ide-smart 
+        if which $i > /dev/null > /dev/null ; then
+	    echo -en "Shall I run $i (y/n) ?"
+	    read line
+	    if [ "$line" = "y" ] || [ "$line" = "Y" ] || [ "$line" = "yes" ] || [ "$line" = "YES" ] ; then
+		echo "Running $i ..."
+		$i || echo "Warning - $i returned an error"
+	    fi
+	fi
+    done
+
+#    echo "Running bash."
+#    busybox sh
+    echo "Exiting multi-function CD thingy. Please reboot immediately."
+    exit 0
+}
+
+
+# ---------------------------- main ---------------------------- 
+
+sleep 1
+
+if [ -e "/MULTIFUNC" ] ; then
+    LogIt "I think this is a multifunc CD but I'm not going there today."
+#    call_multifunc_cd
+fi
+
+cat /tmp/mountlist.txt >> /tmp/mondo-restore.log
+
+iso=`cat /proc/cmdline | grep "iso"`
+nuke=`cat /proc/cmdline | grep "nuke"`
+if [ "$nuke" = "" ] ; then
+    nuke=`cat /proc/cmdline | grep -i "RESTORE "`
+fi
+expert=`cat /proc/cmdline | grep "expert"`
+compare=`cat /proc/cmdline | grep "compare"`
+interactive=`cat /proc/cmdline | grep "interactive"`
+[ "$interactive" ]  && expert=""; # in case 'expert' crops up somewhere
+if which mondorestore > /dev/null 2> /dev/null ; then
+    LogIt "mondorestore found; cool..."
+else
+    if [ "$iso$nuke$compare$interactive" != "" ] ; then
+	LogIt "FYI, this CD was made by Mindi, not Mondo." 1
+	exit 0
+
+    else
+	LogIt "Mindi-Linux has finished booting."
+    fi
+fi
+
+if [ -h "`which mondorestore`" ] ; then
+    LogIt "Turning mondorestore from a hyperlink into an executable"
+    cat `which mondorestore` > /usr/bin/MR
+# in case there's more than one instance :)
+    rm -f `which mondorestore 2> /dev/null`
+    rm -f `which mondorestore 2> /dev/null`
+    rm -f `which mondorestore 2> /dev/null`
+    rm -f `which mondorestore 2> /dev/null`
+    mv /usr/bin/MR /usr/bin/mondorestore
+    chmod +x /usr/bin/mondorestore
+fi
+
+if which bootstrap > /dev/null 2> /dev/null ; then
+    LogIt "Calling bootstrap script" 1
+    bootstrap
+fi
+
+for i in mount-me unmount-me mondorestore ; do
+    if which $i > /dev/null 2> /dev/null ; then
+        LogIt "$i found"
+    else
+        LogIt "Warning - $i not found on ramdisk."
+    fi
+done
+
+if [ "$compare" ] ; then
+    LogIt "------------------COMPARE MODE-----------------" 1
+    mondorestore --compare
+elif [ "$nuke" ] ; then
+    LogIt "-------------------NUKE MODE-------------------" 1
+    mondorestore --nuke
+elif [ "$expert" ] ; then
+    if [ "`cat /tmp/mondo-restore.cfg | grep tapedev`" ] ; then
+	LogIt "-------------------TAPE MODE-------------------" 1
+	loc=`which mondorestore 2> /dev/null`
+	if [ "$loc" = "" ] ; then
+	    LogIt "I presume you backed up with Mindi, not Mondo." 1
+	else
+	    LogIt "Tape Mode -- calling mondorestore..."
+            if [ "$nuke" ] ; then
+                mondorestore --nuke
+            else
+	        mondorestore; # MR will detect & access the tape
+            fi
+	fi
+    elif [ "`cat /tmp/mondo-restore.cfg | grep using-cdstream`" ] ; then
+        LogIt "------------------CDSTREAM MODE------------------" 1
+        loc=`which mondorestore 2> /dev/null`
+        if [ "$loc" = "" ] ; then
+            LogIt "I presume you backed up with Mindi, not Mondo." 1
+        else
+            LogIt "Cdstream Mode -- calling mondorestore..."
+            if [ "$nuke" ] ; then
+                mondorestore --nuke
+            else
+                mondorestore; # MR will detect & access the cdstream
+            fi
+        fi
+    else
+	LogIt "------------------EXPERT MODE------------------" 1
+	LogIt "You do all the work. :-)" 1
+	if which mondorestore > /dev/null 2> /dev/null ; then
+            LogIt "Type 'mondorestore' to begin the restore/compare process." 1
+	    loc=`which ISO 2> /dev/null`
+        fi
+    fi
+else
+    LogIt "------------------INTERACTIVE------------------" 1
+    mondorestore --interactive
+fi
+
+[ -e "/tmp/DO-MBR-PLEASE" ] && LogIt "PLEASE RUN 'mondorestore --mbr' NOW TO INITIALIZE YOUR BOOT SECTOR." 1
+
+exit 0

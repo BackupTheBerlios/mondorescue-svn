@@ -1,0 +1,6 @@
+Revision history for Perl extension Mindi::DiskSize.
+
+0.01  Thu Jun 19 14:04:22 2003
+	- original version; created by h2xs 1.21 with options
+		-O -n Mindi::DiskSize Mindi/DiskSize/lib/DiskSize.h
+

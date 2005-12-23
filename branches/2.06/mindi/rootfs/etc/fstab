@@ -1,0 +1,6 @@
+/dev/ramdisk	/		ext2	defaults 1 1
+none		/proc		proc	defaults 0 0
+none /dev/pts devpts mode=0620 0 0
+#/dev/cdrom /mnt/cdrom iso9660 noauto,owner,ro,exec 0 0
+/dev/cdrom /mnt/cdrom iso9660 noauto 0 0
+/dev/fd0 /mnt/floppy ext2 owner,rw,exec 0 0

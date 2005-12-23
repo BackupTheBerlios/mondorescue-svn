@@ -1,0 +1,29 @@
+MINDI                               TODO                             11/08/2001
+
+
+Fully support Devfs
+Test with Debian 2.2 r4
+test with Debian 2.3
+Test with SuSE 7.2
+Test with eSmith 4.0
+Boot from tape?
+
+
+DONE
+""""
+Test with LM8.1
+Incorporate BusyBox
+Strip binaries
+Strip crud from /etc/termcap
+Put creation date on Mindi's boot-up screen
+Make Mindi use the user's copy of LILO and boot.b instead of its own
+Use the distro's lilo and boot.b, not Mindi's
+Test with Slackware 8, RH7.1
+Supply a kernel w/modules, in case user's kernel is b0rken
+Use more of busybox's tools (e.g. mount, umount, ash)
+Support DevFS in a limited fashion
+Test with Red Hat 7.2
+
+
+ABANDONED
+"""""""""

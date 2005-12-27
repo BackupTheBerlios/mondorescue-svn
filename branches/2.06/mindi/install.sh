@@ -54,7 +54,7 @@ chmod 755 $local/sbin/mindi
 install -m 755 analyze-my-lvm parted2fdisk.pl $local/sbin
 
 install -m 644 mindi.8 $MANDIR
-install -m 644 CHANGES COPYING README README.busybox README.ia64 README.pxe TODO INSTALL $DOCDIR
+install -m 644 ChangeLog COPYING README README.busybox README.ia64 README.pxe TODO INSTALL $DOCDIR
 
 ARCH=`/bin/arch`
 echo $ARCH | grep -x "i[0-9]86" &> /dev/null && ARCH=i386
@@ -101,7 +101,7 @@ fi
 rm -f $local/lib/mindi/rootfs/sbin/parted2fdisk-*
 
 if [ "$RPMBUILDMINDI" != "true" ]; then
-	chown -R root:root $local/lib/mindi $conf/mindi $conf $DOCDIR
+	chown -R root:root $local/lib/mindi $conf $DOCDIR
 	chown root:root $local/sbin/mindi $MANDIR/mindi.8 $local/sbin/analyze-my-lvm $local/sbin/parted2fdisk.pl 
 	if [ "$ARCH" = "ia64" ] ; then
 		chown root:root $local/sbin/parted2fdisk

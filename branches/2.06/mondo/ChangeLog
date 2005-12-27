@@ -27,7 +27,7 @@ v2.06 (2005-12-23)
 - use parted2fdisk everywhere (Bruno Cornec)
 - exports MONDO_LIB (Bruno Cornec)
 - RPM build for fedora core 4, sles9, redhat 7.3, rhel 3/4, mandriva 2006.0, 
-  mandrake 10.2 (Bruno Cornec/Gary Granger)
+  mandrake 10.2/10.1 (Bruno Cornec/Gary Granger)
 - interactive mode now asks for image size and prefix in NFS mode 
   (Gallig Renaud/Bruno Cornec)
 - iso-prefix should be read in iso mode even when -H not given (Stan Benoit)

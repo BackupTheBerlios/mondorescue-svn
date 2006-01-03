@@ -1,4 +1,7 @@
 #!/bin/sh
+#
+# $Id$
+#
 
 if ! mount | grep cdrom ; then 
     LogIt "CD-ROM is not mounted. Darn."
@@ -19,6 +22,6 @@ fi
 
 LogIt "Re-jigging mondo-restore.cfg because you backed up to ISOs and then burned them to CDs" 1
 mv -f /tmp/mondo-restore.cfg /tmp/mrco
-cat /tmp/mrco | sed 's/backup-media-type iso/backup-media-type cdr/' > /tmp/mondo-restore.cfg
+sed 's/backup-media-type iso/backup-media-type cdr/' /tmp/mrco > /tmp/mondo-restore.cfg
 LogIt "Done re-jigging. Yay."
 exit 0

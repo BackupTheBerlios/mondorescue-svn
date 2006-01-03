@@ -377,7 +377,7 @@ int compare_a_tarball(char *tarball_fname, int current_tarball_number)
 	}
 	if (length_of_file(logfile) > 5) {
 		sprintf(command,
-				"cat %s | sed s/': \\\"'/\\|/ | sed s/'\\\": '/\\|/ | cut -d'|' -f2 | sort | uniq | grep -vx \"dev/.*\" >> /tmp/changed.txt",
+				"sed s/': \\\"'/\\|/ %s | sed s/'\\\": '/\\|/ | cut -d'|' -f2 | sort | uniq | grep -vx \"dev/.*\" >> /tmp/changed.txt",
 				logfile);
 		system(command);
 		archiver_errors = count_lines_in_file(logfile);

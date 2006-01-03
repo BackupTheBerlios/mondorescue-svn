@@ -489,7 +489,7 @@ int get_acl_list(char *filelist, char *facl_fname)
 	if (find_home_of_exe("getfacl")) {
 //      sort_file(filelist); // FIXME - filelist chopper sorts, so this isn't necessary
 		asprintf(&command,
-				 "cat %s | getfacl --all-effective -P - 2>> %s | gzip -c1 > %s 2>> %s",
+				 "getfacl --all-effective -P %s 2>> %s | gzip -c1 > %s 2>> %s",
 				 filelist, MONDO_LOGFILE, facl_fname, MONDO_LOGFILE);
 		iamhere(command);
 		retval = system(command);

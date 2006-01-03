@@ -14,11 +14,11 @@ GetDevFromLine() {
 
 GetOldFstabMountpoint() {
     local res
-    res=`cat $old_fstab | tr -s '\t' ' ' | grep "$1" | cut -d' ' -f2`
+    res=`tr -s '\t' ' ' < $old_fstab | grep "$1" | cut -d' ' -f2`
 #    echo "old_fstab = $old_fstab" >> /dev/stderr
     if [ "$res" = "" ] ; then
 #	echo "OK, resB" >> /dev/stderr
-	res=`cat $old_mountlist | tr -s '\t' ' ' | grep " $1 " | cut -d' ' -f1`
+	res=`tr -s '\t' ' ' < $old_mountlist | grep " $1 " | cut -d' ' -f1`
     fi
     echo "$res"
 }
@@ -33,10 +33,10 @@ GetNewFstabMountpoint() {
     done
     old_mountpoint=`GetOldFstabMountpoint $1`
 #    echo "old_mountpoint = $old_mountpoint" >> /dev/stderr
-    new_mountpoint=`cat $new_mountlist | tr -s '\t' ' ' | grep " $old_mountpoint" | cut -d' ' -f1`
+    new_mountpoint=`tr -s '\t' ' ' < $new_mountlist | grep " $old_mountpoint" | cut -d' ' -f1`
     if [ "$new_mountpoint" = "" ] ; then
-	mtpt=`cat $new_mountlist | tr -s '\t' ' ' | grep " $old_mountpoint " | cut -d' ' -f2`
-	dev=`cat $new_mountlist | tr -s '\t' ' ' | grep " $mtpt " | cut -d' ' -f1`
+	mtpt=`tr -s '\t' ' ' < $new_mountlist | grep " $old_mountpoint " | cut -d' ' -f2`
+	dev=`tr -s '\t' ' ' < $new_mountlist | grep " $mtpt " | cut -d' ' -f1`
 #	echo "NEW_MP (A) = $dev" >> /dev/stderr
 #    else
 #	echo "NEW_MP (B) = $new_mountpoint" >> /dev/stderr

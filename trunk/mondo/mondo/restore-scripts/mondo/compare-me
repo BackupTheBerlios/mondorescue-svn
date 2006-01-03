@@ -261,7 +261,7 @@ else
 fi
 
 grep -v -x "Files [^:]*:-" /tmp/compare-me.log \
-| sort | uniq > /tmp/suspect.files
+| sort -u > /tmp/suspect.files
 
 noof_lines=`grep -n "" /tmp/suspect.files | tail -n 1 | cut -d':' -f1`
 if [ "$noof_lines" -gt "0" ] ; then

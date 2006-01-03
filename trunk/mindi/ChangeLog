@@ -20,7 +20,7 @@ MINDI CHANGES
 - use MONDO_LIB exported by mondoarchive instead of MONDO_HOME guessed 
   (Bruno Cornec)
 - RPM build for fedora core 4, sles9, redhat 7.3, rhel 3/4, mandriva 2006.0, 
-  mandrake 10.2 (Bruno Cornec/Gary Granger)
+  mandrake 10.2/10.1 (Bruno Cornec/Gary Granger)
 - VERSION/RELEASE Tag added (Bruno Cornec)
 - VMPlayer support
 - Code cleanup, small fixes, PXE/NFS code improvements 

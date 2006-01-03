@@ -288,7 +288,7 @@ void *XMondoRestore_preparer_thread (void *arg)
     int nlines = atoi (call_program_and_get_last_line_of_output (const_cast<char*> (QString ("wc -l %1.FILT").arg (g_filelist_full).ascii())));
     int curline = 0;
     FILE *fin  = fopen (QString ("%1.FILT").arg (g_filelist_full).ascii(), "r");
-    FILE *fout = popen (QString ("sort | uniq > %1").arg (g_filelist_full).ascii(), "w");
+    FILE *fout = popen (QString ("sort -u > %1").arg (g_filelist_full).ascii(), "w");
 
     if (!(fin && fout)) {
 	r->fStatusMsg->setText ("Can't open filelist");

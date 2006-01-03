@@ -61,8 +61,7 @@ if [ "$wildpath" = "" ] ; then
 	if [ "$r" -ne "0" ] ; then
 	    if [ "`cat /tmp/mck.log`" != "" ] ; then
 		echo "Files which, according to md5sum, have changed:-" >> /tmp/compare-me.log
-		cat /tmp/mck.log
-		cat /tmp/mck.log >> /tmp/compare-me.log
+		cat /tmp/mck.log | tee -a /tmp/compare-me.log
 	    else
 		LogIt "Unable to run mondo-checksum."
 	    fi
@@ -74,11 +73,10 @@ else
 fi
 if [ "`cat /tmp/afio.log`" != "" ] ; then
     echo "Files reported by afio as changed:-" > /tmp/afio.log.mashed
-    cat /tmp/afio.log | sed s/'afio: "'/'|'/ | sed s/'": '/'|'/ \
+    sed s/'afio: "'/'|'/ /tmp/afio.log | sed s/'": '/'|'/ \
 | cut -d'|' -f2 | gawk '{ if (substr($0,1,1)!="/") {print"/"$0;} \
-else {print $0;};};' | sort | uniq >> /tmp/afio.log.mashed
-    cat /tmp/afio.log.mashed
-    cat /tmp/afio.log.mashed >> /tmp/compare-me.log
+else {print $0;};};' | sort -u >> /tmp/afio.log.mashed
+    cat /tmp/afio.log.mashed | tee -a /tmp/compare-me.log
 fi
 
 LogIt "compare-subroutine-me --- leaving"

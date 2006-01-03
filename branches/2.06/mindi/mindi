@@ -807,7 +807,7 @@ GenerateGiantDependencyList() {
 	fi
 	echo -en "$DONE\nMaking complete dependency list"
 
-	tr -s '/' '/' < $tempfile | sort | uniq > $tempfile.new
+	tr -s '/' '/' < $tempfile | sort -u > $tempfile.new
 	mv -f $tempfile.new $tempfile
 	> $outfile.pre
 	progress=0
@@ -818,7 +818,7 @@ GenerateGiantDependencyList() {
 	echo "$fname" >> $outfile.pre
 		cat $tempdepfile >> $outfile.pre
 #        echo "$fname ----> dependencies:-" >> $LOGFILE
-#        cat $tempdepfile | tr -s '/' '/' | sort | uniq >> $LOGFILE
+#        cat $tempdepfile | tr -s '/' '/' | sort -u >> $LOGFILE
 #        echo -en "(end of deplist of $fname)\n\n" >> $LOGFILE
 		rm -f $tempdepfile
 	progress=$(($progress+1))
@@ -1314,7 +1314,7 @@ absolute_partition old_partition_fmt
 	for i in $IMAGE_DEVS ; do
 		mount | fgrep "$i " > /dev/null 2> /dev/null && Die "Sorry, $i is already mounted! CANNOT DO IMAGEDEV on it if it's mounted."
 	done
-	[ "$IMAGE_DEVS" != "" ] && all_partitions="`echo "$all_partitions $IMAGE_DEVS" | tr ' ' '\n' | sort | uniq | tr '\n ' ' '`"
+	[ "$IMAGE_DEVS" != "" ] && all_partitions="`echo "$all_partitions $IMAGE_DEVS" | tr ' ' '\n' | sort -u | tr '\n ' ' '`"
 	printf "        %-15s %-15s %-15s %-15s\n" DEVICE MOUNTPOINT FORMAT "SIZE (MB)"
 	for c_p in $all_partitions ; do
 #        echo "c_p = $c_p" > /dev/stderr
@@ -2570,7 +2570,7 @@ TryToFindKernelPath() {
 		    LogIt "Your kernel doesn't have a sane builddate. Oh well...\n"
 		fi
 	fi
-	possible_kernels=`echo "$possible_kernels" | tr -s ' ' '\n' | sort | uniq | tr '\n' ' '`
+	possible_kernels=`echo "$possible_kernels" | tr -s ' ' '\n' | sort -u | tr '\n' ' '`
 	noof_kernels=`CountItemsIn "$possible_kernels"`
 	if [ "$noof_kernels" -eq "0" ] ; then
 		LogIt "Could not find your kernel.\n"

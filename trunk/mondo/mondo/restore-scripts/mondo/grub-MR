@@ -63,7 +63,7 @@ FindBootPart() {
     bootpart=""
     BOOTPATHNAME=""
     for sz in /boot / ; do
-	bootpart=`cat $2 | grep " $sz " | cut -d' ' -f1 | head -n1`
+	bootpart=`grep " $sz " $2 | cut -d' ' -f1 | head -n1`
 	[ "$bootpart" ] && [ -e "/mnt/RESTORING/$bootpart" ] && break
     done
     [ ! "$bootpart" ] && Die "Cannot find boot partition in mountlist"
@@ -163,7 +163,7 @@ else
 fi
 if echo $bootpart | grep "/md" > /dev/null ; then
     base=`basename $bootpart`
-    line=`cat /proc/mdstat | grep $base | head -n1`
+    line=`grep $base /proc/mdstat | head -n1`
     echo "mbrpart was $mbrpart"
     mbrpart=`parted2fdisk -l | grep /dev/ | head -n1 | tr ':' ' ' \
 | cut -d' ' -f2`

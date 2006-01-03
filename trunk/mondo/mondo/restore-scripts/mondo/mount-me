@@ -13,7 +13,7 @@ if [ ! -f "$mountlist" ] ; then
     exit 1
 fi
 
-paths=`cat $mountlist | grep -v " raid " | grep -v "lvm lvm" | tr -s ' ' ' ' | cut -d' ' -f2 | sort`
+paths=`grep -v " raid " $mountlist | grep -v "lvm lvm" | tr -s ' ' ' ' | cut -d' ' -f2 | sort`
 > $mountlist.sorted
 for i in $paths ; do
     grep " $i " $mountlist >> $mountlist.sorted

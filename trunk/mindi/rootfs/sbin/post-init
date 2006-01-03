@@ -58,14 +58,14 @@ fi
 
 cat /tmp/mountlist.txt >> /tmp/mondo-restore.log
 
-iso=`cat /proc/cmdline | grep "iso"`
-nuke=`cat /proc/cmdline | grep "nuke"`
+iso=`grep iso /proc/cmdline`
+nuke=`grep nuke /proc/cmdline`
 if [ "$nuke" = "" ] ; then
-    nuke=`cat /proc/cmdline | grep -i "RESTORE "`
+    nuke=`grep -i "RESTORE " /proc/cmdline`
 fi
-expert=`cat /proc/cmdline | grep "expert"`
-compare=`cat /proc/cmdline | grep "compare"`
-interactive=`cat /proc/cmdline | grep "interactive"`
+expert=`grep expert /proc/cmdline`
+compare=`grep compare /proc/cmdline`
+interactive=`grep interactive /proc/cmdline`
 [ "$interactive" ]  && expert=""; # in case 'expert' crops up somewhere
 if which mondorestore > /dev/null 2> /dev/null ; then
     LogIt "mondorestore found; cool..."
@@ -111,7 +111,7 @@ elif [ "$nuke" ] ; then
     LogIt "-------------------NUKE MODE-------------------" 1
     mondorestore --nuke
 elif [ "$expert" ] ; then
-    if [ "`cat /tmp/mondo-restore.cfg | grep tapedev`" ] ; then
+    if [ "`grep tapedev /tmp/mondo-restore.cfg`" ] ; then
 	LogIt "-------------------TAPE MODE-------------------" 1
 	loc=`which mondorestore 2> /dev/null`
 	if [ "$loc" = "" ] ; then
@@ -124,7 +124,7 @@ elif [ "$expert" ] ; then
 	        mondorestore; # MR will detect & access the tape
             fi
 	fi
-    elif [ "`cat /tmp/mondo-restore.cfg | grep using-cdstream`" ] ; then
+    elif [ "`grep using-cdstream /tmp/mondo-restore.cfg`" ] ; then
         LogIt "------------------CDSTREAM MODE------------------" 1
         loc=`which mondorestore 2> /dev/null`
         if [ "$loc" = "" ] ; then

@@ -53,14 +53,14 @@ ProcessBigHack() {
 #    GetOldFstabMountpoint $dev
     newdev=`GetNewFstabMountpoint $dev`
     if [ ! "$newdev" ] ; then
-	col2=`cat $old_mountlist | grep "$dev " | cut -d' ' -f2`
-	col1_new=`cat $new_mountlist | grep " $col2 " | cut -d' ' -f1`
+	col2=`grep "$dev " $old_mountlist | cut -d' ' -f2`
+	col1_new=`grep " $col2 " $new_mountlist | cut -d' ' -f1`
 	newdev="$col1_new"
 	if [ ! "$newdev" ] ; then
 	    newdev=$dev
 	fi
     fi
-#    old_fstab_line=`cat $new_fstab | grep "$dev"`
+#    old_fstab_line=`grep "$dev" $new_fstab`
     [ "$2" = "other" ] || echo -e -n "\t"
     echo -e "$2=$newdev"
     echo "$newdev" >> $bootlistfile
@@ -134,7 +134,7 @@ outfile=$6
 > $outfile
 ProcessLilo < $old_lilo >> $outfile
 chmod 600 $outfile
-cat $bootlistfile | sort | uniq > $bootlistfile
+sort -u $bootlistfile -o $bootlistfile
 
 #------ disabled 12/10/01 (doesn't do anything anyway *g*)
 #make-me-bootable $bootlistfile > /tmp/make-me-bootable.log 2> /tmp/make-me-bootable.log

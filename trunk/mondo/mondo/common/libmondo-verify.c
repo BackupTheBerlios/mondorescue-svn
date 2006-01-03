@@ -62,13 +62,13 @@ generate_list_of_changed_files(char *changedfiles_fname,
 	paranoid_system("sync");
 
 /*  sprintf (command,
-	   "cat %s | grep \"afio: \" | awk '{j=substr($0,8); i=index(j,\": \");printf \"/%%s\\n\",substr(j,1,i-2);}' | sort | uniq | grep -v \"incheckentry.*xwait\" | grep -vx \"/afio:.*\" | grep -vx \"/dev/.*\" > %s",
+	   "grep \"afio: \" %s | awk '{j=substr($0,8); i=index(j,\": \");printf \"/%%s\\n\",substr(j,1,i-2);}' | sort -u | grep -v \"incheckentry.*xwait\" | grep -vx \"/afio:.*\" | grep -vx \"/dev/.*\" > %s",
 	   stderr_fname, afio_found_changes);
 */
 
 	log_msg(1, "Now scanning log file for 'afio: ' stuff");
 	asprintf(&command,
-			 "cat %s | grep \"afio: \" | sed 's/afio: //' | grep -vx \"/dev/.*\" >> %s",
+			 "grep \"afio: \" %s | sed 's/afio: //' | grep -vx \"/dev/.*\" >> %s",
 			 stderr_fname, afio_found_changes);
 	log_msg(2, command);
 	res = system(command);
@@ -79,7 +79,7 @@ generate_list_of_changed_files(char *changedfiles_fname,
 
 	log_msg(1, "Now scanning log file for 'star: ' stuff");
 	asprintf(&command,
-			 "cat %s | grep \"star: \" | sed 's/star: //' | grep -vx \"/dev/.*\" >> %s",
+			 "grep \"star: \" %s | sed 's/star: //' | grep -vx \"/dev/.*\" >> %s",
 			 stderr_fname, afio_found_changes);
 	log_msg(2, command);
 	res = system(command);
@@ -90,7 +90,7 @@ generate_list_of_changed_files(char *changedfiles_fname,
 //  exclude_nonexistent_files (afio_found_changes);
 	afio_diffs = count_lines_in_file(afio_found_changes);
 	asprintf(&command,
-			 "cat %s %s %s | sort | uniq -c | awk '{ if ($1==\"2\") {print $2;};}' | grep -v \"incheckentry xwait()\" > %s",
+			 "sort %s %s %s | uniq -c | awk '{ if ($1==\"2\") {print $2;};}' | grep -v \"incheckentry xwait()\" > %s",
 			 ignorefiles_fname, afio_found_changes, afio_found_changes,
 			 changedfiles_fname);
 	log_msg(2, command);
@@ -307,9 +307,9 @@ int verify_all_slices_on_CD(struct s_bkpinfo *bkpinfo, char *mtpt)
 			log_msg(2, "ISO=%d  bigfile=%ld  slice=%ld  \r",
 					g_current_media_number, bigfile_num, slice_num);
 			if (bkpinfo->compression_level > 0) {
-				asprintf(&command, "cat %s | %s -dc 2>> %s",
+				asprintf(&command, "%s -dc %s 2>> %s", sz_exe,
 						 slice_fname(bigfile_num, slice_num, mountpoint,
-									 bkpinfo->zip_suffix), sz_exe,
+									 bkpinfo->zip_suffix),
 						 MONDO_LOGFILE);
 			} else {
 				asprintf(&command, "cat %s",
@@ -447,8 +447,8 @@ int verify_a_tarball(struct s_bkpinfo *bkpinfo, char *tarball_fname)
 	if (length_of_file(outlog) < 10) {
 		asprintf(&command, "cat %s >> %s", outlog, MONDO_LOGFILE);
 	} else {
-		asprintf(&command, "cat %s | cut -d':' -f%d | sort | uniq", outlog,
-				 (bkpinfo->use_star) ? 1 : 2);
+		asprintf(&command, "cut -d':' -f%d %s | sort -u",
+				 (bkpinfo->use_star) ? 1 : 2, outlog);
 		pin = popen(command, "r");
 		if (pin) {
 			for (getline(&tmp, &n, pin); !feof(pin);
@@ -488,7 +488,7 @@ int verify_a_tarball(struct s_bkpinfo *bkpinfo, char *tarball_fname)
 	paranoid_free(command);
 
 	/*  chdir(old_pwd); */
-	//  sprintf (tmp, "cat %s | uniq -u >> %s", "/tmp/mondo-verify.err", MONDO_LOGFILE);
+	//  sprintf (tmp, "uniq -u %s >> %s", "/tmp/mondo-verify.err", MONDO_LOGFILE);
 	//  paranoid_system (tmp);
 	//  unlink ("/tmp/mondo-verify.err");
 	return (0);
@@ -1083,8 +1083,8 @@ int verify_tape_backups(struct s_bkpinfo *bkpinfo)
 	asprintf(&changed_files_fname, "/tmp/changed.files.%d",
 			 (int) (random() % 32767));
 	asprintf(&tmp,
-			 "cat %s | grep -x \"%s:.*\" | cut -d'\"' -f2 | sort -u | awk '{print \"/\"$0;};' | tr -s '/' '/' | grep -v \"(total of\" | grep -v \"incheckentry.*xwait\" | grep -vx \"/afio:.*\" | grep -vx \"dev/.*\"  > %s",
-			 MONDO_LOGFILE, (bkpinfo->use_star) ? "star" : "afio",
+			 "grep -x \"%s:.*\" %s | cut -d'\"' -f2 | sort -u | awk '{print \"/\"$0;};' | tr -s '/' '/' | grep -v \"(total of\" | grep -v \"incheckentry.*xwait\" | grep -vx \"/afio:.*\" | grep -vx \"dev/.*\"  > %s",
+			 (bkpinfo->use_star) ? "star" : "afio", MONDO_LOGFILE,
 			 changed_files_fname);
 	log_msg(2, "Running command to derive list of changed files");
 	log_msg(2, tmp);

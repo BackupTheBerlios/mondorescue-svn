@@ -29,9 +29,9 @@ AddFancyParams() {
     format=`echo "$incoming"     | cut -d' ' -f3`
     size=`echo "$incoming"       | cut -d' ' -f4`
 #    echo "'$device' '$mountpoint' '$format' '$size'" > /dev/stderr
-    original_fstab_line=`cat $old_fstab | grep " $mountpoint " | grep -v "#" | tr -s ' ' ' '`
+    original_fstab_line=`grep " $mountpoint " $old_fstab | grep -v "#" | tr -s ' ' ' '`
 #    echo "original_fstab_line = $original_fstab_line" >> /dev/stderr
-    if [ "`cat $old_fstab | grep "LABEL="`" != "" ] ; then
+    if [ "`grep "LABEL=" $old_fstab`" != "" ] ; then
 	if [ "$format" = "ext2" ] || [ "$format" = "ext3" ] ; then
 	    device="LABEL=$mountpoint"
 	fi
@@ -88,7 +88,7 @@ HackIncomingIfLABELused() {
     col1=`echo "$incoming" | cut -f1`
     col2=`echo "$incoming" | cut -f2`
     col_rest=`echo "$incoming" | cut -f3-19 | tr -s ' ' ' '`
-    orig="`cat $old_fstab | grep " $col2 " | cut -f1`"
+    orig="`grep " $col2 " $old_fstab | cut -f1`"
     if [ "`echo "$orig" | grep "LABEL="`" != "" ] ; then
 	echo "orig = $orig" >> /dev/stderr
 	echo -e "$orig $col2 $col_rest | tr -s ' ' ' '"

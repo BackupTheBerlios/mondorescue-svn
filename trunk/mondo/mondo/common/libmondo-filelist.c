@@ -529,7 +529,7 @@ int set_acl_list(char*masklist, char*acl_fname)
   malloc_string(command);
   if (find_home_of_exe("setfacl"))
     {
-      sprintf(command, "cat %s | gzip -dc | setfacl --restore - 2>> %s", acl_fname, MONDO_LOGFILE);
+      sprintf(command, "gzip -dc %s | setfacl --restore - 2>> %s", acl_fname, MONDO_LOGFILE);
       log_msg(1, "command = %s", command);
       retval = system(command);
     }
@@ -559,7 +559,7 @@ int set_EXAT_list(char *orig_msklist, char *original_exat_fname,
 		|| !does_file_exist(orig_msklist)) {
 		log_msg(1,
 				"No masklist provided. I shall therefore set ALL attributes.");
-		asprintf(&command, "cat %s | gzip -dc | %s --restore - 2>> %s",
+		asprintf(&command, "gzip -dc %s | %s --restore - 2>> %s",
 				 original_exat_fname, executable, MONDO_LOGFILE);
 		log_msg(1, "command = %s", command);
 		retval = system(command);
@@ -580,7 +580,7 @@ int set_EXAT_list(char *orig_msklist, char *original_exat_fname,
 	paranoid_free(command);
 
 	sort_file(masklist);
-	asprintf(&syscall_pin, "cat %s | gzip -dc", original_exat_fname);
+	asprintf(&syscall_pin, "gzip -dc %s", original_exat_fname);
 	asprintf(&syscall_pout, "%s --restore - 2>> %s", executable,
 			 MONDO_LOGFILE);
 

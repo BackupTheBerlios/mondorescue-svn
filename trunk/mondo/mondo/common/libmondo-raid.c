@@ -48,10 +48,10 @@ bool is_this_raid_personality_registered(int raidno)
 
 	if (raidno == -1) {
 		asprintf(&command,
-				 "cat /proc/mdstat | grep \"linear\" > /dev/null 2> /dev/null");
+				 "grep \"linear\" /proc/mdstat > /dev/null 2> /dev/null");
 	} else {
 		asprintf(&command,
-				 "cat /proc/mdstat | grep \"raid%d\" > /dev/null 2> /dev/null",
+				 "grep \"raid%d\" /proc/mdstat > /dev/null 2> /dev/null",
 				 raidno);
 	}
 	log_it("Is raid %d registered? Command = '%s'", raidno, command);

@@ -16,7 +16,7 @@ for i in `mount | grep /mnt/RESTORING | cut -d' ' -f3 | sort -r`; do
     umount $i
 done
 
-for i in `cat /proc/swaps | cut -d' ' -f1 | grep /dev`; do
+for i in `cut -d' ' -f1 /proc/swaps | grep /dev`; do
     swapoff $i
 done
 

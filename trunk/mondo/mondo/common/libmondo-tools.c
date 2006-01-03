@@ -171,8 +171,8 @@ void clean_up_KDE_desktop_if_necessary(void)
 	asprintf(&tmp,
 			 "for i in `find /root /home -type d -name Desktop -maxdepth 2`; do \
 file=$i/.directory; if [ -f \"$file\" ] ; then mv -f $file $file.old ; \
-cat $file.old | awk '{if (index($0, \"rootimagesmindi\")) { while (length($0)>2) { getline;} ; } \
-else { print $0;};}' > $file ; fi ; done");
+awk '{if (index($0, \"rootimagesmindi\")) { while (length($0)>2) { getline;} ; } \
+else { print $0;};}'$file.old  > $file ; fi ; done");
 	run_program_and_log_output(tmp, 5);
 	paranoid_free(tmp);
 }
@@ -869,7 +869,7 @@ int some_basic_system_sanity_checks()
 	}
 #ifndef __FreeBSD__
 	if (run_program_and_log_output
-		("cat /proc/devices | grep ramdisk", FALSE)) {
+		("grep ramdisk /proc/devices", FALSE)) {
 		if (!ask_me_yes_or_no
 			("Your kernel has no ramdisk support. That's mind-numbingly stupid but I'll allow it if you're planning to use a failsafe kernel. Are you?"))
 		{
@@ -1095,7 +1095,7 @@ void mount_boot_if_necessary()
 	asprintf(&g_boot_mountpt, "");
 	log_msg(4, "Done. Great. Seeting command to something");
 	asprintf(&command,
-			 "cat /etc/fstab | grep -v \":\" | grep -vx \"#.*\" | grep -w \"/boot\" | tr -s ' ' '\t' | cut -f1 | head -n1");
+			 "grep -v \":\" /etc/fstab | grep -vx \"#.*\" | grep -w \"/boot\" | tr -s ' ' '\t' | cut -f1 | head -n1");
 	log_msg(4, "Cool. Command = '%s'", command);
 	asprintf(&tmp, call_program_and_get_last_line_of_output(command));
 	paranoid_free(command);

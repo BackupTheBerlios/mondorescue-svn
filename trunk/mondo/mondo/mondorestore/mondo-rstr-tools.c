@@ -381,7 +381,7 @@ bool is_file_in_list(char *f, char *list_fname, char *preamble)
 			"Checking to see if f=%s, file=%s, is in the list of biggiefiles",
 			f, file);
 	log_msg(2, tmp);
-	sprintf(command, "cat %s | grep -x \"%s\"", list_fname, file);
+	sprintf(command, "grep -x \"%s\" %s", file, list_fname);
 	res = run_program_and_log_output(command, FALSE);
 	paranoid_free(command);
 	paranoid_free(file);
@@ -539,7 +539,7 @@ int modify_rclocal_one_time(char *path)
 		return (1);
 	}
 	sprintf(newfile_fname, "%s/rc.local.mondorescue", path);
-	sprintf(tmp, "cat %s | grep mondorescue > /dev/null 2> /dev/null",
+	sprintf(tmp, "grep mondorescue %s > /dev/null 2> /dev/null",
 			rclocal_fname);
 	if (system(tmp)) {
 		sprintf(tmp, "echo \"[ -e %s ] && %s\n\" >> %s",
@@ -550,7 +550,7 @@ int modify_rclocal_one_time(char *path)
 	sprintf(tmp, "echo -en \"#!/bin/sh\
 \\n\
 \\n\
-cat %s | grep -v mondorescue > %s\\n\
+grep -v mondorescue %s > %s\\n\
 rm -f /var/lock/subsys/*xfs*\\n\
 rm -f /var/run/xfs.*\\n\
 killall xfs\\n\
@@ -1352,7 +1352,7 @@ s_node *process_filelist_and_biggielist(struct s_bkpinfo *bkpinfo)
 			sprintf(command, "> %s", g_biggielist_txt);
 			paranoid_system(command);
 		}
-		sprintf(command, "cat %s | grep  -x \"/dev/.*\" > %s",
+		sprintf(command, "grep  -x \"/dev/.*\" %s > %s",
 				g_biggielist_txt, g_filelist_imagedevs);
 		paranoid_system(command);
 		exit(0);

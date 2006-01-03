@@ -109,7 +109,7 @@ mount $device -t vfat /mnt/tmpK || Die "Can't mount device $device"
 size=`df -m /mnt/tmpK | tr -s ' ' ' ' | cut -d' ' -f2 | tail -n 1`
 umount /mnt/tmpK || Die "Can't unmount /mnt/tmpK"
 
-ideal_size=`cat /tmp/mountlist.txt | grep "$device " | tr -s ' ' ' ' | cut -d' ' -f4`
+ideal_size=`grep "$device " /tmp/mountlist.txt | tr -s ' ' ' ' | cut -d' ' -f4`
 if [ "$ideal_size" = "" ]; then 
     LogIt "format-and-kludge-vfat --- can't find $device in mountlist" 1
     exit 0

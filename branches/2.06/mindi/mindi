@@ -243,7 +243,7 @@ AddKeyboardMappingFile() {
 	if [ "`echo $mappath | fgrep ".gz"`" ] ; then
 		included_list=`gzip -dc $mappath | fgrep -i include | sed s/'"'// | sed s/'"'// | cut -d' ' -f2`
 	else
-		included_list=`cat $mappath | fgrep -i include | sed s/'"'// | sed s/'"'// | cut -d' ' -f2`
+		included_list=`fgrep -i include $mappath | sed s/'"'// | sed s/'"'// | cut -d' ' -f2`
 	fi
 	for included_item in $included_list ; do
 	if [ ! -e "$included_item" ] ; then
@@ -312,7 +312,7 @@ CopyBootBFile() {
 	fi
 	if [ ! -f "$copy_from" ] ; then
 		LogIt "OK, you don't have a /boot/boot.b file, which is odd because\n most _good_ Linux distributions come with one, even if it's only a softlink"
-		copy_from=`cat /etc/lilo.conf | grep install= | grep "\.b" | cut -d'=' -f2`
+		copy_from=`grep install= /etc/lilo.conf | grep "\.b" | cut -d'=' -f2`
 		if [ ! -f "$copy_from" ] ; then
 		    LogIt "Nor can I find it from your /etc/lilo.conf file. This is very odd.\n"
 		    copy_from=`FindSensibleBootBFile`
@@ -504,7 +504,7 @@ DropOptimizedLibraries() {
 	filelist=$1
 	outdir=$2
 
-	list_of_optimized_libraries=`cat $filelist | grep "lib/i[5-7]86/"`
+	list_of_optimized_libraries=`grep "lib/i[5-7]86/" $filelist`
 	if [ "$list_of_optimized_libraries" = "" ] ; then
 	return 0
 	fi
@@ -525,12 +525,12 @@ DropOptimizedLibraries() {
 	rmdir $outdir$optimized_lib_name > /dev/null 2> /dev/null
 	ln -sf $vanilla_lib_name $outdir$optimized_lib_name
 	echo "Excluding $optimized_lib_name" >> $LOGFILE
-	cat $filelist | fgrep -vx "$optimized_lib_name" > $filelist.tmp
+	fgrep -vx "$optimized_lib_name $filelist" > $filelist.tmp
 	echo "Replacing it with $vanilla_lib_name" >> $LOGFILE
 	echo "$vanilla_lib_name" >> $filelist.tmp
 	mv -f $filelist.tmp $filelist
 	done
-	cat $filelist | sort | $AWK '{ print $1; }' | uniq > $filelist.tmp
+	sort $filelist | $AWK '{ print $1; }' | uniq > $filelist.tmp
 	mv -f $filelist.tmp $filelist
 	echo -e "$DONE"
 }
@@ -583,8 +583,8 @@ FindAndAddUserKeyboardMappingFile() {
 		return
 	fi
 	echo "keyfile=$keyfile" >> $LOGFILE
-	locale=`cat "$keyfile" |fgrep KEYTABLE | tr -d '"' |cut -d'=' -f2`
-	[ ! "$locale" ] && locale=`cat "$keyfile" | grep '.map$' | sed 's/^.* //'`		# Slackware
+	locale=`fgrep KEYTABLE "$keyfile" | tr -d '"' |cut -d'=' -f2`
+	[ ! "$locale" ] && locale=`grep '.map$' "$keyfile" | sed 's/^.* //'`		# Slackware
 	echo "locale=$locale" >> $LOGFILE
 	mp=`find $KEYDIR/keymaps | grep "i[3-8]86" | fgrep "${locale}." | grep -vx " *#.*"`
 	[ ! "$mp" ] && mp=`find $KEYDIR/keymaps | grep "i[3-8]86" | grep "$locale[^r][^/]" | grep -vx " *#.*"`
@@ -997,7 +997,7 @@ HackPathsToFailsafe() {
 ListAllPartitions() {
 	local res currline partition all_partitions ap_orig remaining i j
 
-	cat $MY_FSTAB | grep -vx " *#.*" | grep -vx " *none.*" | $AWK '/^\/dev\/[imhs]d||LABEL\=\// && !/fdd|cdr|zip|floppy/ {print $1}'
+	grep -vx " *#.*" $MY_FSTAB | grep -vx " *none.*" | $AWK '/^\/dev\/[imhs]d||LABEL\=\// && !/fdd|cdr|zip|floppy/ {print $1}'
 #    for partition in `$FDISK -l | tr -s ' ' '\n' | grep /dev` ; do 
 #        [ -e "$i" ] && all_partitions=echo "$i"
 #    done
@@ -1424,7 +1424,7 @@ absolute_partition old_partition_fmt
 	if [ "$current_partition" = "" ] ; then
 		echo "Unknown partition (outstring = $unofficial_outstring)" >> $LOGFILE
 	elif [ "$partition_mountpt" = "" ] && [ -f "/etc/raidtab" ] ; then
-		if [ "`cat /etc/raidtab 2> /dev/null | fgrep device | fgrep $current_partition`" ] ; then
+		if [ "`fgrep device /etc/raidtab 2>/dev/null | fgrep $current_partition`" ] ; then
 		partition_mountpt=raid
 		partition_format=raid
 		    printf "\t%-15s %-15s %-15s %7s %-15s\n" $current_partition $partition_mountpt $partition_format $psz "$redhat_label"
@@ -1470,10 +1470,10 @@ MakeSyslinuxMessageFile() {
 	mkdir -p $1
 	rmdir $1
 	echo -en "  " > $1
-	if [ "`cat /etc/issue.net 2> /dev/null | fgrep -i "debian"`" ] ; then
-		cat $MINDI_LIB/msg-txt | sed s/ZZZZZ/$MINDI_VERSION/ | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s%DDDDD%"Debian GNU\/`uname -s` `cat /etc/issue.net | cut -d ' ' -f 3` `hostname`"% | sed s/KKKKK/"Kernel `uname  -r` on a `uname -m`"/ | sed s/TTTTT/"`LC_TIME=C date`"/ >> $1.tmp
+	if [ "`fgrep -i "debian" /etc/issue.net 2> /dev/null`" ] ; then
+		cat $MINDI_LIB/msg-txt | sed s/ZZZZZ/$MINDI_VERSION/ | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s%DDDDD%"Debian GNU\/`uname -s` `cut -d ' ' -f 3 /etc/issue.net` `hostname`"% | sed s/KKKKK/"Kernel `uname  -r` on a `uname -m`"/ | sed s/TTTTT/"`LC_TIME=C date`"/ >> $1.tmp
 	else
-		cat $MINDI_LIB/msg-txt | sed s/ZZZZZ/$MINDI_VERSION/ | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s/DDDDD/"`cat /etc/issue.net | grep -i "linux" | head -n1 | tr -s ' ' ' '`"/ | sed s/KKKKK/"`cat /etc/issue.net | grep -i "kernel" | head -n1 | tr -s ' ' ' '`"/ | sed s/TTTTT/"`LC_TIME=C date`"/ | sed s/' '\\r' 'on' 'an' '\/' '`uname -r`' 'on' 'an' '`uname -m`/ >> $1.tmp
+		cat $MINDI_LIB/msg-txt | sed s/ZZZZZ/$MINDI_VERSION/ | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s/DDDDD/"`grep -i "linux" /etc/issue.net | head -n1 | tr -s ' ' ' '`"/ | sed s/KKKKK/"`grep -i "kernel" /etc/issue.net | head -n1 | tr -s ' ' ' '`"/ | sed s/TTTTT/"`LC_TIME=C date`"/ | sed s/' '\\r' 'on' 'an' '\/' '`uname -r`' 'on' 'an' '`uname -m`/ >> $1.tmp
 	fi
 	cat $1.tmp | sed s/%r/"`uname -r`"/ | sed s/%t/"`hostname`"/ > $1
 	rm -f $1.tmp
@@ -1639,10 +1639,10 @@ PluralOrNot() {
 MakeMessageFile() {
 	local disksize
 	disksize=$1
-	if [ "`cat /etc/issue.net 2> /dev/null | fgrep -i "debian"`" ] ; then
-		cat $MINDI_LIB/msg-txt | sed s/ZZZZZ/$MINDI_VERSION/ | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s%DDDDD%"Debian GNU\/`uname -s` `cat /etc/issue.net | cut -d ' ' -f 3` `hostname`"% | sed s/KKKKK/"Kernel `uname  -r` on a `uname -m`"/ | sed s/TTTTT/"`LC_TIME=C date`"/
+	if [ "`fgrep -i "debian" /etc/issue.net 2> /dev/null`" ] ; then
+		cat $MINDI_LIB/msg-txt | sed s/ZZZZZ/$MINDI_VERSION/ | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s%DDDDD%"Debian GNU\/`uname -s` `cut -d ' ' -f 3 /etc/issue.net` `hostname`"% | sed s/KKKKK/"Kernel `uname  -r` on a `uname -m`"/ | sed s/TTTTT/"`LC_TIME=C date`"/
 	else
-		cat $MINDI_LIB/msg-txt | sed s/ZZZZZ/$MINDI_VERSION/ | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s/DDDDD/"`cat /etc/issue.net | grep -i "linux" | head -n1 | tr -s ' ' ' '`"/ | sed s/KKKKK/"`cat /etc/issue.net | grep -i "kernel" | head -n1 | tr -s ' ' ' '`"/ | sed s/TTTTT/"`LC_TIME=C date`"/ | sed s/' 'r' 'on' 'an' 'm/' '`uname -r`' 'on' 'an' '`uname -m`/
+		cat $MINDI_LIB/msg-txt | sed s/ZZZZZ/$MINDI_VERSION/ | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s/DDDDD/"`grep -i "linux" /etc/issue.net | head -n1 | tr -s ' ' ' '`"/ | sed s/KKKKK/"`grep -i "kernel" /etc/issue.net | head -n1 | tr -s ' ' ' '`"/ | sed s/TTTTT/"`LC_TIME=C date`"/ | sed s/' 'r' 'on' 'an' 'm/' '`uname -r`' 'on' 'an' '`uname -m`/
 	fi
 	if [ "$disksize" -gt "2880" ] ; then
 	if [ "`DidMondoCallMe`" ] ; then
@@ -1943,7 +1943,7 @@ Sorry, your kernel is too big for a boot/root floppy.\nI'll try the new boot/roo
 	echo "Not running LILO. It's not that kind of disk." >> $LOGFILE
 	fi
 	if [ $? -ne "0" ] ; then
-	if [ "`cat $LOGFILE | fgrep "/tmp/dev.0"`" ] ; then
+	if [ "`fgrep "/tmp/dev.0" $LOGFILE`" ] ; then
 		LogIt "The '/tmp/dev.0' error is NOT Mindi's fault. It is LILO's.\n"
 		LogIt "Please reboot your PC as a workaround.\n"
 		Die "LILO sneezed and Mindi caught a cold. Please read the README / FAQ.\n"
@@ -2102,7 +2102,7 @@ PrepareDataDiskImages() {
 	mkdir -p $bigdir/usr/bin
 	tardir=$TMP_ROOT/tardir
 
-	lines=`cat $MINDI_CONF/deplist.txt | grep -vx " *#.*" | grep -vx "" |wc -l`
+	lines=`grep -vx " *#.*" $MINDI_CONF/deplist.txt | grep -vx "" | wc -l`
 	cat $MINDI_CONF/deplist.txt | GenerateGiantDependencyList $needlist $lines
 	res=$?
 	if [ "$YOUR_KERNEL_SUCKS" ]; then
@@ -2875,7 +2875,7 @@ ListUnsavedKernelModules() {
 	ListKernelModules > $fname
 	lsmod | cut -d' ' -f1 >> $fname
 	lsmod | cut -d' ' -f1 >> $fname
-	modules=`cat $fname | sort | uniq -d2 | tr '\n' ' '`
+	modules=`sort $fname | uniq -d2 | tr '\n' ' '`
 	rm -f $fname
 	[ "$modules" ] && echo "Unsaved kernel modules: $modules" >> $LOGFILE
 }
@@ -2949,7 +2949,7 @@ else
 	FindIsolinuxBinary
 	FindLiloBinary
 fi
-cat /proc/mounts | fgrep " $TMP_ROOT " | fgrep tmpfs > /dev/null 2> /dev/null && TMP_ROOT=/home && LogIt "Changing TMP_ROOT to $TMP_ROOT because you're using tmpfs for /tmp\n" ; # tmpfs doesn't like Mindi and /tmp, for some reason
+fgrep " $TMP_ROOT " /proc/mounts | fgrep tmpfs > /dev/null 2> /dev/null && TMP_ROOT=/home && LogIt "Changing TMP_ROOT to $TMP_ROOT because you're using tmpfs for /tmp\n" ; # tmpfs doesn't like Mindi and /tmp, for some reason
 rm -f /tmp/mindi_lo
 trap "Aborted" SIGTERM
 DONE="\r\t\t\t\t\t\t\t\tDone.         "

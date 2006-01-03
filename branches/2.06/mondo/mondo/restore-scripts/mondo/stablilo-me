@@ -90,7 +90,7 @@ RestoreBackups() {
 
 
 WhatIsFirstDriveCalled() {
-    cat /tmp/mountlist.txt | cut -d' ' -f1 \
+    cut -d' ' -f1 /tmp/mountlist.txt \
 | sed s/[0-9]// | sed s/[0-9]// \
 | sort | uniq | head -n 1
 }

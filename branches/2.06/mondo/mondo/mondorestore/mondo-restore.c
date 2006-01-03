@@ -3097,8 +3097,8 @@ restore_live_from_monitas_server(struct s_bkpinfo *bkpinfo,
 	iamhere("FIXME");
 	fatal_error("This will fail");
 	sprintf(command,
-			"cat %s | grep -x \"%s.*\" > %s",
-			g_filelist_full, restore_this_directory, g_filelist_full);
+			"grep -x \"%s.*\" %s > %s",
+			restore_this_directory, g_filelist_full, g_filelist_full);
 	if (system(command)) {
 		retval++;
 		log_to_screen
@@ -3107,8 +3107,8 @@ restore_live_from_monitas_server(struct s_bkpinfo *bkpinfo,
 	iamhere("FIXME");
 	fatal_error("This will fail");
 	sprintf(command,
-			"cat %s | grep -x \"%s.*\" > %s",
-			g_biggielist_txt, restore_this_directory, g_biggielist_txt);
+			"grep -x \"%s.*\" %s > %s",
+			restore_this_directory, g_biggielist_txt, g_biggielist_txt);
 	if (system(command)) {
 		log_msg(1,
 				"Error(s) occurred while processing biggielist and wildcard");

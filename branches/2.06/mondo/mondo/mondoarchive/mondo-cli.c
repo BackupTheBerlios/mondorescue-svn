@@ -868,7 +868,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 	if (!flag_set['o']
 		&&
 		!run_program_and_log_output
-		("cat /etc/issue.net | grep -i suse | grep 64", TRUE)) {
+		("grep -i suse /etc/issue.net | grep 64", TRUE)) {
 		bkpinfo->make_cd_use_lilo = TRUE;
 		log_to_screen
 			("Forcing you to use LILO. SuSE 9.0 (64-bit) has a broken mkfs.vfat binary.");

@@ -423,7 +423,7 @@ extern "C" {
 
 		printf("---FATALERROR--- %s\n", error_string);
 		system
-			("cat /var/log/mondo-archive.log | gzip -9 > /tmp/MA.log.gz 2> /dev/null");
+			("gzip -9c /var/log/mondo-archive.log > /tmp/MA.log.gz 2> /dev/null");
 		printf
 				("If you require technical support, please contact the mailing list.\n");
 		printf("See http://www.mondorescue.org for details.\n");

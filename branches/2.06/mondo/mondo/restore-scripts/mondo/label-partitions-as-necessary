@@ -27,7 +27,7 @@ read_partition_line() {
 	format=`echo "$1" | tr -s ' ' '\t' | cut -f3`
 	mountline=`mount | grep " $label "`
 #	mountpt=`echo "$mountline" | cut -d' ' -f1`
-! 	mountpt=`cat $mountlist | grep " $label " | cut -d' ' -f1`
+! 	mountpt=`grep " $label " $mountlist | cut -d' ' -f1`
         if [ ! "$mountpt" ] ; then
             LogIt "Not labeling anything as $label because $mountpt is not a mountpoint"
         elif [ ! "$label" ] ; then

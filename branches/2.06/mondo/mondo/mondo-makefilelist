@@ -98,7 +98,7 @@ MakeFilelist() {
         echo "$i" | cut -d'/' -f1,2,3,4,5,6,7    >> $TMP/filelist
     done
 # exclude lost+found folders, Win9x hibernation file and Win9x swap file
-    cat $TMP/filelist | sort | uniq | \
+    sort $TMP/filelist -u | \
 grep -v "/win386\.swp" | grep -v "/vmmhiber\.w9x" | \
 grep -v "/hiberfil\.sys" | grep -v "/win386.swp" | grep -v "/pagefile\.sys" | \
 grep -v "/tmp\.mondo\.[0-9]+*" | grep -v "/mondo\.scratch\.[0-9]+*" > $output
@@ -107,22 +107,22 @@ grep -v "/tmp\.mondo\.[0-9]+*" | grep -v "/mondo\.scratch\.[0-9]+*" > $output
     for i in `cat /etc/fstab | tr -s '\t' ' ' | cut -d' ' -f2 | grep -v '-'` ; do
 # End patch
 #     for i in `cat /etc/fstab | tr -s '\t' ' ' | cut -d' ' -f2` ; do
-        cat $output | grep -vx "$i/lost+found" | grep -vx $i"lost+found" > $output.MID
+        grep -vx "$i/lost+found" $output | grep -vx $i"lost+found" > $output.MID
         sync
         mv -f $output.MID $output
     done
 # exclude .journal files (ext3)
     for i in `cat /etc/fstab | tr -s '\t' ' ' | grep "ext3" | cut -d' ' -f2` ; do
-	cat $output | grep -vx "$i/\.journal" | grep -vx "$i\.journal" | grep -vx "$i\.autofsck" > $output.MID
+	grep -vx "$i/\.journal" $output | grep -vx "$i\.journal" | grep -vx "$i\.autofsck" > $output.MID
         sync
 	mv -f $output.MID $output
     done
 # exclude /var/log/pacct and Mondo's temp files
-    cat $output | grep -vx "" | grep -v "/var/log/pacct" | grep -v "tmp\.mondo\.$$" | grep -vx "/var/log/mondo-archive\.log" | grep -v "mondo\.scratch\.$$" > $output.MID
+    grep -vx "" $output | grep -v "/var/log/pacct" | grep -v "tmp\.mondo\.$$" | grep -vx "/var/log/mondo-archive\.log" | grep -v "mondo\.scratch\.$$" > $output.MID
     mv -f $output.MID $output
     cp -f $output $TMP/filelist
 # exclude /var/run/*.pid (lockfiles)
-#    cat $output | grep -vx "/var/run/[^\.]*\.pid" > $output.MID
+#    grep -vx "/var/run/[^\.]*\.pid" $output > $output.MID
 #    mv -f $output.MID $output
 }
 
@@ -179,11 +179,11 @@ mv -f $TMP/filelist.full $TMP/filelist.blah
 ## See if EXCLUDE_PATHS includes a file of two
 for X in $EXCLUDE_PATHS  ; do
     if [ ! -d $X ] ; then
-	cat $TMP/filelist.blah | grep -v $X > $TMP/filelist.full
+	grep -v $X $TMP/filelist.blah > $TMP/filelist.full
 	mv -f $TMP/filelist.full $TMP/filelist.blah
     fi
 done
-cat $TMP/filelist.blah | grep -v "mojo-jojo-123" > $TMP/filelist.full
+grep -v "mojo-jojo-123" $TMP/filelist.blah > $TMP/filelist.full
 [ ! -e "$TMP/filelist.full" ] && FatalError "Serious error when removing mojo jojo from fielist"
 cp $TMP/filelist.full /tmp
 cp -f $TMP/filelist.full "$scratchdir"/archives/

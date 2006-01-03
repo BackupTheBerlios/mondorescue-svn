@@ -604,7 +604,7 @@ choose_raid_level(struct OSSWAP (raid_device_record, vinum_plex) * raidrec)
 
 	assert(raidrec != NULL);
 	system
-		("cat /proc/mdstat | grep Pers > /tmp/raid-personalities.txt 2> /dev/null");
+		("grep Pers /proc/mdstat > /tmp/raid-personalities.txt 2> /dev/null");
 	strcpy(personalities,
 		   last_line_of_file("/tmp/raid-personalities.txt"));
 	sprintf(prompt, "Please enter the RAID level you want. %s",

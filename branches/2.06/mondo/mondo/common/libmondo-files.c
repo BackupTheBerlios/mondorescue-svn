@@ -844,8 +844,8 @@ long size_of_partition_in_mountlist_K(char *tmpdir, char *dev)
 
 	sprintf(mountlist, "%s/mountlist.txt", tmpdir);
 	sprintf(command,
-			"cat %s/mountlist.txt | grep \"%s \" | head -n1 | awk '{print $4;}'",
-			tmpdir, dev);
+			"grep \"%s \" %s/mountlist.txt | head -n1 | awk '{print $4}'",
+			dev, tmpdir);
 	log_it(command);
 	strcpy(sz_res, call_program_and_get_last_line_of_output(command));
 	file_len_K = atol(sz_res);

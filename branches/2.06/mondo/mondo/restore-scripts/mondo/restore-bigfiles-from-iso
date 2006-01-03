@@ -40,8 +40,8 @@ process_this_cd() {
 #        echo -en "Slice = $slicename    \r"
         echo -en "."
         if echo "$slicename" | grep "slice-[0-9]*.00000\.dat" 2> /dev/null; then
-            CHECKSUM=`cat $slicename | head -n1 | cut -f1`
-            OUTFNAME=`cat $slicename | head -n1 | cut -f2`
+            CHECKSUM=`head -n1 $slicename | cut -f1`
+            OUTFNAME=`head -n1 $slicename | cut -f2`
             OUTFNAME=`echo "$restorepath/$OUTFNAME" | tr -s '/' '/'`
             echo "Now restoring $OUTFNAME"
             [ "$OUTFNAME" ] || Die "No filename?! WTF?"

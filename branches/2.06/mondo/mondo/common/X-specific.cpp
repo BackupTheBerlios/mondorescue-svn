@@ -196,7 +196,7 @@ fatal_error_sub (char *error)
 												 "Quit", 0, 0, 0, 0);
     kapp->quit();
     printf ("---FATAL ERROR--- %s\n", error);
-    system ("cat /var/log/mondo-archive.log | gzip -9 > /tmp/MA.log.gz 2> /dev/null");
+    system ("gzip -9c /var/log/mondo-archive.log > /tmp/MA.log.gz 2> /dev/null");
     printf ("If you require technical support, please contact the mailing list.\n");
     printf ("See http://www.mondorescue.org for details.\n");
     printf ("Log file: %s\n", MONDO_LOGFILE);
@@ -251,12 +251,12 @@ log_file_end_to_screen (char *filename, char *grep_for_me)
     }
   if (grep_for_me[0] != '\0')
     {
-      sprintf (command, "cat %s | grep \"%s\" | tail -n%d", filename,
-	       grep_for_me, NOOF_ERR_LINES);
+      sprintf (command, "grep \"%s\" %s | tail -n%d", 
+	       grep_for_me, filename, NOOF_ERR_LINES);
     }
   else
     {
-      sprintf (command, "cat %s | tail -n%d", filename, NOOF_ERR_LINES);
+      sprintf (command, "tail -n%d %s", NOOF_ERR_LINES, filename);
     }
   fin = popen (command, "r");
   if (fin)

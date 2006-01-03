@@ -6,7 +6,7 @@ TryToFindCDROM() {
     LogIt "find-and-mount-cdrom --- starting"
     for device in /dev/hd? /dev/scd? /dev/rcd? /dev/sr? /dev/cd? /dev/ide/*/*/*/*/cd /dev/scsi/*/*/*/*/cd; do
         [ ! "$SECOND_TRY" ] && LogIt "Trying $device"
-        if [ "`cat /tmp/mondo-restore.cfg | grep "using-cdstream yes"`" ]; then
+        if [ "`grep "using-cdstream yes" /tmp/mondo-restore.cfg`" ]; then
 	    pwd=`pwd`
 	    cd $GROOVY
             tar -zxf $device 2> /tmp/mount.log
@@ -76,7 +76,7 @@ if [ "$?" -eq "0" ] ; then
 fi
 #mount /dev/fd0u1722 -t ext2 /mnt/floppy
 [ "$1" = "--second-try" ] && exit 1; # don't try to mount floppy drive
-if [ "`cat /tmp/mondo-restore.cfg | grep "using-cdstream yes"`" ] ; then
+if [ "`grep "using-cdstream yes" /tmp/mondo-restore.cfg`" ] ; then
     LogIt "Because you are using cdstream, I won't try to mount CD."
     exit 0
 fi

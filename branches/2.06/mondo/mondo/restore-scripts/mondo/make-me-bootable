@@ -18,8 +18,8 @@ root_part=""
 
 HAVE_ACTIVE="false"
 for i in `cat $1 | tr -s '\t' ' ' | cut -d' ' -f1 | grep -v "/dev/fd" | grep -v "none" | grep -v "#"` ; do
-    mountpt=`cat $1 | grep "$i " | tr -s '\t' ' ' | cut -d' ' -f2`
-    format=`cat $1 | grep "$i " | tr -s '\t' ' ' | cut -d' ' -f3`
+    mountpt=`grep "$i " $1 | tr -s '\t' ' ' | cut -d' ' -f2`
+    format=`grep "$i " $1 | tr -s '\t' ' ' | cut -d' ' -f3`
     drive=`echo $i | sed -e 's/[0-9]*$//' -e 's/\([0-9]\)p$/\1/'`
     partno=`echo $i | sed -e 's/^.*[^0-9]\([0-9]*\)$/\1/'`
 

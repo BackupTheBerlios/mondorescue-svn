@@ -35,7 +35,7 @@ AddOrReplaceLine() {
     sz_exclude="$2"
     sz_add="$3"
     > $newfile
-    cat $oldfile | grep -v "$sz_exclude.*" >> $newfile
+    grep -v "$sz_exclude.*" $oldfile >> $newfile
     echo "$sz_add" >> $newfile
 }
 

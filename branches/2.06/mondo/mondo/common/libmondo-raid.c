@@ -79,7 +79,7 @@ bool is_this_raid_personality_registered(int raidno)
 	int res;
 
 	command = malloc(MAX_STR_LEN * 2);
-	strcpy(command, "cat /proc/mdstat | grep \"");
+	strcpy(command, "grep \" /proc/mdstat");
 	if (raidno == -1) {
 		strcat(command, "linear");
 	} else {

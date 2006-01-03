@@ -1436,7 +1436,7 @@ bool is_this_a_valid_disk_format(char *format)
 			"lsvfs | tr -s '\t' ' ' | grep -v Filesys | grep -v -- -- | cut -d' ' -f1 | tr -s '\n' ' '");
 #else
 	sprintf(command,
-			"cat /proc/filesystems | grep -v nodev | tr -s '\t' ' ' | cut -d' ' -f2 | tr -s '\n' ' '");
+			"grep -v nodev /proc/filesystems | tr -s '\t' ' ' | cut -d' ' -f2 | tr -s '\n' ' '");
 #endif
 
 	pin = popen(command, "r");

@@ -4,7 +4,7 @@
     begin                : Sun Nov 22 2003
     copyright            : (C) 2003 by Joshua Oreman
     email                : oremanj@get-linux.org
-    cvsid                : $Id: xmondorestore.cpp,v 1.1 2004/06/10 16:13:06 hugo Exp $
+    cvsid                : $Id$
  ***************************************************************************/
 
 /***************************************************************************
@@ -274,7 +274,7 @@ void *XMondoRestore_preparer_thread (void *arg)
     }
     if (!r->rFilter->text().isEmpty() && !r->rFilter->text().isNull()) {
 	r->fStatusMsg->setText (QString ("Filtering filelist through regexp <tt>%1</tt>...").arg (r->rFilter->text()));
-	if (system (QString ("cat %1 | egrep '%2' > %3.FILT").arg (g_filelist_full).arg (r->rFilter->text()).arg (g_filelist_full).ascii()) != 0) {
+	if (system (QString ("egrep '%2' %1 > %3.FILT").arg (g_filelist_full).arg (r->rFilter->text()).arg (g_filelist_full).ascii()) != 0) {
 	    r->fStatusMsg->setText ("Filter failed, using whole filelist");
 	    rename (g_filelist_full, QString ("%1.FILT").arg (g_filelist_full).ascii());
 	    usleep (500000);

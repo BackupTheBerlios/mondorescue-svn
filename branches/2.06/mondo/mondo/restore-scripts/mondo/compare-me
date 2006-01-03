@@ -103,9 +103,9 @@ slice_num slice_fname slice_search cd_number wildpath
     slice_num=0
     padded_bfnum=`printf "%07d" $bf_num`
     slice_fname=`GiveSliceName $bf_num $slice_num`
-    checksum=`cat $slice_fname | cut -f1`
-#    finalsize=`cat $slice_fname | cut -f2`
-    i=`cat $slice_fname | cut -f3`
+    checksum=`cut -f1 $slice_fname`
+#    finalsize=`cut -f2 $slice_fname`
+    i=`cut -f3 $slice_fname`
     outputfile=/mnt/RESTORING/"$i"
     echo -n "$i "
 
@@ -163,7 +163,7 @@ time_taken time_per minutes seconds outcome res logs retval
 	    compare-subroutine-me $archive "$wildpath" &> /tmp/rsm.log
 	    outcome=$?
             retval=$(($retval+$outcome))
-	    cat /tmp/rsm.log | grep -v "ignored" > /tmp/rsm.2.log
+	    grep -v ignored /tmp/rsm.log > /tmp/rsm.2.log
 	    if [ "$outcome" -ne "0" ] ; then
 		echo -e -n "                                                                            \r"
 		LogIt "Tar returned warnings/errors while verifying $archive."
@@ -260,8 +260,7 @@ else
     LogIt "Everything checked out. :-)" 1
 fi
 
-cat /tmp/compare-me.log \
-| grep -v -x "Files [^:]*:-" \
+grep -v -x "Files [^:]*:-" /tmp/compare-me.log \
 | sort | uniq > /tmp/suspect.files
 
 noof_lines=`grep -n "" /tmp/suspect.files | tail -n 1 | cut -d':' -f1`

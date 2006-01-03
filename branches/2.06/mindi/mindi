@@ -807,7 +807,7 @@ GenerateGiantDependencyList() {
 	fi
 	echo -en "$DONE\nMaking complete dependency list"
 
-	cat $tempfile | tr -s '/' '/' | sort | uniq > $tempfile.new
+	tr -s '/' '/' < $tempfile | sort | uniq > $tempfile.new
 	mv -f $tempfile.new $tempfile
 	> $outfile.pre
 	progress=0
@@ -862,7 +862,7 @@ GenerateGiantDependencyList() {
 		done
 	fi
 	fi
-	 cat $outfile.pre | tr ' ' '\n' | tr -s '/' '/' | fgrep -vx "" | sort -u | egrep -v "/libX11|/libXext|/libXi|/libgtk|/libgdk" > $outfile
+	 tr ' ' '\n' < $outfile.pre | tr -s '/' '/' | fgrep -vx "" | sort -u | egrep -v "/libX11|/libXext|/libXi|/libgtk|/libgdk" > $outfile
 	rm -f $tempfile $outfile.pre
 	[ "$res" -eq "0" ] && echo -e "\r\t\t\t\t\t\t\t\t$DONE" || echo "\nFailed."
 	return $res
@@ -1245,7 +1245,7 @@ MakeModuleLoadingScript() {
 	# Make temporary modprobe.conf file if we are told so
 	if [ $tmpmodprobe_flag == "Y" ] ; then
 	infile="/tmp/modprobe.conf.mindi.$$"
-	cat `find /etc/modprobe.d -maxdepth 1 -name "*" -xtype f` > $infile
+	find /etc/modprobe.d -maxdepth 1 -name "*" -xtype f > $infile
 	else
 	infile="/etc/modules.conf"
 	fi
@@ -1330,7 +1330,7 @@ absolute_partition old_partition_fmt
 	fi
 	[ "$c_p" = "none" ] && continue
 		absolute_partition=`ResolveSoftlink $c_p`
-	partition_mountpt=`cat $MY_FSTAB | tr -s '\t' ' ' | grep -w "$current_partition" | grep -vx " *#.*" | $AWK '{print $2}' | head -n1`
+	partition_mountpt=`tr -s '\t' ' ' < $MY_FSTAB | grep -w "$current_partition" | grep -vx " *#.*" | $AWK '{print $2}' | head -n1`
 	redhat_label=""
 	if [ "`echo "$current_partition" | fgrep -i "LABEL="`" != "" ] ; then
 		str_to_find_fmt_with=$current_partition
@@ -1357,7 +1357,7 @@ absolute_partition old_partition_fmt
 		if [ "$partition_size" = "" ] ; then
 		    totalsize=0
 		    items=0
-		    for i in `cat /proc/swaps | tr -s ' ' '\t' | fgrep -v "Filename" | cut -f3` ; do
+		    for i in `tr -s ' ' '\t' < /proc/swaps | fgrep -v "Filename" | cut -f3` ; do
 			totalsize=$(($totalsize+$i))
 			items=$(($items+1))
 		    done
@@ -1471,11 +1471,11 @@ MakeSyslinuxMessageFile() {
 	rmdir $1
 	echo -en "  " > $1
 	if [ "`fgrep -i "debian" /etc/issue.net 2> /dev/null`" ] ; then
-		cat $MINDI_LIB/msg-txt | sed s/ZZZZZ/$MINDI_VERSION/ | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s%DDDDD%"Debian GNU\/`uname -s` `cut -d ' ' -f 3 /etc/issue.net` `hostname`"% | sed s/KKKKK/"Kernel `uname  -r` on a `uname -m`"/ | sed s/TTTTT/"`LC_TIME=C date`"/ >> $1.tmp
+		sed s/ZZZZZ/$MINDI_VERSION/ $MINDI_LIB/msg-txt | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s%DDDDD%"Debian GNU\/`uname -s` `cut -d ' ' -f 3 /etc/issue.net` `hostname`"% | sed s/KKKKK/"Kernel `uname  -r` on a `uname -m`"/ | sed s/TTTTT/"`LC_TIME=C date`"/ >> $1.tmp
 	else
-		cat $MINDI_LIB/msg-txt | sed s/ZZZZZ/$MINDI_VERSION/ | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s/DDDDD/"`grep -i "linux" /etc/issue.net | head -n1 | tr -s ' ' ' '`"/ | sed s/KKKKK/"`grep -i "kernel" /etc/issue.net | head -n1 | tr -s ' ' ' '`"/ | sed s/TTTTT/"`LC_TIME=C date`"/ | sed s/' '\\r' 'on' 'an' '\/' '`uname -r`' 'on' 'an' '`uname -m`/ >> $1.tmp
+		sed s/ZZZZZ/$MINDI_VERSION/ $MINDI_LIB/msg-txt | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s/DDDDD/"`grep -i "linux" /etc/issue.net | head -n1 | tr -s ' ' ' '`"/ | sed s/KKKKK/"`grep -i "kernel" /etc/issue.net | head -n1 | tr -s ' ' ' '`"/ | sed s/TTTTT/"`LC_TIME=C date`"/ | sed s/' '\\r' 'on' 'an' '\/' '`uname -r`' 'on' 'an' '`uname -m`/ >> $1.tmp
 	fi
-	cat $1.tmp | sed s/%r/"`uname -r`"/ | sed s/%t/"`hostname`"/ > $1
+	sed s/%r/"`uname -r`"/ $1.tmp | sed s/%t/"`hostname`"/ > $1
 	rm -f $1.tmp
 	if [ "$CDRECOVERY" != "yes" ] ; then
 		if [ -e "$MONDO_TMP/start-nfs" ] ; then
@@ -1595,7 +1595,7 @@ OfferToMakeBootableISO() {
 	cat $iso_cfg_file | HackSyslinuxFile $ramdisk_size $TMP_ROOT/iso > isolinux.cfg || Die "Cannot copy isolinux.cfg from mindi_home to tmp_root - did you run out of disk space?"
 	if [ -e "$MONDO_TMP/start-nfs" ] ; then
 	mv isolinux.cfg isolinux.cfg.old
-	cat isolinux.cfg.old | sed s/interactive/iso/ > isolinux.cfg
+	sed s/interactive/iso/ isolinux.cfg.old > isolinux.cfg
 	fi
 	if [ "$ARCH" != "ia64" ] ; then
 		cp $ISOLINUX isolinux.bin || Die "Cannot copy isolinux.bin ($ISOLINUX) to tmp_root - did you run out of disk space?"
@@ -1640,9 +1640,9 @@ MakeMessageFile() {
 	local disksize
 	disksize=$1
 	if [ "`fgrep -i "debian" /etc/issue.net 2> /dev/null`" ] ; then
-		cat $MINDI_LIB/msg-txt | sed s/ZZZZZ/$MINDI_VERSION/ | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s%DDDDD%"Debian GNU\/`uname -s` `cut -d ' ' -f 3 /etc/issue.net` `hostname`"% | sed s/KKKKK/"Kernel `uname  -r` on a `uname -m`"/ | sed s/TTTTT/"`LC_TIME=C date`"/
+		sed s/ZZZZZ/$MINDI_VERSION/ $MINDI_LIB/msg-txt | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s%DDDDD%"Debian GNU\/`uname -s` `cut -d ' ' -f 3 /etc/issue.net` `hostname`"% | sed s/KKKKK/"Kernel `uname  -r` on a `uname -m`"/ | sed s/TTTTT/"`LC_TIME=C date`"/
 	else
-		cat $MINDI_LIB/msg-txt | sed s/ZZZZZ/$MINDI_VERSION/ | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s/DDDDD/"`grep -i "linux" /etc/issue.net | head -n1 | tr -s ' ' ' '`"/ | sed s/KKKKK/"`grep -i "kernel" /etc/issue.net | head -n1 | tr -s ' ' ' '`"/ | sed s/TTTTT/"`LC_TIME=C date`"/ | sed s/' 'r' 'on' 'an' 'm/' '`uname -r`' 'on' 'an' '`uname -m`/
+		sed s/ZZZZZ/$MINDI_VERSION/ $MINDI_LIB/msg-txt | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s/DDDDD/"`grep -i "linux" /etc/issue.net | head -n1 | tr -s ' ' ' '`"/ | sed s/KKKKK/"`grep -i "kernel" /etc/issue.net | head -n1 | tr -s ' ' ' '`"/ | sed s/TTTTT/"`LC_TIME=C date`"/ | sed s/' 'r' 'on' 'an' 'm/' '`uname -r`' 'on' 'an' '`uname -m`/
 	fi
 	if [ "$disksize" -gt "2880" ] ; then
 	if [ "`DidMondoCallMe`" ] ; then
@@ -2017,7 +2017,7 @@ PrepareBootDiskImage_SYSLINUX() {
 	cat $sys_cfg_file | HackSyslinuxFile $ramdisk_size $mountpoint > syslinux.cfg || Die "Cannot copy syslinux.cfg from mindi_home to tmp_root"
 	if [ -e "$MONDO_TMP/start-nfs" ] ; then
 	mv syslinux.cfg syslinux.cfg.orig
-	cat syslinux.cfg.orig | sed s/interactive/iso/ > syslinux.cfg
+	sed s/interactive/iso/ syslinux.cfg.orig > syslinux.cfg
 	fi
 	cd $old_pwd
 	echo "Copying $TMP_ROOT/mindi.rdz to $mountpoint/initrd.img..." >> $LOGFILE
@@ -2446,7 +2446,7 @@ StripComments()
 	local tempfile
 	tempfile=$TMP_ROOT/$$.strip.txt
 	cp -f $1 $tempfile
-	cat $tempfile | $AWK '{if (substr($0,0,1)!="#" || substr($0,0,3)=="#!/") {print $0;};}' > $1
+	$AWK '{if (substr($0,0,1)!="#" || substr($0,0,3)=="#!/") {print $0;};}' $tempfile > $1
 	rm -f $tempfile
 	echo "Stripped comments from $2" >> $LOGFILE
 }

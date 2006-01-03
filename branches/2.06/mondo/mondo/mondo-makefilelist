@@ -1,5 +1,8 @@
 #!/bin/sh
 #
+# $Id$
+
+#
 # mondo-makefilelist
 # ...an off-shoot of mondo-archive
 #
@@ -81,8 +84,7 @@ MakeFilelist() {
 #    cp $TMP/filelist /tmp/filelist
     res=`grep -v "Permission denied" $TMP/find.log`
     if [ "$res" != "" ] ; then
-	cat $TMP/find.log
-	cat $TMP/find.log >> $LOGFILE
+	cat $TMP/find.log | tee -a $LOGFILE
     fi
 # include various directory _paths_ (not contents of dirs: that comes later)
     for i in $paths_to_exclude ; do
@@ -104,15 +106,14 @@ grep -v "/hiberfil\.sys" | grep -v "/win386.swp" | grep -v "/pagefile\.sys" | \
 grep -v "/tmp\.mondo\.[0-9]+*" | grep -v "/mondo\.scratch\.[0-9]+*" > $output
 
 # Patch from Andy Glass - 03/03/2002
-    for i in `cat /etc/fstab | tr -s '\t' ' ' | cut -d' ' -f2 | grep -v '-'` ; do
+    for i in `tr -s '\t' ' ' < /etc/fstab | cut -d' ' -f2 | grep -v '-'` ; do
 # End patch
-#     for i in `cat /etc/fstab | tr -s '\t' ' ' | cut -d' ' -f2` ; do
         grep -vx "$i/lost+found" $output | grep -vx $i"lost+found" > $output.MID
         sync
         mv -f $output.MID $output
     done
 # exclude .journal files (ext3)
-    for i in `cat /etc/fstab | tr -s '\t' ' ' | grep "ext3" | cut -d' ' -f2` ; do
+    for i in `tr -s '\t' ' ' < /etc/fstab | grep "ext3" | cut -d' ' -f2` ; do
 	grep -vx "$i/\.journal" $output | grep -vx "$i\.journal" | grep -vx "$i\.autofsck" > $output.MID
         sync
 	mv -f $output.MID $output

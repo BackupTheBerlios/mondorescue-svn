@@ -335,7 +335,7 @@ void clean_up_KDE_desktop_if_necessary(void)
 		   "for i in `find /root /home -type d -name Desktop -maxdepth 2`; do \
 file=$i/.directory; if [ -f \"$file\" ] ; then mv -f $file $file.old ; \
 awk '{if (index($0, \"rootimagesmindi\")) { while (length($0)>2) { getline;} ; } \
-else { print $0;};}'$file.old  > $file ; fi ; done");
+else { print $0;};}' $file.old  > $file ; fi ; done");
 	run_program_and_log_output(tmp, 5);
 	paranoid_free(tmp);
 }

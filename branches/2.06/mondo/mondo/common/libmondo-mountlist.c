@@ -189,7 +189,7 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 			}
 			/* is format sensible? */
 			if (!is_this_a_valid_disk_format(mountlist->el[pos].format)) {
-				sprintf(tmp, " %s has unsupported format.", device);
+				sprintf(tmp, " %s has unsupported format %s.", device, mountlist->el[pos].format);
 				log_it(tmp);
 				strcat(flaws_str, tmp);
 				res++;
@@ -282,7 +282,7 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 			}
 			/* is format sensible? */
 			if (!is_this_a_valid_disk_format(mountlist->el[pos].format)) {
-				sprintf(tmp, " %s has unsupported format.", device);
+				sprintf(tmp, " %s has unsupported format %s.", device, mountlist->el[pos].format);
 				log_it(tmp);
 				strcat(flaws_str, tmp);
 				res++;
@@ -342,7 +342,7 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 				/* is format sensible? */
 				if (!is_this_a_valid_disk_format
 					(mountlist->el[pos].format)) {
-					sprintf(tmp, " %s has unsupported format.", device);
+					sprintf(tmp, " %s has unsupported format %s.", device, mountlist->el[pos].format);
 					log_it(tmp);
 					strcat(flaws_str, tmp);
 					res++;
@@ -504,7 +504,7 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 		}
 		/* is format sensible? */
 		if (!is_this_a_valid_disk_format(mountlist->el[pos].format)) {
-			sprintf(tmp, " %s has unsupported format.", device);
+			sprintf(tmp, " %s has unsupported format %s.", device, mountlist->el[pos].format);
 			log_it(tmp);
 			strcat(flaws_str, tmp);
 			res++;

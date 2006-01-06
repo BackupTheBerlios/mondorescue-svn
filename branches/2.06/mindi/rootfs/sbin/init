@@ -581,6 +581,12 @@ EnableCcissIfAppropriate() {
 }
 
 
+ExtractDataDisksAndLoadModules() {
+	echo "Installing additional tools ..."
+	install-additional-tools
+	echo "Inserting modules ..."
+	insert-all-my-modules > $LOGFILE 2> $LOGFILE
+}
 
 # ------------------------ main -----------------------
 
@@ -612,8 +618,6 @@ EnableCcissIfAppropriate
 #WHOLIVESINAPINEAPPLEUNDERTHESEA#;# --- don't touch this :)
 #-------------------------------
 UseTmpfs
-# Allows PXE boot by starting NFS earlier
-StartNfs
 if [ ! -e "/tmp/mondo-restore.cfg" ] ; then
     LogIt "Warning - /tmp/mondo-restore.cfg not found"
 fi
@@ -622,46 +626,42 @@ fi
 #    HandleCDROMorFloppies
 #el
 if [ "`grep -i 'tape ' /tmp/mondo-restore.cfg`" ] || [ "`grep -i udev /tmp/mondo-restore.cfg`" ] ; then
-    HandleTape
-else
-	if [ -e "/sbin/start-nfs" ]; then
-		if [ "`grep -i pxe /proc/cmdline`" ]; then
-			LogIt "PXE boot found"
-		fi
-		imgname=`grep iso-prefix /tmp/mondo-restore.cfg | cut -d' ' -f2-`
-		if [ "$imgname" = "" ]; then
-			imgname="mondorescue"
-		fi
-		if [ "`grep -i prefix /proc/cmdline`" ] ; then
-			for i in `cat /proc/cmdline` ; do
-				if [ "`echo $i | grep -i prefix`" ] ; then
-					imgname=`echo $i | cut -d'=' -f2`
-				fi
-			done
-		fi
-		dirimg=`grep nfs-server-path /tmp/mondo-restore.cfg | cut -d' ' -f2-`
-		if [ "$dirimg" = "" ]; then
-			dirimg="/"
-		fi
-		LogIt "Mounting NFS image $imgname-1.iso in $dirimg on /mnt/cdrom in loopback"
-		losetup /dev/loop7 /tmp/isodir/$dirimg/$imgname-1.iso
-		mount -t iso9660 /dev/loop7 /mnt/cdrom
-		# Simulate a local CD
-		echo "/mnt/cdrom" > /tmp/CDROM-LIVES-HERE
+    	HandleTape
+	ExtractDataDisksAndLoadModules
+elif [ -e "/sbin/start-nfs" ] && [ "`grep -i pxe /proc/cmdline`" ]; then
+	StartNfs
+	imgname=`grep iso-prefix /tmp/mondo-restore.cfg | cut -d' ' -f2-`
+	if [ "$imgname" = "" ]; then
+		imgname="mondorescue"
+	fi
+	if [ "`grep -i prefix /proc/cmdline`" ] ; then
+		for i in `cat /proc/cmdline` ; do
+			if [ "`echo $i | grep -i prefix`" ] ; then
+				imgname=`echo $i | cut -d'=' -f2`
+			fi
+		done
+	fi
+	dirimg=`grep nfs-server-path /tmp/mondo-restore.cfg | cut -d' ' -f2-`
+	if [ "$dirimg" = "" ]; then
+		dirimg="/"
+	fi
+	LogIt "Mounting NFS image $imgname-1.iso in $dirimg on /mnt/cdrom in loopback"
+	losetup /dev/loop7 /tmp/isodir/$dirimg/$imgname-1.iso
+	mount -t iso9660 /dev/loop7 /mnt/cdrom
+	# Simulate a local CD
+	echo "/mnt/cdrom" > /tmp/CDROM-LIVES-HERE
         CD_MOUNTED_OK=yes
-	else
-    		HandleCDROMorFloppies
+	ExtractDataDisksAndLoadModules
+else
+	HandleCDROMorFloppies
+	ExtractDataDisksAndLoadModules
+	if [ -e "/sbin/start-nfs" ]; then
+		StartNfs
 	fi
 fi
 res=$?
-echo "Inserting modules ..."
-insert-all-my-modules > $LOGFILE 2> $LOGFILE
-echo "Installing additional tools ..."
-install-additional-tools
 SwapTheMountExecs
 ConfigureLoggingDaemons
-echo "Inserting modules again ..."
-insert-all-my-modules > $LOGFILE 2> $LOGFILE
 if [ -e "/tmp/USE-DEVFS" ] ; then
     umount /mnt/cdrom 2> /dev/null
     mv /dev/cdrom /cdrom.lnk 2> /dev/null

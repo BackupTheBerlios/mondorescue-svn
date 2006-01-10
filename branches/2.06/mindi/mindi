@@ -1540,7 +1540,7 @@ OfferToCopyImagesToDisks() {
 	[ ! -e "$boot_dev" ] && Die "Cannot find $boot_dev - is your Linux distro broken?"
 	[ ! -e "$data_dev" ] && Die "Cannot find $data_dev - is your Linux distro broken?"
 	i=`find $imagesdir -type f | fgrep "/mindi-root.1" 2> /dev/null`
-	j=`find $imagesdir -type f | fgrep "/mindi-boot" | fgrep -v 2880`
+	j=`find $imagesdir -type f | fgrep "/mindi-boot" | egrep -v '2880|5760'`
 #    echo "i=$i"
 #    echo "j=$j"
 	if [ "$i" ] ; then
@@ -1754,16 +1754,16 @@ MakeLiloConfFile() {
 	disksize=$1
 	options=""
 		if [ "$ARCH" != "ia64" ] ; then
-		echo -en "boot=/dev/loop0\ndisk=/dev/loop0\n"
+			echo -en "boot=/dev/loop0\ndisk=/dev/loop0\n"
 		fi
 		if [ "$disksize" -eq "2880" ] ; then
-		echo -en "bios=0x00\nsectors=36\nheads=2\ncylinders=80\n"
+			echo -en "bios=0x00\nsectors=36\nheads=2\ncylinders=80\n"
 		elif [ "$disksize" -eq "1722" ] ; then
-		echo -en "bios=0x00\nsectors=21\nheads=2\ncylinders=82\n"
+			echo -en "bios=0x00\nsectors=21\nheads=2\ncylinders=82\n"
 		elif [ "$disksize" -gt "2880" ] ; then
 		    /bin/true
 		else
-		echo -en "bios=0x00\nsectors=18\nheads=2\ncylinders=80\n"
+			echo -en "bios=0x00\nsectors=18\nheads=2\ncylinders=80\n"
 		fi
 		if [ "$ARCH" != "ia64" ] ; then
 		    echo -en "install=/boot.b\nmap=/boot.map\n"
@@ -1771,15 +1771,16 @@ MakeLiloConfFile() {
 	if [ "$CDRECOVERY" = "yes" ] ; then
 		echo -en "default=RESTORE\n"
 	elif [ "$disksize" -gt "2880" ] && [ "`DidMondoCallMe`" ] ; then
-	if [ -e "$MONDO_TMP/start-nfs" ] ; then
-		echo -en "default=iso\n"
+		if [ -e "$MONDO_TMP/start-nfs" ] ; then
+			echo -en "default=iso\n"
+		else
+			echo -en "default=interactive\n"
+		fi
 	else
-		echo -en "default=interactive\n"
+		echo -en "default=expert\n"
 	fi
-	else
-	echo -en "default=expert\n"
-	fi
-		echo -en "prompt\n"
+
+	echo -en "prompt\n"
 	if [ "$ARCH" != "ia64" ] ; then
 		echo -en "vga=normal\nbackup=/dev/null\nmessage=/message\n"
 	fi
@@ -1801,12 +1802,12 @@ MakeLiloConfFile() {
 		    options="expert"
 	fi
 	else
-	options="expert"
+		options="expert"
 	fi
 	for i in $options ; do
 	ooo=$i
 	[ "$ooo" = "RESTORE" ] && ooo="nuke"
-		if [ "$ARCH" = "ia64" ] ; then
+	if [ "$ARCH" = "ia64" ] ; then
 		rootpart="root=/dev/ram0\n\t"
 	else
 		rootpart=""
@@ -2747,9 +2748,9 @@ TurnTgzIntoRdz() {
 	fi
 	floppy_modules=""
 	if [ "$disksize" -lt "2880" ] ; then
-	list_of_groovy_mods="$FLOPPY_MODS `WhichOfTheseModulesAreLoaded "$SCSI_MODS"`"
+		list_of_groovy_mods="$FLOPPY_MODS `WhichOfTheseModulesAreLoaded "$SCSI_MODS"`"
 	else
-	list_of_groovy_mods="$CDROM_MODS `WhichOfTheseModulesAreLoaded "$SCSI_MODS"`"
+		list_of_groovy_mods="$CDROM_MODS `WhichOfTheseModulesAreLoaded "$SCSI_MODS"`"
 	fi
 	if [ -e "$MONDO_TMP/start-nfs" ] ; then
 		cp -a $MONDO_TMP/start-nfs $mountpoint/sbin

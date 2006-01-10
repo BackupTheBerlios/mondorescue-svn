@@ -3193,13 +3193,13 @@ else
 	if ! PrepareBootDiskImage_SYSLINUX $imagesdir 1722 $kernelpath $ramdisk_size ; then
 		LogIt "Warning - failed to create 1.72MB boot image. Please reduce your kernel's size\n"
 		LogIt "if you want to make a 1.72MB floppy disk.\n"
+		if ! PrepareBootDiskImage_SYSLINUX $imagesdir 2880 $kernelpath $ramdisk_size ; then
+			LogIt "Warning - failed to create 2.88MB floppy disk image.\n"
+			LogIt "Please reduce your kernel's size\n"
+			LogIt "if you want to make a 2.88MB floppy disk.\n"
+			PrepareBootDiskImage_SYSLINUX $imagesdir 5760 $kernelpath $ramdisk_size || Die "Failed to create 5.76MB floppy disk image."
+		fi
 	fi
-	if ! PrepareBootDiskImage_SYSLINUX $imagesdir 2880 $kernelpath $ramdisk_size ; then
-		LogIt "Warning - failed to create 2.88MB floppy disk image.\n"
-		LogIt "Please reduce your kernel's size\n"
-		LogIt "if you want to make a 2.88MB floppy disk.\n"
-	fi
-	PrepareBootDiskImage_SYSLINUX $imagesdir 5760 $kernelpath $ramdisk_size || Die "Failed to create 5.76MB floppy disk image."
 fi
 
 

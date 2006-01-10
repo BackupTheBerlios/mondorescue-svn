@@ -2,6 +2,20 @@
 
 MINDI CHANGES
 
+1.07 ()
+- stop creating further size of floppy disks if the smaller one succeeds 
+  (Bruno Cornec)
+- init revamped (removed unnecessary second general module loading phase,
+  start NFS appropriately depending on PXE or simple NFS) 
+  (Andree Leidenfrost)
+- Changed module 'nfsacl' to 'nfs_acl' (Andree Leidenfrost)
+- Mindi/DiskSize is gone (Bruno Cornec)
+- useless cat, sort|uniq commands removed 
+  (Bruno Cornec/Sébastien Aperghis-Tramoni)
+- Doc cleanup (Andree Leidenfrost)
+- Bug fix for chown in install.sh (JeffS)
+- CHANGES renamed also in install.sh now (Bruno Cornec)
+
 1.06 (2005-12-23)
 - mindi manpage added (Andree Leidenfrost)
 - clean up remaining mount points, mindi.err at the end (Wolfgang Rosenauer)

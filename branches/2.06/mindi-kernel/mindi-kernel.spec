@@ -5,7 +5,7 @@
 
 Summary:	A program that creates emergency boot disks/CDs using your kernel, tools and modules.
 Name:		mindi-kernel
-Version:	1.05
+Version:	1.06
 Release:	%mrel
 Copyright:	GPL
 Group:		System/Kernel and hardware
@@ -35,6 +35,9 @@ export PREFIX=${RPM_BUILD_ROOT}
 %{_libdir}/mindi
 
 %changelog
+* Wed Jan 04 2006 Bruno Cornec <bcornec@users.berlios.de> 1.06-1
+- 2.6 kernel (from mandriva) to avoid bugs in PXE mode with 2.4 kernels and busybox
+
 * Wed Dec 14 2005 Bruno Cornec <bcornec@users.berlios.de> 1.05-1
 - adapted to the new mindi location (in 1.05-r194 and upper)
 

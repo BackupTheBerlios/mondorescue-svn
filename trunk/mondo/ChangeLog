@@ -8,6 +8,16 @@ trunk:
   verifications. Optimisations on memory consumption (allocate only size
   needed + remove memory leaks)
 
+v2.07 ()
+- useless cat, sort|uniq commands removed 
+  (Bruno Cornec/Sébastien Aperghis-Tramoni)
+- Doc cleanup (Andree Leidenfrost)
+- Add the actual format to messages after calls to function
+  is_this_a_valid_disk_format() about unsupported formats.
+  (Andree Leidenfrost)
+- Abort|Warn when one of the include|exclude dirs (-I|-E) does not exist 
+  (Bruno Cornec/Jeffs)
+
 v2.06 (2005-12-23)
 - better error handling of failed commands/mindi (Andree Leidenfrost)
 - fix compiler warnings (Andree Leidenfrost)

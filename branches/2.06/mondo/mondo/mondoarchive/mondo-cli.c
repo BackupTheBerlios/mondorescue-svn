@@ -359,6 +359,8 @@ process_switches(struct s_bkpinfo *bkpinfo,
 
 	long itbs;
 
+	struct stat buf;
+
 	malloc_string(tmp);
 	malloc_string(psz);
 
@@ -438,6 +440,10 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		}
 		if (bkpinfo->include_paths[0]) {
 			strcat(bkpinfo->include_paths, " ");
+		}
+		if (stat(flag_val['I'], &buf) != 0) {
+			log_msg("ERROR ! %s doesn't exist", flag_val['I']);
+			fatal_error("ERROR ! You specified a directory to include which doesn't exist");
 		}
 		strncpy(bkpinfo->include_paths + strlen(bkpinfo->include_paths),
 				flag_val['I'],
@@ -651,6 +657,9 @@ process_switches(struct s_bkpinfo *bkpinfo,
 	if (flag_set['E']) {
 		if (bkpinfo->exclude_paths[0]) {
 			strcat(bkpinfo->exclude_paths, " ");
+		}
+		if (stat(flag_val['E'], &buf) != 0) {
+			log_msg(1, "WARNING ! %s doesn't exist", flag_val['E']);
 		}
 		strncpy(bkpinfo->exclude_paths + strlen(bkpinfo->exclude_paths),
 				flag_val['E'],

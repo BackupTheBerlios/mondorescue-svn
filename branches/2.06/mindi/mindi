@@ -2016,18 +2016,18 @@ PrepareBootDiskImage_SYSLINUX() {
 #    tar -zxf $MINDI_LIB/dev.tgz || LogIt "Cannot untar dev.tgz\n" <--- present for LILO; is it nec. for SYSLINUX too?
 	cat $sys_cfg_file | HackSyslinuxFile $ramdisk_size $mountpoint > syslinux.cfg || Die "Cannot copy syslinux.cfg from mindi_home to tmp_root"
 	if [ -e "$MONDO_TMP/start-nfs" ] ; then
-	mv syslinux.cfg syslinux.cfg.orig
-	sed s/interactive/iso/ syslinux.cfg.orig > syslinux.cfg
+		mv syslinux.cfg syslinux.cfg.orig
+		sed s/interactive/iso/ syslinux.cfg.orig > syslinux.cfg
 	fi
 	cd $old_pwd
 	echo "Copying $TMP_ROOT/mindi.rdz to $mountpoint/initrd.img..." >> $LOGFILE
 	cp -f $TMP_ROOT/mindi.rdz $mountpoint/initrd.img 2>> $LOGFILE
 	if [ "$?" -ne "0" ] ; then
-	LogIt "Failed to copy $TMP_ROOT/mindi.rdz to $mountpoint\n"
-	cat $TMP_ROOT/mtpt.$$ >> $LOGFILE
-	LogIt "Please unload some of your modules and try again.\n"
-	rm -f $TMP_ROOT/mtpt.$$
-	LogIt "Cannot incorporate mindi.rdz in bootdisk (kernel / modules too big?)\n"
+		LogIt "Failed to copy $TMP_ROOT/mindi.rdz to $mountpoint\n"
+		cat $TMP_ROOT/mtpt.$$ >> $LOGFILE
+		LogIt "Please unload some of your modules and try again.\n"
+		rm -f $TMP_ROOT/mtpt.$$
+		LogIt "Cannot incorporate mindi.rdz in bootdisk (kernel / modules too big?)\n"
 		retval=$(($retval+1))
 	fi
 
@@ -2040,13 +2040,13 @@ PrepareBootDiskImage_SYSLINUX() {
 	free_space=`df -k $mountpoint | tail -n1 | tr -s ' ' '\t' | cut -f4`
 	cp -f $kernelpath $mountpoint/vmlinuz &> /dev/null
 	if [ "$?" -ne "0" ] || [ "$FORCE_DUAL_FLOPPIES" = "yes" ] ; then
-	echo "Files at mountpoint ($mountpoint) :-" >> $LOGFILE
-	du -sk $mountpoint/* >> $LOGFILE
-	echo "--- end of list of files ---" >> $LOGFILE
-	echo -en "Kernel size = `du -sk $kernelpath | cut -f1` K\nRamdisk free = $free_space K\n\
+		echo "Files at mountpoint ($mountpoint) :-" >> $LOGFILE
+		du -sk $mountpoint/* >> $LOGFILE
+		echo "--- end of list of files ---" >> $LOGFILE
+		echo -en "Kernel size = `du -sk $kernelpath | cut -f1` K\nRamdisk free = $free_space K\n\
 Sorry, your kernel is too big for a boot/root floppy.\nI'll try the new boot/root two-disk thingy.\n" >> $LOGFILE
 		rm -f $mountpoint/vmlinuz
-	cd $old_pwd
+		cd $old_pwd
 		umount $mountpoint || Die "Cannot unmount mountpoint ($mountpoint)"
 		rmdir $mountpoint || LogIt "Cannot rmdir (PBDI)\n"
 #	losetup /dev/loop0 -d
@@ -3191,8 +3191,8 @@ if [ "$USE_LILO" = "yes" ] ; then
 	fi
 else
 	if ! PrepareBootDiskImage_SYSLINUX $imagesdir 1722 $kernelpath $ramdisk_size ; then
-	LogIt "Warning - failed to create 1.72MB boot image. Please reduce your kernel's size\n"
-	LogIt "if you want to make a 1.72MB floppy disk.\n"
+		LogIt "Warning - failed to create 1.72MB boot image. Please reduce your kernel's size\n"
+		LogIt "if you want to make a 1.72MB floppy disk.\n"
 	fi
 	if ! PrepareBootDiskImage_SYSLINUX $imagesdir 2880 $kernelpath $ramdisk_size ; then
 		LogIt "Warning - failed to create 2.88MB floppy disk image.\n"

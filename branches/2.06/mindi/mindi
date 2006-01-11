@@ -1024,25 +1024,25 @@ ListImagesForUser() {
 ListKernelModulePaths() {
 	local module_list module fname oss r kern
 	oss="/root/oss/modules"
-	module_list=`ListKernelModules`
+	module_list="`lsmod | sed -n '2,$s/ .*//p'`"
 ###
 ### Sq-Modification ... Use kernelname for module search path if specified
 ###
 	# kern="`uname -r`"
 	if [ "${kernelname}" != "" -a "${kernelname}" != "FAILSAFE" ]
 	then
-	  kern=${kernelname}
+		kern=${kernelname}
 	else
-	  kern="`uname -r`"
+		kern="`uname -r`"
 	fi
 ###
 ### Sq-Mod End
 ###
 	for module in $module_list $EXTRA_MODS ; do
 		r=`find /lib/modules/$kern -type f | grep "/${module}\..*o" | tail -n1`
-	echo "module $module --> $r" >> $LOGFILE
-	[ "$r" ] && echo "$r"
-	[ -f "$oss" ] && find $oss | fgrep $module
+		echo "module $module --> $r" >> $LOGFILE
+		[ "$r" ] && echo "$r"
+		[ -f "$oss" ] && find $oss | fgrep $module
 	done
 	find /lib/modules/$kern/modules.* -type f 2> /dev/null
 	[ -f "$oss" ] && find $oss.* 2> /dev/null
@@ -1050,14 +1050,14 @@ ListKernelModulePaths() {
 
 
 
-ListKernelModules() {
-	local output q
-	output=""
-	for q in `lsmod | sed -n '2,$s/ .*//p'` ; do
-	output="$q $output"
-	done
-	echo "$output"
-}
+#ListKernelModules() {
+	#local output q
+	#output=""
+	#for q in `lsmod | sed -n '2,$s/ .*//p'` ; do
+		#output="$q $output"
+	#done
+	#echo "`lsmod | sed -n '2,$s/ .*//p'`"
+#}
 
 
 
@@ -1234,7 +1234,7 @@ MakeModuleLoadingScript() {
 	fi
 	
 	echo -en "for outerloop in 1 2 3 4 5 ; do\necho -en \".\"\n" >> $outfile
-	list_to_echo="`ListKernelModules`"
+	list_to_echo="`lsmod | sed -n '2,$s/ .*//p'`"
 #    LTE=`echo "$list_to_echo" | tr ' ' '\n' | grep -n "" | cut -d':' -f2,3,4 | tr '\n' ' '`
 #    lte_old="$LTE"
 #    LTE=""
@@ -1244,25 +1244,24 @@ MakeModuleLoadingScript() {
 #echo "LTE = '$LTE'" >> $LOGFILE
 	# Make temporary modprobe.conf file if we are told so
 	if [ $tmpmodprobe_flag == "Y" ] ; then
-	infile="/tmp/modprobe.conf.mindi.$$"
-	find /etc/modprobe.d -maxdepth 1 -name "*" -xtype f > $infile
+		infile="/tmp/modprobe.conf.mindi.$$"
+		find /etc/modprobe.d -maxdepth 1 -name "*" -xtype f > $infile
 	else
-	infile="/etc/modules.conf"
+		infile="/etc/modules.conf"
 	fi
 	for module in $list_to_echo $EXTRA_MODS ; do
-	params=`sed -n "s/^options \\+$module \\+//p" $infile`
-	modpaths=`FindSpecificModuleInPath $searchpath $module`
-	for i in $modpaths ; do
-		echo "MyInsmod $i $params > /dev/null 2> /dev/null" \
-		    | tr '.' '#' \
-		    | sed s/#o#gz/#o/ \
-		    | sed s/#o#gz/#o/ \
-		    | sed s/#ko#gz/#ko/ \
-		    | sed s/#ko#gz/#ko/ \
+		params=`sed -n "s/^options \\+$module \\+//p" $infile`
+		modpaths=`FindSpecificModuleInPath $searchpath $module`
+		for i in $modpaths ; do
+			echo "MyInsmod $i $params > /dev/null 2> /dev/null" \
+		    	| tr '.' '#' \
+		    	| sed s/#o#gz/#o/ \
+		    	| sed s/#o#gz/#o/ \
+		    	| sed s/#ko#gz/#ko/ \
+		    	| sed s/#ko#gz/#ko/ \
 		        | tr '#' '.' >> $outfile
-
-		echo -en "$i added to module list.\n" >> $LOGFILE
-	done
+			echo -en "$i added to module list.\n" >> $LOGFILE
+		done
 	done
 	echo -en "done\n" >> $outfile
 	echo "echo \"Done.\"" >> $outfile
@@ -1271,7 +1270,7 @@ MakeModuleLoadingScript() {
 	cd /
 	# Remove temporary modprobe.conf file if we have created one
 	if [ $tmpmodprobe_flag == "Y" ] ; then
-	rm -f $infile
+		rm -f $infile
 	fi
 }
 
@@ -2869,17 +2868,17 @@ ZipMinidirsIntoTarballs() {
 
 
 
+# BERLIOS: This function is wrong
+# Should be recoded. Desactivated in between
 
-ListUnsavedKernelModules() {
-	local fname modules
-	fname=/tmp/$RANDOM.$$.$RANDOM
-	ListKernelModules > $fname
-	lsmod | cut -d' ' -f1 >> $fname
-	lsmod | cut -d' ' -f1 >> $fname
-	modules=`sort $fname | uniq -d2 | tr '\n' ' '`
-	rm -f $fname
-	[ "$modules" ] && echo "Unsaved kernel modules: $modules" >> $LOGFILE
-}
+#ListUnsavedKernelModules() {
+	#local fname modules
+	#fname=/tmp/$RANDOM.$$.$RANDOM
+	#lsmod | sed -n '2,$s/ .*//p' > $fname
+	#modules=`sort $fname | uniq -d2 | tr '\n' ' '`
+	#rm -f $fname
+	#[ "$modules" ] && echo "Unsaved kernel modules: $modules" >> $LOGFILE
+#}
 
 
 
@@ -3241,7 +3240,7 @@ fi
 # cleanup
 rm -fR /tmp/mountlist.txt.$$ $FDISKLOG /tmp/mindilinux
 LogIt "$FRIENDLY_OUTSTRING\n"
-ListUnsavedKernelModules
+#ListUnsavedKernelModules
 for mtpt in $FLOPPY_WAS_MOUNTED ; do
 	mount $mtpt
 done

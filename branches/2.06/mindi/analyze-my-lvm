@@ -221,12 +221,7 @@ if [ -e "/proc/lvm/global" ] && [ "`tr -s '\t' ' ' < /proc/lvm/global | grep "0 
 	exit 0
 fi
 
-# Sq-Mod ... V1 has different output. --version is not legal but version
-# gets displayed so I guess it's ok... This should work for both.
-
-#lvmversion=`lvmdiskscan --version | grep "LVM version:" | cut -d: -f2 | cut -d. -f1 | sed -e 's/ //g'`
-
-lvmversion=`lvmdiskscan --help |
+lvmversion=`lvmdiskscan --help 2>&1 |
   grep -E "Logical Volume Manager|LVM version:" |
   cut -d: -f2 | cut -d. -f1 |
   awk '{print $NF}' |

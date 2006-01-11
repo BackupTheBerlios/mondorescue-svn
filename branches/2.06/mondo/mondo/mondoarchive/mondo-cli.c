@@ -710,8 +710,8 @@ process_switches(struct s_bkpinfo *bkpinfo,
 	}
 	if (flag_set['x']) {
 		strncpy(bkpinfo->image_devs, flag_val['x'], MAX_STR_LEN / 4);
-		if (run_program_and_log_output("which partimagehack", 2)) {
-			fatal_error("Please install partimagehack RPM/tarball.");
+		if (run_program_and_log_output("which ntfsclone", 2)) {
+			fatal_error("Please install ntfsprogs package/tarball.");
 		}
 	}
 	if (flag_set['m']) {

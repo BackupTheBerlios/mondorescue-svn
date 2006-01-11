@@ -2161,7 +2161,7 @@ make_slices_and_images(struct s_bkpinfo *bkpinfo, char *biggielist_fname)
 	char *tmp;
 	char *bigfile_fname;
 	char *sz_devfile;
-	char *partimagehack_fifo = NULL;
+	char *ntfsprog_fifo = NULL;
 	/*@ long *********************************************** */
 	long biggie_file_number = 0;
 	long noof_biggie_files = 0;
@@ -2173,7 +2173,7 @@ make_slices_and_images(struct s_bkpinfo *bkpinfo, char *biggielist_fname)
 	pid_t pid;
 	FILE *ftmp = NULL;
 	bool delete_when_done;
-	bool use_partimagehack;
+	bool use_ntfsprog;
 	/*@ long long ****************************************** */
 	long long biggie_fsize;
 
@@ -2208,7 +2208,7 @@ make_slices_and_images(struct s_bkpinfo *bkpinfo, char *biggielist_fname)
 	}
 	for (fgets(bigfile_fname, MAX_STR_LEN, fin); !feof(fin);
 		 fgets(bigfile_fname, MAX_STR_LEN, fin), biggie_file_number++) {
-		use_partimagehack = FALSE;
+		use_ntfsprog = FALSE;
 		if (bigfile_fname[strlen(bigfile_fname) - 1] < 32) {
 			bigfile_fname[strlen(bigfile_fname) - 1] = '\0';
 		}
@@ -2222,40 +2222,40 @@ make_slices_and_images(struct s_bkpinfo *bkpinfo, char *biggielist_fname)
 					bigfile_fname);
 			delete_when_done = TRUE;
 		} else {
-// Call partimagehack if it's a /dev entry (i.e. a partition to be imaged)
+// Call ntfsclone (formerly partimagehack) if it's a /dev entry (i.e. a partition to be imaged)
 			log_msg(2, "bigfile_fname = %s", bigfile_fname);
-			use_partimagehack = FALSE;
+			use_ntfsprog = FALSE;
 			if (!strncmp(bigfile_fname, "/dev/", 5)
 				&& is_dev_an_NTFS_dev(bigfile_fname)) {
-				use_partimagehack = TRUE;
+				use_ntfsprog = TRUE;
 				log_msg(2,
-						"Calling partimagehack in background because %s is an NTFS partition",
+						"Calling ntfsclone in background because %s is an NTFS partition",
 						bigfile_fname);
 				sprintf(sz_devfile, "/tmp/%d.%d.000",
 						(int) (random() % 32768),
 						(int) (random() % 32768));
 				mkfifo(sz_devfile, 0x770);
-				partimagehack_fifo = sz_devfile;
+				ntfsprog_fifo = sz_devfile;
 				switch (pid = fork()) {
 				case -1:
 					fatal_error("Fork failure");
 				case 0:
 					log_msg(2,
-							"CHILD - fip - calling feed_into_partimage(%s, %s)",
+							"CHILD - fip - calling feed_into_ntfsprog(%s, %s)",
 							bigfile_fname, sz_devfile);
-					res = feed_into_partimage(bigfile_fname, sz_devfile);
+					res = feed_into_ntfsprog(bigfile_fname, sz_devfile);
 					exit(res);
 					break;
 				default:
 					log_msg(2,
-							"feed_into_partimage() called in background --- pid=%ld",
+							"feed_into_ntfsprog() called in background --- pid=%ld",
 							(long int) (pid));
 				}
 			}
 // Otherwise, use good old 'dd' and 'bzip2'
 			else {
 				sz_devfile[0] = '\0';
-				partimagehack_fifo = NULL;
+				ntfsprog_fifo = NULL;
 			}
 
 // Whether partition or biggiefile, just do your thang :-)
@@ -2264,14 +2264,14 @@ make_slices_and_images(struct s_bkpinfo *bkpinfo, char *biggielist_fname)
 					(long) biggie_fsize >> 10);
 			if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
 				write_header_block_to_stream(biggie_fsize, bigfile_fname,
-											 use_partimagehack ?
+											 use_ntfsprog ?
 											 BLK_START_A_PIHBIGGIE :
 											 BLK_START_A_NORMBIGGIE);
 			}
 			res =
 				slice_up_file_etc(bkpinfo, bigfile_fname,
-								  partimagehack_fifo, biggie_file_number,
-								  noof_biggie_files, use_partimagehack);
+								  ntfsprog_fifo, biggie_file_number,
+								  noof_biggie_files, use_ntfsprog);
 			if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
 				write_header_block_to_stream(0,
 											 calc_checksum_of_file
@@ -3269,7 +3269,7 @@ void set_bit_N_of_array(char *array, int N, bool true_or_false)
  * - @c zip_suffix
  *
  * @param biggie_filename The file to chop up.
- * @param partimagehack_fifo The FIFO to partimagehack if this is an imagedev, NULL otherwise.
+ * @param ntfsprog_fifo The FIFO to ntfsclone if this is an imagedev, NULL otherwise.
  * @param biggie_file_number The sequence number of this biggie file (starting from 0).
  * @param noof_biggie_files The number of biggie files there are total.
  * @return The number of errors encountered (0 for success)
@@ -3278,8 +3278,8 @@ void set_bit_N_of_array(char *array, int N, bool true_or_false)
  */
 int
 slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
-				  char *partimagehack_fifo, long biggie_file_number,
-				  long noof_biggie_files, bool use_partimagehack)
+				  char *ntfsprog_fifo, long biggie_file_number,
+				  long noof_biggie_files, bool use_ntfsprog)
 {
 
 	/*@ buffers ************************************************** */
@@ -3328,7 +3328,7 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
 	command = malloc(MAX_STR_LEN * 8);
 
 	biggiestruct.for_backward_compatibility = '\n';
-	biggiestruct.use_partimagehack = use_partimagehack;
+	biggiestruct.use_ntfsprog = use_ntfsprog;
 	if (!(tempblock = (char *) malloc(256 * 1024))) {
 		fatal_error("malloc error 256*1024");
 	}
@@ -3346,13 +3346,20 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
 	if (optimal_set_size < 999) {
 		fatal_error("bkpinfo->optimal_set_size is insanely small");
 	}
-	if (partimagehack_fifo) {
-		file_to_openin = partimagehack_fifo;
+	if (ntfsprog_fifo) {
+		file_to_openin = ntfsprog_fifo;
 		strcpy(checksum_line, "IGNORE");
 		log_msg(2,
 				"Not calculating checksum for %s: it would take too long",
 				biggie_filename);
-		totallength = get_phys_size_of_drive(biggie_filename)*1024*1024LL;
+		if ( !find_home_of_exe("ntfsresize")) {
+			fatal_error("ntfsresize not found");
+		}
+		sprintf(command, "ntfsresize --force --info %s|grep '^You might resize at '|cut -d' ' -f5", biggie_filename);
+		log_it("command = %s", command);
+		strcpy (tmp, call_program_and_get_last_line_of_output(command));
+		log_it("res of it = %s", tmp); 
+		totallength = atoll(tmp);
 	} else {
 		file_to_openin = biggie_filename;
 		sprintf(command, "md5sum '%s'", biggie_filename);

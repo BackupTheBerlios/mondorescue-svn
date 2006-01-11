@@ -1364,18 +1364,18 @@ restore_a_biggiefile_from_CD(struct s_bkpinfo *bkpinfo,
 
   /** malloc ***/
 	char *checksum, *outfile_fname, *tmp, *bzip2_command,
-		*partimagehack_command, *suffix, *sz_devfile;
+		*ntfsprog_command, *suffix, *sz_devfile;
 	char *bigblk;
 	char *p;
 	int retval = 0;
 	int finished = FALSE;
 	long sliceno;
 	long siz;
-	char partimagehack_fifo[MAX_STR_LEN];
+	char ntfsprog_fifo[MAX_STR_LEN];
 	char *file_to_openout = NULL;
 	struct s_filename_and_lstat_info biggiestruct;
 	struct utimbuf the_utime_buf, *ubuf;
-	bool use_partimage_hack = FALSE;
+	bool use_ntfsprog_hack = FALSE;
 	pid_t pid;
 	int res = 0;
 	int old_loglevel;
@@ -1390,7 +1390,7 @@ restore_a_biggiefile_from_CD(struct s_bkpinfo *bkpinfo,
 	malloc_string(outfile_fname);
 	malloc_string(tmp);
 	malloc_string(bzip2_command);
-	malloc_string(partimagehack_command);
+	malloc_string(ntfsprog_command);
 	malloc_string(suffix);
 	malloc_string(sz_devfile);
 
@@ -1447,49 +1447,49 @@ restore_a_biggiefile_from_CD(struct s_bkpinfo *bkpinfo,
 	/* otherwise, continue */
 
 	log_msg(1, "DEFINITELY restoring %s", biggiestruct.filename);
-	if (biggiestruct.use_partimagehack) {
+	if (biggiestruct.use_ntfsprog) {
 		if (strncmp(biggiestruct.filename, "/dev/", 5)) {
 			log_msg(1,
-					"I was in error when I set biggiestruct.use_partimagehack to TRUE.");
+					"I was in error when I set biggiestruct.use_ntfsprog to TRUE.");
 			log_msg(1, "%s isn't even in /dev", biggiestruct.filename);
-			biggiestruct.use_partimagehack = FALSE;
+			biggiestruct.use_ntfsprog = FALSE;
 		}
 	}
 
-	if (biggiestruct.use_partimagehack)	// if it's an NTFS device
+	if (biggiestruct.use_ntfsprog)	// if it's an NTFS device
 //  if (!strncmp ( biggiestruct.filename, "/dev/", 5))
 	{
 		g_loglevel = 4;
-		use_partimage_hack = TRUE;
+		use_ntfsprog_hack = TRUE;
 		log_msg(2,
-				"Calling partimagehack in background because %s is an NTFS /dev entry",
+				"Calling ntfsclone in background because %s is an NTFS /dev entry",
 				outfile_fname);
 		sprintf(sz_devfile, "/tmp/%d.%d.000", (int) (random() % 32768),
 				(int) (random() % 32768));
 		mkfifo(sz_devfile, 0x770);
-		strcpy(partimagehack_fifo, sz_devfile);
-		file_to_openout = partimagehack_fifo;
+		strcpy(ntfsprog_fifo, sz_devfile);
+		file_to_openout = ntfsprog_fifo;
 		switch (pid = fork()) {
 		case -1:
 			fatal_error("Fork failure");
 		case 0:
 			log_msg(3,
-					"CHILD - fip - calling feed_outfrom_partimage(%s, %s)",
-					biggiestruct.filename, partimagehack_fifo);
+					"CHILD - fip - calling feed_outfrom_ntfsprog(%s, %s)",
+					biggiestruct.filename, ntfsprog_fifo);
 			res =
-				feed_outfrom_partimage(biggiestruct.filename,
-									   partimagehack_fifo);
+				feed_outfrom_ntfsprog(biggiestruct.filename,
+									   ntfsprog_fifo);
 //          log_msg(3, "CHILD - fip - exiting");
 			exit(res);
 			break;
 		default:
 			log_msg(3,
-					"feed_into_partimage() called in background --- pid=%ld",
+					"feed_into_ntfsprog() called in background --- pid=%ld",
 					(long int) (pid));
 		}
 	} else {
-		use_partimage_hack = FALSE;
-		partimagehack_fifo[0] = '\0';
+		use_ntfsprog_hack = FALSE;
+		ntfsprog_fifo[0] = '\0';
 		file_to_openout = outfile_fname;
 		if (!does_file_exist(outfile_fname))	// yes, it looks weird with the '!' but it's correct that way
 		{
@@ -1516,7 +1516,7 @@ restore_a_biggiefile_from_CD(struct s_bkpinfo *bkpinfo,
 		log_to_screen("Cannot openout outfile_fname - hard disk full?");
 		return (1);
 	}
-	log_msg(3, "Opened out to %s", outfile_fname);	// CD/DVD --> mondorestore --> partimagehack --> hard disk itself
+	log_msg(3, "Opened out to %s", outfile_fname);	// CD/DVD --> mondorestore --> ntfsclone --> hard disk itself
 
 	for (sliceno = 1, finished = FALSE; !finished;) {
 		if (!does_file_exist
@@ -1625,14 +1625,14 @@ restore_a_biggiefile_from_CD(struct s_bkpinfo *bkpinfo,
 	paranoid_fclose(fout);
 	g_loglevel = old_loglevel;
 
-	if (use_partimage_hack) {
-		log_msg(3, "Waiting for partimage to finish");
+	if (use_ntfsprog_hack) {
+		log_msg(3, "Waiting for ntfsclone to finish");
 		sprintf(tmp,
-				" ps ax | grep \" partimagehack \" | grep -v grep > /dev/null 2> /dev/null");
+				" ps ax | grep \" ntfsclone \" | grep -v grep > /dev/null 2> /dev/null");
 		while (system(tmp) == 0) {
 			sleep(1);
 		}
-		log_it("OK, partimage has really finished");
+		log_it("OK, ntfsclone has really finished");
 	}
 
 	if (strcmp(outfile_fname, "/dev/null")) {
@@ -1648,7 +1648,7 @@ restore_a_biggiefile_from_CD(struct s_bkpinfo *bkpinfo,
 	paranoid_free(outfile_fname);
 	paranoid_free(tmp);
 	paranoid_free(bzip2_command);
-	paranoid_free(partimagehack_command);
+	paranoid_free(ntfsprog_command);
 	paranoid_free(suffix);
 	paranoid_free(sz_devfile);
 
@@ -1678,7 +1678,7 @@ restore_a_biggiefile_from_CD(struct s_bkpinfo *bkpinfo,
 int restore_a_biggiefile_from_stream(struct s_bkpinfo *bkpinfo, char *orig_bf_fname, long biggiefile_number, char *orig_checksum,	//UNUSED
 									 long long biggiefile_size,	//UNUSED
 									 struct s_node *filelist,
-									 int use_partimagehack,
+									 int use_ntfsprog,
 									 char *pathname_of_last_file_restored)
 {
 	FILE *pout;
@@ -1688,9 +1688,9 @@ int restore_a_biggiefile_from_stream(struct s_bkpinfo *bkpinfo, char *orig_bf_fn
 	char *tmp;
 	char *command;
 	char *outfile_fname;
-	char *partimagehack_command;
+	char *ntfsprog_command;
 	char *sz_devfile;
-	char *partimagehack_fifo;
+	char *ntfsprog_fifo;
 	char *file_to_openout = NULL;
 
 	struct s_node *node;
@@ -1702,32 +1702,32 @@ int restore_a_biggiefile_from_stream(struct s_bkpinfo *bkpinfo, char *orig_bf_fn
 	int ctrl_chr = '\0';
 	long long slice_siz;
 	bool dummy_restore = FALSE;
-	bool use_partimage_hack = FALSE;
+	bool use_ntfsprog_hack = FALSE;
 	pid_t pid;
 	struct s_filename_and_lstat_info biggiestruct;
 	struct utimbuf the_utime_buf, *ubuf;
 	ubuf = &the_utime_buf;
 
 	malloc_string(tmp);
-	malloc_string(partimagehack_fifo);
+	malloc_string(ntfsprog_fifo);
 	malloc_string(outfile_fname);
 	malloc_string(command);
 	malloc_string(sz_devfile);
-	malloc_string(partimagehack_command);
+	malloc_string(ntfsprog_command);
 	old_loglevel = g_loglevel;
 	assert(bkpinfo != NULL);
 	assert(orig_bf_fname != NULL);
 	assert(orig_checksum != NULL);
 
 	pathname_of_last_file_restored[0] = '\0';
-	if (use_partimagehack == BLK_START_A_PIHBIGGIE) {
-		use_partimagehack = 1;
+	if (use_ntfsprog == BLK_START_A_PIHBIGGIE) {
+		use_ntfsprog = 1;
 		log_msg(1, "%s --- pih=YES", orig_bf_fname);
-	} else if (use_partimagehack == BLK_START_A_NORMBIGGIE) {
-		use_partimagehack = 0;
+	} else if (use_ntfsprog == BLK_START_A_NORMBIGGIE) {
+		use_ntfsprog = 0;
 		log_msg(1, "%s --- pih=NO", orig_bf_fname);
 	} else {
-		use_partimagehack = 0;
+		use_ntfsprog = 0;
 		log_msg(1, "%s --- pih=NO (weird marker though)", orig_bf_fname);
 	}
 
@@ -1753,42 +1753,42 @@ int restore_a_biggiefile_from_stream(struct s_bkpinfo *bkpinfo, char *orig_bf_fn
 		}
 	}
 
-	if (use_partimagehack) {
+	if (use_ntfsprog) {
 		if (strncmp(orig_bf_fname, "/dev/", 5)) {
 			log_msg(1,
-					"I was in error when I set use_partimagehack to TRUE.");
+					"I was in error when I set use_ntfsprog to TRUE.");
 			log_msg(1, "%s isn't even in /dev", orig_bf_fname);
-			use_partimagehack = FALSE;
+			use_ntfsprog = FALSE;
 		}
 	}
 
-	if (use_partimagehack) {
+	if (use_ntfsprog) {
 		g_loglevel = 4;
 		strcpy(outfile_fname, orig_bf_fname);
-		use_partimage_hack = TRUE;
+		use_ntfsprog_hack = TRUE;
 		log_msg(2,
-				"Calling partimagehack in background because %s is a /dev entry",
+				"Calling ntfsclone in background because %s is a /dev entry",
 				outfile_fname);
 		sprintf(sz_devfile, "/tmp/%d.%d.000", (int) (random() % 32768),
 				(int) (random() % 32768));
 		mkfifo(sz_devfile, 0x770);
-		strcpy(partimagehack_fifo, sz_devfile);
-		file_to_openout = partimagehack_fifo;
+		strcpy(ntfsprog_fifo, sz_devfile);
+		file_to_openout = ntfsprog_fifo;
 		switch (pid = fork()) {
 		case -1:
 			fatal_error("Fork failure");
 		case 0:
 			log_msg(3,
-					"CHILD - fip - calling feed_outfrom_partimage(%s, %s)",
-					outfile_fname, partimagehack_fifo);
+					"CHILD - fip - calling feed_outfrom_ntfsprog(%s, %s)",
+					outfile_fname, ntfsprog_fifo);
 			res =
-				feed_outfrom_partimage(outfile_fname, partimagehack_fifo);
+				feed_outfrom_ntfsprog(outfile_fname, ntfsprog_fifo);
 //          log_msg(3, "CHILD - fip - exiting");
 			exit(res);
 			break;
 		default:
 			log_msg(3,
-					"feed_into_partimage() called in background --- pid=%ld",
+					"feed_into_ntfsprog() called in background --- pid=%ld",
 					(long int) (pid));
 		}
 	} else {
@@ -1800,8 +1800,8 @@ int restore_a_biggiefile_from_stream(struct s_bkpinfo *bkpinfo, char *orig_bf_fn
 			sprintf(outfile_fname, "%s/%s", bkpinfo->restore_path,
 					orig_bf_fname);
 		}
-		use_partimage_hack = FALSE;
-		partimagehack_fifo[0] = '\0';
+		use_ntfsprog_hack = FALSE;
+		ntfsprog_fifo[0] = '\0';
 		file_to_openout = outfile_fname;
 		if (!does_file_exist(outfile_fname))	// yes, it looks weird with the '!' but it's correct that way
 		{
@@ -1878,14 +1878,14 @@ int restore_a_biggiefile_from_stream(struct s_bkpinfo *bkpinfo, char *orig_bf_fn
 	log_msg(1, "pathname_of_last_file_restored is now %s",
 			pathname_of_last_file_restored);
 
-	if (use_partimage_hack) {
-		log_msg(3, "Waiting for partimage to finish");
+	if (use_ntfsprog_hack) {
+		log_msg(3, "Waiting for ntfsclone to finish");
 		sprintf(tmp,
-				" ps ax | grep \" partimagehack \" | grep -v grep > /dev/null 2> /dev/null");
+				" ps ax | grep \" ntfsclone \" | grep -v grep > /dev/null 2> /dev/null");
 		while (system(tmp) == 0) {
 			sleep(1);
 		}
-		log_msg(3, "OK, partimage has really finished");
+		log_msg(3, "OK, ntfsclone has really finished");
 	}
 
 	log_msg(3, "biggiestruct.filename = %s", biggiestruct.filename);
@@ -1902,9 +1902,9 @@ int restore_a_biggiefile_from_stream(struct s_bkpinfo *bkpinfo, char *orig_bf_fn
 	paranoid_free(tmp);
 	paranoid_free(outfile_fname);
 	paranoid_free(command);
-	paranoid_free(partimagehack_command);
+	paranoid_free(ntfsprog_command);
 	paranoid_free(sz_devfile);
-	paranoid_free(partimagehack_fifo);
+	paranoid_free(ntfsprog_fifo);
 	g_loglevel = old_loglevel;
 	return (retval);
 }

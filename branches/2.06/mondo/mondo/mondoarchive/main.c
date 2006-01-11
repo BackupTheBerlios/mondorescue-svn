@@ -274,7 +274,6 @@ int main(int argc, char *argv[])
 	retval = 0;
 	diffs = 0;
 	say_at_end[0] = '\0';
-	unlink("/var/log/partimagehack-debug.log");
 	printf("Initializing...\n");
 	if (!(bkpinfo = malloc(sizeof(struct s_bkpinfo)))) {
 		fatal_error("Cannot malloc bkpinfo");

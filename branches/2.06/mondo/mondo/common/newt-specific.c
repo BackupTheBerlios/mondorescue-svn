@@ -393,7 +393,7 @@ extern "C" {
 		paranoid_system("killall mindi 2> /dev/null");
 		kill_anything_like_this("/mondo/do-not");
 		kill_anything_like_this("tmp.mondo");
-		kill_anything_like_this("partimagehack");
+		kill_anything_like_this("ntfsclone");
 		sync();
 		sprintf(tmp, "umount %s", g_tmpfs_mountpt);
 		chdir("/");

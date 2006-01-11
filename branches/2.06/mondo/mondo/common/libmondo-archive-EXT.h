@@ -26,10 +26,10 @@ extern int offer_to_write_boot_floppies_to_physical_disks(struct s_bkpinfo
 extern void pause_and_ask_for_cdr(int, bool *);
 extern int slice_up_file_etc(struct s_bkpinfo *bkpinfo,
 							 char *biggie_filename,
-							 char *partimagehack_fifo,
+							 char *ntfsprog_fifo,
 							 long biggie_file_number,
 							 long noof_biggie_files,
-							 bool use_partimagehack);
+							 bool use_ntfsprog);
 extern int verify_data(struct s_bkpinfo *bkpinfo);
 extern void wipe_archives(char *d);
 extern int write_iso_and_go_on(struct s_bkpinfo *bkpinfo, bool last_cd);

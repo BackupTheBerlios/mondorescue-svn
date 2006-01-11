@@ -11,6 +11,8 @@ v2.07 ()
   (Andree Leidenfrost)
 - Abort|Warn when one of the include|exclude dirs (-I|-E) does not exist 
   (Bruno Cornec/Jeffs)
+- Replaced partimagehack with ntfsclone from ntfsprogs package.
+  (Andree Leidenfrost)
 
 v2.06 (2005-12-23)
 - better error handling of failed commands/mindi (Andree Leidenfrost)

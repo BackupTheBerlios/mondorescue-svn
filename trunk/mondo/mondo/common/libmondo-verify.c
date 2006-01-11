@@ -338,7 +338,7 @@ int verify_all_slices_on_CD(struct s_bkpinfo *bkpinfo, char *mtpt)
 				paranoid_pclose(pin);
 				if (res && !strncmp(biggiestruct.filename, " /dev/", 5)) {
 					log_msg(3,
-							"Ignoring differences between %s and live filesystem because it's a device and therefore the archives are stored via partimagehack, not dd.",
+							"Ignoring differences between %s and live filesystem because it's a device and therefore the archives are stored via ntfsclone, not dd.",
 							biggiestruct.filename);
 					log_msg(3,
 							"If you really want verification for %s, please contact the devteam and offer an incentive.",

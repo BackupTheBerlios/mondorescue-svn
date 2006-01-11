@@ -156,7 +156,6 @@ int main(int argc, char *argv[])
 	malloc_libmondo_global_strings();
 
 	diffs = 0;
-	unlink("/var/log/partimagehack-debug.log");
 	printf("Initializing...\n");
 	if (!(bkpinfo = malloc(sizeof(struct s_bkpinfo)))) {
 		fatal_error("Cannot malloc bkpinfo");

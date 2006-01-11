@@ -1,5 +1,103 @@
-/* $Id$
-  subroutines for handling forking/pthreads/etc.
+/* libmondo-fork.c
+   $Id$
+
+- subroutines for handling forking/pthreads/etc.
+
+
+01/20/2006
+- replaced partimagehack with ntfsclone
+
+06/20/2004
+- create fifo /var/log/partimagehack-debug.log and empty it
+  to keep ramdisk from filling up
+
+04/13/2004
+- >= should be <= g_loglevel
+
+11/15/2003
+- changed a few []s to char*s
+  
+10/12
+- rewrote partimagehack handling (multiple fifos, chunks, etc.)
+
+10/11
+- partimagehack now has debug level of N (set in my-stuff.h)
+
+10/08
+- call to partimagehack when restoring will now log errors to /var/log/....log
+
+10/06
+- cleaned up logging a bit
+
+09/30
+- line 735 - missing char* cmd in sprintf()
+
+09/28
+- added run_external_binary_with_percentage_indicator()
+- rewritten eval_call_to_make_ISO()
+
+09/18
+- call mkstemp instead of mktemp
+
+09/13
+- major NTFS hackage
+
+09/12
+- paranoid_system("rm -f /tmp/ *PARTIMAGE*") before calling partimagehack
+
+09/11
+- forward-ported unbroken feed_*_partimage() subroutines
+  from early August 2003
+
+09/08
+- detect & use partimagehack if it exists
+
+09/05
+- finally finished partimagehack hack :)
+
+07/04
+- added subroutines to wrap around partimagehack
+
+04/27
+- don't echo (...res=%d...) at end of log_it()
+  unnecessarily
+- replace newtFinished() and newtInit() with
+  newtSuspend() and newtResume()
+
+04/24
+- added some assert()'s and log_OS_error()'s
+
+04/09
+- cleaned up run_program_and_log_output()
+
+04/07
+- cleaned up code a bit
+- let run_program_and_log_output() accept -1 (only log if _no error_)
+
+01/02/2003
+- in eval_call_to_make_ISO(), append output to MONDO_LOGFILE
+  instead of a temporary stderr text file
+
+12/10
+- patch by Heiko Schlittermann to handle % chars in issue.net
+
+11/18
+- if mkisofs in eval_call_to_make_ISO() returns an error then return it,
+  whether ISO was created or not
+
+10/30
+- if mkisofs in eval_call_to_make_ISO() returns an error then find out if
+  the output (ISO) file has been created; if it has then return 0 anyway
+
+08/01 - 09/30
+- run_program_and_log_output() now takes boolean operator to specify
+  whether it will log its activities in the event of _success_
+- system() now includes 2>/dev/null
+- enlarged some tmp[]'s
+- added run_program_and_log_to_screen() and run_program_and_log_output()
+
+07/24
+- created
 */
 
 
@@ -369,55 +467,13 @@ int run_program_and_log_to_screen(char *basic_call, char *what_i_am_doing)
 
 
 /**
- * Thread callback to run a command (partimage) in the background.
- * @param xfb A transfer block of @c char, containing:
- * - xfb:[0] A marker, should be set to 2. Decremented to 1 while the command is running and 0 when it's finished.
- * - xfb:[1] The command's return value, if xfb:[0] is 0.
- * - xfb+2:  A <tt>NULL</tt>-terminated string containing the command to be run.
- * @return NULL to pthread_join.
- */
-void *call_partimage_in_bkgd(void *xfb)
-{
-	char *transfer_block;
-	int retval = 0;
-
-	g_buffer_pid = getpid();
-	unlink("/tmp/null");
-	log_msg(1, "starting");
-	transfer_block = (char *) xfb;
-	transfer_block[0]--;		// should now be 1
-	retval = system(transfer_block + 2);
-	if (retval) {
-		log_OS_error("partimage returned an error");
-	}
-	transfer_block[1] = retval;
-	transfer_block[0]--;		// should now be 0
-	g_buffer_pid = 0;
-	log_msg(1, "returning");
-	pthread_exit(NULL);
-}
-
-
-/**
- * File to touch if we want partimage to wait for us.
- */
-#define PAUSE_PARTIMAGE_FNAME "/tmp/PAUSE-PARTIMAGE-FOR-MONDO"
-
-/**
  * Apparently used. @bug This has a purpose, but what?
  */
 #define PIMP_START_SZ "STARTSTARTSTART9ff3kff9a82gv34r7fghbkaBBC2T231hc81h42vws8"
 #define PIMP_END_SZ "ENDENDEND0xBBC10xBBC2T231hc81h42vws89ff3kff9a82gv34r7fghbka"
 
-/**
- * Marker to start the next subvolume for Partimage.
- */
-#define NEXT_SUBVOL_PLEASE "I-grew-up-on-the-crime-side,-the-New-York-Times-side,-where-staying-alive-was-no-jive"
 
-/**
- * Marker to end the partimage file.
- */
-#define NO_MORE_SUBVOLS "On-second-hand,momma-bounced-on-old-man,-and-so-we-moved-to-Shaolin-Land."
+
 
 int copy_from_src_to_dest(FILE * f_orig, FILE * f_archived, char direction)
 {
@@ -558,169 +614,28 @@ int copy_from_src_to_dest(FILE * f_orig, FILE * f_archived, char direction)
 	return (retval);
 }
 
-
 /**
- * Call partimage from @p input_device to @p output_fname.
- * @param input_device The device to read.
- * @param output_fname The file to write.
- * @return 0 for success, nonzero for failure.
- */
-int dynamically_create_pipes_and_copy_from_them_to_output_file(char
-															   *input_device, char
-															   *output_fname)
-{
-	char *curr_fifo;
-	char *prev_fifo = NULL;
-	char *next_fifo;
-	char *command;
-	char *sz_call_to_partimage;
-	int fifo_number = 0;
-	struct stat buf;
-	pthread_t partimage_thread;
-	int res = 0;
-	char *tmpstub;
-	FILE *fout;
-	FILE *fin;
-	char *tmp;
-
-	log_msg(1, "g_tmpfs_mountpt = %s", g_tmpfs_mountpt);
-	if (g_tmpfs_mountpt && g_tmpfs_mountpt[0]
-		&& does_file_exist(g_tmpfs_mountpt)) {
-		asprintf(&tmpstub, g_tmpfs_mountpt);
-	} else {
-		asprintf(&tmpstub, "/tmp");
-	}
-	paranoid_system("rm -f /tmp/*PARTIMAGE*");
-	asprintf(&command, "rm -Rf %s/pih-fifo-*", tmpstub);
-	paranoid_system(command);
-	paranoid_free(command);
-
-	asprintf(&tmp, "%s/pih-fifo-%ld", tmpstub, (long int) random());
-	paranoid_free(tmpstub);
-	tmpstub = tmp;
-	paranoid_free(tmp);
-
-	mkfifo(tmpstub, S_IRWXU | S_IRWXG);	// never used, though...
-	asprintf(&curr_fifo, "%s.%03d", tmpstub, fifo_number);
-	asprintf(&next_fifo, "%s.%03d", tmpstub, fifo_number + 1);
-	mkfifo(curr_fifo, S_IRWXU | S_IRWXG);
-	mkfifo(next_fifo, S_IRWXU | S_IRWXG);	// make sure _next_ fifo already exists before we call partimage
-	asprintf(&sz_call_to_partimage,
-			"%c%cpartimagehack " PARTIMAGE_PARAMS
-			" save %s %s > /tmp/stdout 2> /tmp/stderr", 2, 0, input_device,
-			tmpstub);
-	log_msg(5, "curr_fifo   = %s", curr_fifo);
-	log_msg(5, "next_fifo   = %s", next_fifo);
-	log_msg(5, "sz_call_to_partimage call is '%s'",
-			sz_call_to_partimage + 2);
-	if (!lstat(output_fname, &buf) && S_ISREG(buf.st_mode)) {
-		log_msg(5, "Deleting %s", output_fname);
-		unlink(output_fname);
-	}
-	if (!(fout = fopen(output_fname, "w"))) {
-		fatal_error("Unable to openout to output_fname");
-	}
-	res =
-		pthread_create(&partimage_thread, NULL, call_partimage_in_bkgd,
-					   (void *) sz_call_to_partimage);
-	if (res) {
-		fatal_error("Failed to create thread to call partimage");
-	}
-	log_msg(1, "Running fore/back at same time");
-	log_to_screen("Working with partimagehack...");
-	while (sz_call_to_partimage[0] > 0) {
-		asprintf(&tmp, "%s\n", NEXT_SUBVOL_PLEASE);
-		if (fwrite(tmp, 1, 128, fout) != 128) {
-			fatal_error("Cannot write interim block");
-		}
-		paranoid_free(tmp);
-
-		log_msg(5, "fifo_number=%d", fifo_number);
-		log_msg(4, "Cat'ting %s", curr_fifo);
-		if (!(fin = fopen(curr_fifo, "r"))) {
-			fatal_error("Unable to openin from fifo");
-		}
-		if (prev_fifo !=  NULL) {
-			log_msg(5, "Deleting %s", prev_fifo);
-			unlink(prev_fifo);		// just in case
-			paranoid_free(prev_fifo);
-		}
-		copy_from_src_to_dest(fin, fout, 'w');
-		paranoid_fclose(fin);
-		fifo_number++;
-
-		prev_fifo = curr_fifo;
-		curr_fifo = next_fifo;
-		log_msg(5, "Creating %s", next_fifo);
-		asprintf(&next_fifo, "%s.%03d", tmpstub, fifo_number + 1);
-		mkfifo(next_fifo, S_IRWXU | S_IRWXG);	// make sure _next_ fifo exists before we cat this one
-		system("sync");
-		sleep(5);
-	}
-	asprintf(&tmp, "%s\n", NO_MORE_SUBVOLS);
-	if (fwrite(tmp, 1, 128, fout) != 128) {
-		fatal_error("Cannot write interim block");
-	}
-	if (fwrite(tmp, 1, 128, fout) != 128) {
-		fatal_error("Cannot write interim block");
-	}
-	if (fwrite(tmp, 1, 128, fout) != 128) {
-		fatal_error("Cannot write interim block");
-	}
-	if (fwrite(tmp, 1, 128, fout) != 128) {
-		fatal_error("Cannot write interim block");
-	}
-	paranoid_free(tmp);
-	paranoid_fclose(fout);
-	log_to_screen("Cleaning up after partimagehack...");
-	log_msg(3, "Final fifo_number=%d", fifo_number);
-	paranoid_system("sync");
-	unlink(next_fifo);
-	paranoid_free(next_fifo);
-
-	unlink(curr_fifo);
-	paranoid_free(curr_fifo);
-
-	unlink(prev_fifo);
-	paranoid_free(prev_fifo);
-
-	log_to_screen("Finished cleaning up.");
-
-//  if (!lstat(sz_wait_for_this_file, &statbuf))
-//    { log_msg(3, "WARNING! %s was not processed.", sz_wait_for_this_file); }
-	log_msg(2, "Waiting for pthread_join() to join.");
-	pthread_join(partimage_thread, NULL);
-	res = sz_call_to_partimage[1];
-	paranoid_free(sz_call_to_partimage);
-	log_msg(2, "pthread_join() joined OK.");
-	log_msg(1, "Partimagehack(save) returned %d", res);
-	unlink(tmpstub);
-	paranoid_free(tmpstub);
-
-	return (res);
-}
-
-
-/**
- * Feed @p input_device through partimage to @p output_fname.
+ * Feed @p input_device through ntfsclone to @p output_fname.
  * @param input_device The device to image.
  * @param output_fname The file to write.
  * @return 0 for success, nonzero for failure.
  */
-int feed_into_partimage(char *input_device, char *output_fname)
+int feed_into_ntfsprog(char *input_device, char *output_fname)
 {
 // BACKUP
-	int res;
+	int res = -1;
+	char*command;
 
 	if (!does_file_exist(input_device)) {
 		fatal_error("input device does not exist");
 	}
-	if (!find_home_of_exe("partimagehack")) {
-		fatal_error("partimagehack not found");
+	if ( !find_home_of_exe("ntfsclone")) {
+		fatal_error("ntfsclone not found");
 	}
-	res =
-		dynamically_create_pipes_and_copy_from_them_to_output_file
-		(input_device, output_fname);
+	malloc_string(command);
+	sprintf(command, "ntfsclone --force --save-image --overwrite %s %s", output_fname, input_device);
+	res = run_program_and_log_output(command, 5);
+	paranoid_free(command);
 	return (res);
 }
 
@@ -870,161 +785,24 @@ int run_external_binary_with_percentage_indicator_NEW(char *tt, char *cmd)
 	return (res);
 }
 
-#define PIH_LOG "/var/log/partimage-debug.log"
 
 /**
- * Feed @p input_fifo through partimage (restore) to @p output_device.
- * @param input_fifo The partimage file to read.
+ * Feed @p input_fifo through ntfsclone (restore) to @p output_device.
+ * @param input_fifo The ntfsclone file to read.
  * @param output_device Where to put the output.
- * @return The return value of partimagehack (0 for success).
- * @bug Probably unnecessary, as the partimage is just a sparse file. We could use @c dd to restore it.
+ * @return The return value of ntfsclone (0 for success).
  */
-int feed_outfrom_partimage(char *output_device, char *input_fifo)
+int feed_outfrom_ntfsprog(char *output_device, char *input_fifo)
 {
 // RESTORE
-	char *tmp;
-	char *stuff;
-	char *sz_call_to_partimage;
-	pthread_t partimage_thread;
-	int res;
-	char *curr_fifo;
-	char *prev_fifo = NULL;
-	char *oldest_fifo = NULL;
-	char *next_fifo;
-	char *afternxt_fifo;
-	int fifo_number = 0;
-	char *tmpstub;
-	FILE *fin;
-	FILE *fout;
+	int res = -1;
+	char *command;
 
-	log_msg(1, "output_device=%s", output_device);
-	log_msg(1, "input_fifo=%s", input_fifo);
-	asprintf(&tmpstub, "/tmp");
-
-	log_msg(1, "tmpstub was %s", tmpstub);
-	asprintf(&stuff, tmpstub);
-	paranoid_free(tmpstub);
-
-	asprintf(&tmpstub, "%s/pih-fifo-%ld", stuff, (long int) random());
-	paranoid_free(stuff);
-
-	log_msg(1, "tmpstub is now %s", tmpstub);
-	unlink("/tmp/PARTIMAGEHACK-POSITION");
-	unlink(PAUSE_PARTIMAGE_FNAME);
-	paranoid_system("rm -f /tmp/*PARTIMAGE*");
-	asprintf(&curr_fifo, "%s.%03d", tmpstub, fifo_number);
-	asprintf(&next_fifo, "%s.%03d", tmpstub, fifo_number + 1);
-	asprintf(&afternxt_fifo, "%s.%03d", tmpstub, fifo_number + 2);
-	mkfifo(PIH_LOG, S_IRWXU | S_IRWXG);
-	mkfifo(curr_fifo, S_IRWXU | S_IRWXG);
-	mkfifo(next_fifo, S_IRWXU | S_IRWXG);	// make sure _next_ fifo already exists before we call partimage
-	mkfifo(afternxt_fifo, S_IRWXU | S_IRWXG);
-	system("cat " PIH_LOG " > /dev/null &");
-	log_msg(3, "curr_fifo   = %s", curr_fifo);
-	log_msg(3, "next_fifo   = %s", next_fifo);
-	if (!does_file_exist(input_fifo)) {
-		fatal_error("input fifo does not exist");
+	if ( !find_home_of_exe("ntfsclone")) {
+		fatal_error("ntfsclone not found");
 	}
-	if (!(fin = fopen(input_fifo, "r"))) {
-		fatal_error("Unable to openin from input_fifo");
-	}
-	if (!find_home_of_exe("partimagehack")) {
-		fatal_error("partimagehack not found");
-	}
-	asprintf(&sz_call_to_partimage,
-			"%c%cpartimagehack " PARTIMAGE_PARAMS
-			" restore %s %s > /dev/null 2>> %s", 2, 0, output_device, curr_fifo,
-			MONDO_LOGFILE);
-	log_msg(1, "output_device = %s", output_device);
-	log_msg(1, "curr_fifo = %s", curr_fifo);
-	log_msg(1, "sz_call_to_partimage+2 = %s", sz_call_to_partimage + 2);
-	res =
-		pthread_create(&partimage_thread, NULL, call_partimage_in_bkgd,
-					   (void *) sz_call_to_partimage);
-	if (res) {
-		fatal_error("Failed to create thread to call partimage");
-	}
-	log_msg(1, "Running fore/back at same time");
-	log_msg(2, " Trying to openin %s", input_fifo);
-	if (!does_file_exist(input_fifo)) {
-		log_msg(2, "Warning - %s does not exist", input_fifo);
-	}
-	while (!does_file_exist("/tmp/PARTIMAGEHACK-POSITION")) {
-		log_msg(6, "Waiting for partimagehack (restore) to start");
-		sleep(1);
-	}
-
-	if (!(tmp = malloc(128))) {
-		fatal_error("Failed to malloc() tmp");
-	}
-	while (sz_call_to_partimage[0] > 0) {
-		if (fread(tmp, 1, 128, fin) != 128) {
-			fatal_error("Cannot read introductory block");
-		}
-		if (strstr(tmp, NEXT_SUBVOL_PLEASE)) {
-			log_msg(2, "Great. Next subvol coming up.");
-		} else if (strstr(tmp, NO_MORE_SUBVOLS)) {
-			log_msg(2, "Great. That was the last subvol.");
-			break;
-		} else {
-			log_msg(2, "WTF is this? '%s'", tmp);
-			fatal_error("Unknown interim block");
-		}
-		if (feof(fin)) {
-			log_msg(1, "Eof(fin) detected. Breaking.");
-			break;
-		}
-		log_msg(3, "Processing subvol %d", fifo_number);
-		log_msg(5, "fifo_number=%d", fifo_number);
-		if (!(fout = fopen(curr_fifo, "w"))) {
-			fatal_error("Cannot openout to curr_fifo");
-		}
-		copy_from_src_to_dest(fout, fin, 'r');
-		paranoid_fclose(fout);
-		fifo_number++;
-		if (oldest_fifo != NULL) {
-			log_msg(6, "Deleting %s", oldest_fifo);
-			unlink(oldest_fifo);	// just in case
-			paranoid_free(oldest_fifo);
-		}
-		oldest_fifo = prev_fifo;
-		prev_fifo = curr_fifo;
-		curr_fifo = next_fifo;
-		next_fifo = afternxt_fifo;
-		asprintf(&afternxt_fifo, "%s.%03d", tmpstub, fifo_number + 2);
-		log_msg(6, "Creating %s", afternxt_fifo);
-		mkfifo(afternxt_fifo, S_IRWXU | S_IRWXG);	// make sure _next_ fifo already exists before we access current fifo
-		fflush(fin);
-//      system("sync");
-		usleep(1000L * 100L);
-	}
-	paranoid_free(tmp);
-	paranoid_free(tmpstub);
-
-	paranoid_fclose(fin);
-	paranoid_system("sync");
-	log_msg(1, "Partimagehack has finished. Great. Fin-closing.");
-	log_msg(1, "Waiting for pthread_join");
-	pthread_join(partimage_thread, NULL);
-	res = sz_call_to_partimage[1];
-	paranoid_free(sz_call_to_partimage);
-
-	log_msg(1, "Yay. Partimagehack (restore) returned %d", res);
-	unlink(prev_fifo);
-	paranoid_free(prev_fifo);
-
-	unlink(curr_fifo);
-	paranoid_free(curr_fifo);
-
-	unlink(next_fifo);
-	paranoid_free(next_fifo);
-
-	unlink(afternxt_fifo);
-	paranoid_free(afternxt_fifo);
-
-	unlink(PIH_LOG);
-	/* BERLIOS : pas de unlink(oldest_fifo) ??? */
-	paranoid_free(oldest_fifo);
-
+	asprintf(&command, "ntfsclone --force --restore-image --overwrite %s %s", output_device, input_fifo);
+	res = run_program_and_log_output(command, 5);
+	paranoid_free(command);
 	return (res);
 }

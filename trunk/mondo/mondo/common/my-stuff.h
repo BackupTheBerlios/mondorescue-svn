@@ -150,7 +150,7 @@ extern void _mondo_assert_fail(const char *file, const char *function,
 #define BLK_START_BIGGIEFILES	30	///< Marker block: start the biggiefile section.
 #define BLK_STOP_BIGGIEFILES	39	///< Marker block: stop the biggiefile section.
 #define BLK_START_A_NORMBIGGIE	40	///< Marker block: start a normal biggiefile.
-#define BLK_START_A_PIHBIGGIE	41	///< Marker block: start a partimagehack'd biggiefile
+#define BLK_START_A_PIHBIGGIE	41	///< Marker block: start a ntfsprog'd biggiefile
 #define BLK_START_EXTENDED_ATTRIBUTES 45	///< Marker block: start xattr/acl info
 #define BLK_STOP_EXTENDED_ATTRIBUTES 46	///< Marker block: stop xattr/acl info
 #define BLK_START_EXAT_FILE     47
@@ -388,8 +388,8 @@ extern void _mondo_assert_fail(const char *file, const char *function,
 
 #define DEFAULT_DEBUG_LEVEL 4	///< By default, don't log messages with a loglevel higher than this.
 
-#define SZ_PARTIMAGE_VOLSIZE "1048576"	// was 4096
-#define PARTIMAGE_PARAMS "-z0 -V" SZ_PARTIMAGE_VOLSIZE " -o -b -d -g1"
+#define SZ_NTFSPROG_VOLSIZE "1048576"	// was 4096
+#define NTFSPROG_PARAMS "-z0 -V" SZ_NTFSPROG_VOLSIZE " -o -b -d -g1"
 
 #define MNT_CDROM "/mnt/cdrom"
 #define MNT_FLOPPY "/mnt/floppy"

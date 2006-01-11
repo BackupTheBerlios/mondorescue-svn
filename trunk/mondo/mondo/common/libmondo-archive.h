@@ -28,9 +28,9 @@ int offer_to_write_boot_floppies_to_physical_disks(struct s_bkpinfo
 void pause_and_ask_for_cdr(int, bool *);
 void set_bit_N_of_array(char *array, int N, bool true_or_false);
 int slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
-					  char *partimagehack_fifo,
+					  char *ntfsprog_fifo,
 					  long biggie_file_number, long noof_biggie_files,
-					  bool use_partimagehack);
+					  bool use_ntfsprog);
 int verify_data(struct s_bkpinfo *bkpinfo);
 void wipe_archives(char *d);
 int write_image_to_floppy(char *device, char *datafile);

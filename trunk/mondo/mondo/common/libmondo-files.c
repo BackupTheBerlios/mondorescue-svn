@@ -710,6 +710,8 @@ long size_of_all_biggiefiles_K(struct s_bkpinfo *bkpinfo)
 	char *fname;
 	char *biggielist;
 	char *comment;
+	char *tmp;
+	char *command;
 
 	/*@ long ******************************************************** */
 	long scratchL = 0;
@@ -721,6 +723,8 @@ long size_of_all_biggiefiles_K(struct s_bkpinfo *bkpinfo)
 
 	/*@ end vars *************************************************** */
 
+	malloc_string(tmp);
+	malloc_string(command);
 	log_it("Calculating size of all biggiefiles (in total)");
 	asprintf(&biggielist, "%s/biggielist.txt", bkpinfo->tmpdir);
 	log_it("biggielist = %s", biggielist);
@@ -735,7 +739,18 @@ long size_of_all_biggiefiles_K(struct s_bkpinfo *bkpinfo)
 				fname[strlen(fname) - 1] = '\0';
 			}
 			if (0 == strncmp(fname, "/dev/", 5)) {
-				file_len_K = get_phys_size_of_drive(fname) * 1024L;
+				if (is_dev_an_NTFS_dev(fname)) {
+					if ( !find_home_of_exe("ntfsresize")) {
+						fatal_error("ntfsresize not found");
+					}
+					sprintf(command, "ntfsresize --force --info %s|grep '^You might resize at '|cut -d' ' -f5", fname);
+					log_it("command = %s", command);
+					strcpy (tmp, call_program_and_get_last_line_of_output(command));
+					log_it("res of it = %s", tmp);
+					file_len_K = atoll(tmp) / 1024L;
+				} else {
+					file_len_K = get_phys_size_of_drive(fname) * 1024L;
+				}
 			} else {
 				file_len_K = (long) (length_of_file(fname) / 1024);
 			}
@@ -760,6 +775,8 @@ long size_of_all_biggiefiles_K(struct s_bkpinfo *bkpinfo)
 	log_it("Closing...");
 	paranoid_fclose(fin);
 	log_it("Finished calculating total size of all biggiefiles");
+	paranoid_free(tmp);
+	paranoid_free(command);
 	return (scratchL);
 }
 

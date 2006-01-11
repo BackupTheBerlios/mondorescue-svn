@@ -14,5 +14,5 @@ int eval_call_to_make_ISO(struct s_bkpinfo *bkpinfo,
 int run_external_binary_with_percentage_indicator_OLD(char *tt, char *cmd);
 int run_external_binary_with_percentage_indicator_NEW(char *tt, char *cmd);
 int copy_from_src_to_dest(FILE *, FILE *, char);
-int feed_into_partimage(char *input_device, char *output_fname);
-int feed_outfrom_partimage(char *output_device, char *input_fifo);
+int feed_into_ntfsprog(char *input_device, char *output_fname);
+int feed_outfrom_ntfsprog(char *output_device, char *input_fifo);

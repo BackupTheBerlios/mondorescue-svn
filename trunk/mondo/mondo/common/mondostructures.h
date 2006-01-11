@@ -341,10 +341,10 @@ struct s_bkpinfo {
    * Devices to back up as biggiefiles.
    *
    * This is useful for backing up NTFS partitions.
-   * @c partimage is used to back up only the used sectors, so the space tradeoff is not bad.
+   * @c ntfsclone is used to back up only the used sectors, so the space tradeoff is not bad.
    * However, several caveats apply to such a partition:
    * - It must not be mounted during the backup
-   * - It must be in a format that partimage knows how to handle
+   * - It must be in a format that ntfsclone knows how to handle, i.e. NTFS
    * - It cannot be verified during the verify or compare phase
    * - It may not be resized or selectively restored at restore-time (all or nothing)
    *
@@ -660,7 +660,7 @@ struct s_filename_and_lstat_info {
 	 * is the @p s_filename_and_lstat_info.
 	 */
 	struct stat properties;
-	bool use_partimagehack;
+	bool use_ntfsprog;
 };
 
 

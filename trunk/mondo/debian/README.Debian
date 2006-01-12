@@ -1,0 +1,132 @@
+Mondo for Debian
+================
+
+
+IMPORTANT +++ IMPORTANT +++ IMPORTANT +++ IMPORTANT +++ IMPORTANT
+
+This is not the official Debian package of mondo but the upstream
+version. Please to not report errors to the Debian Bug Tracking
+System but to <the mailing list>. Thnak you.
+
+IMPORTANT +++ IMPORTANT +++ IMPORTANT +++ IMPORTANT +++ IMPORTANT
+
+
+This text contains hints, workarounds and explanations for using mondo on a
+Debian system.
+
+NTFS Windows Installations not bootable after restore
+-----------------------------------------------------
+
+After a restore, NTFS Windows installations may not be bootable. Rather an
+error message "A disk read error occurred. Press Xtrl+Alt+Del to restart." is
+displayed.
+
+A fix for this is to use gparted (and possibly gtparted but no other
+partitioning tool) resize the NTFS filesystem to that it fills the entire
+partition it lives in. The error appears to only happen for NTFS filesystems
+that are smaller than the partition they live in.
+
+
+Segmentation Fault when using newt interface (option '-g')
+----------------------------------------------------------
+
+mondoarchive may segfault when the '-g' option is specified. The workaround is
+to install package 'libfribidi0'. Please see Debian bug report #290722 for
+further details of the the underlying issue.
+
+
+Boot Images in /root/images
+---------------------------
+
+MondoRescue does not currently allow for influencing where the boot images it
+creates are stored. They will always end up under /root/images. This can be a
+problem on installations where the partition that holds /root is small.
+
+A workaround is to create a symbolic link to a different location with more
+space. Example:
+
+/root/images -> /home/mondorescue/images
+
+
+CD Streaming
+------------
+
+The CD streaming feature of mondoarchive (option '-C') is EXPERIMENTAL which
+is what the manpage states. In fact, it appears to be rather broken. Some of
+the issues are fixed in this package: selecting the burn speed should work,
+it won't segfault during a mondoarchvie run. However, restoring from multiple
+CDs still doesn't seem to work but hangs towards the end of the first CD.
+
+If you want to experiment with this feature, it might help to keep the
+following in mind:
+
+- Use blank CDs only. If you use CDRWs (which is recommended for
+  environmentally and monetarian reasons by the author of this text) make sure
+  they are blank when throwing them at mondoarchive in streaming mode.
+- Don't make mistakes when feeding media to mondoarchive in streaming mode. It
+  will choke and the backup will have to be restarted.
+
+Having said that, streaming is certainly a useful feature. I'll work on it as
+time permits. If your time does permit, I am receptive to patches (and so is
+upstream).
+
+
+Image Archiving: (V)FAT versus NTFS
+-----------------------------------
+
+If you have a (V)FAT partition please mount it to get it backed up by
+mondoarchive and restored by mondo. Using the '-x' option will not work.
+
+For NTFS, '-x' is the way to go.
+
+
+"Too many open files" in log
+----------------------------
+
+You may get entries in the log similar to this one:
+
+getfacl: /home/andree/shed/kernel/kernel-source-2.4.26/include/config/paride/pf: Too many open files
+
+If you do, increase the number of allowed open file descriptors for the user
+session. The default value for open file descriptors in Debian is 1024. To
+increase this value, if you run bash (and potentially other shells), use
+'ulimit -n 2048' to double this.
+
+
+Using the File-Browser for Partial Restore
+------------------------------------------
+
+When using mondorestore to selectively restore files, the 'Editing filelist'
+window will only list a limited, hardcoded number of files. This number is
+defined by define 'ARBITRARY_MAXIMUM' in include 'my-stuff.h'. This value is
+currently set to 500 in the upstream source and has been increased to 2000 for
+the Debian package. Changing this value requires a recompile of the package.
+
+A workaround for this shortcoming is to restore a complete directory tree to a
+temporary location, delete all unwanted files and directories, and move the
+remainder to its final destination.
+
+
+Using floppy disks as rescue media
+----------------------------------
+
+mondoarchive will offer to write a set of rescue floppies (unless the '-F'
+switch is used). These floppy disks will only work with the FAILSAFE kernel. The
+reason is that stock Debian kernels don't have the floppy driver built into the
+kernel and that the kernel is too large for one floppy with an initrd and a
+kernel image. Because of the space issue, mondoarchiv (or rather mindi) creates
+a root/boot floppy set. Because the stock kernel does not have floppy support
+compiled in a kernel panic results when trying to acces the second (the root)
+floppy.
+
+Also, building the boot/root floppy images requires that lilo is installed on
+the system. This does not mean that it actually needs to be used to boot the
+system, only that the package is installed. (Because most people won't need the
+boot/root floppies, the mindi package only suggests the lilo package.)
+
+Finally a word of caution: Floppy disks are notoriously unreliable. Dont't use
+them unless you really really have to. (A CD writer costs the same as a few
+boxes of floppy disks these days.)
+
+
+ -- Andree Leidenfrost <aleidenf@bigpond.net.au>  Sun,  8 Jan 2005 15:20:05 +1100

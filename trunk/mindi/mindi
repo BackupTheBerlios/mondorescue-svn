@@ -398,7 +398,7 @@ CountItemsIn() {
 	local r
 	r=0
 	for q in $1 ; do
-	r=$(($r+1))
+		r=$(($r+1))
 	done
 	echo $r
 }

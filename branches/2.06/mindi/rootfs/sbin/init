@@ -341,7 +341,7 @@ HandleCDROMorFloppies() {
 
 
 HowMuchFreeSpaceOnRamdisk() {
-   df -m | grep /dev/ram | head -n1 | tr -s '\t' ' ' | cut -d' ' -f4
+   df -m -P | grep /dev/ram | head -n1 | tr -s '\t' ' ' | cut -d' ' -f4
 }
 
 

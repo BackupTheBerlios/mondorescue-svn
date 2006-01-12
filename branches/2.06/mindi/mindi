@@ -1900,7 +1900,7 @@ PrepareBootDiskImage_LILO() {
 # copy the kernel across
 	rm -Rf $mountpoint/lost+found
 	dd if=/dev/zero of=$mountpoint/zero bs=1k count=16 &> /dev/null
-	free_space=`df -k $mountpoint | tail -n1 | tr -s ' ' '\t' | cut -f4`
+	free_space=`df -k -P $mountpoint | tail -n1 | tr -s ' ' '\t' | cut -f4`
 	cp -f $kernelpath $mountpoint/vmlinuz > /dev/null 2> /dev/null
 	if [ "$?" -ne "0" ] || [ "$FORCE_DUAL_FLOPPIES" = "yes" ] ; then
 	echo "Files at mountpoint ($mountpoint) :-" >> $LOGFILE
@@ -1923,7 +1923,7 @@ Sorry, your kernel is too big for a boot/root floppy.\nI'll try the new boot/roo
 	rm -f $imagesdir/mindi-*.1440.img
 	return $res
 	fi
-	free_space=`df -k $mountpoint | tail -n1 | tr -s ' ' '\t' | cut -f4`
+	free_space=`df -k -P $mountpoint | tail -n1 | tr -s ' ' '\t' | cut -f4`
 	max_kernel_size=$(($free_space+`du -sk $kernelpath | cut -f1`))
 	echo "Free space left on floppy = $free_space KB" >> $LOGFILE
 	echo "Max kernel size on $disksize KB floppy (est'd) = $max_kernel_size K" >> $LOGFILE
@@ -2037,7 +2037,7 @@ PrepareBootDiskImage_SYSLINUX() {
 # copy the kernel across
 	rm -Rf $mountpoint/lost+found
 	dd if=/dev/zero of=$mountpoint/zero bs=1k count=16 &> /dev/null
-	free_space=`df -k $mountpoint | tail -n1 | tr -s ' ' '\t' | cut -f4`
+	free_space=`df -k -P $mountpoint | tail -n1 | tr -s ' ' '\t' | cut -f4`
 	cp -f $kernelpath $mountpoint/vmlinuz &> /dev/null
 	if [ "$?" -ne "0" ] || [ "$FORCE_DUAL_FLOPPIES" = "yes" ] ; then
 		echo "Files at mountpoint ($mountpoint) :-" >> $LOGFILE
@@ -2060,7 +2060,7 @@ Sorry, your kernel is too big for a boot/root floppy.\nI'll try the new boot/roo
 		[ "$res" -ne "0" ] && LogIt "Warning - failed to create 1.44MB boot/root floppies\n"
 		return $res
 	fi
-	free_space=`df -k $mountpoint | tail -n1 | tr -s ' ' '\t' | cut -f4`
+	free_space=`df -k -P $mountpoint | tail -n1 | tr -s ' ' '\t' | cut -f4`
 	max_kernel_size=$(($free_space+`du -sk $kernelpath | cut -f1`))
 	echo "Free space left on floppy = $free_space KB" >> $LOGFILE
 	echo "Max kernel size on $disksize KB floppy (est'd) = $max_kernel_size K" >> $LOGFILE
@@ -2409,7 +2409,7 @@ SizeOfPartition() {
 	cat $FDISKLOG >> $LOGFILE
 	echo "------- $FDISK log end ------------" >> $LOGFILE
 # end patch
-	[ "$res" = "" ] && res=`df -k -x supermount | tr -s '\t' ' ' | fgrep "$device " | cut -d' ' -f2`
+	[ "$res" = "" ] && res=`df -k -P -x supermount | tr -s '\t' ' ' | fgrep "$device " | cut -d' ' -f2`
 	[ "$res" = "" ] && res="-1"
 	echo $res
 	return 0

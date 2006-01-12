@@ -256,7 +256,7 @@ fi
 find_device () {
     # For now, this uses the program `df' to get the device name, but is
     # this really portable?
-    tmp_fname=`df $1/ | sed -n 's%.*\(/dev/[^ 	]*\).*%\1%p'`
+    tmp_fname=`df -P $1/ | sed -n 's%.*\(/dev/[^ 	]*\).*%\1%p'`
 
     if test -z "$tmp_fname"; then
 	echo "Could not find device for $1" 2>&1

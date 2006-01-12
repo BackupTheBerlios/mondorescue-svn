@@ -106,7 +106,7 @@ if [ "`arch`" != "ia64" ] ; then
 fi
 [ ! -e "/mnt/tmpK" ] && mkdir /mnt/tmpK
 mount $device -t vfat /mnt/tmpK || Die "Can't mount device $device"
-size=`df -m /mnt/tmpK | tr -s ' ' ' ' | cut -d' ' -f2 | tail -n 1`
+size=`df -m -P /mnt/tmpK | tr -s ' ' ' ' | cut -d' ' -f2 | tail -n 1`
 umount /mnt/tmpK || Die "Can't unmount /mnt/tmpK"
 
 ideal_size=`grep "$device " /tmp/mountlist.txt | tr -s ' ' ' ' | cut -d' ' -f4`

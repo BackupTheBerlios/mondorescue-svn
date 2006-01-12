@@ -544,7 +544,7 @@ archive_this_fileset(struct s_bkpinfo *bkpinfo, char *filelist,
 
 	if (g_tmpfs_mountpt[0] != '\0') {
 		i = atoi(call_program_and_get_last_line_of_output
-				 ("df -m | grep dev/shm | grep -v none | tr -s ' ' '\t' | cut -f4"));
+				 ("df -m -P | grep dev/shm | grep -v none | tr -s ' ' '\t' | cut -f4"));
 		if (i > 0) {
 			if (free_ramdisk_space > i) {
 				free_ramdisk_space = i;

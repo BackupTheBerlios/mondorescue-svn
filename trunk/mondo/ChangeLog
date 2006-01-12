@@ -19,6 +19,7 @@ v2.07 ()
   (Bruno Cornec/Jeffs)
 - Replaced partimagehack with ntfsclone from ntfsprogs package.
   (Andree Leidenfrost)
+- use df -P everywhere (Bruno Cornec)
 
 v2.06 (2005-12-23)
 - better error handling of failed commands/mindi (Andree Leidenfrost)

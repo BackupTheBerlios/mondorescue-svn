@@ -781,13 +781,13 @@ long free_space_on_given_partition(char *partition)
 
 	assert_string_is_neither_NULL_nor_zerolength(partition);
 
-	asprintf(&command, "df -m %s &> /dev/null", partition);
+	asprintf(&command, "df -m -P %s &> /dev/null", partition);
 	if (system(command)) {
 		return (-1);
 	}							// partition does not exist
 	paranoid_free(command);
 
-	asprintf(&command, "df -m %s | tail -n1 | tr -s ' ' '\t' | cut -f4",
+	asprintf(&command, "df -m -P %s | tail -n1 | tr -s ' ' '\t' | cut -f4",
 			 partition);
 	asprintf(&out_sz, call_program_and_get_last_line_of_output(command));
 	paranoid_free(command);

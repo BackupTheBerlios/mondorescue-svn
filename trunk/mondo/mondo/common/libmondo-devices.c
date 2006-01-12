@@ -2065,11 +2065,11 @@ void sensibly_set_tmpdir_and_scratchdir(struct s_bkpinfo *bkpinfo)
 #ifdef __FreeBSD__
 	asprintf(&tmp,
 		   call_program_and_get_last_line_of_output
-		   ("df -m -t nonfs,msdosfs,ntfs,smbfs,smb,cifs | tr -s '\t' ' ' | grep -v none | grep -v Filesystem | awk '{printf \"%s %s\\n\", $4, $6;}' | sort -n | tail -n1 | awk '{print $NF;}'"));
+		   ("df -m -P -t nonfs,msdosfs,ntfs,smbfs,smb,cifs | tr -s '\t' ' ' | grep -v none | grep -v Filesystem | awk '{printf \"%s %s\\n\", $4, $6;}' | sort -n | tail -n1 | awk '{print $NF;}'"));
 #else
 	asprintf(&tmp,
 		   call_program_and_get_last_line_of_output
-		   ("df -m -x nfs -x vfat -x ntfs -x smbfs -x smb -x cifs | sed 's/                  /devdev/' | tr -s '\t' ' ' | grep -v none | grep -v Filesystem | grep -v /dev/shm | awk '{printf \"%s %s\\n\", $4, $6;}' | sort -n | tail -n1 | awk '{print $NF;}'"));
+		   ("df -m -P -x nfs -x vfat -x ntfs -x smbfs -x smb -x cifs | sed 's/                  /devdev/' | tr -s '\t' ' ' | grep -v none | grep -v Filesystem | grep -v /dev/shm | awk '{printf \"%s %s\\n\", $4, $6;}' | sort -n | tail -n1 | awk '{print $NF;}'"));
 #endif
 
 	if (tmp[0] != '/') {

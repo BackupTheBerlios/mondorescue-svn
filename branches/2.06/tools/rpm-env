@@ -36,11 +36,11 @@ export MONDO_VER=`cat ${BASE}/svn/${VER}/mondo/VERSION`
 if [ -e /etc/mandriva-release ]; then
 	export ddir="mandriva"
 	export dver=`awk '{print $4}' /etc/mandriva-release`
-	export suf="${dver}mdk"
+	export suf=".${dver}mdk"
 elif [ -e /etc/mandrake-release ]; then
 	export ddir="mandrake"
 	export dver=`awk '{print $3}' /etc/mandrake-release`
-	export suf="${dver}mdk"
+	export suf=".${dver}mdk"
 elif [ -e /etc/redhat-release ]; then
 	grep -q Enterprise /etc/redhat-release
 	if [ $? -eq 0 ]; then
@@ -49,11 +49,11 @@ elif [ -e /etc/redhat-release ]; then
 	elif grep -q Fedora /etc/redhat-release ; then
 		export ddir="fedora"
 		export dver=`awk '{print $4}' /etc/redhat-release`
-		export suf="fc${dver}"
+		export suf=".fc${dver}"
 	else
 		export ddir="redhat"
 		export dver=`awk '{print $5}' /etc/redhat-release | sed "s/\.//"`
-		export suf="rh${dver}"
+		export suf=".rh${dver}"
 	fi
 elif [ -e /etc/SuSE-release ]; then
 	grep -q Enterprise /etc/SuSE-release
@@ -70,5 +70,5 @@ else
 fi
 
 if [ _"$suf" = _"" ]; then
-	export suf="${ddir}${dver}"
+	export suf=".${ddir}${dver}"
 fi

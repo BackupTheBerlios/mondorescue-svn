@@ -9,28 +9,26 @@
 
 %define name	mondo
 %define version	VVV
-%define mrel	1
+%define mrel	RRR
 %define	src		%{name}-%{version}.tgz
+%define grp		Archiving/Backup
 
 %if %is_redhat
-Group:			Applications/Archiving
+%define	src		Applications/Archiving
 Autoreq:		0
 %endif
 
 %if %is_mandrake
 %define src		%{name}-%{version}.tar.bz2
-Group:			Archiving/Backup
 Autoreqprov:	no
 %endif
 
 %if %is_mandriva
 %define src		%{name}-%{version}.tar.bz2
-Group:			Archiving/Backup
 Autoreqprov:	no
 %endif
 
 %if %is_suse
-Group:			Archiving/Backup
 %endif
 
 Summary:	A program which a Linux user can utilize to create a rescue/restore CD/tape
@@ -42,6 +40,7 @@ Name:		%{name}
 Version:	%{version}
 Release:	%{mrel}
 License:	GPL
+Group:		%{grp}
 Url:		http://mondorescue.berlios.de
 Source:		%{src}
 BuildRoot:	%{_tmppath}/%{name}-%{version}

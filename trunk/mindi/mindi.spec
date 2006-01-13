@@ -9,40 +9,50 @@
 
 %define name	mindi
 %define version	VVV
-%define mrel	1
+%define mrel	RRR
+# if mandriva official build (rpm --with is_official)
+%{?is_official:%define rel %{mkrel} %{mrel}}%{!?is_official:%define rel %{mrel}}
 %define	src		%{name}-%{version}.tgz
+%define grp		Archiving/Backup
+%define addreqb	bzip2 >= 0.9, mkisofs, ncurses, binutils, gawk, dosfstools, afio
 
 %if %is_redhat
-Group:			Applications/Archiving
+%define grp		Applications/Archiving
+%define addreq	%{addreqb}, which
 Autoreq:	0
 %endif
 
 %if %is_mandrake
 %define	src		%{name}-%{version}.tar.bz2
-Group:			Archiving/Backup
+%define addreq	%{addreqb}, which
 Autoreqprov: no
 %endif
 
 %if %is_mandriva
 %define	src		%{name}-%{version}.tar.bz2
-Group:			Archiving/Backup
+%define addreq	%{addreqb}, which
 Autoreqprov: no
 %endif
 
 %if %is_suse
-Group:			Archiving/Backup
+%define addreq	%{addreqb}
+%endif
+
+# define the mkrel macro if it is not already defined if mandriva offical build
+%if is_official
+%{?!mkrel:%define mkrel(c:) %{-c:0.%{-c*}.}%{!?_with_unstable:%(perl -e '$_="%{1}";m/(.\*)(\\d+)$/;$rel=${2}-1;re;print "$1$rel";').%{?subrel:%subrel}%{!?subrel:1}.%{?distversion:%distversion}%{?!distversion:%(echo $[%{mdkversion}/10])}}%{?_with_unstable:%{1}}%{?distsuffix:%distsuffix}%{?!distsuffix:mdk}}
 %endif
 
 Summary:	Mindi creates emergency boot disks/CDs using your kernel, tools and modules
 Name:		%name
 Version:	%version
-Release:	%mrel
+Release:	%rel
 License:	GPL
-Group:		System/Kernel and hardware
+Group:		%{grp}
 Url:		http://mondorescue.berlios.de
 Source:		%{src}
 BuildRoot:	%{_tmppath}/%{name}-%{version}
-Requires:	bzip2 >= 0.9, mkisofs, ncurses, binutils, gawk, dosfstools, afio, which
+Requires:	%{addreq}
 # Not on all systems
 #Conflicts:	bonnie++
 
@@ -92,7 +102,7 @@ fi
 %files
 %defattr(644,root,root,755)
 %config(noreplace) %{_sysconfdir}/mindi/deplist.txt
-%doc ChangeLog INSTALL COPYING README TODO README.ia64 README.pxe README.busybox
+%doc ChangeLog INSTALL COPYING README TODO README.ia64 README.pxe README.busybox svn.log
 %{_mandir}
 %{_libdir}/mindi
 %attr(755,root,root) %{_sbindir}/*

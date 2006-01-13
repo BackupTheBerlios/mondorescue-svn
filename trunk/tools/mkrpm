@@ -16,7 +16,12 @@ fi
 
 . $TOOLHOME/rpm-env
 
+# To be safe for SVN commands
+cd $TOOLHOME/..
 rev=`$TOOLHOME/mksvnversion`
+
+echo "Generating SVN log file ..."
+svn log -v > /tmp/mondorescue-svn.log
 
 if [ "$1" = "" ]; then
 	c="mindi mondo"
@@ -34,16 +39,16 @@ if [ "`echo $c | grep mindi-kernel`" != "" ]; then
 	mkdir -p ${TOPDIR}/SOURCES 
 	tar cvfhz ${TOPDIR}/SOURCES/mindi-kernel-${MINDI_VER}.tgz mindi-kernel-${MINDI_VER}
 	tar cvfhj ${TOPDIR}/SOURCES/mindi-kernel-${MINDI_VER}.tar.bz2 mindi-kernel-${MINDI_VER}
-	sed "s/^%define mrel..*/%define mrel	${rev}.${suf}/" mindi-kernel-${MINDI_VER}/mindi-kernel.spec > ${TOPDIR}/SPECS/mindi-kernel.spec
+	sed "s/^%define mrel..*RRR/%define mrel	${rev}${suf}/" mindi-kernel-${MINDI_VER}/mindi-kernel.spec > ${TOPDIR}/SPECS/mindi-kernel.spec
 	rm -f ${TMP}/mindi-kernel*-root
-	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mindi-kernel-${MINDI_VER}-${rev}.${suf}.${ARCH}.rpm"
+	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mindi-kernel-${MINDI_VER}-${rev}${suf}.${ARCH}.rpm"
 fi
 if [ "`echo $c | grep -v kernel | grep mindi`" != "" ]; then
 	cd ${BASE}/svn
 	echo "Management of mindi ${MINDI_VER}"
 	rm -fr mindi-${MINDI_VER}
 	cp -a ${VER}/mindi mindi-${MINDI_VER}
-	svn log -v > mindi-${MINDI_VER}/svn.log
+	cp -a /tmp/mondorescue-svn.log mindi-${MINDI_VER}/svn.log
 	find mindi-${MINDI_VER} -type d -name .svn | xargs rm -rf
 	find mindi-${MINDI_VER} -type f -name '.*.swp' | xargs rm -rf
 	find mindi-${MINDI_VER} -type f -name '*~' | xargs rm -rf
@@ -51,9 +56,9 @@ if [ "`echo $c | grep -v kernel | grep mindi`" != "" ]; then
 	mkdir -p ${TOPDIR}/SOURCES 
 	tar cvfhz ${TOPDIR}/SOURCES/mindi-${MINDI_VER}.tgz mindi-${MINDI_VER}
 	tar cvfhj ${TOPDIR}/SOURCES/mindi-${MINDI_VER}.tar.bz2 mindi-${MINDI_VER}
-	sed -e "s/^%define mrel..*/%define mrel	${rev}.${suf}/" -e "s/VVV/${MINDI_VER}/" mindi-${MINDI_VER}/mindi.spec > ${TOPDIR}/SPECS/mindi.spec
+	sed -e "s/^%define mrel..*RRR/%define mrel	${rev}${suf}/" -e "s/VVV/${MINDI_VER}/" mindi-${MINDI_VER}/mindi.spec > ${TOPDIR}/SPECS/mindi.spec
 	rm -f ${TMP}/mindi-*-root
-	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mindi-${MINDI_VER}-${rev}.${suf}.${ARCH}.rpm"
+	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mindi-${MINDI_VER}-${rev}${suf}.${ARCH}.rpm"
 	# ATTENTION: This could be dangerous for your setup
 	opt="rm -rf /usr/lib/mindi ;"
 fi
@@ -62,7 +67,7 @@ if [ "`echo $c | grep  mondo`" != "" ]; then
 	echo "Management of mondo ${MONDO_VER}"
 	rm -rf mondo-${MONDO_VER}
 	cp -a ${VER}/mondo mondo-${MONDO_VER}
-	svn log -v > mondo-${MONDO_VER}/svn.log
+	cp -a /tmp/mondorescue-svn.log mondo-${MONDO_VER}/svn.log
 	cd mondo-${MONDO_VER}
 	echo "Bootstraping mondo ... "
 	./bootstrap
@@ -72,9 +77,9 @@ if [ "`echo $c | grep  mondo`" != "" ]; then
 	cd ..
 	tar cvfhz ${TOPDIR}/SOURCES/mondo-${MONDO_VER}.tgz mondo-${MONDO_VER}
 	tar cvfhj ${TOPDIR}/SOURCES/mondo-${MONDO_VER}.tar.bz2 mondo-${MONDO_VER}
-	sed -e "s/^%define mrel..*/%define mrel	${rev}.${suf}/" -e "s/VVV/${MONDO_VER}/" mondo-${MONDO_VER}/mondo.spec > ${TOPDIR}/SPECS/mondo.spec
+	sed -e "s/^%define mrel..*RRR/%define mrel	${rev}${suf}/" -e "s/VVV/${MONDO_VER}/" mondo-${MONDO_VER}/mondo.spec > ${TOPDIR}/SPECS/mondo.spec
 	rm -f ${TMP}/mondo-*-root
-	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mondo-${MONDO_VER}-${rev}.${suf}.${ARCH}.rpm"
+	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mondo-${MONDO_VER}-${rev}${suf}.${ARCH}.rpm"
 fi
 cd ${TOPDIR}/SPECS
 if [ "`echo $c | grep kernel`" != "" ]; then

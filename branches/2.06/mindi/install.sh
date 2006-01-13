@@ -60,7 +60,7 @@ chmod 755 $local/sbin/mindi
 install -m 755 analyze-my-lvm parted2fdisk.pl $local/sbin
 
 install -m 644 mindi.8 $MANDIR
-install -m 644 ChangeLog COPYING README README.busybox README.ia64 README.pxe TODO INSTALL $DOCDIR
+install -m 644 ChangeLog COPYING README README.busybox README.ia64 README.pxe TODO INSTALL svn.log $DOCDIR
 
 # Managing busybox
 if [ -f $locallib/mindi/rootfs/bin/busybox-$ARCH ]; then

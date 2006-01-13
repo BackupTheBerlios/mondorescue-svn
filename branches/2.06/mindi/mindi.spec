@@ -10,9 +10,13 @@
 %define name	mindi
 %define version	VVV
 %define mrel	RRR
+%define release	%{mrel}
 %define	src		%{name}-%{version}.tgz
 %define grp		Archiving/Backup
 %define addreqb	bzip2 >= 0.9, mkisofs, ncurses, binutils, gawk, dosfstools, afio
+
+# define the mkrel macro if it is not already defined
+%{?!mkrel:%define mkrel(c:) %{-c:0.%{-c*}.}%{!?_with_unstable:%(perl -e '$_="%{1}";m/(.\*)(\\d+)$/;$rel=${2}-1;re;print "$1$rel";').%{?subrel:%subrel}%{!?subrel:1}.%{?distversion:%distversion}%{?!distversion:%(echo $[%{mdkversion}/10])}}%{?_with_unstable:%{1}}%{?distsuffix:%distsuffix}%{?!distsuffix:mdk}}
 
 %if %is_redhat
 %define grp		Applications/Archiving
@@ -23,12 +27,14 @@ Autoreq:	0
 %if %is_mandrake
 %define	src		%{name}-%{version}.tar.bz2
 %define addreq	%{addreqb}, which
+%define release	%{mkrel} %{mrel}
 Autoreqprov: no
 %endif
 
 %if %is_mandriva
 %define	src		%{name}-%{version}.tar.bz2
 %define addreq	%{addreqb}, which
+%define release	%{mkrel} %{mrel}
 Autoreqprov: no
 %endif
 
@@ -39,7 +45,7 @@ Autoreqprov: no
 Summary:	Mindi creates emergency boot disks/CDs using your kernel, tools and modules
 Name:		%name
 Version:	%version
-Release:	%mrel
+Release:	%release
 License:	GPL
 Group:		%{grp}
 Url:		http://mondorescue.berlios.de
@@ -95,7 +101,7 @@ fi
 %files
 %defattr(644,root,root,755)
 %config(noreplace) %{_sysconfdir}/mindi/deplist.txt
-%doc ChangeLog INSTALL COPYING README TODO README.ia64 README.pxe README.busybox
+%doc ChangeLog INSTALL COPYING README TODO README.ia64 README.pxe README.busybox svn.log
 %{_mandir}
 %{_libdir}/mindi
 %attr(755,root,root) %{_sbindir}/*

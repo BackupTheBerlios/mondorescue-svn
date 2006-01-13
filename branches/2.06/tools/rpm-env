@@ -36,11 +36,11 @@ export MONDO_VER=`cat ${BASE}/svn/${VER}/mondo/VERSION`
 if [ -e /etc/mandriva-release ]; then
 	export ddir="mandriva"
 	export dver=`awk '{print $4}' /etc/mandriva-release`
-	export suf=".${dver}mdk"
+	export suf=" "
 elif [ -e /etc/mandrake-release ]; then
 	export ddir="mandrake"
 	export dver=`awk '{print $3}' /etc/mandrake-release`
-	export suf=".${dver}mdk"
+	export suf=" "
 elif [ -e /etc/redhat-release ]; then
 	grep -q Enterprise /etc/redhat-release
 	if [ $? -eq 0 ]; then

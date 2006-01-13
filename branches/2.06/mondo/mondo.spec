@@ -12,23 +12,31 @@
 %define mrel	RRR
 %define	src		%{name}-%{version}.tgz
 %define grp		Archiving/Backup
+%define addreqb	mindi >= 1.05, bzip2 >= 0.9, afio, mkisofs, binutils, newt >= 0.50, slang >= 1.4.1
+
+# define the mkrel macro if it is not already defined
+%{?!mkrel:%define mkrel(c:) %{-c:0.%{-c*}.}%{!?_with_unstable:%(perl -e '$_="%{1}";m/(.\*)(\\d+)$/;$rel=${2}-1;re;print "$1$rel";').%{?subrel:%subrel}%{!?subrel:1}.%{?distversion:%distversion}%{?!distversion:%(echo $[%{mdkversion}/10])}}%{?_with_unstable:%{1}}%{?distsuffix:%distsuffix}%{?!distsuffix:mdk}}
 
 %if %is_redhat
-%define	src		Applications/Archiving
+%define	grp		Applications/Archiving
+%define addreq	%{addreqb}
 Autoreq:		0
 %endif
 
 %if %is_mandrake
 %define src		%{name}-%{version}.tar.bz2
+%define addreq	%{addreqb}
 Autoreqprov:	no
 %endif
 
 %if %is_mandriva
 %define src		%{name}-%{version}.tar.bz2
+%define addreq	%{addreqb}
 Autoreqprov:	no
 %endif
 
 %if %is_suse
+%define addreq	%{addreqb}
 %endif
 
 Summary:	A program which a Linux user can utilize to create a rescue/restore CD/tape
@@ -46,9 +54,9 @@ Source:		%{src}
 BuildRoot:	%{_tmppath}/%{name}-%{version}
 BuildRequires:	newt-devel >= 0.50, slang-devel >= 1.4.1, gcc
 %ifarch ia64
-Requires:	mindi >= 1.05, bzip2 >= 0.9, afio, mkisofs, binutils, elilo, newt >= 0.50, slang >= 1.4.1, buffer, parted
+Requires:	%{addreq}, elilo, parted
 %else
-Requires:	mindi >= 1.05, bzip2 >= 0.9, afio, mkisofs, binutils, syslinux >= 1.52, newt >= 0.50, slang >= 1.4.1, buffer
+Requires:	%{addreq}, syslinux >= 1.52
 %endif
 
 #%package xmondo
@@ -123,7 +131,7 @@ con cintas y NFS, tambien.
 
 %files
 %defattr(644,root,root,755)
-%doc ChangeLog mondo/docs/en/1.6x-howto/*
+%doc ChangeLog svn.log mondo/docs/en/1.6x-howto/*
 %doc INSTALL COPYING README TODO AUTHORS NEWS
 
 %attr(755,root,root) %{_sbindir}/*

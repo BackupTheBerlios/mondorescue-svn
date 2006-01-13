@@ -19,6 +19,8 @@ fi
 # To be safe for SVN commands
 cd $TOOLHOME/..
 rev=`$TOOLHOME/mksvnversion`
+
+echo "Generating SVN log file ..."
 svn log -v > /tmp/mondorescue-svn.log
 
 if [ "$1" = "" ]; then

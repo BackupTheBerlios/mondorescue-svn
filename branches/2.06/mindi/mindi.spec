@@ -10,13 +10,11 @@
 %define name	mindi
 %define version	VVV
 %define mrel	RRR
-%define release	%{mrel}
+# if mandriva official build (rpm --with is_official)
+%{?is_official:%define rel %{mkrel} %{mrel}}%{!?is_official:%define rel %{mrel}}
 %define	src		%{name}-%{version}.tgz
 %define grp		Archiving/Backup
 %define addreqb	bzip2 >= 0.9, mkisofs, ncurses, binutils, gawk, dosfstools, afio
-
-# define the mkrel macro if it is not already defined
-%{?!mkrel:%define mkrel(c:) %{-c:0.%{-c*}.}%{!?_with_unstable:%(perl -e '$_="%{1}";m/(.\*)(\\d+)$/;$rel=${2}-1;re;print "$1$rel";').%{?subrel:%subrel}%{!?subrel:1}.%{?distversion:%distversion}%{?!distversion:%(echo $[%{mdkversion}/10])}}%{?_with_unstable:%{1}}%{?distsuffix:%distsuffix}%{?!distsuffix:mdk}}
 
 %if %is_redhat
 %define grp		Applications/Archiving
@@ -27,14 +25,12 @@ Autoreq:	0
 %if %is_mandrake
 %define	src		%{name}-%{version}.tar.bz2
 %define addreq	%{addreqb}, which
-%define release	%{mkrel} %{mrel}
 Autoreqprov: no
 %endif
 
 %if %is_mandriva
 %define	src		%{name}-%{version}.tar.bz2
 %define addreq	%{addreqb}, which
-%define release	%{mkrel} %{mrel}
 Autoreqprov: no
 %endif
 
@@ -42,10 +38,15 @@ Autoreqprov: no
 %define addreq	%{addreqb}
 %endif
 
+# define the mkrel macro if it is not already defined if mandriva offical build
+%if is_official
+%{?!mkrel:%define mkrel(c:) %{-c:0.%{-c*}.}%{!?_with_unstable:%(perl -e '$_="%{1}";m/(.\*)(\\d+)$/;$rel=${2}-1;re;print "$1$rel";').%{?subrel:%subrel}%{!?subrel:1}.%{?distversion:%distversion}%{?!distversion:%(echo $[%{mdkversion}/10])}}%{?_with_unstable:%{1}}%{?distsuffix:%distsuffix}%{?!distsuffix:mdk}}
+%endif
+
 Summary:	Mindi creates emergency boot disks/CDs using your kernel, tools and modules
 Name:		%name
 Version:	%version
-Release:	%release
+Release:	%rel
 License:	GPL
 Group:		%{grp}
 Url:		http://mondorescue.berlios.de

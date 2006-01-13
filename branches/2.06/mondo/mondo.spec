@@ -10,12 +10,11 @@
 %define name	mondo
 %define version	VVV
 %define mrel	RRR
+# if mandriva official build (rpm --with is_official)
+%{?is_official:%define rel %{mkrel} %{mrel}}%{!?is_official:%define rel %{mrel}}
 %define	src		%{name}-%{version}.tgz
 %define grp		Archiving/Backup
 %define addreqb	mindi >= 1.05, bzip2 >= 0.9, afio, mkisofs, binutils, newt >= 0.50, slang >= 1.4.1
-
-# define the mkrel macro if it is not already defined
-%{?!mkrel:%define mkrel(c:) %{-c:0.%{-c*}.}%{!?_with_unstable:%(perl -e '$_="%{1}";m/(.\*)(\\d+)$/;$rel=${2}-1;re;print "$1$rel";').%{?subrel:%subrel}%{!?subrel:1}.%{?distversion:%distversion}%{?!distversion:%(echo $[%{mdkversion}/10])}}%{?_with_unstable:%{1}}%{?distsuffix:%distsuffix}%{?!distsuffix:mdk}}
 
 %if %is_redhat
 %define	grp		Applications/Archiving

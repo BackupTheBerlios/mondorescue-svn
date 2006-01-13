@@ -16,7 +16,10 @@ fi
 
 . $TOOLHOME/rpm-env
 
+# To be safe for SVN commands
+cd $TOOLHOME/..
 rev=`$TOOLHOME/mksvnversion`
+svn log -v > /tmp/mondorescue-svn.log
 
 if [ "$1" = "" ]; then
 	c="mindi mondo"
@@ -43,7 +46,7 @@ if [ "`echo $c | grep -v kernel | grep mindi`" != "" ]; then
 	echo "Management of mindi ${MINDI_VER}"
 	rm -fr mindi-${MINDI_VER}
 	cp -a ${VER}/mindi mindi-${MINDI_VER}
-	svn log -v > mindi-${MINDI_VER}/svn.log
+	cp -a /tmp/mondorescue-svn.log mindi-${MINDI_VER}/svn.log
 	find mindi-${MINDI_VER} -type d -name .svn | xargs rm -rf
 	find mindi-${MINDI_VER} -type f -name '.*.swp' | xargs rm -rf
 	find mindi-${MINDI_VER} -type f -name '*~' | xargs rm -rf
@@ -62,7 +65,7 @@ if [ "`echo $c | grep  mondo`" != "" ]; then
 	echo "Management of mondo ${MONDO_VER}"
 	rm -rf mondo-${MONDO_VER}
 	cp -a ${VER}/mondo mondo-${MONDO_VER}
-	svn log -v > mondo-${MONDO_VER}/svn.log
+	cp -a /tmp/mondorescue-svn.log mondo-${MONDO_VER}/svn.log
 	cd mondo-${MONDO_VER}
 	echo "Bootstraping mondo ... "
 	./bootstrap

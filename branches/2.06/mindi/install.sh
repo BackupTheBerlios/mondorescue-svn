@@ -46,7 +46,7 @@ echo "Copying files ..."
 install -m 644 isolinux.cfg msg-txt sys-disk.raw.gz isolinux-H.cfg syslinux.cfg syslinux-H.cfg dev.tgz $locallib/mindi
 install -m 644 deplist.txt $conf
 
-cp -af rootfs aux-tools Mindi $locallib/mindi
+cp -af rootfs aux-tools $locallib/mindi
 chmod 755 $locallib/mindi/rootfs/bin/*
 chmod 755 $locallib/mindi/rootfs/sbin/*
 chmod 755 $locallib/mindi/aux-tools/sbin/*

@@ -12,6 +12,8 @@
 # See http://www.mondorescue.org for details.
 #-----------------------------------------------------------------------------
 
+### Which arch are we on (useful for ia64 port)
+export ARCH=`/bin/arch`
 
 ADDITIONAL_BOOT_PARAMS="acpi=off apm=off devfs=nomount exec-shield=0"
 
@@ -32,7 +34,13 @@ MINDI_VERSION=${MINDI_VER}-r$MINDI_REV
 MINDI_PREFIX=XXX
 MINDI_CONF=YYY
 MINDI_SBIN=${MINDI_PREFIX}/sbin
-MINDI_LIB=${MINDI_PREFIX}/lib/mindi
+
+
+if [ "$ARCH" = "x86_64" ] ; then
+	MINDI_LIB=${MINDI_PREFIX}/lib64/mindi
+else
+	MINDI_LIB=${MINDI_PREFIX}/lib/mindi
+fi
 
 EXTRA_SPACE=24576         ; # increase if you run out of ramdisk space
 IA64_BOOT_SIZE=8192       ; # size of the ia64 boot disk
@@ -2907,9 +2915,6 @@ fi
 
 > $LOGFILE
 echo "mindi v$MINDI_VERSION" >> $LOGFILE
-### BCO
-### Which arch are we on (useful for ia64 port)
-export ARCH=`/bin/arch`
 echo "$ARCH architecture detected" >> $LOGFILE
 echo "mindi called with the following arguments:" >> $LOGFILE
 echo "$@" >> $LOGFILE

@@ -12,23 +12,28 @@
 %define mrel	RRR
 %define	src		%{name}-%{version}.tgz
 %define grp		Archiving/Backup
+%define addreqb	bzip2 >= 0.9, mkisofs, ncurses, binutils, gawk, dosfstools, afio
 
 %if %is_redhat
 %define grp		Applications/Archiving
+%define addreq	%{addreqb}, which
 Autoreq:	0
 %endif
 
 %if %is_mandrake
 %define	src		%{name}-%{version}.tar.bz2
+%define addreq	%{addreqb}, which
 Autoreqprov: no
 %endif
 
 %if %is_mandriva
 %define	src		%{name}-%{version}.tar.bz2
+%define addreq	%{addreqb}, which
 Autoreqprov: no
 %endif
 
 %if %is_suse
+%define addreq	%{addreqb}
 %endif
 
 Summary:	Mindi creates emergency boot disks/CDs using your kernel, tools and modules
@@ -40,7 +45,7 @@ Group:		%{grp}
 Url:		http://mondorescue.berlios.de
 Source:		%{src}
 BuildRoot:	%{_tmppath}/%{name}-%{version}
-Requires:	bzip2 >= 0.9, mkisofs, ncurses, binutils, gawk, dosfstools, afio, which
+Requires:	%{addreq}
 # Not on all systems
 #Conflicts:	bonnie++
 

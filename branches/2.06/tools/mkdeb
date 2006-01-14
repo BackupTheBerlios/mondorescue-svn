@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Creates RPMs packages from SVN repository for local tests
+# Creates debs packages from SVN repository for local tests
 #
 # $Id$
 #
@@ -14,7 +14,7 @@ else
 	export TOOLHOME=${PWD}/$dname
 fi
 
-. $TOOLHOME/rpm-env
+. $TOOLHOME/deb-env
 
 if [ "$1" = "" ]; then
 	c="mindi mondo"

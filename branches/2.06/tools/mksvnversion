@@ -1,27 +1,24 @@
 #!/bin/bash
-########################################################
-# $Id$
-########################################################
 #
 # on every build, record the working copy revision string
 #
-dname=`dirname $0`
-prem=`echo $dname |cut -c1`
-if [ ${prem} == "/" ]; then
-	export TOOLHOME=$dname
-else
-	export TOOLHOME=${PWD}/$dname
-fi
-. $TOOLHOME/rpm-env
+# $Id$
+#
 
-#
-# Create a .c file for mondo to link with and get
-# the right build version from SVN
-#
+# TOOLHOME should be provided by callers
+if [ _"$TOOLHOME" = _"" ]; then
+	# It's not the case so compute it
+	dname=`dirname $0`
+	prem=`echo $dname |cut -c1`
+	if [ ${prem} == "/" ]; then
+        export TOOLHOME=$dname
+	else
+        export TOOLHOME=${PWD}/$dname
+	fi
+fi
+
 rel=`svnversion $TOOLHOME/..`
-cat > $TOOLHOME/../mondo/revision.h << EOF
-#define REVISION "${rel}" 
-EOF
+
 cat > $TOOLHOME/../mondo/REVISION << EOF
 ${rel}
 EOF

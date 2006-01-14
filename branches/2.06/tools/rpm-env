@@ -19,7 +19,6 @@ export pkg=""
 export opt=""
 export ARCH=`rpm --showrc | egrep "^build arch" | awk '{print $4}'`
 
-mkdir -p ${BASE}/RPMS
 export TMP=${BASE}/tmp
 mkdir -p ${TMP}
 if [ -f ${HOME}/.rpmmacros ]; then
@@ -27,6 +26,7 @@ if [ -f ${HOME}/.rpmmacros ]; then
 else
 	export TOPDIR=${BASE}/RPMS
 fi
+mkdir -p ${TOPDIR}
 cd ${TOPDIR}
 mkdir -p RPMS SRPMS SPECS SOURCES BUILD
 

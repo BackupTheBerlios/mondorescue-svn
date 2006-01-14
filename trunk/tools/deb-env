@@ -1,0 +1,33 @@
+#!/bin/bash
+#
+# Creates deb environment from SVN repository
+#
+# $Id$
+#
+
+dname=`dirname $0`
+prem=`echo $dname |cut -c1`
+if [ ${prem} == "/" ]; then
+        export TOOLHOME=$dname
+else
+	export TOOLHOME=${PWD}/$dname
+fi
+
+. $TOOLHOME/common-env
+
+# Should not be modified below
+dname=`dirname $0`
+
+# TBD
+export TOPDIR=${BASE}/debs
+mkdir -p ${TOPDIR}
+
+if [ -e /etc/debian-release ]; then
+	export ddir="debian"
+	export dver=`awk '{print $4}' /etc/debian-release`
+	export suf=".`echo $dver | sed 's/\.//'`mdk"
+fi
+
+if [ _"$suf" = _"" ]; then
+	export suf=".${ddir}${dver}"
+fi

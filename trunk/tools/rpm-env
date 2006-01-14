@@ -5,32 +5,31 @@
 # $Id$
 #
 
-# Adapt to your needs
-export BASE=${HOME}/mondo
-export SVNAUTH=bcornec@shell.berlios.de
-export DSTDIR=/home/groups/ftp/pub/mondorescue
-export FTPSERV="ftp.berlios.de"
-export FTPDIR="/incoming"
+dname=`dirname $0`
+prem=`echo $dname |cut -c1`
+if [ ${prem} == "/" ]; then
+        export TOOLHOME=$dname
+else
+	export TOOLHOME=${PWD}/$dname
+fi
+
+. $TOOLHOME/common-env
+
+export ARCH=`rpm --showrc | egrep "^build arch" | awk '{print $4}'`
 
 # Should not be modified below
 export VER=trunk
 export pkg=""
 export opt=""
-export ARCH=`rpm --showrc | egrep "^build arch" | awk '{print $4}'`
 
-mkdir -p ${BASE}/RPMS
-export TMP=${BASE}/tmp
-mkdir -p ${TMP}
 if [ -f ${HOME}/.rpmmacros ]; then
 	export TOPDIR=`egrep '^%_topdir' ${HOME}/.rpmmacros | awk '{print $2}'`
 else
 	export TOPDIR=${BASE}/RPMS
 fi
+mkdir -p ${TOPDIR}
 cd ${TOPDIR}
 mkdir -p RPMS SRPMS SPECS SOURCES BUILD
-
-export MINDI_VER=`cat ${BASE}/svn/${VER}/mindi/VERSION`
-export MONDO_VER=`cat ${BASE}/svn/${VER}/mondo/VERSION`
 
 if [ -e /etc/mandriva-release ]; then
 	export ddir="mandriva"

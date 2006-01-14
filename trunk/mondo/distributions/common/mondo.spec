@@ -58,6 +58,11 @@ Requires:	%{addreq}, elilo, parted
 Requires:	%{addreq}, syslinux >= 1.52
 %endif
 
+#%package xmondo
+#Summary:	A QT based graphical front end for %{name}
+#Group:		Applications/Archiving
+#Requires:	%{name} = %{version}-${release}, qt, kdelibs
+#
 #%package %{name}-devel
 #Summary:	Header files for building against Mondo
 #%if %is_mandrake
@@ -95,11 +100,15 @@ Mondo es un programa que permite cualquier usuario de Linux a crear una CD
 de restoracion/rescate (o CDs, si su instalacion es >2GO aprox.).  Funciona 
 con cintas y NFS, tambien.
 
+#%description xmondo
+#Xmondo is a QT based graphical frontend to mondoarchive.  It can help you 
+#set up a backup by following onscreen prompts.
+
 %prep
 %setup -q -n %name-%{version}
 
 %build
-%configure
+%configure %{!?_without_xmondo:--with-x11}
 %{__make} VERSION=%{version} CFLAGS="-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_REENTRANT"
 
 %install
@@ -129,14 +138,21 @@ con cintas y NFS, tambien.
 %{_libdir}
 %{_mandir}
 
+#%{!?_without_xmondo:%files xmondo}
+#%{!?_without_xmondo:%{_sbindir}/xmondo}
+#%{!?_without_xmondo:%{_libdir}/libXmondo-%{libversion}.so}
+#%{!?_without_xmondo:%{_libdir}/libXmondo.so}
+#%{!?_without_xmondo:%{_datadir}/mondo/mondo.png}
+
 %changelog
-* Tue Oct 06 2005 Bruno Cornec <bcornec@users.berlios.de> 2.05_berlios
-- Memory management revision
+* Fri Nov 05 2005 Bruno Cornec <bcornec@users.berlios.de> 1.05
+- ia64 is now working
+- -p option related bug fixed
 - use libdir instead of datadir
 
 * Tue Sep 06 2005 Bruno Cornec <bcornec@users.berlios.de> 2.04_berlios
 - Merge of patches mentionned on mondo ML + ia64 updates
-- Option -p added
+- Add -p option
 
 * Tue May 03 2005 Hugo Rabson <hugorabson@msn.com> 2.04_cvs_20050503
 - made mondo more clever about finding its home. Avoids mondo considering

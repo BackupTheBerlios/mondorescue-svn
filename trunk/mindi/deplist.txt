@@ -25,7 +25,7 @@ fsck fsck.ext2 fsck.reiserfs fsck.reiser fsck.xfs fsck.ext3 fsck.jfs badblocks
 
 #-------------------------------- ESSENTIAL -----------------------------------
 fstab raidtab modules.conf conf.modules mondorestore mt modules.conf.local
-afio star partimagehack parted ms-sys file getfattr setfattr getfacl setfacl
+afio star ntfsclone parted ms-sys file getfattr setfattr getfacl setfacl
 buffer
 awk gawk
 bzip2 bunzip2 lzop

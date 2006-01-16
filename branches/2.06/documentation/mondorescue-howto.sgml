@@ -1,0 +1,578 @@
+<!DOCTYPE BOOK PUBLIC "-//OASIS//DTD DocBook V4.1//EN" [
+<!ENTITY curdate "DDD">
+<!ENTITY curver "VVV">
+
+   <!ENTITY WWWB "http://www.mondorescue.org/">
+   <!ENTITY WWW '<ulink url="http://www.mondorescue.org">MondoRescue</ulink>'>
+   <!ENTITY gfdl SYSTEM "fdl.sgml">
+
+<article>
+<articleinfo>
+<title>MondoRescue HOWTO</title>
+<subtitle>
+Utilisation and Configuration of Mondo and Mindi under Linux (Version &curver;)
+</subtitle>
+<graphic fileref="images/protected-by-mondo.png" align="center">
+
+<pubdate>
+
+in its latest version the
+&curdate;</pubdate>
+<abstract>
+<para>
+This document describes the use of mondo and mindi tools to realize disaster recovery backup of your systems. It provides information on installation, backup and restore modes, hardware and software requirements, and answers to some frequently asked questions.
+The goals are to offer a general view of the functions and their best usages.
+Mondo Rescue is a Disaster Recovery Solution which allows you
+to effortlessly backup and interactively restore Linux, Windows and
+other supported filesystem partitions to/from CD/DVD-+R/RW media, tape,
+NFS, ... and Mindi Linux provides the bootable emergency restore
+CD/floppy set which Mondo uses at boot-time.
+</para>
+</abstract>
+<author>
+<firstname>Bruno</firstname>
+<surname>Cornec</surname>
+<affiliation>
+<orgname>MondoRescue Project</orgname>
+<address><email>bcornec@users.berlios.de</email></address>
+</affiliation>
+</author>
+<!--
+Hugo Rabson
+Mikael Hultgren
+Stan Benoit
+Randy Delfs
+Cafeole
+Bryan J. Smith
+-->
+<copyright>
+<year>2000-2006</year>
+<holder role="mailto:bcornec@users.berlios.de">Bruno Cornec</holder>
+</copyright>
+<legalnotice>
+<title>License</title>
+<para>
+</para>
+<para>
+This HOWTO is a free documentation. you may copy, redistribute and/or modify it under the terms of the
+<Link LinkEnd="gfdl">
+GNU Free Documentation License, Version 1.1
+</link>.</para>
+<para>
+or any later version published by the Free Software Foundation; with no Invarian
+t Sections, Front-Cover Texts or Back-Cover Texts. This document is distributed
+hoping it will be useful, but <emphasis>without any guaranty</emphasis>; you're
+completely responsible of its use, and coulnd't complain in case it doesn't work
+, or even if it breaks the hardware. All the software included in it, if not alr
+eady copyrighted is released under the GPL.
+
+</para>
+</legalnotice>
+<revhistory>
+<revnumber>2.06</revnumber>
+<date>2006-01-16</date>
+<authorinitials>Bruno Cornec</authorinitials>
+<revdescription>
+<para>
+First SGML version publically available, remade from the HTML docs of the project.
+</para>
+</revdescription>
+</revision>
+</revhistory>
+</articleinfo>
+
+<toc></toc>
+<lot></lot>
+
+
+<chapter id="about">
+<title>About this Guide</title>
+
+<sect1 id="purpose">
+<title>Purpose / Scope of this Guide</title>
+
+<para>
+This HOWTO serves to help people get started with using
+mondo/mindi as way to backup/restore their system. This is a work
+constantly evolving. It was started by Hugo Rabson and has
+since been worked upon by a number of people. See the
+'<ulink url="&WWWB;about.html#devteam">About</ulink>' web
+page for a list of members of the development team.</para>
+
+<para>There are many ways to contribute to the Linux movement
+without actually writing code. One of the most important is writing
+documentation, allowing each person to share their knowledge with
+thousands of others around the world. This HOWTO is designed to
+help you get familiar with how Mondo/Mindi works.</para>
+
+<para>
+Opinions expressed here are those of the authors.
+Informations are provided in the aim to be useful to the readers.
+However, there can't be, through this document, any warranty of any kind
+on the way it works on your systems, nor the author could be responsible for any problem caused by the use of these informations.
+However, software editors don't garantee you a lot either (re-read the contracts).
+</para>
+
+<sect2 id="newversion"><title>New versions of this document</title>
+
+<para>The newest version of this document can always be found on
+MondoRescue's homepage &WWW;.</para>
+<para>
+If you make a translation of this document into another language, please let meknow so that I can include a reference to it here.
+</para>
+</sect2>
+<sect2><title>Suggestions / Feedback</title>
+<para>
+I rely on you, the reader, to make this HOWTO useful. THis HOWTO is probably incomplete even if it tries to be accurate to the best of our knowledge. 
+If you have any suggestions, corrections, recommandations or congratulations :-) don't hesitate to send them to me
+<email>bcornec@users.berlios.de</email>,
+and I will try to incorporate them in a next revision or to the mondorescue mailling list at <ulink url="http://lists.sourceforge.net/lists/listinfo/mondo-devel">http://lists.sourceforge.net/lists
+/listinfo/mondo-devel</ulink>;
+e-mail the list at
+<ulink url="mailto:mondo-devel@lists.sourceforge.net">mondo-devel@lists.sourceforge.net</ulink>;
+tell us what is wrong and how it should be fixed.
+Include the section title and recommended changes. Whenever possible, include
+the exact, spell-checked, grammar-checked text that you think would
+improve the document.
+</para>
+<para>See Mondo's
+<ulink url="../../feedback/feedback.html">Feedback</ulink> page for
+more information.
+</para>
+<para>
+Please note that we do our best to help everyone but it is
+difficult for us to help you if you do not attach a log file to
+your e-mail. Let me say that again - attach your log file to your
+e-mail! Thank you. Without it we can't offer
+any tangible help because you aren't either. That's what the log
+file is for. It is located at <filename>/var/log/mondo-archive.log</filename>; and <filename>/var/log/miindi.log</filename> or at <filename>/var/log/mondo-restore.log</filename>
+<para>
+This document was originaly written by native english speakers, but is maintained by a non-native english speaker so help me correct mistaques instead of rumbling that I've done one :-)
+</para>
+<para>
+I am also willing to answer general questions on MondoRescue, the best I can.
+Before doing so, please read all of the information in this HOWTO, and then send me detailed information about the problem, especially including the logs generated by the tools, or traces obtained (Did I say that already :-].
+</para>
+<para>
+If you publish this document on a CD-ROM or in hardcopy form, a complimentary copy would be appreciated; mail me for my postal address. Also consider making a donation to the Linux Documentation Project to help support free documentation for Linux. Contact the Linux HOWTO coordinator,
+Guylhem AZNAR <email>guylhem@rrremovethis.oeil.qc.ca</email>.
+</para>
+</sect2>
+
+<sect2 id=thanks><title>Aknowledgements</title>
+
+<para>Thanks goes to these people for helping and adding to this
+HOWTO.</para>
+
+<para>Document maintainer:</para>
+<itemizedlist mark="bullet" spacing="Compact">
+<listitem>
+<para>Bruno Cornec</para>
+</listitem>
+</itemizedlist>
+<para>Original Design Assistance by:</para>
+<itemizedlist>
+<listitem>
+<para>Xion Network.com</para>
+</listitem>
+</itemizedlist>
+<para>Original Document Assistance by:</para>
+<itemizedlist>
+<listitem>
+<para>Cafeole</para>
+</listitem>
+<listitem>
+<para>Troff</para>
+</listitem>
+<listitem>
+<para>Randy Delfs</para>
+</listitem>
+<listitem>
+<para>Mikael Hultgren</para>
+</listitem>
+</itemizedlist>
+<para>Original LinuxDoc and LaTeX Reformat by:</para>
+<itemizedlist>
+<listitem>
+<para>Bryan J. Smith</para>
+</listitem>
+</itemizedlist>
+<para>Original DocBook Reformat by:</para>
+<itemizedlist>
+<listitem>
+<para>Mikael Hultgren</para>
+</listitem>
+</itemizedlist>
+<para>Original author; 1.6x material:</para>
+<itemizedlist>
+<listitem>
+<para>Hugo Rabson</para>
+</listitem>
+</itemizedlist>
+
+</sect2>
+
+<sect1 id="quickstart"><title>QuickStart</title>
+<itemizedlist mark="bullet" spacing="Compact">
+<listitem>
+<para>We recommend that you read this complete 
+HOWTO. However, if you are too busy or impatient, then
+please use this QuickStart guide to stay out of trouble.</para>
+</listitem>
+<listitem>
+<para>Install the tarball, RPM, or DEB mindi and mondo
+packages. (see <xref linkend="installation">Installation</xref>
+for more details)</para>
+</listitem>
+<listitem>
+<para>Execute as root (type 'su -' to become root if you are not
+logged in as root)</para>
+<para></para>
+
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# mondoarchive
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+</listitem>
+</itemizedlist>
+<para></para>
+
+<informaltable><tgroup cols="2"><tbody>
+<row>
+<entry>
+<ulink url="images/mamain.png"><inlinemediaobject><imageobject>
+<imagedata fileref="images/mamain-mini.png">
+</imageobject></inlinemediaobject>
+</ulink>
+</entry>
+<entry>
+Choose from the list of supported backup media types. The media you
+will use most often are CD/DVD-+R, CD/DVD-+RW, tape, NFS and hard disk. If
+you want to backup/restore over a network, choose 'NFS'. If you
+want to backup/restore to/from a local partition or if you simply
+want to store the ISO images in a local directory until you have
+time or facilities to burn them to CD's, choose 'hard disk'. If you
+choose 'CD/DVD-R[W]' or 'tape' then in general your hardware will be
+detected and configured for you.
+</entry>
+</row>
+<row>
+<entry>
+<ulink url="images/maburnproof.png"><inlinemediaobject><imageobject>
+<imagedata fileref="images/maburnproof-mini.png">
+</imageobject></inlinemediaobject>
+</ulink>
+</entry>
+<entry>
+		If you are backing up to CD/DVD-+R[W] then Mondo will ask you if your CD
+burner has BurnProof technology, is inside a laptop, or is
+otherwise eccentric. If you are backing up to a tape streamer then
+you will not see this message.
+</entry>
+</row>
+<row>
+<entry>
+<ulink url="images/macompression.png"><inlinemediaobject><imageobject>
+<imagedata fileref="images/macompression-mini.png">
+</imageobject></inlinemediaobject>
+</ulink>
+</entry>
+<entry>
+How much compression do you want? None, if your tape streamer has
+built-in hardware compression. Maximum, if your CPU is blazingly
+fast. Average should do just fine for most situations.
+</entry>
+</row>
+<row>
+<entry>
+<ulink url="images/mainclude.png"><inlinemediaobject><imageobject>
+<imagedata fileref="images/mainclude-mini.png">
+</imageobject></inlinemediaobject>
+</ulink>
+</entry>
+<entry>
+If you want to backup the whole computer (excluding /tmp and /proc,
+naturally) then leave this as / which is the default. Otherwise,
+specify subsets, (e.g. /usr/local /home ) being sure to put a space
+in between each path.
+</entry>
+</row>
+<row>
+<entry>
+<ulink url="images/maexclude.png"><inlinemediaobject><imageobject>
+<imagedata fileref="images/maexclude-mini.png">
+</imageobject></inlinemediaobject>
+</ulink>
+</entry>
+<entry>
+If you are backing up your whole computer then you might want to
+exclude certain directories, e.g. /shared/MP3. Please specify them
+in the 'exclude directories' dialog box. Please put a space in
+between each path, e.g. /shared/private /scratch /nfs /windows
+</entry>
+</row>
+<row>
+<entry>
+<ulink url="images/makernel.png"><inlinemediaobject><imageobject>
+<imagedata fileref="images/makernel-mini.png">
+</imageobject></inlinemediaobject>
+</ulink>
+</entry>
+<entry>
+Is your kernel sane? Red Hat, Mandrake, SuSE, Debian and Slackware users
+should in general say 'yes' because these vendors are good at
+producing reliable kernels. If you are using Gentoo or LFS
+then your kernel might be non-standard, in which case say 'no' to
+use Mondo's failsafe kernel.
+</entry>
+</row>
+<row>
+<entry>
+<ulink url="images/maverifyq.png"><inlinemediaobject><imageobject>
+<imagedata fileref="images/maverifyq-mini.png">
+</imageobject></inlinemediaobject>
+</ulink>
+</entry>
+<entry>
+If you want to verify the archives after writing them to media, say
+'yes' here. If you have absolute faith in your hardware and your
+Linux distribution, say 'no'... and a little prayer.
+</entry>
+</row>
+<row>
+<entry>
+<ulink url="images/maproceedq.png"><inlinemediaobject><imageobject>
+<imagedata fileref="images/maproceedq-mini.png">
+</imageobject></inlinemediaobject>
+</ulink>
+</entry>
+<entry>
+If you are sure you want to go ahead, say 'yes' and find something
+else to do while Mondo backs up your computer. If you say 'no' then
+you will be unceremoniously dumped at the shell prompt. :-)
+</entry>
+</row>
+<row>
+<entry>
+<ulink url="images/1.png"><inlinemediaobject><imageobject>
+<imagedata fileref="images/1-mini.png">
+</imageobject></inlinemediaobject>
+</ulink>
+</entry>
+<entry>
+The backup process will now commence. There are some pre-backup
+tasks to be carried out first but the backup is essentially
+underway. To simplify the backup process, you were asked a series
+of questions. Next time, if you like, you could call mondoarchive
+with various command-line switches to control its behavior, instead
+of answering a series of questions. See the man page for details.
+</entry>
+</row>
+<row>
+<entry>
+<ulink url="images/3.png"><inlinemediaobject><imageobject>
+<imagedata fileref="images/3-mini.png">
+</imageobject></inlinemediaobject>
+</ulink>
+</entry>
+<entry>
+Mondo will make a catalog of all files to be backed up. This may
+take up to five minutes. The list of files will be divided into
+sets, approximately 4 MB (before compression) of files per set.
+This typically takes one minute.
+</entry>
+</row>
+<row>
+<entry>
+<ulink url="images/4.png"><inlinemediaobject><imageobject>
+<imagedata fileref="images/1-mini.png">
+</imageobject></inlinemediaobject>
+</ulink>
+</entry>
+<entry>
+Mondo calls Mindi. Mindi generates bootable floppy disk images and
+auxiliary data disk images which are based on your existing Linux
+distribution and filesystem. That way, you can be sure Mondo's
+tools will be compatible with your existing filesystems and
+binaries: Mondo's tools are your tools. Mindi takes up to five
+minutes to run.
+</entry>
+</row>
+<row>
+<entry>
+<ulink url="images/5tape.png"><inlinemediaobject><imageobject>
+<imagedata fileref="images/5tape-mini.png">
+</imageobject></inlinemediaobject>
+</ulink>
+</entry>
+<entry>
+Finally, Mondo begins backing up your computer. This process may
+take a few minutes or a few hours, depending on how much data you
+are archiving, how fast your CPU is, how much RAM you have, and so
+on. It will backup your regular files and then your large files
+(files larger than approximately 32MB). If you have opted to verify
+your backups, Mondo will do that too.
+</entry>
+</row>
+<row>
+<entry>
+<ulink url="images/10cd.png"><inlinemediaobject><imageobject>
+<imagedata fileref="images/10cd-mini.png">
+</imageobject></inlinemediaobject>
+</ulink>
+</entry>
+<entry>
+Do you want to create a boot floppy at the end? Yes, if you're a
+tape or NFS user. No, if you are using CD/DVD-R[W]'s and your computer
+supports bootable CD's. Tape users only need one floppy but other
+users may need more. Mondo will advise accordingly.
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<itemizedlist>
+<listitem>
+<para>Try to boot from the first CD of the backup (or the first
+floppy, if you made floppies). Choose 'Compare Mode' by typing
+compare at the boot screen.</para>
+</listitem>
+<listitem>
+<para>If you can boot, fine. If not, make a Mindi "Test" CD to
+checkout the compatibility of your system. (see
+<xref linkend="testingmindi">Testing Mindi</xref> for more
+details). Remove the CD/floppy; boot your computer as usual;
+execute as root</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+		bash# mindi
+		bash# cd /root/images/mindi
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>(for CD-R)</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# cdrecord dev=0,0,0 speed=4 -eject -v mindi.iso
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>(for CD-RW)</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# cdrecord dev=0,0,0 speed=4 blank=fast -eject -v mindi.iso
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>Reboot your system with the created Mindi CD, with the BIOS
+set to boot from CD. If the result is a command line in 'Expert'
+mode, your system checks out. Remove the CD and reboot your
+system.</para>
+</listitem>
+<listitem>
+<para>If you still cannot boot from Mindi's CD then please e-mail
+the <xref linkend="feedback">mailing list</xref> for help.
+</para>
+</listitem>
+</itemizedlist>
+<para>When making a backup on a live system, there will always be
+processes running that will write out data on the system after you
+have made the backup and before you have made the compare, this
+will result in difference showing up when comparing your backup.
+For a full explanation and what can be done to avoid this, please
+read this section.</para>
+<itemizedlist>
+
+		<listitem>
+<para>This QuickStart covers the ideal case. Upon receiving any
+system feedback/errors, read each related HOWTO section.</para>
+<para>Example 2-1. A test backup of your /home directory to CD-Rs
+using the command line</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# mondoarchive -OVc 4 -I /home -gF
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>The 'c' means you must be writing to CD-Rs, not CD-RWs (the
+latter would require 'w' instead of 'c'). The '4' is the speed of
+your CD writer. The string after -I is the path to be backed up.
+The '-gF' means you are going to see the pretty yellow-on-blue
+screen instead of the boring white-on-black screen. :) It also
+means Mondo will not offer to create physical boot floppies for
+you. It is assumed that you are able to boot from the CD which
+Mondo has generated.</para>
+<para>Example 2-2. A backup of your whole filesystem to NFS using
+the command line</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+		bash# mkdir -p /mnt/nfs
+		bash# mount 192.168.1.28:/home/nfs /mnt/nfs
+		bash# mondoarchive -OVn 192.168.1.28:/home/nfs -gF[...]
+		bash# umount /mnt/nfs
+		bash# cdrecord dev=0,0,0 speed=4 -eject -v /root/images/mindi/mindi.iso
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>Note that you have to mount the NFS partition, backup to it,
+unmount it, and create a boot CD to allow you to restore from
+scratch if necessary. To reassure yourself that you will be able to
+restore from the NFS share even if your PC is wiped, please boot
+from the Mindi CD and type 'compare'. The on-screen instructions
+from that point on should be sufficient.</para>
+<para>Example 2-3. A backup of your whole
+filesystem to tape using the command line</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# mondoarchive -OVt -d /dev/st0 -9 -L -g
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>In this case, we assume Syslinux is incompatible with your
+boot media. For some reason, some BIOSes just don't like Syslinux.
+If you find this to be the case for your computer, please use '-L'
+to force Mondo to use LILO instead of Syslinux as the boot loader
+for its CD/floppies. (NB: This has nothing to do with which boot
+loader your hard drive uses.) Also, it is a good habit to specify
+your tape streamer with '-d &lt;device&gt;'. You don't usually need
+to but it's good to be on the safe side. Some computers call your
+tape streamer /dev/osst0, some call it /dev/ftape, ...</para>
+</listitem>
+</itemizedlist>
+
+</sect1>

@@ -2,12 +2,13 @@
 <!ENTITY curdate "DDD">
 <!ENTITY curver "VVV">
 
-   <!ENTITY WWWB "http://www.mondorescue.org/">
-   <!ENTITY WWW '<ulink url="http://www.mondorescue.org">MondoRescue</ulink>'>
-   <!ENTITY gfdl SYSTEM "fdl.sgml">
+<!ENTITY WWWB "http://www.mondorescue.org/">
+<!ENTITY WWW '<ulink url="http://www.mondorescue.org">MondoRescue</ulink>'>
+<!ENTITY gfdl SYSTEM "fdl.sgml">
+]>
 
-<article>
-<articleinfo>
+<book>
+<bookinfo>
 <title>MondoRescue HOWTO</title>
 <subtitle>
 Utilisation and Configuration of Mondo and Mindi under Linux (Version &curver;)
@@ -79,7 +80,7 @@ First SGML version publically available, remade from the HTML docs of the projec
 </revdescription>
 </revision>
 </revhistory>
-</articleinfo>
+</bookinfo>
 
 <toc></toc>
 <lot></lot>
@@ -576,3 +577,4 @@ tape streamer /dev/osst0, some call it /dev/ftape, ...</para>
 </itemizedlist>
 
 </sect1>
+</book>

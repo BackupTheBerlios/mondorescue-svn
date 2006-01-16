@@ -1,0 +1,113 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+
+<article>
+<articleinfo>
+<!-- $MVD$:app("MicroVision WebExpress","769") -->
+<!-- $MVD$:template("","0","0") -->
+<!-- $MVD$:color("18","840084","Custom #1","0") -->
+<!-- $MVD$:color("19","80ff","Orange","1") -->
+<!-- $MVD$:color("20","ffd6ce","Lavender","1") -->
+<title>Acknowledgments and Thanks</title>
+</articleinfo>
+
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+Mondo Rescue and Mindi Linux HOWTO
+</entry>
+</row>
+<row>
+<entry>
+<ulink url="feedback.html">Prev</ulink>
+</entry>
+<entry>
+Chapter 1. About this HOWTO
+</entry>
+<entry>
+<ulink url="version.html">Next</ulink>
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<sect1 id="ACKNOWLEDGEMENT"><title>1.3. Acknowledgments and
+Thanks</title>
+<para>Thanks goes to these people for helping and adding to this
+HOWTO.</para>
+<para>Document maintainers:</para>
+<itemizedlist>
+<listitem>
+<para>Mikael Hultgren</para>
+</listitem>
+<listitem>
+<para>Hugo Rabson</para>
+</listitem>
+</itemizedlist>
+<para>Original Design Assistance by:</para>
+<itemizedlist>
+<listitem>
+<para>Xion Network.com</para>
+</listitem>
+</itemizedlist>
+<para>Document Assistance by:</para>
+<itemizedlist>
+<listitem>
+<para>Cafeole</para>
+</listitem>
+<listitem>
+<para>Troff</para>
+</listitem>
+<listitem>
+<para>Randy Delfs</para>
+</listitem>
+<listitem>
+<para>Mikael Hultgren</para>
+</listitem>
+</itemizedlist>
+<para>LinuxDoc and LaTeX Reformat by:</para>
+<itemizedlist>
+<listitem>
+<para>Bryan J. Smith</para>
+</listitem>
+</itemizedlist>
+<para>DocBook Reformat by:</para>
+<itemizedlist>
+<listitem>
+<para>Mikael Hultgren</para>
+</listitem>
+</itemizedlist>
+<para>Original author; 1.6x material:</para>
+<itemizedlist>
+<listitem>
+<para>Hugo Rabson</para>
+</listitem>
+</itemizedlist>
+<para><!-- $MVD$:spaceretainer() -->&nbsp;</para>
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+<ulink url="feedback.html">Prev</ulink>
+</entry>
+<entry>
+<ulink url="index.html">Home</ulink>
+</entry>
+<entry>
+<ulink url="version.html">Next</ulink>
+</entry>
+</row>
+<row>
+<entry>
+Feedback
+</entry>
+<entry>
+<ulink url="aboutthisguide.html">Up</ulink>
+</entry>
+<entry>
+Version
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+
+</sect1></article>

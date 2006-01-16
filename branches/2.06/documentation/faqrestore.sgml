@@ -1,0 +1,132 @@
+<article>
+<articleinfo>
+<!-- $MVD$:app("MicroVision WebExpress","769") -->
+<!-- $MVD$:template("","0","0") -->
+<!-- $MVD$:color("18","840084","Custom #1","0") -->
+<!-- $MVD$:color("19","80ff","Orange","1") -->
+<!-- $MVD$:color("20","ffd6ce","Lavender","1") -->
+<title>Restore</title>
+</articleinfo>
+
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+Mondo Rescue and Mindi Linux HOWTO
+</entry>
+</row>
+<row>
+<entry>
+<ulink url="faqcompare.html">Prev</ulink>
+</entry>
+<entry>
+Chapter 10. Troubleshooting/FAQ
+</entry>
+<entry>
+<ulink url="faqhugo.html">Next</ulink>
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<sect1 id="FAQRESTOR"><title>10.8. Restore</title>
+<variablelist>
+<listitem>
+<para></para>
+</listitem></varlistentry>
+<varlistentry><term>Q:
+<para><ulink url="faqrestore.html#AEN822">Can Mondo help me
+move/resize/re-allocate my partitions?</ulink></para></term>
+<varlistentry><term>Q: <para><ulink url="faqrestore.html#AEN827">My
+zip drive is a SCSI drive. When I restore, Mondo craps out, saying
+it can't mount the drive (because there is no disk in it). What do
+I do?</ulink></para></term>
+<varlistentry><term>Q: <para><ulink url="faqrestore.html#AEN832">I
+received a message like, 'Fileset NNN failed' during restore. What
+does it mean.</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqrestore.html#AEN837">Why does my ext3
+partition have less space free than when I backed it
+up?</ulink></para></term>
+<varlistentry><term>Q: <para><link linkend="SEGF">When I restore
+after booting from the CD/floppies, I sometimes get errors like,
+"Running out of memory" or "Segmentation fault". What is going
+on?</link></para></term>
+<varlistentry><term>Q: <para><link linkend="LVM">I can't
+nuke-restore my LVM or RAID or LVM-on-RAID setup. I have to do it
+manually. What now?</link></para></term>
+</variablelist>
+<para><anchor id="AEN822"/>Q: Can Mondo help me
+move/resize/re-allocate my partitions?</para>
+<para>A: Yes. Just backup your system in Interactive Mode using
+Mondo. Edit the mountlist when prompted.</para>
+<para><anchor id="AEN827"/>Q: My zip drive is a SCSI drive. When I
+restore, Mondo craps out, saying it can't mount the drive (because
+there is no disk in it). What do I do?</para>
+<para>A: Restore in Interactive Mode. Delete the SCSI drive from
+the mountlist before you restore. Then Mondo won't try to partition
+or format it. Next time you backup, use -E /dev/sdd (or whatever
+your zip drive is). The /dev entry will be excluded from the
+mountlist but not from the filelist. So, when you restore, you
+won't accidentally reformat your zip disk. However, after
+restoring, you will find that /dev/sdd (the _file_) will still be
+present in your /dev directory. Cool, eh?</para>
+<para><anchor id="AEN832"/>Q: I received a message like, 'Fileset
+NNN failed' during restore. What does it mean.</para>
+<para>A: It usually means either you had a very large (&gt;2GB)
+file which was not archived owing to a flaw in your distro or your
+filesystem has changed in relation to the backup.</para>
+<para><anchor id="AEN837"/>Q: Why does my ext3 partition have less
+space free than when I backed it up?</para>
+<para>A: Mondo creates a 10MB journal file area. Your journal was
+probably smaller than that, hence the difference.</para>
+<variablelist>
+<listitem>
+<para></para>
+</listitem></varlistentry>
+<varlistentry><term><para id="SEGF"></para>Q: When I restore after
+booting from the CD/floppies, I sometimes get errors like, "Running
+out of memory" or "Segmentation fault". What is going on?</term>
+<varlistentry><term>A: It sounds as if you are running out of disk
+space, probably ram disk space. Type 'df -m' to see which
+partitions are running low on space. Please send as much
+information as you can to the mailing list. This problem is
+believed to have been fixed in 1.63 and 1.71.</term>
+</variablelist>
+<para><anchor id="LVM"/>Q: I can't nuke-restore my LVM or RAID or
+LVM-on-RAID setup. I have to do it manually. What now?</para>
+<para>A: You said it yourself. You have to do it manually. :) Sorry
+but that's about it. At least you have all the tools to do it. I
+assume you know how. If you don't, look at i-want-my-lvm (a script
+on the ramdisk) if you're using LVM. It should give you a few
+clues. RAID is harder but in general Mondo's RAID support is good.
+After you've prepped and formatted your drives, run mondorestore
+again but say 'no' when asked if you want Mondo to prep or format
+your drives.</para>
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+<ulink url="faqcompare.html">Prev</ulink>
+</entry>
+<entry>
+<ulink url="index.html">Home</ulink>
+</entry>
+<entry>
+<ulink url="faqhugo.html">Next</ulink>
+</entry>
+</row>
+<row>
+<entry>
+Compare
+</entry>
+<entry>
+<ulink url="faq.html">Up</ulink>
+</entry>
+<entry>
+Hugo
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+
+</sect1></article>

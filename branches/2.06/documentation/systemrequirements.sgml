@@ -1,0 +1,52 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+
+<article>
+<articleinfo>
+<title>System Requirements</title>
+</articleinfo>
+
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>Mondo Rescue and Mindi Linux HOWTO</entry>
+</row>
+<row>
+<entry><ulink url="history.html">Prev</ulink></entry>
+<entry></entry>
+<entry><ulink url="hardwarerequirements.html">Next</ulink></entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<sect1 id="SYSTEMREQUIREMENT"><title>Chapter 4. System
+Requirements</title>
+<variablelist>
+<varlistentry><term>Table of Contents</term>
+<varlistentry><term>4.1.
+<para><ulink url="hardwarerequirements.html">Hardware
+Requirements</ulink></para></term>
+<varlistentry><term>4.2.
+<para><ulink url="kernelsupport.html">Linux Kernel
+Support</ulink></para></term>
+<varlistentry><term>4.3.
+<para><ulink url="kernelmodules.html">Linux Kernel
+Modules</ulink></para></term>
+<varlistentry><term>4.4.
+<para><ulink url="linuxpackages.html">Related Linux
+Packages</ulink></para></term>
+</variablelist>
+
+
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry><ulink url="history.html">Prev</ulink></entry>
+<entry><ulink url="index.html">Home</ulink></entry>
+<entry><ulink url="hardwarerequirements.html">Next</ulink></entry>
+</row>
+<row>
+<entry>Mondo Rescue and Mindi Linux History</entry>
+<entry>&nbsp;</entry>
+<entry>Hardware Requirements</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+
+</sect1></article>

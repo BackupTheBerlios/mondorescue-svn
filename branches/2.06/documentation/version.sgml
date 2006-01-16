@@ -1,0 +1,65 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+
+<article>
+<articleinfo>
+<!-- $MVD$:app("MicroVision WebExpress","769") -->
+<!-- $MVD$:template("","0","0") -->
+<!-- $MVD$:color("18","840084","Custom #1","0") -->
+<!-- $MVD$:color("19","80ff","Orange","1") -->
+<!-- $MVD$:color("20","ffd6ce","Lavender","1") -->
+<title>Version</title>
+</articleinfo>
+
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+Mondo Rescue and Mindi Linux HOWTO
+</entry>
+</row>
+<row>
+<entry>
+<ulink url="acknowledgements.html">Prev</ulink>
+</entry>
+<entry>
+Chapter 1. About this HOWTO
+</entry>
+<entry>
+<ulink url="quickstart.html">Next</ulink>
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<sect1 id="VERSIO"><title>1.6. Version</title>
+<para>Based on original HTML: Release 1.1, 2002 Feb 23</para>
+<para>Current DocBook:</para>
+<para>$Id: Mondo-Rescue-Mindi-Linux-HOWTO.sgml,v 1.19 2003/05/04
+00:48:04 child Exp $</para>
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+<ulink url="acknowledgements.html">Prev</ulink>
+</entry>
+<entry>
+<ulink url="index.html">Home</ulink>
+</entry>
+<entry>
+<ulink url="quickstart.html">Next</ulink>
+</entry>
+</row>
+<row>
+<entry>
+Acknowledgments and Thanks
+</entry>
+<entry>
+<ulink url="aboutthisguide.html">Up</ulink>
+</entry>
+<entry>
+QuickStart
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+
+</sect1></article>

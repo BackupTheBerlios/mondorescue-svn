@@ -1,0 +1,83 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+
+<article>
+<articleinfo>
+<!-- $MVD$:app("MicroVision WebExpress","769") -->
+<!-- $MVD$:template("","0","0") -->
+<!-- $MVD$:color("18","840084","Custom #1","0") -->
+<!-- $MVD$:color("19","80ff","Orange","1") -->
+<!-- $MVD$:color("20","ffd6ce","Lavender","1") -->
+<title>Compare</title>
+</articleinfo>
+
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+Mondo Rescue and Mindi Linux HOWTO
+</entry>
+</row>
+<row>
+<entry>
+<ulink url="faqbackup.html">Prev</ulink>
+</entry>
+<entry>
+Chapter 10. Troubleshooting/FAQ
+</entry>
+<entry>
+<ulink url="faqrestore.html">Next</ulink>
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<sect1 id="FAQCOMPAR"><title>10.7. Compare</title>
+<variablelist>
+<listitem>
+<para></para>
+</listitem></varlistentry>
+<varlistentry><term>Q:
+<para><ulink url="faqcompare.html#AEN814">When I compare my
+archives to my file system, Mondo tells me there are differences or
+errors. Are the archives bad?</ulink></para></term>
+</variablelist>
+<para><anchor id="AEN814"/>Q: When I compare my archives to my file
+system, Mondo tells me there are differences or errors. Are the
+archives bad?</para>
+<para>A: Look at /tmp/changed.files; if the files are logfiles,
+temp files or files which you think you may have changed recently
+then the archives are simply out of date, albeit only by a few
+minutes. Not a problem. However, if lots of files in /usr have
+changed or if you get lots of errors then perhaps your CD, your
+tapes or even your hardware could be to blame. Check your CD writer
+or tape streamer.</para>
+<para>Also, don't forget to review /var/log/mondo-archive.log for
+more information.</para>
+<para></para>
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+<ulink url="faqbackup.html">Prev</ulink>
+</entry>
+<entry>
+<ulink url="index.html">Home</ulink>
+</entry>
+<entry>
+<ulink url="faqrestore.html">Next</ulink>
+</entry>
+</row>
+<row>
+<entry>
+Backup
+</entry>
+<entry>
+<ulink url="faq.html">Up</ulink>
+</entry>
+<entry>
+Restore
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+
+</sect1></article>

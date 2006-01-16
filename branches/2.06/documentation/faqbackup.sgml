@@ -1,0 +1,190 @@
+<article>
+<articleinfo>
+<!-- $MVD$:app("MicroVision WebExpress","769") -->
+<!-- $MVD$:template("","0","0") -->
+<!-- $MVD$:color("18","840084","Custom #1","0") -->
+<!-- $MVD$:color("19","e0e0e0","Custom #2","0") -->
+<!-- $MVD$:color("20","80ff","Orange","1") -->
+<!-- $MVD$:color("21","ffd6ce","Lavender","1") -->
+<title>Backup</title>
+</articleinfo>
+
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+Mondo Rescue and Mindi Linux HOWTO
+</entry>
+</row>
+<row>
+<entry>
+<ulink url="faqhardwarerelated.html">Prev</ulink>
+</entry>
+<entry>
+Chapter 10. Troubleshooting/FAQ
+</entry>
+<entry>
+<ulink url="faqcompare.html">Next</ulink>
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<sect1 id="FAQBACKU"><title>10.6. Backup</title>
+<variablelist>
+<listitem>
+<para></para>
+</listitem></varlistentry>
+<varlistentry><term>Q: <para><link linkend="MMKM">Mondo says,
+'Cannot run mindi --makemountlist' and aborts. What do I
+do?</link></para></term>
+<varlistentry><term>Q: <para><ulink url="faqbackup.html#AEN748">Can
+Mondo burn CD as they are created?</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqbackup.html#AEN753">When I try to backup to
+CD, cdrecord/mkisofs returns an error. Nothing else appears to be
+wrong. What do I do?</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqbackup.html#AEN758">Mondo failed to burn my
+CD. It said something like, "Error CDB A1 01 02 53 ..." and so on.
+What does that mean?</ulink></para></term>
+<varlistentry><term>Q: <para><ulink url="faqbackup.html#AEN763">May
+I backup my system with one partition layout and restore with
+another?</ulink></para></term>
+<varlistentry><term>Q: <para><ulink url="faqbackup.html#AEN775">Why
+does Mondo need so much free disk space?</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqbackup.html#AEN780">Will Mondo backup
+partitions whose formats are not understood by Linux, such as
+NTFS?</ulink></para></term>
+<varlistentry><term>Q: <para><ulink url="faqbackup.html#AEN785">I
+am trying to do something clever, e.g. write my ISO's to an NFS
+mount, and I get some weird error messages. What do I
+do?</ulink></para></term>
+<varlistentry><term>Q: <para><ulink url="faqbackup.html#AEN790">Can
+Mondo backup to data files on another partition, e.g. an NFS
+mount?</ulink></para></term>
+<varlistentry><term>Q: <para><ulink url="faqbackup.html#AEN795">Can
+Mondo backup _to_ an NFS partition, i.e. backup over a network? How
+about restoring?</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqbackup.html#AEN801">Does Mondo handle System
+or Hidden attributes when archiving Dos/Win
+files?</ulink></para></term>
+<varlistentry><term>Q: <para><ulink url="faqbackup.html#AEN806">Why
+do you include IO.SYS and MSDOS.SYS in mondo-vfat, when they belong
+to Microsoft and are copyrighted?</ulink></para></term>
+<varlistentry><term><para id="MMKM"></para>Q: Mondo says, 'Cannot
+run mindi --makemountlist' and aborts. What do I do?</term>
+<varlistentry><term>A: Look at /var/log/mindi.log and see what it
+says. Also, try typing 'mindi --makemountlist /tmp/mountlist.txt'
+to see what Mindi says. Compress the log and send it to the mailing
+list if you get stuck.</term>
+</variablelist>
+<para><anchor id="AEN748"/>Q: Can Mondo burn CD as they are
+created?</para>
+<para>A: Yes. Use the '-Oc &lt;speed&gt;' switch. Use a negative
+number for a dummy burn.</para>
+<para><anchor id="AEN753"/>Q: When I try to backup to CD,
+cdrecord/mkisofs returns an error. Nothing else appears to be
+wrong. What do I do?</para>
+<para>A: Upgrade cdrecord and mkisofs.</para>
+<para><anchor id="AEN758"/>Q: Mondo failed to burn my CD. It said
+something like, "Error CDB A1 01 02 53 ..." and so on. What does
+that mean?</para>
+<para>A: Cdrecord reported some serious errors while trying to burn
+your CD. Check your CD burner, your CD-R and your kernel.</para>
+<para><anchor id="AEN763"/>Q: May I backup my system with one
+partition layout and restore with another?</para>
+<para>A: Yes. Boot in Interactive Mode and edit the mountlist using
+the snazzy new mountlist editor. Mondo can now edit your RAID
+partitions for you. Just open /dev/md0 (or whatever) and select
+"RAID.." to start. Or, to add a RAID device:</para>
+<itemizedlist>
+<listitem>
+<para>Add two or more partitions, of type and mountpoint
+'raid'</para>
+</listitem>
+<listitem>
+<para>Add device '/dev/md0' and click OK</para>
+</listitem>
+<listitem>
+<para>Follow the prompts and your own common-sense :)</para>
+</listitem>
+</itemizedlist>
+<para><anchor id="AEN775"/>Q: Why does Mondo need so much free disk
+space?</para>
+<para>A: Because I'm a bitter, twisted man who lives to torment
+you. Mwahahahaha! :-) Mondo has to work around the inadequacies of
+mkisofs, cdrecord and your own Linux distribution; in return, it
+asks for a lot of free disk space.</para>
+<para><anchor id="AEN780"/>Q: Will Mondo backup partitions whose
+formats are not understood by Linux, such as NTFS?</para>
+<para>A: Yes. Use '-x &lt;device&gt;'. (You can have more than one
+device.)</para>
+<para><anchor id="AEN785"/>Q: I am trying to do something clever,
+e.g. write my ISO's to an NFS mount, and I get some weird error
+messages. What do I do?</para>
+<para>A: Well, (a) use '-T /tmp' or '-T /home' or something in your
+call to Mondo. Oh, and (b) send me /var/log/mondo-archive.log,
+please :-)</para>
+<para><anchor id="AEN790"/>Q: Can Mondo backup to data files on
+another partition, e.g. an NFS mount?</para>
+<para>A: Yes. Just backup as usual but add '-d /mnt/nfs' or
+wherever your partition is mounted; don't use '-Oc' or '-Ot' at
+all; just '-Oi -d /root'. Then, after booting from the floppies
+which Mondo generates, you need to type 'ISO' at the
+console.</para>
+<para><anchor id="AEN795"/>Q: Can Mondo backup _to_ an NFS
+partition, i.e. backup over a network? How about restoring?</para>
+<para>A: Yes. Use '-On &lt;mount&gt; &lt;directory&gt;'. On my
+system, I use:</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# mondoarchive -On 192.168.1.3:/home/nfs 
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para><anchor id="AEN801"/>Q: Does Mondo handle System or Hidden
+attributes when archiving Dos/Win files?</para>
+<para>A: No. It probably never will, either. Sorry.</para>
+<para><anchor id="AEN806"/>Q: Why do you include IO.SYS and
+MSDOS.SYS in mondo-vfat, when they belong to Microsoft and are
+copyrighted?</para>
+<para>A: Well, I used to, but I don't anymore. However, if you do
+have a Windows partition, you can still use 'format-and-kludge-vfat
+&lt;DEVICE&gt;/' to format and make bootable a VFAT partition.
+AFAIK, I am the only person to write a Linux equivalent of the DOS
+"SYS" command.</para>
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+<ulink url="faqhardwarerelated.html">Prev</ulink>
+</entry>
+<entry>
+<ulink url="index.html">Home</ulink>
+</entry>
+<entry>
+<ulink url="faqcompare.html">Next</ulink>
+</entry>
+</row>
+<row>
+<entry>
+Hardware Related
+</entry>
+<entry>
+<ulink url="faq.html">Up</ulink>
+</entry>
+<entry>
+Compare
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+
+</sect1></article>

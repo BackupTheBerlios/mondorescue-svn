@@ -1,0 +1,173 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+
+<article>
+<articleinfo>
+<!-- $MVD$:app("MicroVision WebExpress","769") -->
+<!-- $MVD$:template("","0","0") -->
+<!-- $MVD$:color("18","840084","Custom #1","0") -->
+<!-- $MVD$:color("19","e0e0e0","Custom #2","0") -->
+<!-- $MVD$:color("20","80ff","Orange","1") -->
+<!-- $MVD$:color("21","ffd6ce","Lavender","1") -->
+<title>Hardware Related</title>
+</articleinfo>
+
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+Mondo Rescue and Mindi Linux HOWTO
+</entry>
+</row>
+<row>
+<entry>
+<ulink url="faqinstallation.html">Prev</ulink>
+</entry>
+<entry>
+Chapter 10. Troubleshooting/FAQ
+</entry>
+<entry>
+<ulink url="faqbackup.html">Next</ulink>
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<sect1 id="FAQHARDWARERELATE"><title>10.5. Hardware Related</title>
+<variablelist>
+<listitem>
+<para></para>
+</listitem></varlistentry>
+<varlistentry><term>Q:
+<para><ulink url="faqhardwarerelated.html#AEN698">Can Mondo handle
+CD-RW?</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqhardwarerelated.html#AEN703">Does Mondo
+support tape drives?</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqhardwarerelated.html#AEN708">Does Mondo
+support my tape drive??</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqhardwarerelated.html#AEN713">How do I copy the
+floppy images from the CD to floppy disks?</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqhardwarerelated.html#AEN722">Sometimes, my
+laptop won't mount Mondo CD properly, or something.
+Umm...</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqhardwarerelated.html#AEN727">Does Mondo
+support RAID?</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqhardwarerelated.html#AEN732">Where is my CD
+burner, in SCSI terms?</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqhardwarerelated.html#AEN740">Can Mondo handle
+SCSI devices?</ulink></para></term>
+</variablelist>
+<para><anchor id="AEN698"/>Q: Can Mondo handle CD-RW?</para>
+<para>A: Yes. Use '-Ow &lt;speed&gt; &lt;device&gt;' to make it
+work.</para>
+<para><anchor id="AEN703"/>Q: Does Mondo support tape
+drives?</para>
+<para>A: Yes. See above.</para>
+<para><anchor id="AEN708"/>Q: Does Mondo support my tape
+drive?</para>
+<para>A: If your tape drive and its firmware and the kernel-level
+driver support fopen(), fread(), fwrite() and fclose() - standard C
+library calls - then yes, Mondo should support it. If not, well,
+you need a refund. :) Mondo plays nicely with any sane, sensible
+drives. That's most of them, by the way. :) If your drive doesn't
+play nicely with Mondo then you may try tinkering with setblksize
+and defblksize using 'mt', or tweaking Mondo's block size by
+recompiling it with make INTTAPE=4096 or INTTAPE=8192 or something.
+Other than that, you need a priest or a refund.</para>
+<para><anchor id="AEN713"/>Q: How do I copy the floppy images from
+the CD to floppy disks?</para>
+<para>A: Mount the CD-ROM, e.g. at /mnt/cdrom. Insert a blank
+floppy. Type:</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# cd /mnt/cdrom/imagesbash# dd if=mindi-boot.1722.img of=/dev/fd0u1722 
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>Insert another blank floppy and type:</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# dd if=mindi-data-1.img of=/dev/fd0u1722 
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>Do the above for each 'mindi-data' disk image.</para>
+<para><anchor id="AEN722"/>Q: Sometimes, my laptop won't mount
+Mondo CD properly, or something. Umm...</para>
+<para>A: Please insert the CD, close the CD-ROM tray, wait a few
+seconds and then press Enter to acknowledge insertion of the next
+CD. Your laptop is on crack and is sucking a little too hard on the
+pipe.</para>
+<para><anchor id="AEN727"/>Q: Does Mondo support RAID?</para>
+<para>A: Yes. You may backup and restore RAID systems. You may also
+backup a non-RAID system and restore as RAID (or vice versa) by
+using the mountlist editor to edit your RAID and non-RAID
+partitions and their settings. Mondo will do the partitioning and
+formatting for you.</para>
+<para><anchor id="AEN732"/>Q: Where is my CD burner, in SCSI
+terms?</para>
+<para>A: Type:</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# cdrecord -scanbus 
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>Find your CD burner's device# (e.g. '0,0,0'). Call Mondo with
+the switch '-Oc &lt;speed&gt;' -d '&lt;device&gt;'. Or, if you feel
+lucky, just use '-Oc 2'; Mondo will (a) assume you want to write at
+4x to</para>
+<para>a CD-R and (b) will do its best to find your CD
+burner.</para>
+<para><anchor id="AEN740"/>Q: Can Mondo handle SCSI devices?</para>
+<para>A: Mondo should be able to handle almost any hardware. So
+long as your kernel and modules support it, Mindi will support it
+and therefore so will Mondo.</para>
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+<ulink url="faqinstallation.html">Prev</ulink>
+</entry>
+<entry>
+<ulink url="index.html">Home</ulink>
+</entry>
+<entry>
+<ulink url="faqbackup.html">Next</ulink>
+</entry>
+</row>
+<row>
+<entry>
+Installation
+</entry>
+<entry>
+<ulink url="faq.html">Up</ulink>
+</entry>
+<entry>
+Backup
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+
+</sect1></article>

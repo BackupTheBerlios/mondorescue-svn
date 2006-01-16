@@ -1,0 +1,98 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+
+<article>
+<articleinfo>
+<!-- $MVD$:app("MicroVision WebExpress","769") -->
+<!-- $MVD$:template("","0","0") -->
+<!-- $MVD$:color("18","840084","Custom #1","0") -->
+<!-- $MVD$:color("19","80ff","Orange","1") -->
+<!-- $MVD$:color("20","ffd6ce","Lavender","1") -->
+<title>Hugo</title>
+</articleinfo>
+
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+Mondo Rescue and Mindi Linux HOWTO
+</entry>
+</row>
+<row>
+<entry>
+<ulink url="faqrestore.html">Prev</ulink>
+</entry>
+<entry>
+Chapter 10. Troubleshooting/FAQ
+</entry>
+<entry>
+&nbsp;
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<sect1 id="FAQHUG"><title>10.9. Hugo</title>
+<variablelist>
+<listitem>
+<para></para>
+</listitem></varlistentry>
+<varlistentry><term>Q: <para><ulink url="faqhugo.html#AEN845">Who
+are you, anyway?</ulink></para></term>
+<varlistentry><term>Q: <para><ulink url="faqhugo.html#AEN851">How
+should I pronounce your last name?</ulink></para></term>
+<varlistentry><term>Q: <para><ulink url="faqhugo.html#AEN856">I'm
+still reading this FAQ. Shouldn't I get a prize or
+something?</ulink></para></term>
+<varlistentry><term>Q: <para><ulink url="faqhugo.html#AEN861">What
+if my browser doesn't support cookies?</ulink></para></term>
+</variablelist>
+<para><anchor id="AEN845"/>Q: Who are you, anyway?</para>
+<para>A: My name is Hugo Rabson
+(&lt;<ulink url="mailto:hugorabson@msn.com">hugorabson@msn.com</ulink>&gt;)
+and I was born in England. I emigrated in late August '99 to be
+with my wonderful wife, Jeanette (who is now my equally wonderful
+ex-wife). I worked for WebMD Transaction Services Division until my
+visa ran out in November 2001. I am now in England, self-employed
+and working on Mondo. I am also dating a wonderful Texas woman of
+Cajun heritage.</para>
+<para>If you have any comments or questions, please join the
+<ulink url="../../feedback/feedback.html">mailing
+list</ulink>.</para>
+<para><anchor id="AEN851"/>Q: How should I pronounce your last
+name?</para>
+<para>A: Hugo Rabson - rhymes with 'bubo scabs-on'. *shrug* Well,
+it dows. :) Please don't make Rabson sound like Robson. I get that
+all the time in England.</para>
+<para><anchor id="AEN856"/>Q: I'm still reading this FAQ. Shouldn't
+I get a prize or something?</para>
+<para>A: Yes, here's a cookie. Enjoy. :-)</para>
+<para><anchor id="AEN861"/>Q: What if my browser doesn't support
+cookies?</para>
+<para>A: *groan* Corky, quit messing with me... :)</para>
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+<ulink url="faqrestore.html">Prev</ulink>
+</entry>
+<entry>
+<ulink url="index.html">Home</ulink>
+</entry>
+<entry>
+&nbsp;
+</entry>
+</row>
+<row>
+<entry>
+Restore
+</entry>
+<entry>
+<ulink url="faq.html">Up</ulink>
+</entry>
+<entry>
+&nbsp;
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+
+</sect1></article>

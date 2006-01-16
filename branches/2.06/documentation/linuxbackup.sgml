@@ -1,0 +1,136 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+
+<article>
+<articleinfo>
+<!-- $MVD$:app("MicroVision WebExpress","769") -->
+<!-- $MVD$:template("","0","0") -->
+<!-- $MVD$:color("18","840084","Custom #1","0") -->
+<!-- $MVD$:color("19","80ff","Orange","1") -->
+<!-- $MVD$:color("20","ffd6ce","Lavender","1") -->
+<title>Linux Backup</title>
+</articleinfo>
+
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+Mondo Rescue and Mindi Linux HOWTO
+</entry>
+</row>
+<row>
+<entry>
+<ulink url="mindilinux.html">Prev</ulink>
+</entry>
+<entry>
+Chapter 3. Overview
+</entry>
+<entry>
+<ulink url="windowsbackup.html">Next</ulink>
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<sect1 id="LINUXBACKU"><title>3.3. Linux Backup</title>
+<para>Mondo Rescue and Mindi Linux are used primarily as Linux
+backup and cloning tools. The fall in prices of CD-RW drives and
+writable discs will allow current users to keep good backups and
+future users to leverage the cloning capability.</para>
+<para>Tape drives are more likely to suit your needs if you run a
+larger installation (or have lots of MP3's). Warning! OnStream
+drives do not play well with Mondo. I do not know why. It is, in my
+opinion, something which OnStream should look into. Mondo uses
+fopen(), fread(), fwrite() and fclose() to interact with tape
+drives. That works for most drives but some drives just don't like
+that.</para>
+<para>I have tested it thousands of times on my own computer with
+my own data and with no alternate backup regime. It worked for me.
+Thousands of users testify to Mondo's stability and its ease of
+use. However, please test it on your own system before you rely on
+it. In fact, do not rely on any software until you have tested it
+to see if it performs as expected.</para>
+<para>To establish that Mondo will behave well in an emergency,
+please be prepared. Run a test backup as follows:-</para>
+<itemizedlist>
+<listitem>
+<para>Run mondoarchive without any command-line options.</para>
+</listitem>
+<listitem>Backup a subset of files - e.g. /usr/local - to CD or
+tape. Say 'yes' when asked if you want to verify them.</listitem>
+<listitem>If you are not backing up to CD, please create boot
+floppies when prompted.</listitem>
+</itemizedlist>
+<para>Next, restore archives to your live filesystem.</para>
+<itemizedlist>
+<listitem>
+<para>When mondoarchive terminates, run mondorestore without any
+command-line options.</para>
+</listitem>
+<listitem>Insert the CD or the first boot floppy when prompted.
+Press &lt;Enter&gt;. Wait a moment.</listitem>
+<listitem>Select a subset of files to restore, e.g. /usr/local/man
+and /usr/local/bin. Hit OK.</listitem>
+<listitem>Restore files to /tmp or /root/RESTORED or something
+similar.</listitem>
+<listitem>When mondorestore terminates, compare the restored files
+to the originals using cmp or diff.</listitem>
+</itemizedlist>
+<para>Finally, simulate an emergency restore.</para>
+<itemizedlist>
+<listitem>
+<para>Boot from CD/floppies.</para>
+</listitem>
+<listitem>Select 'Interactive Mode' at boot-time. (Type
+'interactive' and hit &lt;Enter&gt;.)</listitem>
+<listitem>Hit OK when shown the mountlist. Say 'yes' when asked if
+you accept the mountlist.</listitem>
+<listitem>Select files to restore, e.g. /usr/local/man and
+/usr/local/bin. Hit OK.</listitem>
+<listitem>Restore files to /tmp or /root/RESTORED or something
+similar.</listitem>
+<listitem>When mondorestore terminates, please reboot and compare
+the restored files to the originals.</listitem>
+</itemizedlist>
+<para>FYI, the subroutines to repartition and reformat your drives
+are very stable. If you are a RAID or LVM user, you
+might&nbsp;encounter some difficulties when wiping and restoring
+from scratch because of the sheer range of filesystem layouts and
+the impossibility of testing Mondo on every single one. If you have
+trouble, just drop to the command-line and partition/format
+manually. Then, call mondorestore, select Interactive Mode, and say
+'no' when asked if you want Mondo to partition or format your
+drives for you.</para>
+<para>You see, even if you have trouble, you still have two hands
+and most of the tools you need - lvchange, pvcreate, fdisk, mkraid,
+etc. - to do it manually. After you have prepped and formatted your
+drives manually (if you have to), just run mondorestore again and
+say 'no' when asked if you want to prep or format your drives. What
+could be easier?</para>
+<para></para>
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+<ulink url="mindilinux.html">Prev</ulink>
+</entry>
+<entry>
+<ulink url="index.html">Home</ulink>
+</entry>
+<entry>
+<ulink url="windowsbackup.html">Next</ulink>
+</entry>
+</row>
+<row>
+<entry>
+Mindi Linux
+</entry>
+<entry>
+<ulink url="overview.html">Up</ulink>
+</entry>
+<entry>
+Windows Backup
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+
+</sect1></article>

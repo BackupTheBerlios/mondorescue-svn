@@ -1,0 +1,86 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+
+<article>
+<articleinfo>
+<!-- $MVD$:app("MicroVision WebExpress","769") -->
+<!-- $MVD$:template("","0","0") -->
+<!-- $MVD$:color("18","840084","Custom #1","0") -->
+<!-- $MVD$:color("19","80ff","Orange","1") -->
+<!-- $MVD$:color("20","ffd6ce","Lavender","1") -->
+<title>Mindi Linux</title>
+</articleinfo>
+
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+Mondo Rescue and Mindi Linux HOWTO
+</entry>
+</row>
+<row>
+<entry>
+<ulink url="mondorescue.html">Prev</ulink>
+</entry>
+<entry>
+Chapter 3. Overview
+</entry>
+<entry>
+<ulink url="linuxbackup.html">Next</ulink>
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<sect1 id="MINDILINU"><title>3.2. Mindi Linux</title>
+<para>Mindi Linux creates a set of boot/root floppy disk images
+that will let you perform basic system maintenance on your Linux
+distro. The principal virtues of Mindi's boot disks are the fact
+that they contain your kernel, modules, tools and libraries. You
+can ask for additional binaries (or other files) to be included on
+the kit. The libraries will be added for you.</para>
+<para>Whichever modules were loaded at backup-time, they are
+reloaded at boot-time. So, in theory, you will boot into almost the
+same environment as you were in when you backed up. If you want to
+add files to your Mindi boot disks, edit '&lt;INSTALLPATH OF
+MINDI&gt;/mindi/deplist.txt' and add the files to that list. The
+added files and dependencies, will be spread across the data disks
+at run-time.</para>
+<para>Mindi makes sure that Mondo has all the tools it needs at
+boot-time. Mondo uses fdisk, mkfs, cat, less, more, afio, gzip,
+bzip2, your keyboard configuration, your glibc libraries, your
+other libraries, your kernel, your modules, ... a lot! Mindi takes
+care of all that, so that Mondo can get on with the job of backing
+up or restoring your data.</para>
+<para>Mindi is also handy for making boot CDs/disks which stand on
+their own. You do not need Mondo. Indeed, if you like, you could
+use another backup/restore program with Mindi. Just add it to
+Mindi's dependency list (type 'locate deplist.txt' to find it).
+Mindi will include your software on its boot CD/disks the next time
+you run mindi.</para>
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+<ulink url="mondorescue.html">Prev</ulink>
+</entry>
+<entry>
+<ulink url="index.html">Home</ulink>
+</entry>
+<entry>
+<ulink url="linuxbackup.html">Next</ulink>
+</entry>
+</row>
+<row>
+<entry>
+Mondo Rescue
+</entry>
+<entry>
+<ulink url="overview.html">Up</ulink>
+</entry>
+<entry>
+Linux Backup
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+
+</sect1></article>

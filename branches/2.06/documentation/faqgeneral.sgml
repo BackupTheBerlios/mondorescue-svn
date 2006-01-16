@@ -1,0 +1,253 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+
+<article>
+<articleinfo>
+<!-- $MVD$:app("MicroVision WebExpress","769") -->
+<!-- $MVD$:template("","0","0") -->
+<!-- $MVD$:color("18","840084","Custom #1","0") -->
+<!-- $MVD$:color("19","80ff","Orange","1") -->
+<!-- $MVD$:color("20","ffd6ce","Lavender","1") -->
+<title>General</title>
+</articleinfo>
+
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+Mondo Rescue and Mindi Linux HOWTO
+</entry>
+</row>
+<row>
+<entry>
+<ulink url="faqoverview.html">Prev</ulink>
+</entry>
+<entry>
+Chapter 10. Troubleshooting/FAQ
+</entry>
+<entry>
+<ulink url="faqbooting.html">Next</ulink>
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<sect1 id="FAQGENERA"><title>10.2. General</title>
+<variablelist>
+<listitem>
+<para></para>
+</listitem></varlistentry>
+<varlistentry><term>Q:
+<para><ulink url="faqgeneral.html#AEN496">What is
+"Mindi"?</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqgeneral.html#AEN501">Why is it called
+"Mondo"?</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqgeneral.html#AEN506">Mondo does not work on my
+system. It keels over and dies. What's wrong?</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqgeneral.html#AEN511">What if the error is in
+Mindi?</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqgeneral.html#AEN516">Can I trust
+Mondo?</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqgeneral.html#AEN522">How do I report a
+bug?</ulink></para></term>
+<varlistentry><term>Q: <para><ulink url="faqgeneral.html#AEN527">I
+think Mondo should (...insert suggestion here...) and I have
+rewritten it accordingly. Would you like to see my
+patch?</ulink></para></term>
+<varlistentry><term>Q: <para><ulink url="faqgeneral.html#AEN532">I
+think Mondo should (...insert suggestion here...); will you
+incorporate this feature for me, please?</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqgeneral.html#AEN537">Mondo says, "XXX is
+missing," and then terminates. What's wrong?</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqgeneral.html#AEN543">Can Mondo handle multi-CD
+backups and restores?</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqgeneral.html#AEN548">Can Mondo handle
+Linux/Windows dual-boot systems?</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqgeneral.html#AEN553">Can Mondo backup
+Windows-only systems?</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqgeneral.html#AEN558">Does Mondo support
+LVM?</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqgeneral.html#AEN563">What if I don't use LILO?
+What if I use GRUB?</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqgeneral.html#AEN568">Mondoarchive (or
+mondorestore) segfaults when I run it. What could be
+wrong?</ulink></para></term>
+<varlistentry><term>Q: <para><ulink url="faqgeneral.html#AEN573">I
+get the error, 'Cannot find /tmp/dev.0' or 'Cannot mount device
+0x0701'; what do I do?</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqgeneral.html#AEN578">Can I create a Mondo CD
+and then use it to create an archive of any OS on any
+PC?</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqgeneral.html#AEN583">Why do you insist on
+putting floppy disk images on Mondo CD? They waste space and I
+never use them. The CD works just fine, so why keep the floppy disk
+images?</ulink></para></term>
+<varlistentry><term>Q:
+<para><ulink url="faqgeneral.html#AEN588">Why doesn't the Mondo
+project have a cool-looking animal logo?</ulink></para></term>
+<varlistentry><term>Q: <para><ulink url="faqgeneral.html#AEN593">Is
+there a Mondo user 'Code of Conduct?</ulink></para></term>
+</variablelist>
+<para><anchor id="AEN496"/>Q: What is "Mindi"?</para>
+<para>A: Mindi, a.k.a. Mindi-Linux, makes a mini-distribution from
+your kernel, modules, modules, tools and libraries. It can also
+generate an El Torito 2.88MB boot disk image. Mondo uses Mindi to
+create a mini-distro, then boots from it and runs on it.</para>
+<para><anchor id="AEN501"/>Q: Why is it called "Mondo"?</para>
+<para>A: The Teenage Mutant Ninja Turtles described cool things as
+'mondo'. I wasn't sure what to call this project. 'Faust' was one
+idea I had, partly as a dig at my former boss who practically owned
+me because of my legal status at the time. In the end, I chose
+something short and distinctive.</para>
+<para><anchor id="AEN506"/>Q: Mondo does not work on my system. It
+keels over and dies. What's wrong?</para>
+<para>A: It works on Red Hat 7.x, Linux-Mandrake 8.x, some flavors
+of SuSE, some flavors of Slackware, some flavors of Debian, etc.
+The more distributions I support, the more moving targets I have to
+hit. Please bear this in mind when e-mailing the list. :) If you
+would like to help me by beta-testing Mondo (or Mindi) on your PC
+then I would be very interested in working with you to work around
+the eccentricities of your Linux distro. However, rest assured, 90%
+of the bugs reported to me are actually symptoms of FooLinux X.Y's
+unique way of doing things.</para>
+<para><anchor id="AEN511"/>Q: What if the error is in Mindi?</para>
+<para>A: Then send me a copy of /var/log/mindi.log (compressed,
+please) along with a description of your distro, your kernel, etc.
+Oh, and before sending it, please read it.</para>
+<para><anchor id="AEN516"/>Q: Can I trust Mondo?</para>
+<para>A: Mondo has generated reliable archives since May 2000. I
+have lost data by using bad CD-R disks and not verifying their
+contents. Some users have not tried booting from their CD until
+crunch time. Remember to boot into Compare Mode to verify the
+backup before you trust it. If Mondo did not work, you would not be
+reading this. If it does not work for you, your kernel is usually
+the culprit. Check <ulink url="kernelsupport.html">Linux Kernel
+support</ulink> to see what your kernel should support. Please
+e-mail the list (or me) if you need some help with this.</para>
+<para><anchor id="AEN522"/>Q: How do I report a bug?</para>
+<para>A: E-mail the bug report (mondo.err.xxxxx.tgz) to me. If you
+want to discuss it, please e-mail the list. The list is for
+talking; my e-mail address is for big files. :-) If you don't send
+me a logfile then there isn't a lot that I can do for you, so
+PLEASE include a logfile at the very least. Or, pop into #mondo on
+irc.redhat.com and see if I'm there.</para>
+<para><anchor id="AEN527"/>Q: I think Mondo should (...insert
+suggestion here...) and I have rewritten it accordingly. Would you
+like to see my patch?</para>
+<para>A: Absolutely! :-) The best way for you to make Mondo do what
+you want is to modify it and then send me the patch. That way, we
+can all benefit.</para>
+<para><anchor id="AEN532"/>Q: I think Mondo should (...insert
+suggestion here...); will you incorporate this feature for me,
+please?</para>
+<para>A: I'll definitely think about it. Would you like to
+help?</para>
+<para><anchor id="AEN537"/>Q: Mondo says, "XXX is missing," and
+then terminates. What's wrong?</para>
+<para>A: A good Linux distribution should contain XXX but the
+designers, in their infinite wisdom, decided not to include that
+particular tool. Check <ulink url="linuxpackages.html">Related
+Linux Packages</ulink> and install the missing package. If that
+fails, contact the vendor/distributor/manufacturer/designer of your
+distro.</para>
+<para><anchor id="AEN543"/>Q: Can Mondo handle multi-CD backups and
+restores?</para>
+<para>A: Yes, up to twenty CD per set. This 20-CD limit results
+from laziness on my part. I can remove it at any time. However, if
+your system occupies more than 20 CD, may I recommend that you
+invest in a tape streamer?</para>
+<para><anchor id="AEN548"/>Q: Can Mondo handle Linux/Windows
+dual-boot systems?</para>
+<para>A: Yes. If your system currently boots into Linux or Windows
+via LILO, you can backup and restore both OSes at the same time
+using Mondo. If you are using NTFS then add the switch, '-x
+&lt;device&gt;'.</para>
+<para><anchor id="AEN553"/>Q: Can Mondo backup Windows-only
+systems?</para>
+<para>A: Sure, if you pay me to play catch-up to Microsoft. ;)
+Seriously, Mondo can do it but I do not give away the
+functionality. If you are a Microsoft-only user, you are accusomed
+to paying for software and technical support. Please e-mail me for
+more information.</para>
+<para><anchor id="AEN558"/>Q: Does Mondo support LVM?</para>
+<para>A: Mondo supports LVM, yes. Mondo backs up and restores your
+existing setup but it does not make it easy for you to change your
+LVM configuration. You have to edit /tmp/i-want-my-lvm at boot-time
+to do that.</para>
+<para><anchor id="AEN563"/>Q: What if I don't use LILO? What if I
+use GRUB?</para>
+<para>A: GRUB is supported by Mondo.</para>
+<para><anchor id="AEN568"/>Q: Mondoarchive (or mondorestore)
+segfaults when I run it. What could be wrong?</para>
+<para>A: Install from tarball instead of RPM. (Or, try RPM if you
+just installed from tarball.) Your compiler or your libraries may
+be fubar. We'll see. If that doesn't work then please e-mail the
+<ulink url="../../feedback/feedback.html">mailing
+list</ulink>.</para>
+<para><anchor id="AEN573"/>Q: I get the error, 'Cannot find
+/tmp/dev.0' or 'Cannot mount device 0x0701'; what do I do?</para>
+<para>A: Please free up /dev/loop0 using 'losetup /dev/loop0 -d' to
+unmount that loop device. If your OS will not let you do that,
+contact your local support group or Linux vendor.</para>
+<para><anchor id="AEN578"/>Q: Can I create a Mondo CD and then use
+it to create an archive of any OS on any PC?</para>
+<para>A: Not yet. You can use Mondo to backup Linux or
+Linux/Windows dual boot. One day, Mondo will let you backup
+partitions it can't read or write, by treating each partition as
+one long file to be backed up. This file will be chopped,
+compressed and archived like any other big file.</para>
+<para><anchor id="AEN583"/>Q: Why do you insist on putting floppy
+disk images on Mondo CD? They waste space and I never use them. The
+CD works just fine, so why keep the floppy disk images?</para>
+<para>A: Because of my old college buddy, Justin Case. If you
+really, truly want them gone then please submit a patch to make
+them optional.</para>
+<para><anchor id="AEN588"/>Q: Why doesn't the Mondo project have a
+cool-looking animal logo?</para>
+<para>A: Excellent question! Please submit graphics of candidate
+animal logos!</para>
+<para><anchor id="AEN593"/>Q: Is there a Mondo user 'Code of
+Conduct?</para>
+<para>A: Yes. Read the HOWTO. Submit patches. Recommend realistic
+improvements. Be courteous to other users on the discussion list.
+Do not whine.</para>
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+<ulink url="faqoverview.html">Prev</ulink>
+</entry>
+<entry>
+<ulink url="index.html">Home</ulink>
+</entry>
+<entry>
+<ulink url="faqbooting.html">Next</ulink>
+</entry>
+</row>
+<row>
+<entry>
+Overview
+</entry>
+<entry>
+<ulink url="faq.html">Up</ulink>
+</entry>
+<entry>
+Kernel/Linux/Booting
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+
+</sect1></article>

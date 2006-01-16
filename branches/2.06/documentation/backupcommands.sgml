@@ -1,0 +1,176 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+
+<article>
+<articleinfo>
+<!-- $MVD$:app("MicroVision WebExpress","769") -->
+<!-- $MVD$:template("","0","0") -->
+<!-- $MVD$:color("18","840084","Custom #1","0") -->
+<!-- $MVD$:color("19","e0e0e0","Custom #2","0") -->
+<!-- $MVD$:color("20","80ff","Orange","1") -->
+<!-- $MVD$:color("21","ffd6ce","Lavender","1") -->
+<title>Backup Command and Options</title>
+</articleinfo>
+
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+Mondo Rescue and Mindi Linux HOWTO
+</entry>
+</row>
+<row>
+<entry>
+<ulink url="backuptrying.html">Prev</ulink>
+</entry>
+<entry>
+Chapter 7. Backup
+</entry>
+<entry>
+<ulink url="compare.html">Next</ulink>
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<sect1 id="BACKUPCOMMAND"><title>7.2. Backup Command and
+Options</title>
+<para>Backup Command:</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+mondoarchive &lt;-option1&gt; &lt;-option2&gt; ... &lt;-optionN&gt; 
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>E.g.,</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# mondoarchive -E /mnt/dos /mnt/cdrom -9 -Oc 8
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>Would create backup CD to a CD-R disc at the highest
+compression level, writing at speed 2 and ignoring the /mnt/dos and
+/mnt/cdrom directories.</para>
+<para>To see a detailed list of switches and their meaning, see the
+<ulink url="http://www.mondorescue.org/download/mondoarchive.1.html">HTML
+man page</ulink> on the website or type 'man mondoarchive' at the
+console.</para>
+<sect2 id="AEN31"><title>7.2.1. Standard Example With CD-R</title>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# mondoarchive -Oc 2 -g
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>Replace '2' in '-Oc2' with the writer's speed. If
+mondoarchive cannot find your CD-R then please add '-d 0,0,0' (or
+whatever your CD writer's SCSI node is; usually, it is 0,0,0) to
+the call.</para>
+<para>Please insert the first disk in the writer while the PC is
+chugging away. If Mondo needs additional CD-R(W) then it will ask
+for them.</para>
+</sect2><sect2 id="AEN32"><title>7.2.2. Standard Example With
+CD-RW</title>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# mondoarchive -Ow 2 -g
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>Replace '2' in '-Ow2' with the writer's speed.</para>
+</sect2><sect2 id="AEN32"><title>7.2.3. Standard Example With
+Tape</title>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# mondoarchive -Ot -d /dev/st0 -g
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>With previous versions of Mondo, you needed to specify the
+size of the tape. As of v1.51, that is no longer necessary.</para>
+</sect2><sect2 id="AEN33"><title>7.2.4. Failsafe Kernel Example
+w/CD-RW</title>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# mondoarchive -k FAILSAFE -Ow 2
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>Due to slight policy differences in the Debian distribution
+approach, the '-k FAILSAFE' option is typically needed with
+Debian.</para>
+</sect2><sect2 id="AEN33"><title>7.2.5. Network backup
+example</title>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# mount 192.168.1.3:/home/nfs -t nfs /mnt/nfsbash# mondoarchive -OVn 192.168.1.3:/home/nfs -g -s 200mbash# umount /mnt/nfs 
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>The resultant ISO's can be burned to CD's if you want (which
+isn't a good idea unless you're a Mondo expert because they'll try
+to restore over a network by default, which is silly cos the
+archives are on the CD's). Or, you can boot from the Mindi floppies
+(or mondorescue.iso) and hit ENTER a few times to restore.</para>
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+<ulink url="backuptrying.html">Prev</ulink>
+</entry>
+<entry>
+<ulink url="index.html">Home</ulink>
+</entry>
+<entry>
+<ulink url="compare.html">Next</ulink>
+</entry>
+</row>
+<row>
+<entry>
+Trying
+</entry>
+<entry>
+<ulink url="backup.html">Up</ulink>
+</entry>
+<entry>
+Compare
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+
+</sect2></sect1></article>

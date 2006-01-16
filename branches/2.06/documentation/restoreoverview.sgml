@@ -1,0 +1,107 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+
+<article>
+<articleinfo>
+<!-- $MVD$:app("MicroVision WebExpress","769") -->
+<!-- $MVD$:template("","0","0") -->
+<!-- $MVD$:color("18","840084","Custom #1","0") -->
+<!-- $MVD$:color("19","80ff","Orange","1") -->
+<!-- $MVD$:color("20","ffd6ce","Lavender","1") -->
+<title>Overview</title>
+</articleinfo>
+
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+Mondo Rescue and Mindi Linux HOWTO
+</entry>
+</row>
+<row>
+<entry>
+<ulink url="restore.html">Prev</ulink>
+</entry>
+<entry>
+Chapter 9. Restore
+</entry>
+<entry>
+<ulink url="restoretips.html">Next</ulink>
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<sect1 id="RESTOREOVERVIE"><title>9.1. Overview</title>
+<para>I hope you don't have to restore from scratch very often.
+It's nerve-wracking until you realize that Mondo's restore engine
+is very reliable. I backup and restore my system 2 or 3 times a
+week as part of the testing process. I have no other backup regime,
+so it had better work.</para>
+<para>If you find that you cannot make your PC boot from the CD,
+take heart: the first backup CD of each set contains floppy disk
+images to give you the same functionality as the CD (minus the
+archives, of course) on floppies. Remember, your Mondo CD is a
+fully functional CD-based mini-distribution as well as a recovery
+CD.</para>
+<para>You can choose from the following modes:</para>
+<variablelist>
+<listitem>
+<para></para>
+</listitem></varlistentry>
+<varlistentry><term>Interactive</term>
+<listitem><!-- $MVD$:spaceretainer() --><para>&nbsp;</para>
+<para></para>
+</listitem></varlistentry>
+<listitem><para>Restore step-by-step, or restore a subset of the
+archives. This is the method you should mainly use for your
+recovery needs.</para>
+<para></para>
+</listitem></varlistentry>
+<varlistentry><term>Nuke</term>
+<listitem><!-- $MVD$:spaceretainer() --><para>&nbsp;</para>
+<para></para>
+</listitem></varlistentry>
+<listitem><para>Wipe your drives and restore everything,
+automatically and unattended. Warning: This does exactly what is
+says, so be carefull using it.</para>
+<para></para>
+</listitem></varlistentry>
+<varlistentry><term>Expert</term>
+<listitem><!-- $MVD$:spaceretainer() --><para>&nbsp;</para>
+<para></para>
+</listitem></varlistentry>
+<listitem><para>Boot to a shell prompt. If you want to do anything
+creative, you should boot into Expert Mode. It's called expert, I
+think that says it all.</para></listitem></varlistentry>
+</variablelist>
+<para>If the CD is not found during the initial restore CD boot
+attempt, reboot the PC a second time prior to reporting failure.
+Occasional timing errors and hardware/software/system conflicts do
+occur.</para>
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+<ulink url="restore.html">Prev</ulink>
+</entry>
+<entry>
+<ulink url="index.html">Home</ulink>
+</entry>
+<entry>
+<ulink url="restoretips.html">Next</ulink>
+</entry>
+</row>
+<row>
+<entry>
+Restore
+</entry>
+<entry>
+<ulink url="restore.html">Up</ulink>
+</entry>
+<entry>
+Restore-Related Tips
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+
+</sect1></article>

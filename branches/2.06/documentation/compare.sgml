@@ -1,0 +1,99 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+
+<article>
+<articleinfo>
+<!-- $MVD$:app("MicroVision WebExpress","769") -->
+<!-- $MVD$:template("","0","0") -->
+<!-- $MVD$:color("18","840084","Custom #1","0") -->
+<!-- $MVD$:color("19","e0e0e0","Custom #2","0") -->
+<!-- $MVD$:color("20","80ff","Orange","1") -->
+<!-- $MVD$:color("21","ffd6ce","Lavender","1") -->
+<title>Compare</title>
+</articleinfo>
+
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+Mondo Rescue and Mindi Linux HOWTO
+</entry>
+</row>
+<row>
+<entry>
+<ulink url="backupcommands.html">Prev</ulink>
+</entry>
+<entry></entry>
+<entry>
+<ulink url="restore.html">Next</ulink>
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<sect1 id="COMPAR"><title>Chapter 8. Compare</title>
+<para>Before you trust your backup CD, make sure your BIOS can boot
+CD (and that it is configured to do so).</para>
+<itemizedlist>
+<listitem>
+<para>Boot from the first CD.</para>
+</listitem>
+<listitem>
+<para>Type:</para>
+</listitem>
+</itemizedlist>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# compare 
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>Follow the on-screen instructions. This will compare your
+backup against your original file system.</para>
+<para>FYI, no bad archives have been created since May 2000. Having
+said that, I would still encourage you to run Compare before
+trusting the backups.</para>
+<para>To view the file differences, look at the file
+'/tmp/changed.txt'. Normal differences include logs and other
+dynamic system files that changed during the time of the backup
+process. If only a few files differ - e.g. files in /var, files
+ending in '&amp;#732;', logs, temporary files, /etc/mtab,
+/etc/adjtimex - then you know the archives are good. Your logs will
+change over time, too. Bear in mind that a difference between the
+backup and the live copy does not&nbsp;indicate a flaw in Mondo. It
+indicates that you or your filesystem changed the files, so the
+backup is no longer 100% up to date. However, that is inevitable,
+as your filesystem changes from moment to moment (which is why you
+back it up regularly).</para>
+<para></para>
+<para></para>
+<informaltable><tgroup cols="3"><tbody>
+<row>
+<entry>
+<ulink url="backupcommands.html">Prev</ulink>
+</entry>
+<entry>
+<ulink url="index.html">Home</ulink>
+</entry>
+<entry>
+<ulink url="restore.html">Next</ulink>
+</entry>
+</row>
+<row>
+<entry>
+Backup Command and Options
+</entry>
+<entry>
+&nbsp;
+</entry>
+<entry>
+Restore
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+
+</sect1></article>

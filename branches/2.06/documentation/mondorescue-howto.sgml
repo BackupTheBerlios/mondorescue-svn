@@ -8,6 +8,7 @@
 ]>
 
 <book>
+
 <bookinfo>
 <title>MondoRescue HOWTO</title>
 <subtitle>
@@ -16,9 +17,10 @@ Utilisation and Configuration of Mondo and Mindi under Linux (Version &curver;)
 <graphic fileref="images/protected-by-mondo.png" align="center">
 
 <pubdate>
-
 in its latest version the
-&curdate;</pubdate>
+&curdate;
+</pubdate>
+
 <abstract>
 <para>
 This document describes the use of mondo and mindi tools to realize disaster recovery backup of your systems. It provides information on installation, backup and restore modes, hardware and software requirements, and answers to some frequently asked questions.
@@ -30,6 +32,7 @@ NFS, ... and Mindi Linux provides the bootable emergency restore
 CD/floppy set which Mondo uses at boot-time.
 </para>
 </abstract>
+
 <author>
 <firstname>Bruno</firstname>
 <surname>Cornec</surname>
@@ -46,10 +49,12 @@ Randy Delfs
 Cafeole
 Bryan J. Smith
 -->
+
 <copyright>
 <year>2000-2006</year>
 <holder role="mailto:bcornec@users.berlios.de">Bruno Cornec</holder>
 </copyright>
+
 <legalnotice>
 <title>License</title>
 <para>
@@ -66,18 +71,19 @@ hoping it will be useful, but <emphasis>without any guaranty</emphasis>; you're
 completely responsible of its use, and coulnd't complain in case it doesn't work
 , or even if it breaks the hardware. All the software included in it, if not alr
 eady copyrighted is released under the GPL.
-
 </para>
 </legalnotice>
+
 <revhistory>
-<revnumber>2.06</revnumber>
-<date>2006-01-16</date>
-<authorinitials>Bruno Cornec</authorinitials>
-<revdescription>
-<para>
-First SGML version publically available, remade from the HTML docs of the project.
-</para>
-</revdescription>
+<revision>
+	<revnumber>2.06</revnumber>
+	<date>2006-01-16</date>
+	<authorinitials>Bruno Cornec</authorinitials>
+	<revdescription>
+	<para>
+	First SGML version publically available, remade from the HTML docs of the project.
+	</para>
+	</revdescription>
 </revision>
 </revhistory>
 </bookinfo>
@@ -113,16 +119,18 @@ However, there can't be, through this document, any warranty of any kind
 on the way it works on your systems, nor the author could be responsible for any problem caused by the use of these informations.
 However, software editors don't garantee you a lot either (re-read the contracts).
 </para>
+</sect1>
 
-<sect2 id="newversion"><title>New versions of this document</title>
+<sect1 id="newversion"><title>New versions of this document</title>
 
 <para>The newest version of this document can always be found on
 MondoRescue's homepage &WWW;.</para>
 <para>
 If you make a translation of this document into another language, please let meknow so that I can include a reference to it here.
 </para>
-</sect2>
-<sect2><title>Suggestions / Feedback</title>
+</sect1>
+
+<sect1><title>Suggestions / Feedback</title>
 <para>
 I rely on you, the reader, to make this HOWTO useful. THis HOWTO is probably incomplete even if it tries to be accurate to the best of our knowledge. 
 If you have any suggestions, corrections, recommandations or congratulations :-) don't hesitate to send them to me
@@ -147,6 +155,7 @@ your e-mail. Let me say that again - attach your log file to your
 e-mail! Thank you. Without it we can't offer
 any tangible help because you aren't either. That's what the log
 file is for. It is located at <filename>/var/log/mondo-archive.log</filename>; and <filename>/var/log/miindi.log</filename> or at <filename>/var/log/mondo-restore.log</filename>
+</para>
 <para>
 This document was originaly written by native english speakers, but is maintained by a non-native english speaker so help me correct mistaques instead of rumbling that I've done one :-)
 </para>
@@ -158,9 +167,9 @@ Before doing so, please read all of the information in this HOWTO, and then send
 If you publish this document on a CD-ROM or in hardcopy form, a complimentary copy would be appreciated; mail me for my postal address. Also consider making a donation to the Linux Documentation Project to help support free documentation for Linux. Contact the Linux HOWTO coordinator,
 Guylhem AZNAR <email>guylhem@rrremovethis.oeil.qc.ca</email>.
 </para>
-</sect2>
+</sect1>
 
-<sect2 id=thanks><title>Aknowledgements</title>
+<sect1 id=thanks><title>Aknowledgements</title>
 
 <para>Thanks goes to these people for helping and adding to this
 HOWTO.</para>
@@ -211,9 +220,10 @@ HOWTO.</para>
 </listitem>
 </itemizedlist>
 
-</sect2>
+</sect1>
+</chapter>
 
-<sect1 id="quickstart"><title>QuickStart</title>
+<chapter id="quickstart"><title>QuickStart</title>
 <itemizedlist mark="bullet" spacing="Compact">
 <listitem>
 <para>We recommend that you read this complete 
@@ -222,7 +232,7 @@ please use this QuickStart guide to stay out of trouble.</para>
 </listitem>
 <listitem>
 <para>Install the tarball, RPM, or DEB mindi and mondo
-packages. (see <xref linkend="installation">Installation</xref>
+packages. (see <link linkend="installation">Installation</link>
 for more details)</para>
 </listitem>
 <listitem>
@@ -446,7 +456,7 @@ compare at the boot screen.</para>
 <listitem>
 <para>If you can boot, fine. If not, make a Mindi "Test" CD to
 checkout the compatibility of your system. (see
-<xref linkend="testingmindi">Testing Mindi</xref> for more
+<link linkend="testingmindi">Testing Mindi</link> for more
 details). Remove the CD/floppy; boot your computer as usual;
 execute as root</para>
 <para></para>
@@ -492,7 +502,7 @@ system.</para>
 </listitem>
 <listitem>
 <para>If you still cannot boot from Mindi's CD then please e-mail
-the <xref linkend="feedback">mailing list</xref> for help.
+the <link linkend="feedback">mailing list</link> for help.
 </para>
 </listitem>
 </itemizedlist>
@@ -576,5 +586,766 @@ tape streamer /dev/osst0, some call it /dev/ftape, ...</para>
 </listitem>
 </itemizedlist>
 
+</chapter>
+
+<chapter id="overview"><title>Overview</title>
+
+<sect1 id="mondorescue">
+<title>Mondo Rescue</title>
+<para>Mondo Rescue backs up your file system to CD, tape, NFS
+(archives stored remotely) or ISO's (archives stored locally).
+Mondo uses afio as the backup engine; afio is a well-respected
+replacement for tar. In the event of catastrophic data loss, you
+may restore some or all of your system, even if your hard drives
+are now blank. Mondo Rescue can do a lot of other cool
+things:</para>
+<itemizedlist>
+<listitem>
+<para>You can use Mondo to clone an installation of Linux. Just
+backup the crucial stuff and exclude /home, /var/log, etc.</para>
+</listitem>
+<listitem>
+<para>You can backup a non-RAID file system and restore it as RAID
+including the root partition (if your kernel supports that).</para>
+</listitem>
+<listitem>
+<para>You can backup a system running on one format and restore as
+another format.</para>
+</listitem>
+<listitem>
+<para>You can restructure your partitions, e.g. shrink/enlarge,
+reassign devices, add hard drives, etc, before you partition and
+format your drives. Mondo will restore your data and amend
+/etc/lilo.conf and /etc/fstab accordingly.</para>
+</listitem>
+<listitem>
+<para>You can backup Linux/Windows systems, including the boot
+sectors. Mondo will make everything right at restore-time.
+(However, do run "Scandisk" when you first boot into Windows, just
+in case.)</para>
+</listitem>
+<listitem>
+<para>You can use your Mondo backup CD to verify the integrity of
+your computer.</para>
+</listitem>
+</itemizedlist>
+<para>Mondo's principal virtue is that it protects you from the
+problems that can arise when you reinstall completely from scratch.
+If you want to wipe and restore your system every year just as a
+matter of 'good practice', Mondo is not for you. However, if you
+want to get up and running again in a hurry after someone breaks
+into your computer and wipes it (or if you accidentally wipe it
+yourself) then Mondo is definitely for you. It will permit you to
+roll back to a known-good installation in a very short period of
+time, sometimes as little as twenty minutes. Even if you backup
+large amounts of data to tape daily and do not want to add yet
+another backup regime, please consider backing up the core
+filesystem (i.e. everything but the directories containing your
+huge database and your prizewinning novel) every month or so, just
+in case. You will be glad you did.</para>
+<para>What is Mondo not?</para>
+<para>Mondo is not an everyday backup program. It is not designed
+to replace tar, afio, kbackup, etc. Mondo is designed to make it
+possible to recover from scratch if necessary. Tar and afio offer a
+quick, convenient way to backup small sets of files, sometimes to
+removable media.</para>
 </sect1>
+
+<sect1 id="mindi">
+<title>Mindi</title>
+<para>
+Mindi Linux creates a set of boot/root floppy disk images
+that will let you perform basic system maintenance on your Linux
+distro. The principal virtues of Mindi's boot disks are the fact
+that they contain your kernel, modules, tools and libraries. You
+can ask for additional binaries (or other files) to be included on
+the kit. The libraries will be added for you.
+</para>
+<para>Whichever modules were loaded at backup-time, they are
+reloaded at boot-time. So, in theory, you will boot into almost the
+same environment as you were in when you backed up. If you want to
+add files to your Mindi boot disks, edit '&lt;INSTALLPATH OF
+MINDI&gt;/mindi/deplist.txt' and add the files to that list. The
+added files and dependencies, will be spread across the data disks
+at run-time.
+</para>
+<para>Mindi makes sure that Mondo has all the tools it needs at
+boot-time. Mondo uses fdisk, mkfs, cat, less, more, afio, gzip,
+bzip2, your keyboard configuration, your glibc libraries, your
+other libraries, your kernel, your modules, ... a lot! Mindi takes
+care of all that, so that Mondo can get on with the job of backing
+up or restoring your data.
+</para>
+<para>Mindi is also handy for making boot CDs/disks which stand on
+their own. You do not need Mondo. Indeed, if you like, you could
+use another backup/restore program with Mindi. Just add it to
+Mindi's dependency list (type 'locate deplist.txt' to find it).
+Mindi will include your software on its boot CD/disks the next time
+you run mindi.
+</para>
+</sect1>
+
+
+<sect1 id="linuxbackup">
+<title>Linux Backup</title>
+<para>Mondo Rescue and Mindi Linux are used primarily as Linux
+backup and cloning tools. The fall in prices of CD-RW drives and
+writable discs will allow current users to keep good backups and
+future users to leverage the cloning capability.</para>
+<para>Tape drives are more likely to suit your needs if you run a
+larger installation (or have lots of MP3's). Warning! OnStream
+drives do not play well with Mondo. I do not know why. It is, in my
+opinion, something which OnStream should look into. Mondo uses
+fopen(), fread(), fwrite() and fclose() to interact with tape
+drives. That works for most drives but some drives just don't like
+that.</para>
+<para>I have tested it thousands of times on my own computer with
+my own data and with no alternate backup regime. It worked for me.
+Thousands of users testify to Mondo's stability and its ease of
+use. However, please test it on your own system before you rely on
+it. In fact, do not rely on any software until you have tested it
+to see if it performs as expected.</para>
+<para>To establish that Mondo will behave well in an emergency,
+please be prepared. Run a test backup as follows:-</para>
+<itemizedlist>
+<listitem>
+<para>Run mondoarchive without any command-line options.</para>
+</listitem>
+<listitem>Backup a subset of files - e.g. /usr/local - to CD or
+tape. Say 'yes' when asked if you want to verify them.</listitem>
+<listitem>If you are not backing up to CD, please create boot
+floppies when prompted.</listitem>
+</itemizedlist>
+<para>Next, restore archives to your live filesystem.</para>
+<itemizedlist>
+<listitem>
+<para>When mondoarchive terminates, run mondorestore without any
+command-line options.</para>
+</listitem>
+<listitem>Insert the CD or the first boot floppy when prompted.
+Press &lt;Enter&gt;. Wait a moment.</listitem>
+<listitem>Select a subset of files to restore, e.g. /usr/local/man
+and /usr/local/bin. Hit OK.</listitem>
+<listitem>Restore files to /tmp or /root/RESTORED or something
+similar.</listitem>
+<listitem>When mondorestore terminates, compare the restored files
+to the originals using cmp or diff.</listitem>
+</itemizedlist>
+<para>Finally, simulate an emergency restore.</para>
+<itemizedlist>
+<listitem>
+<para>Boot from CD/floppies.</para>
+</listitem>
+<listitem>Select 'Interactive Mode' at boot-time. (Type
+'interactive' and hit &lt;Enter&gt;.)</listitem>
+<listitem>Hit OK when shown the mountlist. Say 'yes' when asked if
+you accept the mountlist.</listitem>
+<listitem>Select files to restore, e.g. /usr/local/man and
+/usr/local/bin. Hit OK.</listitem>
+<listitem>Restore files to /tmp or /root/RESTORED or something
+similar.</listitem>
+<listitem>When mondorestore terminates, please reboot and compare
+the restored files to the originals.</listitem>
+</itemizedlist>
+<para>FYI, the subroutines to repartition and reformat your drives
+are very stable. If you are a RAID or LVM user, you
+might&nbsp;encounter some difficulties when wiping and restoring
+from scratch because of the sheer range of filesystem layouts and
+the impossibility of testing Mondo on every single one. If you have
+trouble, just drop to the command-line and partition/format
+manually. Then, call mondorestore, select Interactive Mode, and say
+'no' when asked if you want Mondo to partition or format your
+drives for you.</para>
+<para>You see, even if you have trouble, you still have two hands
+and most of the tools you need - lvchange, pvcreate, fdisk, mkraid,
+etc. - to do it manually. After you have prepped and formatted your
+drives manually (if you have to), just run mondorestore again and
+say 'no' when asked if you want to prep or format your drives. What
+could be easier?</para>
+</sect1>
+
+<sect1 id="winbackup">
+<title>Windows Backup</title>
+<para>Backing up windows partitions.</para>
+<sect2 id="win95"><title>Windows ME/95/98</title>
+<para>Verify that the partition is listed in /etc/fstab and is
+mounted (e.g. /dev/hda1). Mondo will take care of everything else.
+The files will be archived just like all other files in the live
+file system. At restore-time, Mondo will take care of the boot
+sector of /dev/hda1 prior to the restore.</para>
+<para>Note: if Windows ME/95/98 is not located on /dev/hda1 or
+/dev/sda1, then Mondo will not take care of the boot sector of
+/dev/hda1. The user will have to boot from a DOS floppy and run SYS
+C: to correct the Windows boot sector.</para>
+</sect2>
+<sect2 id="winnt"><title>Windows NT4/2K/XP</title>
+<para>Windows NT4/2K/XP typically use the NTFS file system, not
+VFAT.. The user should use '-x /dev/hda1' (or whichever device the
+/dev/hda1. The user will have to boot from a DOS floppy and run SYS
+C: to correct the Windows boot sector.</para>
+</sect2><sect2 id="AEN13"><title>3.4.2. Windows NT4/2K/XP</title>
+<para>Windows NT4/2K/XP typically use the NTFS file system, not
+VFAT.. The user should use '-x /dev/hda1' (or whichever device the
+Windows partition resides). Mondo will treat the partition as a
+biggiefile. Mondo will also add an entry to the mountlist to
+reflect the size and type of the partition. The user may not edit
+that partition's size at restore-time (for obvious reasons).</para>
+<para>Please bear in mind that Mondo was written for Linux users.
+If Mondo does not backup or restore your Windows system well, you
+might want to consider paying for 1-to-1 technical support.
+Ironically, the only people to pay for 1-to-1 technical support
+have been Linux users, whereas Windows users want a free ride. That
+is one reason why the Linux community gives me warm fuzzies.</para>
+</sect1>
+
+<sect1 id="history">
+<title>Mondo Rescue and Mindi Linux
+History</title>
+<para>Mondo Rescue was created in December 1999 as a utility to
+clone Linux/Windows installations. Norton Ghost would not do the
+job, and my boss wanted to jump on the Linux bandwagon. So, I wrote
+a few scripts and shoehorned them into the latest Linux-Mandrake
+CD. Since that time, Mondo grew into a disaster recovery suite for
+Linux and Windows. Mondo forced me to learn about the kernel, its
+initrd initial ramdisk, modules, library dependencies, disk
+partitioning, and the myriad differences between the Top 10 Linux
+distributions.</para>
+a few scripts and shoehorned them into the latest Linux-Mandrake
+CD. Since that time, Mondo grew into a disaster recovery suite for
+Linux and Windows. Mondo forced me to learn about the kernel, its
+initrd initial ramdisk, modules, library dependencies, disk
+partitioning, and the myriad differences between the Top 10 Linux
+distributions.</para>
+<para>The first formal release was made on February 18th, 2000.
+Mondo is currently one of the top five Linux backup/restore
+programs. Mondo has been compared favorably to ArcServe, Arkeia and
+BRU. Although Mondo lacks the more advanced, enterprise-level
+features of ArcServe and Arkeia, for workstations and small- to
+medium-size servers it is ideal because it is small, fast,
+efficient, stable, comes with source code, and is being actively
+developed and supported.</para>
+</sect1>
+
+<sect1 id="sysreq">
+<title>System
+Requirements</title>
+<sect2 id="hwreq">
+<title>Hardware Requirements</title>
+
+<para>Your computer must have:</para>
+<itemizedlist>
+<listitem>
+<para>Intel(R)-compatible CPU</para>
+</listitem>
+<listitem>
+<para>64MB of RAM (128MB recommended)</para>
+</listitem>
+<listitem>
+<para>800MB of hard disk space free</para>
+</listitem>
+<listitem>
+<para>CD writer, tape streamer, NFS share or some way to backup the
+backups :)</para>
+</listitem>
+</itemizedlist>
+<para>It is recommended that your computer have very good airflow.
+The backup with Mondo Rescue and Mindi Linux will utilize your CPU,
+CD drive and fixed disk(s) like very few other applications. With a
+few hours of system backup activity, computers without sufficient
+airflow may show symptoms such as not burning full CD discs. The
+solution is a $20 or less additional fan at your local electronics
+discount store.</para>
+</sect2>
+
+<sect2 id="kernelreq">
+<title>Kernel Requirements</title>
+
+<para>Your kernel must have:</para>
+<itemizedlist>
+<listitem>
+<para>stable loopfs support, which means it really needs to be
+2.2.19 or 2.4.7 (or later)</para>
+</listitem>
+<listitem>
+<para>CD-ROM device support</para>
+</listitem>
+<listitem>
+<para>ISO9660 file system support</para>
+</listitem>
+<listitem>
+<para>initrd ramdisk support (built-in)</para>
+</listitem>
+<listitem>
+<para>Virtual memory file system support (built-in)</para>
+</listitem>
+<listitem>
+<para>floppy disk support (built in)</para>
+</listitem>
+<listitem>
+<para>ext2 file system support (built-in)</para>
+</listitem>
+<listitem>
+<para>Support for the backup media (Tape, CD-RW, NFS, Hard
+disk)</para>
+</listitem>
+<listitem>
+<para>If the backup media is CD-RW then you need SCSI emulation
+also</para>
+</listitem>
+</itemizedlist>
+<para>Please note that the stock kernels of Red Hat 7.2, 7.3, 8.0,
+Mandrake 8.2, 9.0, SuSE 7.x,, 8.x, and Slackware 8.x all meet
+Mondo's requirements. If your kernel does not meet Mondo's
+requirements then there is something wrong with it. Mondo's demands
+are not unreasonable.</para>
+<para>Mondo (specifically Mindi) does not require any specific
+modules. It does require that your kernel support the initrd
+initial ramdisk facility. Typically this is supported by the Linux
+kernel. Modules used are needed to support the CD, floppy disks,
+hard disks, etc. If the support is modular, then the modules will
+be incorporated in a boot disk by Mindi. If the support is built-in
+(static), then it will be available at boot-time by default.</para>
+</sect2>
+<sect2 id="swreq">
+<title>Software Requirements</title>
+<para>See Mondo's <ulink url="../download.html">Download
+page</ulink> for details.</para>
+<para>Mondo requires afio, bzip2, cdrtools/cdrecord, ncurses, newt,
+isolinux/syslinux, lzo (optional), lzop (optional), mkisofs, slang,
+and a few other packages.</para>
+<para>Good Linux distributions provide all these packages. If yours
+does not then please go to the aforementioned Download page or surf
+the Net, preferably the website of the distribution you are
+using.</para>
+<para>Mondo's expectations are not unreasonable, either of your
+Linux distribution or of your kernel. However, if your distribution
+fails to meet its expectations and you cannot find out how to
+resolve them, please feel free to e-mail the
+<ulink url="../../feedback/feedback.html">mailing
+</sect2>
+</sect1>
+</chapter>
+
+<chapter id="installation">
+<title>Installation</title>
+
+<sect1 id="mindi-install">
+<title>Mindi Installation</title>
+<para>If you are installing from a tarball then copy it to wherever
+you have enough space, for example /tmp and type:</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# cd /tmpbash# tar -zxvf mindi-0.7x.tgzbash# cd mindi-0.7xbash# ./install.sh
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>This installs mindi into /usr/local/share/mindi and installs
+links to the programs into /usr/local/sbin</para>
+<para>Or, if you are installing from an RPM then copy it to
+wherever you have enough space, for example /tmp and type:</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# rpm -Uvh /tmp/mindi-0.7x-x.i386.rpm
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>This installs mindi into /usr/share/mindi and installs links
+to the programs into /usr/sbin. This may be /usr/local/share/mindi
+and /usr/local/sbin, depending on the package you use. Different
+Linux distributions put system files in different places. The funny
+thing is, each distribution claims it is right and the others are
+wrong. Oh, and they all agree that I mustn't have read the LFS!
+:-)</para>
+<para>Debian users may wish to first create a .deb file and then
+use the debian package manager:</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# cd /tmpbash# alien mindi*.rpmbash# dpkg -i mindi*.deb
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>This installs mindi into /usr/share/mindi and installs links
+to the programs into /usr/sbin</para>
+</sect1>
+
+<sect1 id="mondo-install">
+<title>Mondo Installation</title>
+<para>If you are installing from a tarball then copy it to wherever
+you have enough space, for example /tmp and type:</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# cd /tmpbash# tar -zxvf mondo-1.xx.tgzbash# cd mondo-1.xxbash# make &amp;&amp; make install
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>This installs mondo into /usr/local/share/mondo and installs
+links to the programs into /usr/local/bin</para>
+<para>Or, if you are installing from an RPM then copy it to copy it
+to wherever you have enough space, for example /tmp and
+type:</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# rpm -Uvh /tmp/mondo-1.5x-x.i386.rpm
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>This installs mondo into /usr/share/mondo and installs links
+to the programs into /usr/bin</para>
+<para>Debian users may wish to first create a .deb file and then
+use the debian package manager:</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# cd /tmpbash# alien mondo*.rpmbash# dpkg -i mondo*.deb
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>This installs mondo into /usr/share/mondo and installs links
+to the programs into /usr/bin</para>
+</sect1>
+</chapter>
+
+<chapter id="test">
+<title>Tests</title>
+
+<sect1 id="mindi-test">
+<title>Testing Mindi</title>
+
+<para>Mindi is a vital part of the backup procedure. If you have
+used Mondo before or if you are in a hurry, skip steps 6.2 and 6.3;
+go straight to QuickStart.</para>
+<para>However, if you have time or if you have been having trouble
+getting Mondo to work, I would recommend trying out Mindi directly
+(rather than via Mondo) to see if it can produce a bootable CD on
+your system.</para>
+<para>Make sure you are root while doing this, otherwise mindi will
+fail, now do this.</para>
+<para>If you have any problems, please:-</para>
+<itemizedlist>
+<listitem>
+<para>read /var/log/mindi.log</para>
+</listitem>
+<listitem>feel free to edit mindi (it's a shell script, btw) to try
+to fix the problem yourself</listitem>
+<listitem>contact the mailing list if you get stuck.</listitem>
+</itemizedlist>
+<para>Type:-</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# mindi
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>Example screen output, selecting to use your own kernel, to
+create boot disks, and to create a bootable CD image:</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+Mindi Linux mini-distro generator v0.72 by HRabson &lt;hugorabson@msn.com&gt;--------------------------
+----------------------------------------------------Do you want to use your own kernel to build the boo
+t disk (y/n) ? yYour kernel is /boot/vmlinuz-2.4.14-k6 (v2.4.14-k6)Generating list of dependency files.
+....................... Done.Analyzing your keyboard's configuration.Adding the following keyboard mapp
+ing tables:................... DoneDropping i686-optimized libraries if appropriate.............DoneAss
+embling dependency files........ Done.The files have been subdivided into 2 directories.Your mountlist
+will look like this:-DEVICE MOUNTPOINT FORMAT SIZE (MB)/dev/hda3 / ext2 996/dev/hda2 swap swap 127/dev/
+hda4 /usr ext2 6189Tarring and zipping the groups......... Done.Creating data disk #1...#2... Done.1722
+KB boot disk was created OK............................ Done.2880KB boot disk was created OK...........
+................. Done.In the directory '/root/images/mindi' you will find the images:-mindi-boot.1722.
+img mindi-boot.2880.img mindi-data-1.img mindi-data-2.imgWould you like to create boot+data floppy disk
+s now (y/n) ?yWARNING! THIS WILL ERASE YOUR FLOPPY DISKS.About to write boot disk. Please press ENTER.W
+riting boot disk.................................................. Done.About to write data disk #1. Pl
+ease press ENTER.Writing data disk #1........................... Done.About to write data disk #2. Plea
+se press ENTER.Writing data disk #2........................... Done.Shall I make a bootable CD image? (
+y/n) yFinished.One 1.72MB boot disk, one 2.88MB boot disk and 2 data disks were created.
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>If your kernel is too large (more than about 900KB) then you
+cannot make boot floppies, although you can still make a bootable
+CD image. The easiest way to test Mindi in either case is to say
+'n' to its first question and 'y' to its second, then use the
+separate application cdrecord to make a bootable CD-R or
+CD-RW.</para>
+<para>Use the cdrecord application to write the CD image:</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# cd /root/images/mindibash# cdrecord -scanbus
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>The output of the above call to cdrecord will tell you your
+CD writer's node. It is usually '0,0,0'. Choose one of the
+following calls to write the CD, depending on whether the disk in
+the drive is a CD-R or a CD-RW. Please replace 'x,x,x' with your
+writer's node. For further information, type 'man cdrecord" from a
+Linux command line.</para>
+<para>If writing to a CD-RW Drive/Disc:</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# cdrecord -blank fast dev=x,x,x speed=4 mindi.iso (for CD-RW)
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>If writing to a CD-R Drive/Disc:</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# cdrecord dev=x,x,x speed=4 mindi.iso (for CD-R)
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+</sect1>
+<sect1 id="mondo-test">
+<title>Testing Mondo</title>
+
+</sect1>
+</chapter>
+
+<chapter id="backup">
+<title>Backup</title>
+
+<sect1 id="backup-recommandations">
+<title>Recommandations</title>
+<para>Mama does Mondo? Papa does Mondo? Is that a Dean Martin song?
+Well, anyway, here is how I backup my system:</para>
+<itemizedlist>
+<listitem>
+<para>Shut down all possible applications (this minimizes any
+compare differences following the backup)</para>
+</listitem>
+<listitem>
+<para>Type:</para>
+</listitem>
+</itemizedlist>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# mondoarchive
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>For most users, that should be enough. :-) Mondoarchive will
+usually autodetect your hardware and configure it for you.</para>
+<para>If you are a power user (or you like to control every detail
+of how Mondo runs) then you may want to look at the command-line
+switches. For example:-</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# mondoarchive -Ow4 -gF -I /home
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>Cdrecord will tell me where my CD recorder lives, in SCSI
+terms, which in my case is '0,0,0'. The call to mondoarchive tells
+Mondo that I want to backup everything to a 4x CD-RW drive that has
+a CD-RW disk in it. (Use -Oc instead of -Ow if you are using
+CD-R.)</para>
+<para>Please put the first CD-R(W) in the drive now. You will be
+prompted to insert CD #2 but you will not be prompted to insert the
+first disk. However, if you forget, do not worry: if Mondo fails to
+write the first (or any) disk, it will offer to retry, abort or
+fail.</para>
+<para>I run Mondo at the highest compression available ('-9) and
+then go to work. I then walk home at lunch (I live right by my
+workplace), change CD, eat lunch, and go back to work. When I get
+home, it has all been done.</para>
+<para>Your mileage may vary. Experiment. Find the speed/compression
+compromise that best suits your needs.</para>
+<para>If you are using cron then please use -F to make sure that
+Mondo does not prompt you to create bootable floppy disks. Cron
+does not handle user interaction well because it pipes stdin and
+stdout specially. Please consult cron's manual for more
+information. Jesse Keating has written a script for cron/Mondo
+users. It is available on the
+<ulink url="../../docs/docs.html">Documentation</ulink>
+page.</para>
+</sect1>
+
+<sect1 id="backup-commands">
+<title>Backup Commands and Options</title>
+
+<para>Backup Command:</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+mondoarchive &lt;-option1&gt; &lt;-option2&gt; ... &lt;-optionN&gt;
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>E.g.,</para>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# mondoarchive -E /mnt/dos /mnt/cdrom -9 -Oc 8
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>Would create backup CD to a CD-R disc at the highest
+compression level, writing at speed 2 and ignoring the /mnt/dos and
+/mnt/cdrom directories.</para>
+<para>To see a detailed list of switches and their meaning, see the
+<ulink url="http://www.mondorescue.org/download/mondoarchive.1.html">HTML
+man page</ulink> on the website or type 'man mondoarchive' at the
+console.</para>
+<sect2 id="backup-cdr">
+<title>Standard Example With CD-R</title>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# mondoarchive -Oc 2 -g
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>Replace '2' in '-Oc2' with the writer's speed. If
+mondoarchive cannot find your CD-R then please add '-d 0,0,0' (or
+whatever your CD writer's SCSI node is; usually, it is 0,0,0) to
+the call.</para>
+<para>Please insert the first disk in the writer while the PC is
+chugging away. If Mondo needs additional CD-R(W) then it will ask
+for them.</para>
+</sect2>
+<sect2 id="backup-cdrw">
+<title>Standard Example With CD-RW</title>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# mondoarchive -Ow 2 -g
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>Replace '2' in '-Ow2' with the writer's speed.</para>
+</sect2>
+<sect2 id="backup-tape">
+		<title>Standard Example With Tape</title>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# mondoarchive -Ot -d /dev/st0 -g
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>With previous versions of Mondo, you needed to specify the
+size of the tape. As of v1.51, that is no longer necessary.</para>
+</sect2>
+<sect2 id="backup-failsafe">
+		<title>Standard Example With Failsafe kernel</title>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# mondoarchive -k FAILSAFE -Ow 2
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>Due to slight policy differences in the Debian distribution
+approach, the '-k FAILSAFE' option is typically needed with
+Debian.</para>
+</sect2>
+<sect2 id="backup-network">
+		<title>Standard Example With Network Backup</title>
+<para></para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+bash# mount 192.168.1.3:/home/nfs -t nfs /mnt/nfsbash# mondoarchive -OVn 192.168.1.3:/home/nfs -g -s 20
+0mbash# umount /mnt/nfs
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+<para>The resultant ISO's can be burned to CD's if you want (which
+isn't a good idea unless you're a Mondo expert because they'll try
+to restore over a network by default, which is silly cos the
+archives are on the CD's). Or, you can boot from the Mindi floppies
+(or mondorescue.iso) and hit ENTER a few times to restore.</para>
+</sect2>
+</sect1>
+
+&gfdl;
+
 </book>

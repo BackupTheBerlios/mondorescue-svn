@@ -15,7 +15,7 @@
 <subtitle>
 Utilisation and Configuration of Mondo and Mindi under Linux (Version &curver;)
 </subtitle>
-<graphic fileref="images/protected-by-mondo.png" align="center">
+<graphic fileref="images/protected-by-mondo" align="center">
 
 <pubdate>
 in its latest version the
@@ -258,7 +258,7 @@ bash# mondoarchive
 <row>
 <entry>
 <ulink url="images/mamain.png"><inlinemediaobject><imageobject>
-<imagedata fileref="images/mamain-mini.png">
+<imagedata fileref="images/mamain-mini">
 </imageobject></inlinemediaobject>
 </ulink>
 </entry>
@@ -276,7 +276,7 @@ detected and configured for you.
 <row>
 <entry>
 <ulink url="images/maburnproof.png"><inlinemediaobject><imageobject>
-<imagedata fileref="images/maburnproof-mini.png">
+<imagedata fileref="images/maburnproof-mini">
 </imageobject></inlinemediaobject>
 </ulink>
 </entry>
@@ -290,7 +290,7 @@ you will not see this message.
 <row>
 <entry>
 <ulink url="images/macompression.png"><inlinemediaobject><imageobject>
-<imagedata fileref="images/macompression-mini.png">
+<imagedata fileref="images/macompression-mini">
 </imageobject></inlinemediaobject>
 </ulink>
 </entry>
@@ -303,7 +303,7 @@ fast. Average should do just fine for most situations.
 <row>
 <entry>
 <ulink url="images/mainclude.png"><inlinemediaobject><imageobject>
-<imagedata fileref="images/mainclude-mini.png">
+<imagedata fileref="images/mainclude-mini">
 </imageobject></inlinemediaobject>
 </ulink>
 </entry>
@@ -317,7 +317,7 @@ in between each path.
 <row>
 <entry>
 <ulink url="images/maexclude.png"><inlinemediaobject><imageobject>
-<imagedata fileref="images/maexclude-mini.png">
+<imagedata fileref="images/maexclude-mini">
 </imageobject></inlinemediaobject>
 </ulink>
 </entry>
@@ -331,7 +331,7 @@ between each path, e.g. /shared/private /scratch /nfs /windows
 <row>
 <entry>
 <ulink url="images/makernel.png"><inlinemediaobject><imageobject>
-<imagedata fileref="images/makernel-mini.png">
+<imagedata fileref="images/makernel-mini">
 </imageobject></inlinemediaobject>
 </ulink>
 </entry>
@@ -346,7 +346,7 @@ use Mondo's failsafe kernel.
 <row>
 <entry>
 <ulink url="images/maverifyq.png"><inlinemediaobject><imageobject>
-<imagedata fileref="images/maverifyq-mini.png">
+<imagedata fileref="images/maverifyq-mini">
 </imageobject></inlinemediaobject>
 </ulink>
 </entry>
@@ -359,7 +359,7 @@ Linux distribution, say 'no'... and a little prayer.
 <row>
 <entry>
 <ulink url="images/maproceedq.png"><inlinemediaobject><imageobject>
-<imagedata fileref="images/maproceedq-mini.png">
+<imagedata fileref="images/maproceedq-mini">
 </imageobject></inlinemediaobject>
 </ulink>
 </entry>
@@ -372,7 +372,7 @@ you will be unceremoniously dumped at the shell prompt. :-)
 <row>
 <entry>
 <ulink url="images/1.png"><inlinemediaobject><imageobject>
-<imagedata fileref="images/1-mini.png">
+<imagedata fileref="images/1-mini">
 </imageobject></inlinemediaobject>
 </ulink>
 </entry>
@@ -388,7 +388,7 @@ of answering a series of questions. See the man page for details.
 <row>
 <entry>
 <ulink url="images/3.png"><inlinemediaobject><imageobject>
-<imagedata fileref="images/3-mini.png">
+<imagedata fileref="images/3-mini">
 </imageobject></inlinemediaobject>
 </ulink>
 </entry>
@@ -402,7 +402,7 @@ This typically takes one minute.
 <row>
 <entry>
 <ulink url="images/4.png"><inlinemediaobject><imageobject>
-<imagedata fileref="images/1-mini.png">
+<imagedata fileref="images/1-mini">
 </imageobject></inlinemediaobject>
 </ulink>
 </entry>
@@ -418,7 +418,7 @@ minutes to run.
 <row>
 <entry>
 <ulink url="images/5tape.png"><inlinemediaobject><imageobject>
-<imagedata fileref="images/5tape-mini.png">
+<imagedata fileref="images/5tape-mini">
 </imageobject></inlinemediaobject>
 </ulink>
 </entry>
@@ -434,7 +434,7 @@ your backups, Mondo will do that too.
 <row>
 <entry>
 <ulink url="images/10cd.png"><inlinemediaobject><imageobject>
-<imagedata fileref="images/10cd-mini.png">
+<imagedata fileref="images/10cd-mini">
 </imageobject></inlinemediaobject>
 </ulink>
 </entry>
@@ -1772,7 +1772,7 @@ bash# mondorestore
 <row>
 <entry>
 <ulink url="images/rest1.png"><inlinemediaobject><imageobject>
-<imagedata fileref="images/rest1-mini.png">
+<imagedata fileref="images/rest1-mini">
 </imageobject></inlinemediaobject>
 </ulink>
 </entry>
@@ -1785,7 +1785,7 @@ with no parameters after booting from a Mondo CD/floppy.
 <row>
 <entry>
 <ulink url="images/rest2.png"><inlinemediaobject><imageobject>
-<imagedata fileref="images/rest2-mini.png">
+<imagedata fileref="images/rest2-mini">
 </imageobject></inlinemediaobject>
 </ulink>
 </entry>
@@ -1799,7 +1799,7 @@ the boot floppy.
 <row>
 <entry>
 <ulink url="images/rest3.png"><inlinemediaobject><imageobject>
-<imagedata fileref="images/rest3-mini.png">
+<imagedata fileref="images/rest3-mini">
 </imageobject></inlinemediaobject>
 </ulink>
 </entry>
@@ -1811,7 +1811,7 @@ and 'Less' buttons to open and close subdirectories.
 <row>
 <entry>
 <ulink url="images/rest4.png"><inlinemediaobject><imageobject>
-<imagedata fileref="images/rest4-mini.png">
+<imagedata fileref="images/rest4-mini">
 </imageobject></inlinemediaobject>
 </ulink>
 </entry>
@@ -1825,7 +1825,7 @@ restore path.
 <row>
 <entry>
 <ulink url="images/rest5.png"><inlinemediaobject><imageobject>
-<imagedata fileref="images/rest5-mini.png">
+<imagedata fileref="images/rest5-mini">
 </imageobject></inlinemediaobject>
 </ulink>
 </entry>
@@ -1838,7 +1838,7 @@ something different.)
 <row>
 <entry>
 <ulink url="images/rest6.png"><inlinemediaobject><imageobject>
-<imagedata fileref="images/rest6-mini.png">
+<imagedata fileref="images/rest6-mini">
 </imageobject></inlinemediaobject>
 </ulink>
 </entry>

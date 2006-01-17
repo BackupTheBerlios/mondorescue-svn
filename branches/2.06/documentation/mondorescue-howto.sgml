@@ -4,6 +4,7 @@
 
 <!ENTITY WWWB "http://www.mondorescue.org/">
 <!ENTITY WWW '<ulink url="http://www.mondorescue.org">MondoRescue</ulink>'>
+<!ENTITY ML '<ulink url="http://lists.sourceforge.net/lists/listinfo/mondo-devel">mondorescue mailing list</ulink>'>
 <!ENTITY gfdl SYSTEM "fdl.sgml">
 ]>
 
@@ -135,8 +136,7 @@ If you make a translation of this document into another language, please let mek
 I rely on you, the reader, to make this HOWTO useful. THis HOWTO is probably incomplete even if it tries to be accurate to the best of our knowledge. 
 If you have any suggestions, corrections, recommandations or congratulations :-) don't hesitate to send them to me
 <email>bcornec@users.berlios.de</email>,
-and I will try to incorporate them in a next revision or to the mondorescue mailling list at <ulink url="http://lists.sourceforge.net/lists/listinfo/mondo-devel">http://lists.sourceforge.net/lists
-/listinfo/mondo-devel</ulink>;
+and I will try to incorporate them in a next revision or to the &ML;;
 e-mail the list at
 <ulink url="mailto:mondo-devel@lists.sourceforge.net">mondo-devel@lists.sourceforge.net</ulink>;
 tell us what is wrong and how it should be fixed.
@@ -456,7 +456,7 @@ compare at the boot screen.</para>
 <listitem>
 <para>If you can boot, fine. If not, make a Mindi "Test" CD to
 checkout the compatibility of your system. (see
-<link linkend="testingmindi">Testing Mindi</link> for more
+<link linkend="test-mindi">Testing Mindi</link> for more
 details). Remove the CD/floppy; boot your computer as usual;
 execute as root</para>
 <para></para>
@@ -502,7 +502,7 @@ system.</para>
 </listitem>
 <listitem>
 <para>If you still cannot boot from Mindi's CD then please e-mail
-the <link linkend="feedback">mailing list</link> for help.
+the &ML; for help.
 </para>
 </listitem>
 </itemizedlist>
@@ -711,10 +711,14 @@ please be prepared. Run a test backup as follows:-</para>
 <listitem>
 <para>Run mondoarchive without any command-line options.</para>
 </listitem>
-<listitem>Backup a subset of files - e.g. /usr/local - to CD or
-tape. Say 'yes' when asked if you want to verify them.</listitem>
-<listitem>If you are not backing up to CD, please create boot
-floppies when prompted.</listitem>
+<listitem>
+	<para>Backup a subset of files - e.g. /usr/local - to CD or
+			tape. Say 'yes' when asked if you want to verify them.</para>
+</listitem>
+<listitem>
+	<para>If you are not backing up to CD, please create boot
+	floppies when prompted.</para>
+</listitem>
 </itemizedlist>
 <para>Next, restore archives to your live filesystem.</para>
 <itemizedlist>
@@ -722,30 +726,30 @@ floppies when prompted.</listitem>
 <para>When mondoarchive terminates, run mondorestore without any
 command-line options.</para>
 </listitem>
-<listitem>Insert the CD or the first boot floppy when prompted.
-Press &lt;Enter&gt;. Wait a moment.</listitem>
-<listitem>Select a subset of files to restore, e.g. /usr/local/man
-and /usr/local/bin. Hit OK.</listitem>
-<listitem>Restore files to /tmp or /root/RESTORED or something
-similar.</listitem>
-<listitem>When mondorestore terminates, compare the restored files
-to the originals using cmp or diff.</listitem>
+<listitem><para>Insert the CD or the first boot floppy when prompted.
+				Press &lt;Enter&gt;. Wait a moment.</para></listitem>
+<listitem><para>Select a subset of files to restore, e.g. /usr/local/man
+				and /usr/local/bin. Hit OK.</para></listitem>
+<listitem><para>Restore files to /tmp or /root/RESTORED or something
+				similar.</para></listitem>
+<listitem><para>When mondorestore terminates, compare the restored files
+				to the originals using cmp or diff.</para></listitem>
 </itemizedlist>
 <para>Finally, simulate an emergency restore.</para>
 <itemizedlist>
 <listitem>
 <para>Boot from CD/floppies.</para>
 </listitem>
-<listitem>Select 'Interactive Mode' at boot-time. (Type
-'interactive' and hit &lt;Enter&gt;.)</listitem>
-<listitem>Hit OK when shown the mountlist. Say 'yes' when asked if
-you accept the mountlist.</listitem>
-<listitem>Select files to restore, e.g. /usr/local/man and
-/usr/local/bin. Hit OK.</listitem>
-<listitem>Restore files to /tmp or /root/RESTORED or something
-similar.</listitem>
-<listitem>When mondorestore terminates, please reboot and compare
-the restored files to the originals.</listitem>
+<listitem><para>Select 'Interactive Mode' at boot-time. (Type
+				'interactive' and hit &lt;Enter&gt;.)</para></listitem>
+<listitem><para>Hit OK when shown the mountlist. Say 'yes' when asked if
+				you accept the mountlist.</para></listitem>
+<listitem><para>Select files to restore, e.g. /usr/local/man and
+				/usr/local/bin. Hit OK.</para></listitem>
+<listitem><para>Restore files to /tmp or /root/RESTORED or something
+				similar.</para></listitem>
+<listitem><para>When mondorestore terminates, please reboot and compare
+				the restored files to the originals.</para></listitem>
 </itemizedlist>
 <para>FYI, the subroutines to repartition and reformat your drives
 are very stable. If you are a RAID or LVM user, you
@@ -791,6 +795,7 @@ might want to consider paying for 1-to-1 technical support.
 Ironically, the only people to pay for 1-to-1 technical support
 have been Linux users, whereas Windows users want a free ride. That
 is one reason why the Linux community gives me warm fuzzies.</para>
+</sect2>
 </sect1>
 
 <sect1 id="overview-history">
@@ -805,6 +810,7 @@ Linux and Windows. Mondo forced me to learn about the kernel, its
 initrd initial ramdisk, modules, library dependencies, disk
 partitioning, and the myriad differences between the Top 10 Linux
 distributions.</para>
+<para>
 a few scripts and shoehorned them into the latest Linux-Mandrake
 CD. Since that time, Mondo grew into a disaster recovery suite for
 Linux and Windows. Mondo forced me to learn about the kernel, its
@@ -915,8 +921,8 @@ using.</para>
 <para>Mondo's expectations are not unreasonable, either of your
 Linux distribution or of your kernel. However, if your distribution
 fails to meet its expectations and you cannot find out how to
-resolve them, please feel free to e-mail the
-<ulink url="../../feedback/feedback.html">mailing
+resolve them, please feel free to e-mail the &ML;
+</para>
 </sect2>
 </sect1>
 </chapter>
@@ -1049,9 +1055,9 @@ fail, now do this.</para>
 <listitem>
 <para>read /var/log/mindi.log</para>
 </listitem>
-<listitem>feel free to edit mindi (it's a shell script, btw) to try
-to fix the problem yourself</listitem>
-<listitem>contact the mailing list if you get stuck.</listitem>
+<listitem><para>feel free to edit mindi (it's a shell script, btw) to try
+				to fix the problem yourself</para></listitem>
+<listitem><para>contact the &ML; if you get stuck.</para></listitem>
 </itemizedlist>
 <para>Type:-</para>
 <para></para>
@@ -1141,10 +1147,12 @@ bash# cdrecord dev=x,x,x speed=4 mindi.iso (for CD-R)
 </row>
 </tbody></tgroup></informaltable>
 </sect1>
+
+<!--
 <sect1 id="test-mondo">
 <title>Testing Mondo</title>
-
 </sect1>
+-->
 </chapter>
 
 <chapter id="backup">
@@ -1403,36 +1411,26 @@ archives, of course) on floppies. Remember, your Mondo CD is a
 fully functional CD-based mini-distribution as well as a recovery
 CD.</para>
 <para>You can choose from the following modes:</para>
+
 <variablelist>
-<listitem>
-<para></para>
-</listitem></varlistentry>
 <varlistentry><term>Interactive</term>
-<listitem><!-- $MVD$:spaceretainer() --><para>&nbsp;</para>
-<para></para>
-</listitem></varlistentry>
 <listitem><para>Restore step-by-step, or restore a subset of the
 archives. This is the method you should mainly use for your
 recovery needs.</para>
-<para></para>
 </listitem></varlistentry>
 <varlistentry><term>Nuke</term>
-<listitem><!-- $MVD$:spaceretainer() --><para>&nbsp;</para>
-<para></para>
-</listitem></varlistentry>
 <listitem><para>Wipe your drives and restore everything,
 automatically and unattended. Warning: This does exactly what is
 says, so be carefull using it.</para>
-<para></para>
 </listitem></varlistentry>
 <varlistentry><term>Expert</term>
-<listitem><!-- $MVD$:spaceretainer() --><para>&nbsp;</para>
-<para></para>
-</listitem></varlistentry>
 <listitem><para>Boot to a shell prompt. If you want to do anything
 creative, you should boot into Expert Mode. It's called expert, I
-think that says it all.</para></listitem></varlistentry>
+think that says it all.</para>
+</listitem>
+</varlistentry>
 </variablelist>
+
 <para>If the CD is not found during the initial restore CD boot
 attempt, reboot the PC a second time prior to reporting failure.
 Occasional timing errors and hardware/software/system conflicts do
@@ -1489,10 +1487,12 @@ bash# mount-mebash# chroot /mnt/RESTORINGbash# lilo OR grub-install '(hd0)'bash#
 <listitem>
 <para>If it did not work then please copy /tmp/mondo-restore.log to
 a floppy (or to your hard disk), gzip it and e-mail it to the
-mailing list.</para>
+&ML;.</para>
 </listitem>
 </itemizedlist>
-<sect2 id="AEN39"><title>9.2.1. Barebones (Nuke) Restore</title>
+
+<sect2>
+	<title>Barebones (Nuke) Restore</title>
 <para>Imagine that your hard drives happen to be wiped,
 deliberately or accidentally. Or, imagine that you want to clone
 your existing operating system. In either case, you want to run in
@@ -1525,7 +1525,8 @@ drives.</para>
 <para>If you want to see exactly what Mondo is doing while it is
 restoring, press &lt;Alt&gt;&lt;left cursor&gt; to view its
 logfile, in a virtual console, scrolling past.</para>
-</sect2><sect2 id="AEN40"><title>9.2.2. Interactive Restore</title>
+</sect2><sect2>
+<title>Interactive Restore</title>
 <para>Interactive Mode is for people who have lost a subset of data
 from their live file system, or perhaps who have lost some data
 from their latest backup and want to restore a subset of data from
@@ -1587,7 +1588,10 @@ nt to run LILO to setup your boot sectors? Yes
 </row>
 </tbody></tgroup></informaltable>
 
-</sect2><sect2 id="AEN42"><title>9.2.3. Expert Restore</title>
+</sect2>
+
+<sect2>
+<title>Expert Restore</title>
 <para>If you are planning to modify your partition table, you would
 do well to read up on the partition layout and the use of fdisk, it
 gives you some could pointers on how to best lay out partitions.
@@ -1628,9 +1632,10 @@ bash# mondorestore
 </entry>
 </row>
 </tbody></tgroup></informaltable>
-
-</sect2><sect2 id="AEN44"><title>9.2.4. Modified partitions -
-Restore to a different disk geometry</title>
+</sect2>
+		
+<sect2>
+<title>Modified partitions - Restore to a different disk geometry</title>
 <para>One of the nice things about Mondo is that it lets you wipe
 your existing system and restore it in any layout you like (within
 reason). You can move from non-RAID to RAID,install and utilize
@@ -1739,7 +1744,10 @@ mondorestore's built-in editor then you may choose 'OK'. Please
 note that this will not write anything to your hard disk. You will
 only reformat or repartition your disks if you say 'Yes' when asked
 if you want to do those things.</para>
-</sect2><sect2 id="AEN47"><title>9.2.5. Advanced</title>
+</sect2>
+
+<sect2>
+<title>Advanced</title>
 <para>It is now possible to restore to a live filesystem using
 Mondo. In other words, you do not have to boot your PC from your
 CD/floppy in order to restore files. Mondo was originally designed
@@ -1842,6 +1850,7 @@ then any big (32MB or greater) files in the restore set.
 </tbody></tgroup></informaltable>
 
 <para>I hope this manual is proving to be useful to you.</para>
+</sect2>
 </sect1>
 
 </chapter>
@@ -1877,92 +1886,35 @@ configurations</para>
 </listitem>
 </itemizedlist>
 <para>Mondo is freely available and you are given it for no charge.
-When you e-mail the mailing list, please bear that in mind.</para>
+When you e-mail the &ML;, please bear that in mind.</para>
 </sect1>
 <sect1 id="faq-general">
 <title>General Questions</title>
-<variablelist>
-<listitem>
-<para></para>
-</listitem></varlistentry>
-<varlistentry><term>Q:
-<para><ulink url="faqgeneral.html#AEN496">What is
-"Mindi"?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqgeneral.html#AEN501">Why is it called
-"Mondo"?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqgeneral.html#AEN506">Mondo does not work on my
-system. It keels over and dies. What's wrong?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqgeneral.html#AEN511">What if the error is in
-Mindi?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqgeneral.html#AEN516">Can I trust
-Mondo?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqgeneral.html#AEN522">How do I report a
-bug?</ulink></para></term>
-<varlistentry><term>Q: <para><ulink url="faqgeneral.html#AEN527">I
-think Mondo should (...insert suggestion here...) and I have
-rewritten it accordingly. Would you like to see my
-patch?</ulink></para></term>
-<varlistentry><term>Q: <para><ulink url="faqgeneral.html#AEN532">I
-think Mondo should (...insert suggestion here...); will you
-incorporate this feature for me, please?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqgeneral.html#AEN537">Mondo says, "XXX is
-missing," and then terminates. What's wrong?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqgeneral.html#AEN543">Can Mondo handle multi-CD
-backups and restores?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqgeneral.html#AEN548">Can Mondo handle
-Linux/Windows dual-boot systems?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqgeneral.html#AEN553">Can Mondo backup
-Windows-only systems?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqgeneral.html#AEN558">Does Mondo support
-LVM?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqgeneral.html#AEN563">What if I don't use LILO?
-What if I use GRUB?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqgeneral.html#AEN568">Mondoarchive (or
-mondorestore) segfaults when I run it. What could be
-wrong?</ulink></para></term>
-<varlistentry><term>Q: <para><ulink url="faqgeneral.html#AEN573">I
-get the error, 'Cannot find /tmp/dev.0' or 'Cannot mount device
-0x0701'; what do I do?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqgeneral.html#AEN578">Can I create a Mondo CD
-and then use it to create an archive of any OS on any
-PC?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqgeneral.html#AEN583">Why do you insist on
-putting floppy disk images on Mondo CD? They waste space and I
-never use them. The CD works just fine, so why keep the floppy disk
-images?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqgeneral.html#AEN588">Why doesn't the Mondo
-project have a cool-looking animal logo?</ulink></para></term>
-<varlistentry><term>Q: <para><ulink url="faqgeneral.html#AEN593">Is
-there a Mondo user 'Code of Conduct?</ulink></para></term>
-</variablelist>
-<para><anchor id="AEN496"/>Q: What is "Mindi"?</para>
+
+<qandaset>
+<qandaentry>
+		<question><para>Q: What is "Mindi"?</para></question>
+		<answer>
 <para>A: Mindi, a.k.a. Mindi-Linux, makes a mini-distribution from
 your kernel, modules, modules, tools and libraries. It can also
 generate an El Torito 2.88MB boot disk image. Mondo uses Mindi to
 create a mini-distro, then boots from it and runs on it.</para>
-<para><anchor id="AEN501"/>Q: Why is it called "Mondo"?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+		<question><para>Q: Why is it called "Mondo"?</para></question>
+		<answer>
 <para>A: The Teenage Mutant Ninja Turtles described cool things as
 'mondo'. I wasn't sure what to call this project. 'Faust' was one
 idea I had, partly as a dig at my former boss who practically owned
 me because of my legal status at the time. In the end, I chose
 something short and distinctive.</para>
-<para><anchor id="AEN506"/>Q: Mondo does not work on my system. It
-keels over and dies. What's wrong?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Mondo does not work on my system. It
+				keels over and dies. What's wrong?</para></question>
+<answer>
 <para>A: It works on Red Hat 7.x, Linux-Mandrake 8.x, some flavors
 of SuSE, some flavors of Slackware, some flavors of Debian, etc.
 The more distributions I support, the more moving targets I have to
@@ -1972,257 +1924,314 @@ then I would be very interested in working with you to work around
 the eccentricities of your Linux distro. However, rest assured, 90%
 of the bugs reported to me are actually symptoms of FooLinux X.Y's
 unique way of doing things.</para>
-<para><anchor id="AEN511"/>Q: What if the error is in Mindi?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+		<question><para>Q: What if the error is in Mindi?</para></question>
+		<answer>
 <para>A: Then send me a copy of /var/log/mindi.log (compressed,
 please) along with a description of your distro, your kernel, etc.
 Oh, and before sending it, please read it.</para>
-<para><anchor id="AEN516"/>Q: Can I trust Mondo?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+		<question><para>Q: Can I trust Mondo?</para></question>
+		<answer>
 <para>A: Mondo has generated reliable archives since May 2000. I
 have lost data by using bad CD-R disks and not verifying their
 contents. Some users have not tried booting from their CD until
 crunch time. Remember to boot into Compare Mode to verify the
 backup before you trust it. If Mondo did not work, you would not be
 reading this. If it does not work for you, your kernel is usually
-the culprit. Check <ulink url="kernelsupport.html">Linux Kernel
-support</ulink> to see what your kernel should support. Please
+the culprit. Check <link linkend="overview-sysrq-kernelreq">Linux Kernel
+support</link> to see what your kernel should support. Please
 e-mail the list (or me) if you need some help with this.</para>
-<para><anchor id="AEN522"/>Q: How do I report a bug?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+		<question><para>Q: How do I report a bug?</para></question>
+		<answer>
 <para>A: E-mail the bug report (mondo.err.xxxxx.tgz) to me. If you
 want to discuss it, please e-mail the list. The list is for
 talking; my e-mail address is for big files. :-) If you don't send
 me a logfile then there isn't a lot that I can do for you, so
 PLEASE include a logfile at the very least. Or, pop into #mondo on
 irc.redhat.com and see if I'm there.</para>
-<para><anchor id="AEN527"/>Q: I think Mondo should (...insert
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: I think Mondo should (...insert
 suggestion here...) and I have rewritten it accordingly. Would you
-like to see my patch?</para>
+like to see my patch?</para></question>
+<answer>
 <para>A: Absolutely! :-) The best way for you to make Mondo do what
 you want is to modify it and then send me the patch. That way, we
 can all benefit.</para>
-<para><anchor id="AEN532"/>Q: I think Mondo should (...insert
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: I think Mondo should (...insert
 suggestion here...); will you incorporate this feature for me,
-please?</para>
+please?</para></question>
+<answer>
 <para>A: I'll definitely think about it. Would you like to
 help?</para>
-<para><anchor id="AEN537"/>Q: Mondo says, "XXX is missing," and
-then terminates. What's wrong?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Mondo says, "XXX is missing," and
+				then terminates. What's wrong?</para></question>
+<answer>
 <para>A: A good Linux distribution should contain XXX but the
 designers, in their infinite wisdom, decided not to include that
-particular tool. Check <ulink url="linuxpackages.html">Related
-Linux Packages</ulink> and install the missing package. If that
+particular tool. Check <!--<link linkend="linuxpackages">-->Related
+		Linux Packages<!--</link>--> and install the missing package. If that
 fails, contact the vendor/distributor/manufacturer/designer of your
 distro.</para>
-<para><anchor id="AEN543"/>Q: Can Mondo handle multi-CD backups and
-restores?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Can Mondo handle multi-CD backups and
+				restores?</para></question>
+<answer>
 <para>A: Yes, up to twenty CD per set. This 20-CD limit results
 from laziness on my part. I can remove it at any time. However, if
 your system occupies more than 20 CD, may I recommend that you
 invest in a tape streamer?</para>
-<para><anchor id="AEN548"/>Q: Can Mondo handle Linux/Windows
-dual-boot systems?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Can Mondo handle Linux/Windows
+				dual-boot systems?</para></question>
+<answer>
 <para>A: Yes. If your system currently boots into Linux or Windows
 via LILO, you can backup and restore both OSes at the same time
 using Mondo. If you are using NTFS then add the switch, '-x
 &lt;device&gt;'.</para>
-<para><anchor id="AEN553"/>Q: Can Mondo backup Windows-only
-systems?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Can Mondo backup Windows-only
+				systems?</para></question>
+<answer>
 <para>A: Sure, if you pay me to play catch-up to Microsoft. ;)
 Seriously, Mondo can do it but I do not give away the
 functionality. If you are a Microsoft-only user, you are accusomed
 to paying for software and technical support. Please e-mail me for
 more information.</para>
-<para><anchor id="AEN558"/>Q: Does Mondo support LVM?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+		<question><para>Q: Does Mondo support LVM?</para></question>
+		<answer>
 <para>A: Mondo supports LVM, yes. Mondo backs up and restores your
 existing setup but it does not make it easy for you to change your
 LVM configuration. You have to edit /tmp/i-want-my-lvm at boot-time
 to do that.</para>
-<para><anchor id="AEN563"/>Q: What if I don't use LILO? What if I
-use GRUB?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: What if I don't use LILO? What if I
+				use GRUB?</para></question>
+<answer>
 <para>A: GRUB is supported by Mondo.</para>
-<para><anchor id="AEN568"/>Q: Mondoarchive (or mondorestore)
-segfaults when I run it. What could be wrong?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Mondoarchive (or mondorestore)
+				segfaults when I run it. What could be wrong?</para></question>
+<answer>
 <para>A: Install from tarball instead of RPM. (Or, try RPM if you
 just installed from tarball.) Your compiler or your libraries may
 be fubar. We'll see. If that doesn't work then please e-mail the
-<ulink url="../../feedback/feedback.html">mailing
-list</ulink>.</para>
-<para><anchor id="AEN573"/>Q: I get the error, 'Cannot find
-/tmp/dev.0' or 'Cannot mount device 0x0701'; what do I do?</para>
+&ML;.</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: I get the error, 'Cannot find
+				/tmp/dev.0' or 'Cannot mount device 0x0701'; what do I do?</para></question>
+<answer>
 <para>A: Please free up /dev/loop0 using 'losetup /dev/loop0 -d' to
 unmount that loop device. If your OS will not let you do that,
 contact your local support group or Linux vendor.</para>
-<para><anchor id="AEN578"/>Q: Can I create a Mondo CD and then use
-it to create an archive of any OS on any PC?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Can I create a Mondo CD and then use
+				it to create an archive of any OS on any PC?</para></question>
+<answer>
 <para>A: Not yet. You can use Mondo to backup Linux or
 Linux/Windows dual boot. One day, Mondo will let you backup
 partitions it can't read or write, by treating each partition as
 one long file to be backed up. This file will be chopped,
 compressed and archived like any other big file.</para>
-<para><anchor id="AEN583"/>Q: Why do you insist on putting floppy
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Why do you insist on putting floppy
+disk images on Mondo CD? They waste space and I never use them. The
+CD works just fine, so why keep the floppy disk images?</para></question>
+<answer>
+<para>A: Because of my old college buddy, Justin Case. If you
+really, truly want them gone then please submit a patch to make
+</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Why do you insist on putting floppy
 disk images on Mondo CD? They waste space and I never use them. The
 CD works just fine, so why keep the floppy disk images?</para>
 <para>A: Because of my old college buddy, Justin Case. If you
 really, truly want them gone then please submit a patch to make
-<para><anchor id="AEN583"/>Q: Why do you insist on putting floppy
-disk images on Mondo CD? They waste space and I never use them. The
-CD works just fine, so why keep the floppy disk images?</para>
-<para>A: Because of my old college buddy, Justin Case. If you
-really, truly want them gone then please submit a patch to make
-them optional.</para>
-<para><anchor id="AEN588"/>Q: Why doesn't the Mondo project have a
-cool-looking animal logo?</para>
+them optional.</para></question>
+<answer>
+		</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Why doesn't the Mondo project have a
+cool-looking animal logo?</para></question>
+<answer>
 <para>A: Excellent question! Please submit graphics of candidate
-animal logos!</para>
-<para><anchor id="AEN593"/>Q: Is there a Mondo user 'Code of
-Conduct?</para>
+		animal logos!</para>
+		</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Is there a Mondo user 'Code of
+				Conduct?</para></question>
+<answer>
 <para>A: Yes. Read the HOWTO. Submit patches. Recommend realistic
 improvements. Be courteous to other users on the discussion list.
 Do not whine.</para>
+</answer>
+</qandaentry>
+</qandaset>
 </sect1>
 
 <sect1 id="faq-booting">
 <title>Booting and Kernel related Questions</title>
-<variablelist>
-<listitem>
-<para></para>
-</listitem></varlistentry>
-<varlistentry><term>Q:
-<para><ulink url="faqbooting.html#AEN601">How do I know if Mondo
-works with my Linux distro?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqbooting.html#AEN607">When I try to boot from
-the Mondo CD, it says, "VFS: Unable to mount root fs." I am using a
-Debian distro. What do I do?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqbooting.html#AEN612">When I try to boot from
-the Mondo CD, it says, "Cannot mount root fs - kernel panic," or
-something similar. What do I do?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqbooting.html#AEN618">When I try to boot from
-the Mondo CD, it says, "Mounting /tmp/tmpfs...fatal error! Failed
-UPGRADE YOUR RAM". What does that mean?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqbooting.html#AEN624">When I try to boot from
-the Mondo CD, it says something about not finding my CD-ROM drive
-and then it blames the kernel. What does that
-mean?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqbooting.html#AEN631">The Mondo CD/floppy takes
-ages to boot. How can I speed it up?</ulink></para></term>
-<varlistentry><term>Q: <para><ulink url="faqbooting.html#AEN636">I
-made a Mondo CD using the failsafe kernel (i.e. I said 'no' when
-Mondo asked if I wanted to use my own kernel). It still doesn't
-boot. Help!</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqbooting.html#AEN641">What if my PC won't boot
-from a CD?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqbooting.html#AEN647">But why won't Mondo boot
-from my CD? It says my kernel is flawed/outdated/ whatever, and
-when I wrote to you, you told me the same thing... but I still
-don't get it. I mean, my kernel works for everything else. Why not
-Mondo?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqbooting.html#AEN653">Why do I only need a boot
-disk if I'm using a tape drive? Where are the data
-disks?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqbooting.html#AEN658">Why does it say, "Process
-accounting FAILED" when I reboot?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqbooting.html#AEN663">Why does it say,
-&amp;#8220;request_module[block-major-1]: Root fs not mounted VFS:
-Cannot open root device "100" or 01:00 Please append a correct
-"root=" boot option kernel panic: VFS: Unable to mount root fs on
-01:00&amp;#8221; when i boot from the CD?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqbooting.html#COPYBOOTDATADISK">How do i copy
-boot+data disk images to physical floppy
-disks?</ulink></para></term>
-<varlistentry><term>Q: <para><link linkend="TAPENICE">My tape drive
-doesn't play nicely with Mondo at boot-time. What do I
-do?</link></para></term>
-</variablelist>
-<para><anchor id="AEN601"/>Q: How do I know if Mondo works with my
-Linux distro?</para>
+<qandaset>
+<qandaentry>
+<question><para>Q: How do I know if Mondo works with my
+				Linux distro?</para></question>
+<answer>
 <para>A: Try running it. :) That's always a good way to find out.
 Check the <ulink url="../../docs/docs.html">Documentation
 page</ulink>, too.</para>
-<para><anchor id="AEN607"/>Q: When I try to boot from the Mondo CD,
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: When I try to boot from the Mondo CD,
 it says, "VFS: Unable to mount root fs." I am using a Debian
-distro. What do I do?</para>
+distro. What do I do?</para></question>
+<answer>
 <para>A: Ask Debian's designers why they, unlike every other distro
 I can find, have included cramfs and other 'goodies' with their
 kernel. In the meantime, please use '-k FAILSAFE' in your command
 line when calling Mondo.</para>
-<para><anchor id="AEN612"/>Q: When I try to boot from the Mondo CD,
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: When I try to boot from the Mondo CD,
 it says, "Cannot mount root fs - kernel panic," or something
-similar. What do I do?</para>
+similar. What do I do?</para></question>
+<answer>
 <para>A: Recompile your kernel (or use '-k FAILSAFE'). Take a look
-at <ulink url="kernelsupport.html">Linux Kernel support</ulink> to
+at <link linkend="overview-sysrq-kernelreq">Linux Kernel support</link> to
 see what you're kernel must support.</para>
-<para><anchor id="AEN618"/>Q: When I try to boot from the Mondo CD,
-it says, "UPGRADE YOUR RAM". What does that mean?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: When I try to boot from the Mondo CD,
+				it says, "UPGRADE YOUR RAM". What does that mean?</para></question>
+<answer>
 <para>A: Recompile your kernel and add Virtual memory file system
-support. Take a look at <ulink url="kernelsupport.html">Linux
-Kernel support</ulink> to see what you're kernel must support. (Of
+support. Take a look at <link linkend="overview-sysrq-kernelreq">Linux
+Kernel support</link> to see what you're kernel must support. (Of
 course, if your PC has less than 64MB of RAM, you could always...
 what's the phrase? I know, upgrade your RAM!)</para>
-<para><anchor id="AEN624"/>Q: When I try to boot from the Mondo CD,
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: When I try to boot from the Mondo CD,
 it says something about not finding my CD-ROM drive and then it
-blames the kernel. What does that mean?</para>
+blames the kernel. What does that mean?</para></question>
+<answer>
 <para>A: Your kernel must support initrd, loopfs, IDE CD-ROM's, and
-ramdisks. Take a look at <ulink url="kernelsupport.html">Linux
-Kernel support</ulink> to see what you're kernel must support. If
+ramdisks. Take a look at <link linkend="overview-sysrq-kernelreq">Linux
+Kernel support</link> to see what you're kernel must support. If
 your kernel does not support these things, Mondo will not boot from
 your CD. However, when running Mindi, you may choose to use _its_
 kernel instead of your own. In addition, you may boot from floppy
 disk images instead the CD: copy the disk images from the CD
 /images directory to floppy disks, using 'dd'. Take a look at
-<ulink url="faqbooting.html#COPYBOOTDATADISK">Copy boot data
-disks</ulink> on how to make those.</para>
-<para><anchor id="AEN631"/>Q: The Mondo CD/floppy takes ages to
-boot. How can I speed it up?</para>
+<link linkend="copybootdatadisk">Copy boot data
+disks</link> on how to make those.</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: The Mondo CD/floppy takes ages to
+				boot. How can I speed it up?</para></question>
+<answer>
 <para>A: Edit mindi (it's a shell script, btw) and change
 LILO_OPTIONS="" to LILO_OPTIONS="-c". This enables map compaction
 in lilo and speeds up booting, for more info see the lilo man
 page.</para>
-<para><anchor id="AEN636"/>Q: I made a Mondo CD using the failsafe
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: I made a Mondo CD using the failsafe
 kernel (i.e. I said 'no' when Mondo asked if I wanted to use my own
-kernel). It still doesn't boot. Help!</para>
+kernel). It still doesn't boot. Help!</para></question>
+<answer>
 <para>A: OK, now that is a bug. :-) I included a kernel with Mondo
 (technically, with Mindi, which Mondo uses) to make sure that users
 could use Mondo despite flaws in their own kernels. If you are
 using Mondo/Mindi's kernel but still cannot boot from your Mondo CD
 then please e-mail the list.</para>
-<para><anchor id="AEN641"/>Q: What if my PC won't boot from a
-CD?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: What if my PC won't boot from a
+				CD?</para></question>
+<answer>
 <para>A: Copy the image files from the CD /images directory, using
 the dd command. Take a look at
-<ulink url="faqbooting.html#COPYBOOTDATADISK">Copy boot data
-disks</ulink> on how to make those. Then boot from the first
+<link linkend="copybootdatadisk">Copy boot data
+disks</link> on how to make those. Then boot from the first
 floppy; follow it up with the data disks; finally, type 'mount
 /mnt/cdrom' and then utilize the restore script as usual, e.g.
 mondorestore.</para>
-<para><anchor id="AEN647"/>Q: But why won't Mondo boot from my CD?
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: But why won't Mondo boot from my CD?
 It says my kernel is flawed/outdated/ whatever, and when I wrote to
 you, you told me the same thing... but I still don't get it. I
-mean, my kernel works for everything else. Why not Mondo?</para>
+mean, my kernel works for everything else. Why not Mondo?</para></question>
+<answer>
 <para>A: Because Mondo makes a boot disk using your kernel. I bet
 your other software doesn't do that. Also, not all kernels are
 suitable for boot disks. I'm sorry but that's Life. Upgrade your
 kernel and/or recompile it. Take a look at
-<ulink url="kernelsupport.html">Linux Kernel support</ulink> to see
+<link linkend="overview-sysrq-kernelreq">Linux Kernel support</link> to see
 what you're kernel must support.</para>
-<para><anchor id="AEN653"/>Q: Why do I only need a boot disk if I'm
-using a tape drive? Where are the data disks?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Why do I only need a boot disk if I'm
+				using a tape drive? Where are the data disks?</para></question>
+<answer>
 <para>A: On the tape. :-) The first 32MB of the tape will be set
 aside for a large tarball containing the data disks, a list of all
 files backed up, and other sundries. If Mondo and Mindi do their
 respective jobs then you won't need additional floppies, just the
 boot floppy and the tape(s).</para>
-<para><anchor id="AEN658"/>Q: Why does it say, "Process accounting
-FAILED" when I reboot?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Why does it say, "Process accounting
+				FAILED" when I reboot?</para></question>
+<answer>
 <para>A: You were using Process Accounting. Red Hat (or whichever
 distro you are using) does not provide a startup/shutdown script
 yet. So, when you try to backup the process log, it just grows and
@@ -2230,21 +2239,24 @@ grows as Mondo tries to back it up. Mondo doesn't back it up
 anymore and that's why. The unfortunate side-effect is... well,
 what you see on your screen. Type 'touch /var/log/pacct' and then
 'paccton' to fix the error message.</para>
-<para><anchor id="AEN663"/>Q: Why does it say,
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Why does it say,
 &amp;#8220;request_module[block-major-1]: Root fs not mounted VFS:
 Cannot open root device "100" or 01:00 Please append a correct
 "root=" boot option kernel panic: VFS: Unable to mount root fs on
-01:00&amp;#8221; when i boot from the CD?</para>
+01:00&amp;#8221; when i boot from the CD?</para></question>
+<answer>
 <para>A: Recompile your kernel and add initrd support. Take a look
-at <ulink url="kernelsupport.html">Linux Kernel support</ulink>to
+at <link linkend="overview-sysrq-kernelreq">Linux Kernel support</link>to
 see what you're kernel must support.</para>
 <para><anchor id="COPYBOOTDATADISK"/>Q: How do i copy boot+data
-disk images to physical floppy disks ?</para>
+		disk images to physical floppy disks ?</para>
 <para>A: The images are in /root/images/mindi (eve if they are
 created by Mondo) and also in the 'images' directory on the first
 CD of your backup set, if you have backed up to CD. You can copy
 the images to disk as follows:-</para>
-<para></para>
 <informaltable><tgroup cols="1"><tbody>
 <row>
 <entry>
@@ -2256,124 +2268,98 @@ the images to disk as follows:-</para>
 </entry>
 </row>
 </tbody></tgroup></informaltable>
+</answer>
+</qandaentry>
 
-<variablelist>
-<listitem>
-<para></para>
-</listitem></varlistentry>
-<varlistentry><term><para id="TAPENICE"></para>Q: My tape drive
-doesn't play nicely with Mondo at boot-time. What do I do?</term>
-<varlistentry><term>A: Play with 'mt'. Use its setblksize and
-defblksize switches to reconfigure your tape drive if necessary.
-<variablelist>
-<listitem>
-<para></para>
-</listitem></varlistentry>
-<varlistentry><term><para id="TAPENICE"></para>Q: My tape drive
-doesn't play nicely with Mondo at boot-time. What do I do?</term>
-<varlistentry><term>A: Play with 'mt'. Use its setblksize and
+<qandaentry>
+<question><para id="TAPENICE">Q: My tape drive
+doesn't play nicely with Mondo at boot-time. What do I do?</para></question>
+<answer><para>A: Play with 'mt'. Use its setblksize and
 defblksize switches to reconfigure your tape drive if necessary.
 Some tape drives just suck, I'm sorry to say. If yours is one of
 them then God help you. Mondo can handle any tape drive whose drive
 and firmware can handle fread(), fwrite(), fread() and fclose().
 Mondo uses standard C libraries to talk to your tape streamer. If
 your tape streamer can't handle that then you had better call a
-priest. Either that or ask for a refund.</term>
-</variablelist>
-<para></para>
+priest. Either that or ask for a refund.
+</para>
+</answer>
+</qandaentry>
+</qandaset>
 </sect1>
+
 <sect1 id="faq-install">
 <title>Installation related Questions</title>
-<variablelist>
-<listitem>
-<para></para>
-</listitem></varlistentry>
-<varlistentry><term>Q:
-<para><ulink url="faqinstallation.html#AEN678">Why do I get,
-"newt.h not found," several times when I try to install
-Mondo?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqinstallation.html#AEN684">Newt won't compile
-when i try, what's the problem?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqinstallation.html#AEN690">I've just used up 6
-CD-R, only to find that Mondo won't boot!</ulink></para></term>
-<varlistentry><term>Q: <para><link linkend="PACKREQ">Lots of
-packages, required by Mondo, are missing from my system. What do I
-do?</link></para></term>
-</variablelist>
-<para><anchor id="AEN678"/>Q: Why do I get, "newt.h not found," or
+<qandaset>
+<qandaentry>
+<question><para>Q: Why do I get, "newt.h not found," or
 "popt.h not found," several times when I try to install
-Mondo?</para>
+Mondo?</para></question>
+<answer>
 <para>A: You have not installed libnewt and/or libnewt-devel.
 Please do so. Check <ulink url="linuxpackages.html">Related Linux
 Packages</ulink> to see what Mondo requires and where you can get
 tarballs and RPM's. Make sure you are using the right version of
 newt/libnewt. Read the error messages carefully.</para>
-<para><anchor id="AEN684"/>Q: Newt won't compile when I try. What's
-the problem?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Newt won't compile when I try. What's
+				the problem?</para></question>
+<answer>
 <para>A: You are probably missing popt.h, which newt needs to
 compile, it can be found in the 'popt' package. Check your
 distribution and see if they have popt, if not check
 <ulink url="linuxpackages.html">Related Linux Packages</ulink> to
 see where you can get it.</para>
-<para><anchor id="AEN690"/>Q: I've just used up 6 CD-R, only to
-find that Mondo won't boot!</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: I've just used up 6 CD-R, only to
+				find that Mondo won't boot!</para></question>
+<answer>
 <para>A: You should have used CD-RW. ;) In the HOWTO, it gives
 instructions on how to create a test CD (one, not six).</para>
-<variablelist>
-<listitem>
-<para></para>
-</listitem></varlistentry>
-<varlistentry><term><para id="PACKREQ"></para>Q: Lots of packages,
-required by Mondo, are missing from my system. What do I do?</term>
-<varlistentry><term>A: Install them. :) If you are using RPM or DEB
+</answer>
+</qandaentry>
+<qandaentry>
+<question>
+<para id="PACKREQ">Q: Lots of packages,
+required by Mondo, are missing from my system. What do I do?</para>
+</question>
+<answer>
+<para>
+A: Install them. :) If you are using RPM or DEB
 then you'll be told which packages you need. Mondo offers a lot of
 those packages on its
-<para><ulink url="http://www.mondorescue.org/download/download.html">Download</ulink></para>
-web page.</term>
-</variablelist>
+<ulink url="http://www.mondorescue.org/download/download.html">Download</ulink>
+web page.</para>
+</answer>
+</qandaentry>
+</qandaset>
 </sect1>
+
 <sect1 id="faq-hardware">
 <title>Hardware related Questions</title>
-<variablelist>
-<listitem>
-<para></para>
-</listitem></varlistentry>
-<varlistentry><term>Q:
-<para><ulink url="faqhardwarerelated.html#AEN698">Can Mondo handle
-CD-RW?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqhardwarerelated.html#AEN703">Does Mondo
-support tape drives?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqhardwarerelated.html#AEN708">Does Mondo
-support my tape drive??</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqhardwarerelated.html#AEN713">How do I copy the
-floppy images from the CD to floppy disks?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqhardwarerelated.html#AEN722">Sometimes, my
-laptop won't mount Mondo CD properly, or something.
-Umm...</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqhardwarerelated.html#AEN727">Does Mondo
-support RAID?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqhardwarerelated.html#AEN732">Where is my CD
-burner, in SCSI terms?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqhardwarerelated.html#AEN740">Can Mondo handle
-SCSI devices?</ulink></para></term>
-</variablelist>
-<para><anchor id="AEN698"/>Q: Can Mondo handle CD-RW?</para>
+<qandaset>
+<qandaentry>
+		<question><para>Q: Can Mondo handle CD-RW?</para></question>
+		<answer>
 <para>A: Yes. Use '-Ow &lt;speed&gt; &lt;device&gt;' to make it
 work.</para>
-<para><anchor id="AEN703"/>Q: Does Mondo support tape
-drives?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Does Mondo support tape
+				drives?</para></question>
+<answer>
 <para>A: Yes. See above.</para>
-<para><anchor id="AEN708"/>Q: Does Mondo support my tape
-drive?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Does Mondo support my tape
+				drive?</para></question>
+<answer>
 <para>A: If your tape drive and its firmware and the kernel-level
 driver support fopen(), fread(), fwrite() and fclose() - standard C
 library calls - then yes, Mondo should support it. If not, well,
@@ -2383,8 +2369,12 @@ play nicely with Mondo then you may try tinkering with setblksize
 and defblksize using 'mt', or tweaking Mondo's block size by
 recompiling it with make INTTAPE=4096 or INTTAPE=8192 or something.
 Other than that, you need a priest or a refund.</para>
-<para><anchor id="AEN713"/>Q: How do I copy the floppy images from
-the CD to floppy disks?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: How do I copy the floppy images from
+				the CD to floppy disks?</para></question>
+<answer>
 <para>A: Mount the CD-ROM, e.g. at /mnt/cdrom. Insert a blank
 floppy. Type:</para>
 <para></para>
@@ -2411,20 +2401,32 @@ bash# dd if=mindi-data-1.img of=/dev/fd0u1722
 </tbody></tgroup></informaltable>
 
 <para>Do the above for each 'mindi-data' disk image.</para>
-<para><anchor id="AEN722"/>Q: Sometimes, my laptop won't mount
-Mondo CD properly, or something. Umm...</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Sometimes, my laptop won't mount
+				Mondo CD properly, or something. Umm...</para></question>
+<answer>
 <para>A: Please insert the CD, close the CD-ROM tray, wait a few
 seconds and then press Enter to acknowledge insertion of the next
 CD. Your laptop is on crack and is sucking a little too hard on the
 pipe.</para>
-<para><anchor id="AEN727"/>Q: Does Mondo support RAID?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+		<question><para>Q: Does Mondo support RAID?</para></question>
+		<answer>
 <para>A: Yes. You may backup and restore RAID systems. You may also
 backup a non-RAID system and restore as RAID (or vice versa) by
 using the mountlist editor to edit your RAID and non-RAID
 partitions and their settings. Mondo will do the partitioning and
 formatting for you.</para>
-<para><anchor id="AEN732"/>Q: Where is my CD burner, in SCSI
-terms?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Where is my CD burner, in SCSI
+				terms?</para></question>
+<answer>
 <para>A: Type:</para>
 <para></para>
 <informaltable><tgroup cols="1"><tbody>
@@ -2443,79 +2445,63 @@ lucky, just use '-Oc 2'; Mondo will (a) assume you want to write at
 4x to</para>
 <para>a CD-R and (b) will do its best to find your CD
 burner.</para>
-<para><anchor id="AEN740"/>Q: Can Mondo handle SCSI devices?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+		<question><para>Q: Can Mondo handle SCSI devices?</para></question>
+		<answer>
 <para>A: Mondo should be able to handle almost any hardware. So
 long as your kernel and modules support it, Mindi will support it
 and therefore so will Mondo.</para>
+</answer>
+</qandaentry>
+</qandaset>
 </sect1>
 
 <sect1 id="faq-backup">
 <title>Backup related Questions</title>
-<variablelist>
-<listitem>
-<para></para>
-</listitem></varlistentry>
-<varlistentry><term>Q: <para><link linkend="MMKM">Mondo says,
-'Cannot run mindi --makemountlist' and aborts. What do I
-do?</link></para></term>
-<varlistentry><term>Q: <para><ulink url="faqbackup.html#AEN748">Can
-Mondo burn CD as they are created?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqbackup.html#AEN753">When I try to backup to
-CD, cdrecord/mkisofs returns an error. Nothing else appears to be
-wrong. What do I do?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqbackup.html#AEN758">Mondo failed to burn my
-CD. It said something like, "Error CDB A1 01 02 53 ..." and so on.
-What does that mean?</ulink></para></term>
-<varlistentry><term>Q: <para><ulink url="faqbackup.html#AEN763">May
-I backup my system with one partition layout and restore with
-another?</ulink></para></term>
-<varlistentry><term>Q: <para><ulink url="faqbackup.html#AEN775">Why
-does Mondo need so much free disk space?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqbackup.html#AEN780">Will Mondo backup
-partitions whose formats are not understood by Linux, such as
-NTFS?</ulink></para></term>
-<varlistentry><term>Q: <para><ulink url="faqbackup.html#AEN785">I
-am trying to do something clever, e.g. write my ISO's to an NFS
-mount, and I get some weird error messages. What do I
-do?</ulink></para></term>
-<varlistentry><term>Q: <para><ulink url="faqbackup.html#AEN790">Can
-Mondo backup to data files on another partition, e.g. an NFS
-mount?</ulink></para></term>
-<varlistentry><term>Q: <para><ulink url="faqbackup.html#AEN795">Can
-Mondo backup _to_ an NFS partition, i.e. backup over a network? How
-about restoring?</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqbackup.html#AEN801">Does Mondo handle System
-or Hidden attributes when archiving Dos/Win
-files?</ulink></para></term>
-<varlistentry><term>Q: <para><ulink url="faqbackup.html#AEN806">Why
-do you include IO.SYS and MSDOS.SYS in mondo-vfat, when they belong
-to Microsoft and are copyrighted?</ulink></para></term>
-<varlistentry><term><para id="MMKM"></para>Q: Mondo says, 'Cannot
-run mindi --makemountlist' and aborts. What do I do?</term>
-<varlistentry><term>A: Look at /var/log/mindi.log and see what it
+
+<qandaset>
+<qandaentry>
+<question><para id="MMKM">Q: Mondo says, 'Cannot
+				run mindi --makemountlist' and aborts. What do I do?</para></question>
+<answer>
+		<para>
+A: Look at /var/log/mindi.log and see what it
 says. Also, try typing 'mindi --makemountlist /tmp/mountlist.txt'
-to see what Mindi says. Compress the log and send it to the mailing
-list if you get stuck.</term>
-</variablelist>
-<para><anchor id="AEN748"/>Q: Can Mondo burn CD as they are
-created?</para>
+to see what Mindi says. Compress the log and send it to the &ML; if you get stuck.
+</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Can Mondo burn CD as they are
+				created?</para></question>
+<answer>
 <para>A: Yes. Use the '-Oc &lt;speed&gt;' switch. Use a negative
 number for a dummy burn.</para>
-<para><anchor id="AEN753"/>Q: When I try to backup to CD,
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: When I try to backup to CD,
 cdrecord/mkisofs returns an error. Nothing else appears to be
-wrong. What do I do?</para>
+wrong. What do I do?</para></question>
+<answer>
 <para>A: Upgrade cdrecord and mkisofs.</para>
-<para><anchor id="AEN758"/>Q: Mondo failed to burn my CD. It said
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Mondo failed to burn my CD. It said
 something like, "Error CDB A1 01 02 53 ..." and so on. What does
-that mean?</para>
+that mean?</para></question>
+<answer>
 <para>A: Cdrecord reported some serious errors while trying to burn
 your CD. Check your CD burner, your CD-R and your kernel.</para>
-<para><anchor id="AEN763"/>Q: May I backup my system with one
-partition layout and restore with another?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: May I backup my system with one
+				partition layout and restore with another?</para></question>
+<answer>
 <para>A: Yes. Boot in Interactive Mode and edit the mountlist using
 the snazzy new mountlist editor. Mondo can now edit your RAID
 partitions for you. Just open /dev/md0 (or whatever) and select
@@ -2532,31 +2518,51 @@ partitions for you. Just open /dev/md0 (or whatever) and select
 <para>Follow the prompts and your own common-sense :)</para>
 </listitem>
 </itemizedlist>
-<para><anchor id="AEN775"/>Q: Why does Mondo need so much free disk
-space?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Why does Mondo need so much free disk
+				space?</para></question>
+<answer>
 <para>A: Because I'm a bitter, twisted man who lives to torment
 you. Mwahahahaha! :-) Mondo has to work around the inadequacies of
 mkisofs, cdrecord and your own Linux distribution; in return, it
 asks for a lot of free disk space.</para>
-<para><anchor id="AEN780"/>Q: Will Mondo backup partitions whose
-formats are not understood by Linux, such as NTFS?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Will Mondo backup partitions whose
+				formats are not understood by Linux, such as NTFS?</para></question>
+<answer>
 <para>A: Yes. Use '-x &lt;device&gt;'. (You can have more than one
 device.)</para>
-<para><anchor id="AEN785"/>Q: I am trying to do something clever,
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: I am trying to do something clever,
 e.g. write my ISO's to an NFS mount, and I get some weird error
-messages. What do I do?</para>
+messages. What do I do?</para></question>
+<answer>
 <para>A: Well, (a) use '-T /tmp' or '-T /home' or something in your
 call to Mondo. Oh, and (b) send me /var/log/mondo-archive.log,
 please :-)</para>
-<para><anchor id="AEN790"/>Q: Can Mondo backup to data files on
-another partition, e.g. an NFS mount?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Can Mondo backup to data files on
+				another partition, e.g. an NFS mount?</para></question>
+<answer>
 <para>A: Yes. Just backup as usual but add '-d /mnt/nfs' or
 wherever your partition is mounted; don't use '-Oc' or '-Ot' at
 all; just '-Oi -d /root'. Then, after booting from the floppies
 which Mondo generates, you need to type 'ISO' at the
 console.</para>
-<para><anchor id="AEN795"/>Q: Can Mondo backup _to_ an NFS
-partition, i.e. backup over a network? How about restoring?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Can Mondo backup _to_ an NFS
+				partition, i.e. backup over a network? How about restoring?</para></question>
+<answer>
 <para>A: Yes. Use '-On &lt;mount&gt; &lt;directory&gt;'. On my
 system, I use:</para>
 <para></para>
@@ -2570,33 +2576,39 @@ bash# mondoarchive -On 192.168.1.3:/home/nfs
 </row>
 </tbody></tgroup></informaltable>
 
-<para><anchor id="AEN801"/>Q: Does Mondo handle System or Hidden
-attributes when archiving Dos/Win files?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Does Mondo handle System or Hidden
+				attributes when archiving Dos/Win files?</para></question>
+<answer>
 <para>A: No. It probably never will, either. Sorry.</para>
-<para><anchor id="AEN806"/>Q: Why do you include IO.SYS and
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Why do you include IO.SYS and
 MSDOS.SYS in mondo-vfat, when they belong to Microsoft and are
-copyrighted?</para>
+copyrighted?</para></question>
+<answer>
 <para>A: Well, I used to, but I don't anymore. However, if you do
 have a Windows partition, you can still use 'format-and-kludge-vfat
 &lt;DEVICE&gt;/' to format and make bootable a VFAT partition.
 AFAIK, I am the only person to write a Linux equivalent of the DOS
 "SYS" command.</para>
+</answer>
+</qandaentry>
+</qandaset>
 </sect1>
 
 <sect1 id="faq-compare">
 <title>Compare related Questions</title>
-<variablelist>
-<listitem>
-<para></para>
-</listitem></varlistentry>
-<varlistentry><term>Q:
-<para><ulink url="faqcompare.html#AEN814">When I compare my
-archives to my file system, Mondo tells me there are differences or
-errors. Are the archives bad?</ulink></para></term>
-</variablelist>
-<para><anchor id="AEN814"/>Q: When I compare my archives to my file
+
+<qandaset>
+<qandaentry>
+<question><para>Q: When I compare my archives to my file
 system, Mondo tells me there are differences or errors. Are the
-archives bad?</para>
+archives bad?</para></question>
+<answer>
 <para>A: Look at /tmp/changed.files; if the files are logfiles,
 temp files or files which you think you may have changed recently
 then the archives are simply out of date, albeit only by a few
@@ -2606,43 +2618,27 @@ tapes or even your hardware could be to blame. Check your CD writer
 or tape streamer.</para>
 <para>Also, don't forget to review /var/log/mondo-archive.log for
 more information.</para>
+</answer>
+</qandaentry>
+</qandaset>
 </sect1>
 
 <sect1 id="faq-restore">
 <title>Restore related Questions</title>
-<variablelist>
-<listitem>
-<para></para>
-</listitem></varlistentry>
-<varlistentry><term>Q:
-<para><ulink url="faqrestore.html#AEN822">Can Mondo help me
-move/resize/re-allocate my partitions?</ulink></para></term>
-<varlistentry><term>Q: <para><ulink url="faqrestore.html#AEN827">My
-zip drive is a SCSI drive. When I restore, Mondo craps out, saying
-it can't mount the drive (because there is no disk in it). What do
-I do?</ulink></para></term>
-<varlistentry><term>Q: <para><ulink url="faqrestore.html#AEN832">I
-received a message like, 'Fileset NNN failed' during restore. What
-does it mean.</ulink></para></term>
-<varlistentry><term>Q:
-<para><ulink url="faqrestore.html#AEN837">Why does my ext3
-partition have less space free than when I backed it
-up?</ulink></para></term>
-<varlistentry><term>Q: <para><link linkend="SEGF">When I restore
-after booting from the CD/floppies, I sometimes get errors like,
-"Running out of memory" or "Segmentation fault". What is going
-on?</link></para></term>
-<varlistentry><term>Q: <para><link linkend="LVM">I can't
-nuke-restore my LVM or RAID or LVM-on-RAID setup. I have to do it
-manually. What now?</link></para></term>
-</variablelist>
-<para><anchor id="AEN822"/>Q: Can Mondo help me
-move/resize/re-allocate my partitions?</para>
+<qandaset>
+<qandaentry>
+<question><para>Q: Can Mondo help me
+				move/resize/re-allocate my partitions?</para></question>
+<answer>
 <para>A: Yes. Just backup your system in Interactive Mode using
 Mondo. Edit the mountlist when prompted.</para>
-<para><anchor id="AEN827"/>Q: My zip drive is a SCSI drive. When I
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: My zip drive is a SCSI drive. When I
 restore, Mondo craps out, saying it can't mount the drive (because
-there is no disk in it). What do I do?</para>
+there is no disk in it). What do I do?</para></question>
+<answer>
 <para>A: Restore in Interactive Mode. Delete the SCSI drive from
 the mountlist before you restore. Then Mondo won't try to partition
 or format it. Next time you backup, use -E /dev/sdd (or whatever
@@ -2651,30 +2647,41 @@ mountlist but not from the filelist. So, when you restore, you
 won't accidentally reformat your zip disk. However, after
 restoring, you will find that /dev/sdd (the _file_) will still be
 present in your /dev directory. Cool, eh?</para>
-<para><anchor id="AEN832"/>Q: I received a message like, 'Fileset
-NNN failed' during restore. What does it mean.</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: I received a message like, 'Fileset
+				NNN failed' during restore. What does it mean.</para></question>
+<answer>
 <para>A: It usually means either you had a very large (&gt;2GB)
 file which was not archived owing to a flaw in your distro or your
 filesystem has changed in relation to the backup.</para>
-<para><anchor id="AEN837"/>Q: Why does my ext3 partition have less
-space free than when I backed it up?</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para>Q: Why does my ext3 partition have less
+				space free than when I backed it up?</para></question>
+<answer>
 <para>A: Mondo creates a 10MB journal file area. Your journal was
 probably smaller than that, hence the difference.</para>
-<variablelist>
-<listitem>
-<para></para>
-</listitem></varlistentry>
-<varlistentry><term><para id="SEGF"></para>Q: When I restore after
+</answer>
+</qandaentry>
+<qandaentry>
+<question><para id="SEGF">Q: When I restore after
 booting from the CD/floppies, I sometimes get errors like, "Running
-out of memory" or "Segmentation fault". What is going on?</term>
-<varlistentry><term>A: It sounds as if you are running out of disk
+out of memory" or "Segmentation fault". What is going on?</para></question>
+<answer><para>A: It sounds as if you are running out of disk
 space, probably ram disk space. Type 'df -m' to see which
 partitions are running low on space. Please send as much
-information as you can to the mailing list. This problem is
-believed to have been fixed in 1.63 and 1.71.</term>
-</variablelist>
-<para><anchor id="LVM"/>Q: I can't nuke-restore my LVM or RAID or
-LVM-on-RAID setup. I have to do it manually. What now?</para>
+information as you can to the &ML;. This problem is
+believed to have been fixed in 1.63 and 1.71.</para>
+</answer>
+</qandaentry>
+<qandaentry>
+<question>
+<para id="LVM"/>Q: I can't nuke-restore my LVM or RAID or
+LVM-on-RAID setup. I have to do it manually. What now?</para></question>
+<answer>
 <para>A: You said it yourself. You have to do it manually. :) Sorry
 but that's about it. At least you have all the tools to do it. I
 assume you know how. If you don't, look at i-want-my-lvm (a script
@@ -2683,6 +2690,9 @@ clues. RAID is harder but in general Mondo's RAID support is good.
 After you've prepped and formatted your drives, run mondorestore
 again but say 'no' when asked if you want Mondo to prep or format
 your drives.</para>
+</answer>
+</qandaentry>
+</qandaset>
 </sect1>
 </chapter>
 

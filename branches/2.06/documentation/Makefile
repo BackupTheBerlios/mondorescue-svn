@@ -25,9 +25,9 @@ $(TARGET).html: $(SRC) $(DSL) $(IMAGES)
 	
 $(TARGET).pdf: $(SRC) $(DSL) $(IMAGES)
 	docbook2pdf -d $(TARGET).dsl'#pdf' $(TARGET).sgml
-	hugepdflatex -fmt=jadetex -mltex $(TARGET).tex
-	hugepdflatex -fmt=jadetex -mltex $(TARGET).tex
-	hugepdflatex -fmt=jadetex -mltex $(TARGET).tex
+	pdflatex -fmt=jadetex -mltex $(TARGET).tex
+	pdflatex -fmt=jadetex -mltex $(TARGET).tex
+	pdflatex -fmt=jadetex -mltex $(TARGET).tex
 	dvips $(TARGET).dvi -o $(TARGET).pdf
 
 $(TARGET).rtf: $(SRC) $(DSL) $(IMAGES)

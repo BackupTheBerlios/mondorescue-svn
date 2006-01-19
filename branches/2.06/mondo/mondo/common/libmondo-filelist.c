@@ -1533,12 +1533,12 @@ int open_and_list_dir(char *dir, char *sth, FILE * fout,
 #if linux
 		// 2.6 has /sys as a proc-type thing -- must be excluded
 		sprintf(tmp,
-				"find %s -maxdepth %d -path /proc -prune -o -path /tmp -prune -o -path /sys -prune -o -path /dev/shm -prune -o -path /media/floppy -prune -o -type d -a -print > %s 2> /dev/null",
+				"find %s -maxdepth %d -path /proc -prune -o -path -prune -o -path /sys -prune -o -path /dev/shm -prune -o -path /media/floppy -prune -o -type d -a -print > %s 2> /dev/null",
 				dir, MAX_SKEL_DEPTH, g_skeleton_filelist);
 #else
 		// On BSD, for example, /sys is the kernel sources -- don't exclude
 		sprintf(tmp,
-				"find %s -maxdepth %d -path /proc -prune -o -path /tmp -prune -o -type d -a -print > %s 2> /dev/null",
+				"find %s -maxdepth %d -path /proc -prune -o -path -prune -o -type d -a -print > %s 2> /dev/null",
 				dir, MAX_SKEL_DEPTH, g_skeleton_filelist);
 #endif
 		system(tmp);
@@ -1774,7 +1774,7 @@ int mondo_makefilelist(char *logfile, char *tmpdir, char *scratchdir,
 		log_msg(1, "Calculating filelist");
 		sprintf(exclude_paths, " %s %s %s %s %s %s . .. \
 " MNT_CDROM " " MNT_FLOPPY " /media/cdrom /media/cdrecorder \
-/proc /sys /tmp /root/images/mondo /root/images/mindi ", excp, call_program_and_get_last_line_of_output("locate /win386.swp 2> /dev/null"), call_program_and_get_last_line_of_output("locate /hiberfil.sys 2> /dev/null"), call_program_and_get_last_line_of_output("locate /pagefile.sys 2> /dev/null"), (tmpdir[0] == '/' && tmpdir[1] == '/') ? (tmpdir + 1) : tmpdir, (scratchdir[0] == '/' && scratchdir[1] == '/') ? (scratchdir + 1) : scratchdir);
+/proc /sys /root/images/mondo /root/images/mindi ", excp, call_program_and_get_last_line_of_output("locate /win386.swp 2> /dev/null"), call_program_and_get_last_line_of_output("locate /hiberfil.sys 2> /dev/null"), call_program_and_get_last_line_of_output("locate /pagefile.sys 2> /dev/null"), (tmpdir[0] == '/' && tmpdir[1] == '/') ? (tmpdir + 1) : tmpdir, (scratchdir[0] == '/' && scratchdir[1] == '/') ? (scratchdir + 1) : scratchdir);
 
 		log_msg(2, "Excluding paths = '%s'", exclude_paths);
 		log_msg(2,

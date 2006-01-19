@@ -1,0 +1,260 @@
+<HTML>
+ <HEAD>
+  <!-- $MVD$:app("MicroVision WebExpress","769") -->
+  <!-- $MVD$:template("","0","0") -->
+  <!-- $MVD$:color("18","840084","Custom #1","0") -->
+  <!-- $MVD$:color("19","e0e0e0","Custom #2","0") -->
+  <!-- $MVD$:color("20","80ff","Orange","1") -->
+  <!-- $MVD$:color("21","ffd6ce","Lavender","1") -->
+  <TITLE>Kernel/Linux/Booting </TITLE>
+  <META NAME="GENERATOR" CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+">
+ <LINK REL="HOME" HREF="index.html" TITLE=" Mondo Rescue and Mindi Linux HOWTO "><LINK REL="UP" HREF="faq.html" TITLE=" Troubleshooting/FAQ "><LINK REL="PREVIOUS" HREF="faqgeneral.html" TITLE=" General "><LINK REL="NEXT" HREF="faqinstallation.html" TITLE=" Installation "></HEAD>
+ <BODY BGCOLOR="WHITE" TEXT="BLACK" LINK="BLUE" VLINK="#840084" ALINK="BLUE" CLASS="SECTION">
+  <DIV ALIGN=LEFT>
+  <P ALIGN=LEFT>
+   <TABLE WIDTH="100%" CELLPADDING="0" CELLSPACING="0" BORDER="0" SUMMARY="Header navigation table">
+    <TR>
+     <TD COLSPAN="3" VALIGN=CENTER>
+      <P ALIGN=CENTER>
+       Mondo Rescue and Mindi Linux HOWTO</TD>
+    </TR>
+    <TR>
+     <TD WIDTH="10%" VALIGN=BOTTOM>
+      <P ALIGN=LEFT>
+       <A HREF="faqgeneral.html" ACCESSKEY="P">Prev</A></TD>
+     <TD WIDTH="80%" VALIGN=BOTTOM>
+      <P ALIGN=CENTER>
+       Chapter 10. Troubleshooting/FAQ</TD>
+     <TD WIDTH="10%" VALIGN=BOTTOM>
+      <P ALIGN=RIGHT>
+       <A HREF="faqinstallation.html" ACCESSKEY="N">Next</A></TD>
+    </TR>
+   </TABLE>
+   <HR ALIGN=LEFT WIDTH="100%" SIZE="2">
+   </P>
+  </DIV>
+  <H1 CLASS="SECTION" ALIGN=LEFT>
+   <A NAME="FAQBOOTING"></A>10.3. Kernel/Linux/Booting</H1>
+  <DL>
+   <P ALIGN=LEFT>
+    <DT CLASS="mvd-P">Q: <A HREF="faqbooting.html#AEN601">How do I know 
+    if Mondo works with my Linux distro?</A><BR>
+    <DT CLASS="mvd-P">Q: <A HREF="faqbooting.html#AEN607">When I try to 
+    boot from the Mondo CD, it says, &quot;VFS: Unable to mount root 
+    fs.&quot; I am using a Debian distro. What do I do?</A><BR>
+    <DT CLASS="mvd-P">Q: <A HREF="faqbooting.html#AEN612">When I try to 
+    boot from the Mondo CD, it says, &quot;Cannot mount root fs - kernel 
+    panic,&quot; or something similar. What do I do?</A><BR>
+    <DT CLASS="mvd-P">Q: <A HREF="faqbooting.html#AEN618">When I try to 
+    boot from the Mondo CD, it says, &quot;Mounting /tmp/tmpfs...fatal 
+    error! Failed UPGRADE YOUR RAM&quot;. What does that mean?</A><BR>
+    <DT CLASS="mvd-P">Q: <A HREF="faqbooting.html#AEN624">When I try to 
+    boot from the Mondo CD, it says something about not finding my CD-ROM 
+    drive and then it blames the kernel. What does that mean?</A><BR>
+    <DT CLASS="mvd-P">Q: <A HREF="faqbooting.html#AEN631">The Mondo 
+    CD/floppy takes ages to boot. How can I speed it up?</A><BR>
+    <DT CLASS="mvd-P">Q: <A HREF="faqbooting.html#AEN636">I made a Mondo 
+    CD using the failsafe kernel (i.e. I said 'no' when Mondo asked if I 
+    wanted to use my own kernel). It still doesn't boot. Help!</A><BR>
+    <DT CLASS="mvd-P">Q: <A HREF="faqbooting.html#AEN641">What if my PC 
+    won't boot from a CD?</A><BR>
+    <DT CLASS="mvd-P">Q: <A HREF="faqbooting.html#AEN647">But why won't 
+    Mondo boot from my CD? It says my kernel is flawed/outdated/ 
+    whatever, and when I wrote to you, you told me the same thing... but 
+    I still don't get it. I mean, my kernel works for everything else. 
+    Why not Mondo?</A><BR>
+    <DT CLASS="mvd-P">Q: <A HREF="faqbooting.html#AEN653">Why do I only 
+    need a boot disk if I'm using a tape drive? Where are the data disks?</A><BR>
+    <DT CLASS="mvd-P">Q: <A HREF="faqbooting.html#AEN658">Why does it 
+    say, &quot;Process accounting FAILED&quot; when I reboot?</A><BR>
+    <DT CLASS="mvd-P">Q: <A HREF="faqbooting.html#AEN663">Why does it 
+    say, &amp;#8220;request_module[block-major-1]: Root fs not mounted 
+    VFS: Cannot open root device &quot;100&quot; or 01:00 Please append a 
+    correct &quot;root=&quot; boot option kernel panic: VFS: Unable to 
+    mount root fs on 01:00&amp;#8221; when i boot from the CD?</A><BR>
+    <DT CLASS="mvd-P">Q: <A HREF="faqbooting.html#COPYBOOTDATADISK">How 
+    do i copy boot+data disk images to physical floppy disks?</A><BR>
+    <DT CLASS="mvd-P">Q: <A HREF="#TAPENICE">My tape drive doesn't play 
+    nicely with Mondo at boot-time. What do I do?</A></P>
+   </DL>
+  <P ALIGN=LEFT>
+   <A NAME="AEN601"></A><B>Q: </B>How do I know if Mondo works with my 
+   Linux distro?</P>
+  <P ALIGN=LEFT>
+   <B>A: </B>Try running it. :) That's always a good way to find out. 
+   Check the <A HREF="../../docs/docs.html" TARGET="_top">Documentation page</A>,
+    too.</P>
+  <P ALIGN=LEFT>
+   <A NAME="AEN607"></A><B>Q: </B>When I try to boot from the Mondo CD, 
+   it says, &quot;VFS: Unable to mount root fs.&quot; I am using a 
+   Debian distro. What do I do?</P>
+  <P ALIGN=LEFT>
+   <B>A: </B>Ask Debian's designers why they, unlike every other distro 
+   I can find, have included cramfs and other 'goodies' with their 
+   kernel. In the meantime, please use '-k FAILSAFE' in your command 
+   line when calling Mondo.</P>
+  <P ALIGN=LEFT>
+   <A NAME="AEN612"></A><B>Q: </B>When I try to boot from the Mondo CD, 
+   it says, &quot;Cannot mount root fs - kernel panic,&quot; or 
+   something similar. What do I do?</P>
+  <P ALIGN=LEFT>
+   <B>A: </B>Recompile your kernel (or use '-k FAILSAFE'). Take a look 
+   at <A HREF="kernelsupport.html">Linux Kernel support</A> to see what 
+   you're kernel must support.</P>
+  <P ALIGN=LEFT>
+   <A NAME="AEN618"></A><B>Q: </B>When I try to boot from the Mondo CD, 
+   it says, &quot;UPGRADE YOUR RAM&quot;. What does that mean?</P>
+  <P ALIGN=LEFT>
+   <B>A: </B>Recompile your kernel and add Virtual memory file system 
+   support. Take a look at <A HREF="kernelsupport.html">Linux Kernel support</A> 
+   to see what you're kernel must support. (Of course, if your PC has 
+   less than 64MB of RAM, you could always... what's the phrase? I know, 
+   upgrade your RAM!)</P>
+  <P ALIGN=LEFT>
+   <A NAME="AEN624"></A><B>Q: </B>When I try to boot from the Mondo CD, 
+   it says something about not finding my CD-ROM drive and then it 
+   blames the kernel. What does that mean?</P>
+  <P ALIGN=LEFT>
+   <B>A: </B>Your kernel must support initrd, loopfs, IDE CD-ROM's, and 
+   ramdisks. Take a look at <A HREF="kernelsupport.html">Linux Kernel support</A> 
+   to see what you're kernel must support. If your kernel does not 
+   support these things, Mondo will not boot from your CD. However, when 
+   running Mindi, you may choose to use _its_ kernel instead of your 
+   own. In addition, you may boot from floppy disk images instead the 
+   CD: copy the disk images from the CD /images directory to floppy 
+   disks, using 'dd'. Take a look at <A HREF="faqbooting.html#COPYBOOTDATADISK">Copy
+    boot data disks</A> on how to make those.</P>
+  <P ALIGN=LEFT>
+   <A NAME="AEN631"></A><B>Q: </B>The Mondo CD/floppy takes ages to 
+   boot. How can I speed it up?</P>
+  <P ALIGN=LEFT>
+   <B>A: </B>Edit mindi (it's a shell script, btw) and change 
+   LILO_OPTIONS=&quot;&quot; to LILO_OPTIONS=&quot;-c&quot;. This 
+   enables map compaction in lilo and speeds up booting, for more info 
+   see the lilo man page.</P>
+  <P ALIGN=LEFT>
+   <A NAME="AEN636"></A><B>Q: </B>I made a Mondo CD using the failsafe 
+   kernel (i.e. I said 'no' when Mondo asked if I wanted to use my own 
+   kernel). It still doesn't boot. Help!</P>
+  <P ALIGN=LEFT>
+   <B>A: </B>OK, now <I>that</I> is a bug. :-) I included a kernel with 
+   Mondo (technically, with Mindi, which Mondo uses) to make sure that 
+   users could use Mondo despite flaws in their own kernels. If you are 
+   using Mondo/Mindi's kernel but still cannot boot from your Mondo CD 
+   then please e-mail the list.</P>
+  <P ALIGN=LEFT>
+   <A NAME="AEN641"></A><B>Q: </B>What if my PC won't boot from a CD?</P>
+  <P ALIGN=LEFT>
+   <B>A: </B>Copy the image files from the CD /images directory, using 
+   the dd command. Take a look at <A HREF="faqbooting.html#COPYBOOTDATADISK">Copy
+    boot data disks</A> on how to make those. Then boot from the first 
+   floppy; follow it up with the data disks; finally, type 'mount 
+   /mnt/cdrom' and then utilize the restore script as usual, e.g. mondorestore.</P>
+  <P ALIGN=LEFT>
+   <A NAME="AEN647"></A><B>Q: </B>But why won't Mondo boot from my CD? 
+   It says my kernel is flawed/outdated/ whatever, and when I wrote to 
+   you, you told me the same thing... but I still don't get it. I mean, 
+   my kernel works for everything else. Why not Mondo?</P>
+  <P ALIGN=LEFT>
+   <B>A: </B>Because Mondo makes a boot disk using your kernel. I bet 
+   your other software doesn't do that. Also, not all kernels are 
+   suitable for boot disks. I'm sorry but that's Life. Upgrade your 
+   kernel and/or recompile it. Take a look at <A HREF="kernelsupport.html">Linux
+    Kernel support</A> to see what you're kernel must support.</P>
+  <P ALIGN=LEFT>
+   <A NAME="AEN653"></A><B>Q: </B>Why do I only need a boot disk if I'm 
+   using a tape drive? Where are the data disks?</P>
+  <P ALIGN=LEFT>
+   <B>A: </B>On the tape. :-) The first 32MB of the tape will be set 
+   aside for a large tarball containing the data disks, a list of all 
+   files backed up, and other sundries. If Mondo and Mindi do their 
+   respective jobs then you won't need additional floppies, just the 
+   boot floppy and the tape(s).</P>
+  <P ALIGN=LEFT>
+   <A NAME="AEN658"></A><B>Q: </B>Why does it say, &quot;Process 
+   accounting FAILED&quot; when I reboot?</P>
+  <P ALIGN=LEFT>
+   <B>A: </B>You were using Process Accounting. Red Hat (or whichever 
+   distro you are using) does not provide a startup/shutdown script yet. 
+   So, when you try to backup the process log, it just grows and grows 
+   as Mondo tries to back it up. Mondo doesn't back it up anymore and 
+   that's why. The unfortunate side-effect is... well, what you see on 
+   your screen. Type 'touch /var/log/pacct' and then 'paccton' to fix 
+   the error message.</P>
+  <P ALIGN=LEFT>
+   <A NAME="AEN663"></A><B>Q: </B>Why does it say, 
+   &amp;#8220;request_module[block-major-1]: Root fs not mounted VFS: 
+   Cannot open root device &quot;100&quot; or 01:00 Please append a 
+   correct &quot;root=&quot; boot option kernel panic: VFS: Unable to 
+   mount root fs on 01:00&amp;#8221; when i boot from the CD?</P>
+  <P ALIGN=LEFT>
+   <B>A: </B>Recompile your kernel and add initrd support. Take a look 
+   at <A HREF="kernelsupport.html">Linux Kernel support</A>to see what 
+   you're kernel must support.</P>
+  <P ALIGN=LEFT>
+   <A NAME="COPYBOOTDATADISK"></A><B>Q: </B>How do i copy boot+data disk 
+   images to physical floppy disks ?</P>
+  <P ALIGN=LEFT>
+   <B>A: </B>The images are in /root/images/mindi (eve if they are 
+   created by Mondo) and also in the 'images' directory on the first CD 
+   of your backup set, if you have backed up to CD. You can copy the 
+   images to disk as follows:-</P>
+  <DIV ALIGN=LEFT>
+  <P ALIGN=LEFT>
+   <TABLE WIDTH="100%" CELLPADDING="1" CELLSPACING="2" BORDER="0">
+    <TR>
+     <TD BGCOLOR="#E0E0E0" VALIGN=CENTER><PRE
+        CLASS="PROGRAMLISTING"><FONT
+        COLOR="BLACK">[boot disk]</FONT><BR><FONT
+        COLOR="BLACK">bash# fdformat /dev/fd0u1722</FONT><BR><FONT
+        COLOR="BLACK">bash# dd if=/root/images/mindi/mindi-boot.1722.img of=/dev/fd0u1772</FONT><BR><BR><FONT
+        COLOR="BLACK">[data disk]</FONT><BR><FONT
+        COLOR="BLACK">bash# fdformat /dev/fd0</FONT><BR><FONT
+        COLOR="BLACK">bash# dd if=/root/images/mindi/mindi-data-N.img of=/dev/fd0</FONT><BR><BR><FONT
+        COLOR="BLACK">Replace N with 1, 2, etc. </FONT></TD></TR>
+   </TABLE></P>
+  </DIV>
+  <DL>
+   <P ALIGN=LEFT>
+    <DT CLASS="mvd-P"><A NAME="TAPENICE"></A><B>Q:</B> My tape drive 
+    doesn't play nicely with Mondo at boot-time. What do I do?</P>
+   <P ALIGN=LEFT>
+    <DT CLASS="mvd-P"><B>A:</B> Play with 'mt'. Use its setblksize and 
+    defblksize switches to reconfigure your tape drive if necessary. Some 
+    tape drives just suck, I'm sorry to say. If yours is one of them then 
+    God help you. Mondo can handle any tape drive whose drive and 
+    firmware can handle fread(), fwrite(), fread() and fclose(). Mondo 
+    uses standard C libraries to talk to your tape streamer. If your tape 
+    streamer can't handle that then you had better call a priest. Either 
+    that or ask for a refund.</P>
+   </DL>
+  <DIV ALIGN=LEFT>
+  <P ALIGN=LEFT>
+   <HR ALIGN=LEFT WIDTH="100%" SIZE="2">
+   <TABLE WIDTH="100%" CELLPADDING="0" CELLSPACING="0" BORDER="0" SUMMARY="Footer navigation table">
+    <TR>
+     <TD WIDTH="33%" VALIGN=TOP>
+      <P ALIGN=LEFT>
+       <A HREF="faqgeneral.html" ACCESSKEY="P">Prev</A></TD>
+     <TD WIDTH="34%" VALIGN=TOP>
+      <P ALIGN=CENTER>
+       <A HREF="index.html" ACCESSKEY="H">Home</A></TD>
+     <TD WIDTH="33%" VALIGN=TOP>
+      <P ALIGN=RIGHT>
+       <A HREF="faqinstallation.html" ACCESSKEY="N">Next</A></TD>
+    </TR>
+    <TR>
+     <TD WIDTH="33%" VALIGN=TOP>
+      <P ALIGN=LEFT>
+       General</TD>
+     <TD WIDTH="34%" VALIGN=TOP>
+      <P ALIGN=CENTER>
+       <A HREF="faq.html" ACCESSKEY="U">Up</A></TD>
+     <TD WIDTH="33%" VALIGN=TOP>
+      <P ALIGN=RIGHT>
+       Installation</TD>
+    </TR>
+   </TABLE>
+ </BODY>
+</HTML>

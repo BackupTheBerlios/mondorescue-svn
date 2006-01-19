@@ -1,0 +1,71 @@
+#!/bin/bash
+#
+# Creates RPMs environment from SVN repository
+#
+# $Id$
+#
+
+dname=`dirname $0`
+prem=`echo $dname |cut -c1`
+if [ ${prem} == "/" ]; then
+        export TOOLHOME=$dname
+else
+	export TOOLHOME=${PWD}/$dname
+fi
+
+. $TOOLHOME/common-env
+
+export ARCH=`rpm --showrc | egrep "^build arch" | awk '{print $4}'`
+
+# Should not be modified below
+export pkg=""
+export opt=""
+
+if [ -f ${HOME}/.rpmmacros ]; then
+	export TOPDIR=`egrep '^%_topdir' ${HOME}/.rpmmacros | awk '{print $2}'`
+else
+	export TOPDIR=${BASE}/RPMS
+fi
+mkdir -p ${TOPDIR}
+cd ${TOPDIR}
+mkdir -p RPMS SRPMS SPECS SOURCES BUILD
+
+if [ -e /etc/mandriva-release ]; then
+	export ddir="mandriva"
+	export dver=`awk '{print $4}' /etc/mandriva-release`
+	export suf=".`echo $dver | sed 's/\.//'`mdk"
+elif [ -e /etc/mandrake-release ]; then
+	export ddir="mandrake"
+	export dver=`awk '{print $3}' /etc/mandrake-release`
+	export suf=".`echo $dver | sed 's/\.//'`mdk"
+elif [ -e /etc/redhat-release ]; then
+	grep -q Enterprise /etc/redhat-release
+	if [ $? -eq 0 ]; then
+		export ddir="rhel"
+		export dver=`awk '{print $7}' /etc/redhat-release`
+	elif grep -q Fedora /etc/redhat-release ; then
+		export ddir="fedora"
+		export dver=`awk '{print $4}' /etc/redhat-release`
+		export suf=".fc${dver}"
+	else
+		export ddir="redhat"
+		export dver=`awk '{print $5}' /etc/redhat-release | sed "s/\.//"`
+		export suf=".rh${dver}"
+	fi
+elif [ -e /etc/SuSE-release ]; then
+	grep -q Enterprise /etc/SuSE-release
+	if [ $? -eq 0 ]; then
+		export ddir="sles"
+		export dver=`head -1 /etc/SuSE-release | awk '{print $5}'`
+	else
+		export ddir="suse"
+		export dver=`head -1 /etc/SuSE-release | awk '{print $3}'`
+	fi
+else
+	export dver=""
+	export ddir="generic"
+fi
+
+if [ _"$suf" = _"" ]; then
+	export suf=".${ddir}${dver}"
+fi

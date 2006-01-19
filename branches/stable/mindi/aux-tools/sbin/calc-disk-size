@@ -1,0 +1,47 @@
+#!/bin/sh
+
+# patched by Doug Nordwall, June 28th 2000, to fix a SCSI disk size
+# calculation bug; nice one, Doug! :-)      - HR
+
+CalcDiskSize() {
+    local res cylinders sectorsize disksize i curr stub out
+    res=`parted2fdisk -l $1 2> /dev/null | grep -i "cylinders of"`
+    cylinders=`echo "$res" | cut -d' ' -f5`
+    sectorsize=`echo "$res" | cut -d' ' -f7`
+    cylindermod=`parted2fdisk -l $1 2> /dev/null | grep -i $1:`; # note colon at end to make sure it's not the /dev/sda# partition info
+    cylnum=`echo "$cylindermod" | cut -d' ' -f7`
+    predisksize=$(($cylinders*$sectorsize/1024))
+    disksize=$(($predisksize*$cylnum/1024)); # this works on larger drives; I imagine it'll work on smaller drives with fewer cylinders...
+
+#echo "cylinders = $cylinders; sectorsize = $sectorsize"
+#echo "cylnum = $cylnum"
+#echo "predisksize = $predisksize; disksize = $disksize"
+
+    if [ "$disksize" = "" ] ; then
+	return 1
+    else
+	echo "$disksize"
+        return 0
+    fi
+}
+
+# ---------------- main ---------------
+
+if [ "$#" -ne "1" ] || [ "`echo "$1" |grep -x "/dev/[a-z]*"`" = "" ]; then
+    LogIt "calc-disk-size <device>" 1
+    exit 1
+fi
+
+LogIt "calc-disk-size --- starting"
+out=`CalcDiskSize $1`
+if [ "$out" = "" ] ; then
+    echo "-1"
+else
+    echo "$out"
+fi
+
+LogIt "calc-disk-size --- leaving"
+
+exit
+
+

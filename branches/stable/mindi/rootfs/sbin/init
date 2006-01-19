@@ -1,0 +1,734 @@
+#!/bin/sh
+#
+# 04/20/2005
+# - fix for 'skip the tape datadisks' bug (Joseph Smith)
+#
+# 10/13/2004
+# - echo 0 > /proc/sys/kernel/exec-shield to disable exec-shield
+#
+# 07/25
+# - removed sbminst
+#
+# 06/25
+# - klogd -c 2 (was -c 5)
+#
+# 06/21
+# - experimented w/ calling ctrlaltdel to setup soft reset
+# - don't softlink /var/log
+#
+# 06/16
+# - insmod dm_mod as well as dm-mod
+#
+# 05/24
+# - added Andree's vc.tgz
+#
+# 05/14
+# - open => openvt (part of busybox)
+# - nash removed. dm.tgz added
+#
+# 04/21
+# - compare original lsmod output w/ new lsmod output
+#
+# 04/13
+# - mount /sys if appropriate
+#
+# 04/03
+# - use 'dd if=$tapedev bs=32k count=1024' instead of 'tar -zxf $tapedev'
+#   to extract aux datadisk files from tape
+#
+# 25/03
+# - wait 7s, not 2s, while installing modules
+#
+# 18/01/2004
+# - logging mondo-restore.cfg, not mondo-restore.log --- FIXED
+#
+# 11/23/2003
+# - if find-and-mount-cdrom fails once, try again
+# - open scrolling log of /tmp/mondo-restore.log later than previously
+#
+# 11/18
+# - disabled clear()'s
+# - reboot at end
+#
+# 11/15
+# - softlink /var/log to /tmp/tmpfs/var/log
+# - klogd -c 5 now (was -c 1)
+#
+# 11/10
+# - don't call mondorestore if backup-media-type is not specified in
+#   config file /tmp/mondo-restore.cfg
+#
+# 10/21
+# - softlink nano to pico if nano found
+#
+# 10/16
+# - create /dev/md/* softlinks if necessary
+#
+# 10/12
+# - start devfs if /tmp/USE-DEVFS found
+# - create simple /etc/devfsd.conf file
+#
+# 10/09
+# - try various mount commands to get tmpfs online (use initiative)
+#
+# 09/24
+# - also try /dev/st0, /dev/osst0, /dev/ht0 if [tapedev] fails
+# - modify media-dev in mondo-restore.cfg if we succeed :)
+#
+# 09/15
+# - create /tmp/null and /tmp/stdout and /tmp/stderr
+#   as copies of the real thing, just in case partimagehack
+#   still uses them
+# 
+# 08/01
+# - tmpfs ramdisk is now 48m
+#
+# 07/14
+# - added mkdirs at start
+#
+# 06/04
+# - remount root as rw just in case
+#
+# 05/04
+# - replaced /mnt/groovy-stuff with $GROOVY
+#
+# 04/30
+# - if your CD was created by Mondoarchive when it backed up
+#   to ISO(s) then re-jig tmp/mondo-restore.cfg accordingly;
+#   this is nec. if you backup to a hard disk directory but
+#   then burn the ISOs to physical CDs
+#
+# 04/26
+# - offer user the chance to specify another tape device, if
+#   the one they specified at backup-time refuses to act as 
+#   aux data disk at boot-time
+#
+# 04/21
+# - start scsi if cciss
+# - use ataraid.tgz too
+#
+# 05/03
+# - mount / -o rw,remount at end, just in case
+#   RH9 futzes with the mountpoint
+#
+# 04/04
+# - increased tmpfs ramdisk size from 34m to 38m
+#
+# 01/01 - 01/31/2003
+# - fixed issue with LVM and SW Raid devices (Brian Borgeson)
+# - friendlier 'upgrade your ram' msg
+# - better fallback msg
+# - if /tmp/2880.siz exists then assume boot CD
+#
+# 11/01 - 12/31/2002
+# - updated intro msg
+# - if /dev/boot_device and /BOOTLOADER.DEVICE exist then
+#   copy device /dev/boot_device to pathname contained
+#   in /BOOTLOADER.DEVICE text file
+#
+# 04/01 - 08/31/2002
+# - handle new 'backup_media_type' entry in mondo-restore.cfg
+# - added 'sleep 2' at start of WelcomeMessage
+# - disabled a silly 'abort' line at end
+# - better handling of devfs (DuckX) --- new RunDevfsd()
+# - assume start-nfs is in /sbin
+# - extract rd.tgz, raw.tgz, ida.tgz, cciss.tgz to /; they include
+#   /dev entries which would otherwise fill up the ramdisk at bkp-time
+#
+# 01/01 - 03/31/2002
+# - Carl Wilhelm Soderstrom disabled exec sh; replaced with exit 1
+# - if you are an idiot & your computer has very little RAM,
+#   this script will no longer abort; it will merely warn you
+# - run chmod 755 `which start-nfs` before running start-nfs
+# - use a ramdisk for /tmp (after copying old /tmp stuff into it)
+# - fixed segfaults ('open') by replacing 'sh' call with '/bin/sh' call
+# - changed LaunchTerminals() to try to work with newly-compiled 'open'
+# - don't write 'start-nfs error' if start-nfs doesn't exist; just go on
+# - added tmpfs and some space-checking
+# - cleaned up script
+# - added stuff to start NFS services if necessary
+# - reordered some of the main() stuff, for elegance's sake
+# - added Petris and 'tail -f /tmp/mondo-restore.log' to LaunchTerminals()
+# - changed /usr/share/ to /usr/local/
+#
+# 2001
+# - fix some typos
+# - added lots of cool stuff to make Mindi _nearly_ boot from tape
+# - restructured the welcome msg echoed to screen
+# - broke up spaghetti code; made lots of subroutines
+#
+#------------------------------------------------------------
+
+
+CaughtSoftReset() {
+    trap SIGTERM
+    reboot
+}
+
+
+ConfigureLoggingDaemons() {
+    echo -en "Running klogd..."
+    klogd -c 2 > /dev/null 2> /dev/null
+    echo -en "Done.\nRunning syslogd..."
+    syslogd > /dev/null 2> /dev/null
+    echo "Done."
+    LogIt "klogd and syslogd have been started."
+}
+
+
+
+CopyBootDevEntry() {
+    local outfile devfile
+    devfile=/dev/boot_device
+    outfile=`cat /BOOTLOADER.DEVICE 2> /dev/null`
+    [ ! "$outfile" ] && return 0
+    echo -en "Copying boot device to $outfile..."
+    if [ -e "$outfile" ] ; then
+	echo "OK."
+	return 0
+    fi
+    mkdir -p $outfile
+    rmdir $outfile
+    cp -pRdf $devfile $outfile
+    if [ "$?" -ne "0" ] ; then
+	echo "Failed."
+	return 1
+    else
+	echo "OK."
+	return 0
+    fi
+}
+
+
+
+Die() {
+    LogIt "Fatal error! $1" 1
+    exit 1
+}
+
+
+
+ExtractDevTarballs() {
+    cd /
+    for fname in ataraid.tgz ida.tgz rd.tgz raw.tgz cciss.tgz nst.tgz dm.tgz vc.tgz ; do
+        if [ ! -e "/$fname" ] ; then
+            LogIt "/$fname not found; cannot extract to /." 1
+        else
+            echo -en "\rExtracting /$fname...     "
+            tar -zxf /$fname || LogIt "Error occurred while extracting /$fname"
+        fi
+    done
+    echo -en "\r"
+    LogIt "Extracted additional /dev entries OK.     " 1
+}
+
+
+
+LaunchTerminals() {
+    openvt 2 /bin/sh
+    openvt 3 /bin/sh
+    openvt 4 /bin/sh
+    openvt 5 /bin/sh
+    openvt 6 /bin/sh
+    openvt 7 /bin/sh /sbin/wait-for-petris
+#    openvt 8 /usr/bin/tail -f /tmp/mondo-restore.log
+}
+
+
+LoadKeymap() {
+    local fname
+    fname=`cat /tmp/KEYMAP-LIVES-HERE 2> /dev/null`
+    [ "$fname" = "" ] && return
+    if which loadkeys > /dev/null 2> /dev/null ; then
+        loadkeys $fname
+# loadkmap != loadkeys
+#    elif which loadkmap > /dev/null 2> /dev/null ; then
+#        loadkmap < $fname
+    else
+        LogIt "Using default keyboard map." 1
+    fi
+}
+
+
+UntarTapeStuff() {
+    local old_pwd res
+    old_pwd=`pwd`
+    cd $GROOVY
+    [ "$1" != "" ] && tapedev=$1
+    [ ! "$tapedev" ] && tapedev=`grep media-dev /tmp/mondo-restore.cfg | tr -s ' ' ' ' | cut -d' ' -f2`
+#    tar -zxf $tapedev
+    dd if=$tapedev bs=32k count=1024 | tar -zx
+    res=$?
+    if [ "$res" -eq "0" ] ; then
+	grep -v media-dev /tmp/mondo-restore.cfg > /tmp/mr.cfg
+	echo "media-dev $tapedev" >> /tmp/mr.cfg
+        cp -f /tmp/mr.cfg /tmp/mondo-restore.cfg
+    fi
+    cd $old_pwd
+    return $res
+}
+
+HandleTape() {
+    local res tapedev
+    tapedev="" ; # will be set by UntarTapeStuff()
+    cd $GROOVY
+    UntarTapeStuff $tapedev || UntarTapeStuff /dev/st0 || UntarTapeStuff /dev/osst0 || UntarTapeStuff /dev/ht0
+    res=$?
+    while [ "$res" -ne "0" ] ; do
+        LogIt "$tapedev failed to act as extended data disk for booting." 1
+        LogIt "Please specify an alternate tape device," 1
+        LogIt "or hit <Enter> to boot from CD/floppies." 1
+        echo -en "---> "
+        read tapedev
+        if [ "$tapedev" ] ; then
+            LogIt "User specified $tapedev instead"
+            UntarTapeStuff $tapedev
+            res=$?
+        else
+            LogIt "User opted not to specify an alternate tapedev"
+            res=1
+	    break
+        fi
+    done
+
+    if [ "$res" -ne "0" ] ; then
+	cd /
+	LogIt "Failed to use tape as extended datadisk. Reverting to floppies." 1
+	HandleCDROMorFloppies
+	res=$?
+    else
+#	clear
+	LogIt "Using tape as extended datadisk. Good." 3
+	echo "Using tape as extd ddisk." > /tmp/TAPEDEV-HAS-DATA-DISKS
+	res=0
+        CD_MOUNTED_OK=yes
+    fi
+    return $res
+}
+
+
+
+HandleCDROMorFloppies() {
+    find-and-mount-cdrom
+    res=$?
+    if [ "$res" -ne "0" ] ; then
+	LogIt "First call to find-and-mount-cdrom failed." 1
+	LogIt "Sleeping for 3 seconds and trying again." 1
+	sleep 3
+	find-and-mount-cdrom
+	res=$?
+    fi
+    if [ "$res" -eq "0" ] ; then
+#        clear
+	LogIt "OK, I am running on a CD-ROM. Good." 3
+        CD_MOUNTED_OK=yes
+    elif [ "$res" -eq "1" ] ; then
+#        clear
+	LogIt "OK, I am running on floppies. Good." 3
+	CD_MOUNTED_OK=""
+    else
+	LogIt "OK, I am falling back to floppy mode." 3
+        LogIt "That means you'll have to copy the data disk images from" 3
+        LogIt "the CD/hard disk/whatever to physical 1.44MB disks and" 3
+        LogIt "insert them, one after the other. Please see the manual." 3
+        LogIt "The images are in /images on the CD, or /root/images/mindi" 3
+        LogIt "on your hard disk. Your archives are probably fine but" 3
+        LogIt "your tape streamer and/or CD-ROM drive are eccentric. :-)" 3
+	CD_MOUNTED_OK=""
+    fi
+    return 0
+}
+
+
+HowMuchFreeSpaceOnRamdisk() {
+   df -m -P | grep /dev/ram | head -n1 | tr -s '\t' ' ' | cut -d' ' -f4
+}
+
+
+
+InsertEssentialModules() {
+    for j in 1 2 3 4 5 ; do
+        for i in `ls /*.*o* 2> /dev/null` ; do
+            [ -f "$i" ] && MyInsmod $i > /dev/null 2> /dev/null
+        done
+    done
+}
+
+
+
+PauseForRaids() {
+    if [ "`dmesg | grep -i "RAID Controller"`" != "" ] || [ "`dmesg | grep -i "Vendor: 3ware"`" != "" ] ; then
+        LogIt "RAID controller(s) detected. Pausing 10 seconds to let them warm up." 1
+        echo -en "Pausing..."
+        for i in 1 2 3 4 5 6 7 8 9 10 ; do
+            sleep 1
+            echo -en "$(($i*10))%..."
+        done
+        echo "Done."
+    fi
+}
+
+
+# 06/13/2002 --- DuckX's & Hugo's new routine
+# 10/11/2003 --- added a simple devfsd.conf file
+# 01/24/2005 --- cater for arbitrary locations of devfsd.conf by using the
+#                config file path compiled into devfsd
+RunDevfsd() {
+    loc=`which devfsd 2> /dev/null`
+    if [ "$loc" != "" ] ; then
+	LogIt "Devfs found. Testing kernel support..."
+	if [ ! -e "/dev/.devfsd" ] ; then
+	    mount -t devfs devfs /dev 2>> /tmp/mondo-restore.log
+            if [ "$?" -ne "0" ] ; then
+		LogIt "Error while trying to mount devfs"
+	    else
+		LogIt "Devfs mounted OK"
+	    fi
+	fi
+	#check if the kernel supports devfs
+	if [ -e "/dev/.devfsd" ] ; then
+	    [ -d "/proc/1" ] || mount -n /proc
+	    LogIt "Kernel support found. Creating config file and starting devfsd"
+	    conffile=`strings $loc | grep "devfsd.conf$"`
+	    [ "$conffile" ] || conffile="/etc/devfsd.conf"
+	    confpath=`echo $conffile | sed "s/\/devfsd\.conf$//"`
+	    [ -d "$confpath" ] || mkdir -p $confpath
+	    echo -en "REGISTER .* MKOLDCOMPAT\nUNREGISTER .* RMOLDCOMPAT\n" > $conffile
+	    devfsd /dev &
+	    sleep 5
+	else
+	    LogIt "No devfs kernel support."
+	fi
+    fi
+}
+
+
+
+
+
+
+#RunDevfsd() {
+#    loc=`which devfsd 2> /dev/null`
+#    if [ "$loc" != "" ] ; then
+#        LogIt "Starting devfsd"
+#        devfsd /dev &
+#        sleep 5
+#    fi
+#}
+
+
+
+SpaceTests() {
+    [ -e "/tmp/filelist.full" ] && cp /tmp/filelist.full /tmp/FLF
+    if [ "`HowMuchFreeSpaceOnRamdisk`" -le "3" ] ; then
+        LogIt "Ramdisk is a bit smaller than I would like." 1
+        LogIt "Please re-run Mondo/Mindi but edit /usr/local/mindi first" 1
+        LogIt "and set EXTRA_SPACE to something high, e.g. 8000" 1
+        Die "Aborting. Please reboot."
+    fi
+    rm -f /tmp/FLF
+}
+
+
+
+StartLvms() {
+    if [ -e "/tmp/i-want-my-lvm" ] ; then
+        LogIt "Scanning LVM's..." 1
+	if which lvm ; then
+	    MyInsmod dm-mod
+	    MyInsmod dm_mod
+	    lvm vgscan --mknodes
+	else
+	    vgscan
+	fi
+        grep -E "^#.*vgchange" /tmp/i-want-my-lvm | sed s/#// > /tmp/start-lvm
+        chmod +x /tmp/start-lvm
+        echo -en "Starting LVM's..."
+        /tmp/start-lvm &
+        for i in 1 2 3 4 5 ; do
+	    echo -en "."
+	    sleep 1
+        done
+        echo "Done."
+    fi
+# If necessary, cannibalize 'analyze-my-lvm'; copy some of its code here,
+# pipe vgscan's output, strip it, run 'vgchange' on its output, etc.etc.
+    LogIt "LVM's have been started."
+}
+
+
+
+StartNfs() {
+    # using mount -o nolock avoids portmap requirement
+    #if which portmap > /dev/null 2> /dev/null ; then
+        #LogIt "Running portmap"
+	#portmap
+        #[ "$?" -eq "0" ] && LogIt "Portmap started OK" || LogIt "Portmap error"
+        if [ -e "/sbin/start-nfs" ] ; then
+            chmod 755 /sbin/start-nfs
+	    LogIt "Starting NFS..."
+            /sbin/start-nfs
+        fi
+    #fi
+}
+
+
+StartRaids() {
+    local raid_devices i
+    raid_devices=`grep /dev/md /tmp/mountlist.txt | cut -d' ' -f1`
+    for i in $raid_devices ; do
+        if grep `basename $i` /proc/mdstat > /dev/null 2> /dev/null ; then
+            LogIt "$i is started already; no need to run 'raidstart $i'" 1
+        else
+	    LogIt "Running 'raidstart $i'" 1
+	    raidstart $i
+        fi
+#        sleep 1
+    done
+#    [ "$raid_devices" != "" ] && PauseForRaid
+}
+
+
+SwapTheMountExecs() {
+    if [ -e "/bin/mount.libc5" ] ; then
+        LogIt "Swapping busybox's mount with libc5 mount"
+        mv /bin/mount /bin/mount.bb
+        mv /bin/mount.libc5 /bin/mount
+        sync
+    fi
+}
+
+
+TryAgainToFindCD() {
+    local res
+    mount | grep /mnt/cdrom && return 0
+    [ "`grep "backup_media_type" /tmp/mondo-restore.cfg | grep "cdstream"`" ] && return
+    LogIt "Trying to mount CD-ROM a 2nd time..."
+    find-and-mount-cdrom --second-try
+    res=$?
+    if [ "$res" -eq "0" ] ; then
+        CD_MOUNTED_OK=yes
+        LogIt "CD-ROM drive mounted successfully." 1
+    else
+        LogIt "I still cannot find or mount the CD-ROM drive, by the way."
+    fi
+}
+
+
+
+UseTmpfs()
+{
+    local mount_cmd
+    echo -en "Mounting /tmp/tmpfs..."
+    mkdir -p /tmp/tmpfs
+# For technical reasons, some sets are as large as 16MB.
+# I am allowing 32MB because selective restore occupies a lot of space.
+    for size in 64m 48m 40m 32m ; do
+        mount_cmd="mount /dev/shm -t tmpfs -o size=$size" ; # was 34m until 04/2003
+        LogIt "Trying '$mount_cmd'"
+	$mount_cmd /tmp/tmpfs 2>> /tmp/mondo-restore.log
+	res=$?
+	[ "$res" -eq "0" ] && break
+    done
+    if [ "$res" -ne "0" ] ; then
+        LogIt "Failed. I could not run '$mount_cmd /tmp/tmpfs'. Your kernel is BROKEN or you do not have enough RAM." 1
+        umount /tmp/tmpfs > /dev/null 2> /dev/null
+	rmdir /tmp/tmpfs
+        ln -sf /mnt/RESTORING/tmp /tmp/tmpfs; # used by mondo-restore
+	LogIt "Failed to mount /tmp/tmpfs; using ugly softlink instead"
+    else
+        LogIt "Great. Pivot succeeded w/ size=$size" 1
+        echo -en "Pivoting /tmp..."
+        umount /tmp/tmpfs
+        mkdir -p /tmp.old
+        mv -f /tmp/* /tmp.old/
+        $mount_cmd /tmp
+        mv /tmp.old/* /tmp/
+        rmdir /tmp.old
+        mkdir -p /tmp/tmpfs
+        mkdir -p $GROOVY
+	echo "Done."
+	LogIt "Successfully mounted dynamic /tmp ramdisk"
+#	mkdir -p /tmp/tmpfs/var
+#        mv -f /var/log /tmp/tmpfs/var/log
+#        ln -sf /tmp/tmpfs/var/log /var/log
+    fi
+}
+
+
+WelcomeMessage()
+{
+    echo "********************************************************************"
+    echo "MINDI-LINUX by Hugo Rabson --- web site: http://www.mondorescue.org"
+    echo "Boot disk based on AlfaLinux & Trinux. BusyBox by Erik Andersen."
+which petris > /dev/null 2> /dev/null && echo "Petris was written by Peter Seidler <p.seidler@mail1.stofanet.dk>."
+    echo "Executables and source code are covered by the GNU GPL. No warranty."
+    echo "running on $ARCH"
+    echo "********************************************************************"
+}
+
+
+EnableCcissIfAppropriate() {
+    local i fname
+    for i in 0 1 2 3 ; do
+	fname="/proc/driver/cciss/cciss$i"
+	if [ -e "$fname" ] ; then
+	    LogIt "Engaging $fname"
+	    echo "engage scsi" > $fname
+	    LogIt "...result=$?"
+	fi
+    done
+}
+
+
+ExtractDataDisksAndLoadModules() {
+	echo "Installing additional tools ..."
+	install-additional-tools
+	echo "Inserting modules ..."
+	insert-all-my-modules > $LOGFILE 2> $LOGFILE
+}
+
+# ------------------------ main -----------------------
+
+trap CaughtSoftReset SIGTERM
+LOGFILE=/tmp/mondo-restore.log
+PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/mondo:/usr/local/mondo:/usr/local/mindi:.
+GROOVY=/tmp/groovy-stuff
+USER=root
+export PATH GROOVY USER
+
+mount -o remount rw /
+[ ! "$GROOVY" ] && Die "I'm not groovy!"
+for i in $GROOVY /mnt/floppy /mnt/cdrom /mnt/isodir /var/local/petris /tmp/isodir; do
+    mkdir -p $i
+done
+#/bin/update
+mount /proc/ /proc -v -t proc 
+mkdir /sys 2> /dev/null
+mount /sys/ /sys -v -t sysfs 2>> $LOGFILE
+rm -f /foozero
+
+echo 0 > /proc/sys/kernel/exec-shield 2>> /dev/null
+
+ExtractDevTarballs
+LaunchTerminals
+InsertEssentialModules
+EnableCcissIfAppropriate
+#-------------------------------
+#WHOLIVESINAPINEAPPLEUNDERTHESEA#;# --- don't touch this :)
+#-------------------------------
+UseTmpfs
+if [ ! -e "/tmp/mondo-restore.cfg" ] ; then
+    LogIt "Warning - /tmp/mondo-restore.cfg not found"
+fi
+
+#if [ -e "/tmp/2880.siz" ] ; then
+#    HandleCDROMorFloppies
+#el
+if [ "`grep -i 'tape ' /tmp/mondo-restore.cfg`" ] || [ "`grep -i udev /tmp/mondo-restore.cfg`" ] ; then
+    	HandleTape
+	ExtractDataDisksAndLoadModules
+elif [ -e "/sbin/start-nfs" ] && [ "`grep -i pxe /proc/cmdline`" ]; then
+	StartNfs
+	imgname=`grep iso-prefix /tmp/mondo-restore.cfg | cut -d' ' -f2-`
+	if [ "$imgname" = "" ]; then
+		imgname="mondorescue"
+	fi
+	if [ "`grep -i prefix /proc/cmdline`" ] ; then
+		for i in `cat /proc/cmdline` ; do
+			if [ "`echo $i | grep -i prefix`" ] ; then
+				imgname=`echo $i | cut -d'=' -f2`
+			fi
+		done
+	fi
+	dirimg=`grep nfs-server-path /tmp/mondo-restore.cfg | cut -d' ' -f2-`
+	if [ "$dirimg" = "" ]; then
+		dirimg="/"
+	fi
+	LogIt "Mounting NFS image $imgname-1.iso in $dirimg on /mnt/cdrom in loopback"
+	losetup /dev/loop7 /tmp/isodir/$dirimg/$imgname-1.iso
+	mount -t iso9660 /dev/loop7 /mnt/cdrom
+	# Simulate a local CD
+	echo "/mnt/cdrom" > /tmp/CDROM-LIVES-HERE
+        CD_MOUNTED_OK=yes
+	ExtractDataDisksAndLoadModules
+else
+	HandleCDROMorFloppies
+	ExtractDataDisksAndLoadModules
+	if [ -e "/sbin/start-nfs" ]; then
+		StartNfs
+	fi
+fi
+res=$?
+SwapTheMountExecs
+ConfigureLoggingDaemons
+if [ -e "/tmp/USE-DEVFS" ] ; then
+    umount /mnt/cdrom 2> /dev/null
+    mv /dev/cdrom /cdrom.lnk 2> /dev/null
+    CD_MOUNTED_OK=""
+    RunDevfsd
+fi
+echo "Starting potential Raid/LVMs ..."
+PauseForRaids
+StartRaids
+StartLvms
+CopyBootDevEntry
+LoadKeymap
+mkdir -p /tmp/tmpfs
+sleep 2
+#clear
+if [ -e "/dev/md0" ] && [ ! -e "/dev/md/0" ] && [ "`grep /dev/md/ /tmp/mountlist.txt`" != "" ] ; then
+    LogIt "Creating /dev/md/* softlinks just in case." 1
+    mkdir -p /dev/md
+    cp -af /dev/md0 /dev/md/0 2> /dev/null
+    cp -af /dev/md1 /dev/md/1 2> /dev/null
+    cp -af /dev/md2 /dev/md/2 2> /dev/null
+fi
+export ARCH=`uname -m`
+WelcomeMessage
+# SpaceTests; # Mandrake Linux 8.1 doesn't like this
+[ -e "/tmp/mountlist.txt" ] && cp -f /tmp/mountlist.txt /tmp/mountlist.original
+
+if ! [ "`grep -i "pxe" /proc/cmdline`" ] ; then
+	res="`cat /mnt/cdrom/archives/THIS-CD-NUMBER 2> /dev/null`"
+	[ "$res" != "1" ] && [ "$res" != "" ] && Die "This is CD #$res in the series. Please insert CD #1."
+	[ -e "/cdrom.lnk" ] && mv -f /cdrom.lnk /dev/cdrom && mount /dev/cdrom /mnt/cdrom && CD_MOUNTED_OK=yes
+	[ "$CD_MOUNTED_OK" != "yes" ] && TryAgainToFindCD
+	#mount | grep cdrom > /dev/null 2> /dev/null || mount /dev/cdrom /mnt/cdrom >> $LOGFILE 2>> $LOGFILE
+fi
+hack-cfg-if-necessary || LogIt "Cannot find hack-cfg-if-necessary"
+openvt 8 /usr/bin/tail -f /tmp/mondo-restore.log
+
+#-------------------------------
+#ABSORBENTANDYELLOWANDPOROUSISHE#;# --- don't touch this either :)
+#-------------------------------
+
+lsmod > /tmp/ramdisk-lsmod.txt 2> /dev/null
+cut -d' ' -f1 /tmp/original-lsmod.txt /tmp/original-lsmod.txt /tmp/ramdisk-lsmod.txt | sort | uniq -d > /tmp/missing-modules.txt
+echo "Warning - these modules did not make it onto the ramdisk" >> $LOGFILE
+cat /tmp/missing-modules.txt >> $LOGFILE
+
+#ctrlaltdel soft
+for path in /usr.bin /usr/bin ; do
+    fname=$path/nano
+    [ -e "$fname" ] && ln -sf $fname /usr/bin/pico
+done
+res=`which nano 2> /dev/null`
+[ "$res" ] && ln -sf /usr/bin/
+for i in null stdout stdin stderr ; do
+    cp -af /dev/$i /tmp
+done
+if grep "backup-media-type" /tmp/mondo-restore.cfg > /dev/null 2> /dev/null ; then
+    LogIt "backup-media-type is specified in config file - great."
+    LogIt "Calling post-init $mountlist"
+    post-init
+else
+    LogIt "backup-media-type is not specified in config file."
+    LogIt "I think this CD/floppy has no archives on it."
+fi
+echo -en "Type 'exit' to reboot the PC\r"
+umount /mnt/cdrom 2> /dev/null
+mount / -o rw,remount > /dev/null 2> /dev/null
+sh
+CaughtSoftReset
+# reboot

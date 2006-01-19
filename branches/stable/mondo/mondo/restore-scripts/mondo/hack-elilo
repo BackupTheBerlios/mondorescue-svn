@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo "Hack-elilo has not been written yet. Sorry."
+exit 1

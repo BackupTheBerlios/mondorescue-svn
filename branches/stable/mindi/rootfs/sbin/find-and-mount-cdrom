@@ -1,0 +1,98 @@
+#!/bin/sh
+
+
+TryToFindCDROM() {
+# hda1 is there for testing
+    LogIt "find-and-mount-cdrom --- starting"
+    for device in /dev/hd? /dev/scd? /dev/rcd? /dev/sr? /dev/cd? /dev/ide/*/*/*/*/cd /dev/scsi/*/*/*/*/cd; do
+        [ ! "$SECOND_TRY" ] && LogIt "Trying $device"
+        if [ "`grep "using-cdstream yes" /tmp/mondo-restore.cfg`" ]; then
+	    pwd=`pwd`
+	    cd $GROOVY
+            tar -zxf $device 2> /tmp/mount.log
+            res=$?
+	    cd $pwd
+            if [ "$res" -eq "0" ] ; then
+		clear
+               LogIt "Using cdstream as extended datadisk ($device). Good." 3
+		echo "Using cdstrea as extd dsk." > /tmp/TAPEDEV-HAS-DATA-DISKS
+                ln -sf $device /dev/cdrom
+                exit 0
+	    fi
+        else
+            mount $device -t iso9660 -o ro /mnt/cdrom 2> /tmp/mount.log
+	    res=$?
+        fi
+	if [ "$res" -ne "0" ] ; then
+	    res=`cat /tmp/mount.log`
+	    if [ "$res" = "mount: No medium found" ] ; then
+               [ ! "$SECOND_TRY" ] && LogIt "There is a CD-ROM drive at $device but no CD in it."
+	    else
+               [ ! "$SECOND_TRY" ] && LogIt "It's not in $device; I'll keep looking"
+	    fi
+	    continue
+	fi
+	LogIt "$device has a CD-ROM in it"
+	umount /mnt/cdrom
+	ln -sf $device /dev/cdrom
+	if [ "$?" -ne "0" ]; then
+	    LogIt "Unable to softlink $device to /dev/cdrom. That's weird."
+	    continue
+	fi
+        LogIt "CD-ROM found at $device"
+	mount /mnt/cdrom
+        if [ "$?" -ne "0" ] ; then
+	    LogIt "Cannot mount /dev/cdrom (type $format) (dev=$device)"
+            continue
+        elif [ ! -d "/mnt/cdrom/archives" ] ; then
+	    LogIt "There is a CD in $device but it's not a Mondo CD"
+            continue
+        else
+	    LogIt "$device is where the Mondo CD lives."
+            which hdparm > /dev/null 2> /dev/null && hdparm -u1 -c3 -d1 $device
+	    return 0
+	fi
+    done
+    LogIt "Failed to find CD-ROM"
+    return 1
+}
+
+
+# -------------- main ------------
+
+[ "$1" = "--second-try" ] && SECOND_TRY=yes
+if [ ! "$GROOVY" ] ; then
+    LogIt "I'm not groovy!"
+    exit 1
+fi
+
+TryToFindCDROM
+if [ "$?" -eq "0" ] ; then
+    [ "$SECOND_TRY" ] && add="At 2nd attempt, " || add=""
+    LogIt $add"CD-ROM found and mounted at $device" 3
+    echo "$device" > /tmp/CDROM-LIVES-HERE
+    LogIt "find-and-mount-cdrom --- leaving (0)"
+    exit 0
+fi
+#mount /dev/fd0u1722 -t ext2 /mnt/floppy
+[ "$1" = "--second-try" ] && exit 1; # don't try to mount floppy drive
+if [ "`grep "using-cdstream yes" /tmp/mondo-restore.cfg`" ] ; then
+    LogIt "Because you are using cdstream, I won't try to mount CD."
+    exit 0
+fi
+mount /dev/fd0 -t ext2 -o ro /mnt/floppy 2> /dev/null
+if [ "$?" -eq "0" ] ; then
+    umount /mnt/floppy 2> /dev/null
+    exit 1
+else
+    LogIt "Please go to another PC, mount this CD and copy the data disk images" 1
+    LogIt "from the CD's /images directory to blank 1.44MB floppy disks. You should" 1
+    LogIt "use something like 'dd if=/mnt/cdrom/images/mindi-data-1.img of=/dev/fd0'" 1
+    LogIt "for the first data disk, mindi-data-2.img for the second, and so on." 1
+    LogIt "(If you are already booting from a floppy, please ignore this message.)" 1
+    exit 2
+fi
+
+
+
+

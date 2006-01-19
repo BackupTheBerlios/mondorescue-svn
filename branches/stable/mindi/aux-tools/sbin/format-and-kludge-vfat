@@ -1,0 +1,138 @@
+#!/bin/sh
+#
+# MondoRescue script: format-and-kludge-vfat
+# 
+# $1 = device, e.g. /dev/hda1
+#
+# This script requires parted and ms-sys
+#
+
+LogIt() {
+    echo "$1" >> /dev/stderr
+}
+
+
+ExitHere() {
+    echo "Exiting here for testing.                            "
+    exit 1
+}
+
+Die() {
+    LogIt "(format-and-kludge-vfat) $1" 1
+    cat /tmp/fakv.log
+    exit 1
+}
+
+GetPartitionFdiskType() {
+    local drive device ftype
+    device=$1
+    drive=$2
+    ftype=`parted2fdisk -l $drive | grep $device | tr '*' ' ' | tr -s '\t' ' ' | cut -d' ' -f5`
+    case $ftype in
+#   "b" | "c")
+#   the above is correct but mondorestore creates partition with FAT12, so:
+    "b" | "c" | "1")
+      echo "fat32"
+      ;;
+    "4" | "e")
+      echo "fat16"
+      ;;
+    *)
+      Die "Error: Unsuitable partition type $ftype (or device $device doesn't exist)"
+      ;;
+    esac
+    exit 0
+}
+
+
+# -------------- main ------------
+
+LogIt "format-and-kludge-vfat --- starting"
+
+touch /tmp/fakv.log
+
+if [ "$#" -eq "2" ] ; then
+    LogIt "Note: Script called with two parameters. Only one needed - the device." 1
+    LogIt "      Embleer files are gorn - please ask Hugo to update his code. ;-)" 1
+elif [ "$#" -ne "1" ] ; then
+    LogIt "Usage: format-and-kludge-vfat <device>" 1
+    exit 1
+fi
+
+retval=0
+
+device=$1
+drive=`echo $device | sed s/[0-9]*[0-9]//`
+partition=`echo $device | sed s\%$drive\%\%`
+
+type=`GetPartitionFdiskType $device $drive`
+res=$?
+retval=$(($retval+$res))
+if [ "$res" -ne "0" ]; then
+    exit 1
+fi
+LogIt "Formatting device $device (drive $drive, partition $partition, type $type)" 2
+parted $drive mkfs $partition $type 2> /tmp/fakv.log > /dev/null
+res=$?
+retval=$(($retval+$res))
+if [ "$res" -ne "0" ]; then
+    LogIt "Errors occurred while formatting $device!" 1
+    cat /tmp/fakv.log
+    exit 1
+fi
+if [ "$device" != "/dev/hda1" ] && [ "$device" != "/dev/sda1" ] ; then
+    LogIt "OK, this is not /dev/hda1 or /dev/sda1; so, I shan't kludge it." 1
+    exit 0
+fi
+LogIt "Setting the boot flag for $device" 2
+parted $drive set $partition  boot on 2> /tmp/fakv.log > /dev/null
+res=$?
+retval=$(($retval+$res))
+if [ "$res" -ne "0" ]; then
+    LogIt "Errors occurred while setting the boot flag for $device!" 1
+    cat /tmp/fakv.log
+    exit 1
+fi
+if [ "`arch`" != "ia64" ] ; then
+	LogIt "Fixing the boot block of $device with ms-sys" 2
+	ms-sys -w $device 2> /tmp/fakv.log > /dev/null
+	res=$?
+	retval=$(($retval+$res))
+	if [ "$res" -ne "0" ]; then
+    		LogIt "Errors occurred while fixing the boot block of $device!" 1
+    		cat /tmp/fakv.log
+    		exit 1
+	fi
+fi
+[ ! -e "/mnt/tmpK" ] && mkdir /mnt/tmpK
+mount $device -t vfat /mnt/tmpK || Die "Can't mount device $device"
+size=`df -m -P /mnt/tmpK | tr -s ' ' ' ' | cut -d' ' -f2 | tail -n 1`
+umount /mnt/tmpK || Die "Can't unmount /mnt/tmpK"
+
+ideal_size=`grep "$device " /tmp/mountlist.txt | tr -s ' ' ' ' | cut -d' ' -f4`
+if [ "$ideal_size" = "" ]; then 
+    LogIt "format-and-kludge-vfat --- can't find $device in mountlist" 1
+    exit 0
+fi
+LogIt "ideal_size = $ideal_size" 2
+ideal_size=$(($ideal_size/1024))
+difference=$(($ideal_size-$size))
+[ "$difference" -lt "0" ] && difference=$(((-1)*$difference))
+LogIt "ideal_size=$ideal_size; size=$size; difference=$difference"
+if [ "$difference" -gt "64" ] ; then
+    retval=$(($retval+1))
+    LogIt "(format-and-kludge-vfat-new) Size mismatch. Did kludge work?" 1
+else
+    LogIt "Size matches. (Well, nearly.) Good." 2
+fi
+
+if [ "$retval" -eq "0" ] ; then
+    LogIt "$device was successfully formatted and prepared" 1
+else
+    LogIt "$device failed to be formatted and prepared" 1
+    cat /tmp/fakv.log
+fi
+LogIt "(by format-and-kludge-vfat)"
+
+LogIt "format-and-kludge-vfat --- leaving (retval=$retval)"
+exit $retval

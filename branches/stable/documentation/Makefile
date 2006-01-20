@@ -1,3 +1,8 @@
+#
+# Makefile for mondorescue documentation build
+#
+# $Id$
+#
 TARGET=mondorescue-howto
 SRC=$(shell ls *.sgml)
 DSL=$(TARGET).dsl

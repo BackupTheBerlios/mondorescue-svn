@@ -58,6 +58,7 @@ if [ "`echo $c | grep  mondo`" != "" ]; then
 	#cp -a ${VER}/mondo mondo-${MONDO_VER}
 	cp -a /tmp/mondorescue-svn.log mondo-${MONDO_VER}/svn.log
 	echo "$REVISION" > mondo-${MONDO_VER}/REVISION
+	rm -rf documentation-${MONDO_VER}
 	svn export ${VER}/documentation documentation-${MONDO_VER}
 	cd documentation-${MONDO_VER}
 	make install INSTALLDIR=../mondo-${MONDO_VER}/mondo/docs/en

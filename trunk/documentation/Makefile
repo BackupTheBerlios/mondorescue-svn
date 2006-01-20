@@ -1,11 +1,17 @@
+#
+# Makefile for mondorescue documentation build
+#
+# $Id$
+#
 TARGET=mondorescue-howto
 SRC=$(shell ls *.sgml)
 DSL=$(TARGET).dsl
-IMAGES=$(shell ls images/*.png | sed 's/\.png/.eps/g')
+IMAGESDIR=images
+IMAGES=$(shell ls ${IMAGESDIR}/*.png | sed 's/\.png/.eps/g')
 
 all: $(TARGET).ps $(TARGET).pdf $(TARGET)/index.html $(TARGET).txt $(TARGET).html $(TARGET).rtf
 
-images/%.eps: images/%.png
+${IMAGESDIR}/%.eps: ${IMAGESDIR}/%.png
 	@echo "Converting $< to $@"
 	@convert $< $@
 		
@@ -51,3 +57,9 @@ clean:
 	@echo "Cleaning up the documentation directory"
 	@echo ""
 	@rm -fr $(TARGET).{aux,log,out,tex,dvi,pdf,ps,txt,rtf,html} $(TARGET)
+
+install: all
+	@echo ""
+	@echo "Delivering mondorescue documentation"
+	@echo ""
+	@if [ "${INSTALLDIR}" != "" ]; then cp -a $(TARGET).{html,pdf,ps,txt,rtf} $(TARGET) ${INSTALLDIR} ; cp -a ${IMAGESDIR} ${INSTALLDIR}/$(TARGET) ; else echo "No INSTALLDIR specified aborting install"; fi

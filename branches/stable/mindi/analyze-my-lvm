@@ -43,7 +43,7 @@ Die() {
 
 GetValueFromField() {
 	local res
-	sed s/'    '/~/ "$1" | tr -s ' ' ' ' | sed s/'~ '/'~'/ | grep -i "$2~" | cut -d'~' -f2,3,4,5 | tr '~' ' ' | gawk '{ if ($2=="MB") {printf "%sm",$1;} else if ($2=="KB") {printf "%sk",$1;} else if ($2=="GB") {printf "%sg",$1;} else {print $0;};}'
+	sed s/'    '/~/ "$1" | tr -s ' ' ' ' | sed s/'~ '/'~'/ | grep -i "$2~" | cut -d'~' -f2,3,4,5 | tr '~' ' ' | gawk '{ if ($2=="MB") {printf "%dm",$1;} else if ($2=="KB") {printf "%dk",$1;} else if ($2=="GB") {printf "%dg",$1;} else {print $0;};}'
 }
 
 

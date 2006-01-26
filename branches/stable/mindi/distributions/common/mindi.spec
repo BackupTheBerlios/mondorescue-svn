@@ -18,19 +18,19 @@
 
 %if %is_redhat
 %define grp		Applications/Archiving
-%define addreq	%{addreqb}, which
+%define addreq	%{addreqb}, which, grep >= 2.5
 Autoreq:	0
 %endif
 
 %if %is_mandrake
 %define	src		%{name}-%{version}.tar.bz2
-%define addreq	%{addreqb}, which
+%define addreq	%{addreqb}, which, grep >= 2.5
 Autoreqprov: no
 %endif
 
 %if %is_mandriva
 %define	src		%{name}-%{version}.tar.bz2
-%define addreq	%{addreqb}, which
+%define addreq	%{addreqb}, which, grep >= 2.5
 Autoreqprov: no
 %endif
 

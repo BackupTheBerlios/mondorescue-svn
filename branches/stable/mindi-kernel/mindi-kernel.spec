@@ -7,7 +7,7 @@ Summary:	A program that creates emergency boot disks/CDs using your kernel, tool
 Name:		mindi-kernel
 Version:	1.06
 Release:	%mrel
-Copyright:	GPL
+License:	GPL
 Group:		System/Kernel and hardware
 Url:		http://www.mondorescue.org
 Source:		%{name}-%{version}.tgz

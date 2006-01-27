@@ -2944,7 +2944,7 @@ else
   [ ! -e "/etc/modules.conf" ] && Die "/etc/modules.conf not found; you may have to create a softlink from /etc/conf.modules to /etc/modules.conf; of course, all good distros use modules.conf anyway..."
 fi
 FixPathIfBroken
-[ -f "$MINDI_LIB/vmlinuz" ] && FAILSAFE_KVER=`strings $MINDI_LIB/vmlinuz 2> /dev/null | grep "2\.4" | cut -d' ' -f1`
+[ -f "$MINDI_LIB/vmlinuz" ] && FAILSAFE_KVER=`strings $MINDI_LIB/vmlinuz 2> /dev/null | egrep "2\.[46]" | cut -d' ' -f1`
 AbortIfMkfsVfatMissing
 ### BCO
 ### Fix as it's not mandatory on ia64

@@ -1,0 +1,51 @@
+BODY {
+	BACKGROUND-IMAGE: url(images/bkg.jpg); BACKGROUND-REPEAT: no-repeat
+}
+TABLE {
+	FONT-SIZE: 12px; COLOR: #000000; FONT-STYLE: normal; FONT-FAMILY: Arial, Helvetica,  sans-serif
+}
+TD {
+	FONT-SIZE: 12px; COLOR: #000000; FONT-STYLE: normal; FONT-FAMILY: Arial, Helvetica,  sans-serif
+}
+TH {
+	FONT-SIZE: 12px; COLOR: #000000; FONT-STYLE: normal; FONT-FAMILY: Arial, Helvetica,  sans-serif
+}
+LI {
+	FONT-SIZE: 12px; COLOR: #000000; FONT-STYLE: normal; FONT-FAMILY: Arial, Helvetica,  sans-serif
+}
+UL {
+	FONT-SIZE: 12px; COLOR: #000000; FONT-STYLE: normal; FONT-FAMILY: Arial, Helvetica,  sans-serif
+}
+OL {
+	FONT-SIZE: 12px; COLOR: #000000; FONT-STYLE: normal; FONT-FAMILY: Arial, Helvetica,  sans-serif
+}
+P {
+	FONT-SIZE: 12px; COLOR: #000000; FONT-STYLE: normal; FONT-FAMILY: Arial, Helvetica,  sans-serif
+}
+H1 {
+	FONT-WEIGHT: bold; FONT-SIZE: 16px; COLOR: #393e40; FONT-STYLE: normal; FONT-FAMILY: Arial, Helvetica, sans-serif
+}
+A:link {
+	COLOR: #336699; TEXT-DECORATION: underline
+}
+A:visited {
+	COLOR: #6699cc; TEXT-DECORATION: underline
+}
+A:hover {
+	COLOR: #999999; TEXT-DECORATION: none
+}
+FORM {
+	FONT-WEIGHT: bold; FONT-SIZE: 10px; COLOR: #333333; FONT-STYLE: normal; FONT-FAMILY: Arial, Helvetica, sans-serif
+}
+INPUT {
+	FONT-WEIGHT: bold; FONT-SIZE: 10px; COLOR: #333333; FONT-STYLE: normal; FONT-FAMILY: Arial, Helvetica, sans-serif
+}
+TEXTAREA {
+	FONT-WEIGHT: bold; FONT-SIZE: 10px; COLOR: #333333; FONT-STYLE: normal; FONT-FAMILY: Arial, Helvetica, sans-serif
+}
+TD.infobox {
+	FONT-SIZE: 11px; COLOR: #000000; FONT-STYLE: normal; FONT-FAMILY: Arial, Helvetica, sans-serif
+}
+TD.footer {
+	FONT-SIZE: 10px; COLOR: #000000; FONT-STYLE: normal; FONT-FAMILY: Arial, Helvetica,  sans-serif
+}

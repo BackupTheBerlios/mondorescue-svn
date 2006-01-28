@@ -1,0 +1,39 @@
+#######################################################################
+# This is a script to execute daily/weekly backups over NFS           #
+# with mondorescue set of tools made by Hugo Rabson                   #
+# http://www.mondorescue.com <-- Visit and contribute !               #
+# This script made by Phazeman with a great help of                   #
+# crash3m @ #mandrake, twkm, Lurch and  Speuler @ #bash on            #
+# irc.freenode.net. It has been written to make it easy to use on     #
+# several machines at the same time.                                  #
+#######################################################################
+
+backup-kungfu is a script made to ease the mondoarchive (http://www.mondorescue.com)
+backup procedure for backing up 1 or more computers in the lan over the NFS.
+
+Install:
+	Just run the install.sh script, edit /etc/backup-kungfu.conf and set the
+	parameters to fit your needs.
+
+Run:
+	To execute the script just run backup-kungfu from the command prompt as root
+
+Cron:
+	If you want the script to be executed on Daily/Weekly basis it's a good idea to
+	add it as a a cron job. Just create a symlink to backup-kungfu executable inside
+	the /etc/cron.daily or /etc/cron.weekly directory. For example :
+
+	# ln -s /usr/local/bin/backup-kungfu /etc/cron.daily/backup-kungfu
+
+This product is distributed under the GPL license and is issued without warrant of
+anytime against damages, loss of property, or loss of profit.
+
+Authors:
+	Phazeman and crash3m @ #icantscript on irc.freenode.net
+
+Thanks:
+	I would like to say "THANK YOU" to all the people that helped me to write this
+	script:
+		Trappist, sunny and Redgore @ #mandrake on irc.freenode.net AND
+		twkm, Lurch and  Speuler @ #bash on irc.freenode.net.
+

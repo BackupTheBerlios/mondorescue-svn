@@ -1,0 +1,45 @@
+BODY, TABLE, TD, TH, LI, UL, OL, P {
+	font-family: Arial, Helvetica,  sans-serif;
+	font-size: 12px;
+	font-style: normal;
+	color: #000000;
+}
+
+H1 { 
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 16px; 
+	font-style: normal;
+	font-weight: bold; color: #393E40;
+}
+
+A:link { color:#0066cc; text-decoration:underline; }
+A:visited { color:#0066cc; text-decoration:underline; }
+A:hover { color:#0066cc; text-decoration:none; }
+
+FORM, INPUT, TEXTAREA {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	font-style: normal;
+	font-weight: bold;
+	color: #333333;
+}
+
+TD.infobox {
+	font-family: Arial, Helvetica,  sans-serif;
+	font-size: 11px;
+	font-style: normal;
+	color: #000000;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+TD.footer {
+	font-family: Arial, Helvetica,  sans-serif;
+	font-size: 10px;
+	font-style: normal;
+	color: #000000;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}

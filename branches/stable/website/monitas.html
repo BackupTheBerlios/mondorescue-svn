@@ -1,0 +1,283 @@
+<H1 ALIGN=CENTER>
+Latest</H1>
+<P>
+New documentation (<A HREF="monitas/stefan/html/monitasconcepts.html">HTML</A> 
+and <A HREF="monitas/stefan/monitasconcepts.pdf">PDF</A>) by Stefan 
+Huebner. Nice job!</P>
+<P ALIGN=RIGHT>
+- Hugo, 08/26/2002</P>
+<P>
+New <A HREF="monitas/monitas-latest.tgz">snapshot</A>, hacked by a 
+user. Looks good.</P>
+<P ALIGN=RIGHT>
+- Hugo, 08/01/2002</P>
+<P>
+To report a bug, please go to the <A HREF="http://geek.j2solutions.net/bugzilla/">Bugzilla</A> 
+page. (Nice work, KP!)</P>
+<P ALIGN=RIGHT>
+- Hugo, 06/21/2002</P>
+<P>
+Latest Monitas tarball is available <A HREF="monitas/monitas-0.1a.tgz">here</A>.
+Use it in conjunction with the latest daily snapshot. It lets you 
+backup, compare and restore archives over a network.</P>
+<P ALIGN=RIGHT>
+- Hugo, 06/19/2002</P>
+<P>
+Latest Monitas tarball is available <A HREF="monitas/monitas-0.1a.tgz">here</A>.
+It is alpha-quality code but it works. I can backup, compare and 
+restore over a network. It doesn't nuke yet but it works fine on a 
+live filesystem. (It restores to /mnt/TESTING as a precaution.)</P>
+<P>
+Monitas-server (daemon) is 25% complete.</P>
+<P>
+Monitas-client (daemon) is 40% complete.</P>
+<P>
+The CLI's, the GUI's and the start/stop wrappers are still in my 
+head. :)</P>
+<P ALIGN=RIGHT>
+- Hugo, 06/14/2002</P>
+<P>
+&lt;enderAWAY&gt; hugo: so, I made a new list for monitas.<BR>
+&lt;enderAWAY&gt; monitas-list@j2solutions.net<BR>
+&lt;enderAWAY&gt; send an email to 
+monitas-list-subscribe@j2solutions.net to subscribe.</P>
+<P>
+Folks, you heard it here first... ;-)</P>
+<P ALIGN=RIGHT>
+-Hugo, 05/07/2002</P>
+<H2 ALIGN=CENTER>
+<A NAME="FAQ"></A>FAQ</H2>
+<P>
+<I>Q: What is Monitas?</I></P>
+<P>
+A: It isn't ready for public consumption yet but it will be by 02/Q4. 
+It will backup and restore over a network. It will let the sysadm 
+backup, restore, wipe, and even prep from bare metal the PCs residing 
+on the network, all from the comfort of the sysadm's console. Data 
+backup/restoration may be requested by the client application. Data 
+may be restored without the client having to lift a finger. The 
+sysadm can run the show from the server.</P>
+<P>
+I'm going to use this web page as a place where the plan can 
+crystallize. Over time, this page will grow into a logical 
+explanation of the inner workings of Monitas. This will make it 
+easier for others to contribute. It will also help me: I can't write 
+half of what Monitas requires :) but I am a quick study and I prefer 
+to study in small chunks.</P>
+<P>
+<I>Q: Will Monitas be Open Source?</I></P>
+<P>
+A: Yes. The server and client are made available under the GNU Public License.</P>
+<P>
+<I>Q: Are you crazy? How can you write good software and give it away?</I></P>
+<P>
+A: Well, I hope someone will see Monitas (and Mondo and Mindi) and 
+hire me. I am a UK citizen (technically, a 'subject' because we have 
+a monarchy but no-one pays much attention to them nowadays) dating a 
+Texan. It is very hard to find a job if you do not have a Green Card. 
+It would be immoral to ask Michelle to marry me for any reason other 
+than love. Therefore, I am looking high and low for any means to 
+support myself while I date her. We shall eventually marry and remain 
+in the States but in the meantime, I am having to watch my 
+expenditure carefully.</P>
+<P>
+Why does this affect you? Well, if you use my software regularly but 
+don't pay for it, then eventually I'll have to stop developing it. Of 
+course, you'll probably find another $0 program to replace mine, so 
+you won't care, but I would rather keep Mondo going for you and the 
+tens of thousands of users like you, who rely on Mondo.</P>
+<P>
+Monitas will be better than Mondo. Monitas will use Mondo but for 
+client/server network backup and maintenance. If you work for a 
+company which uses my software on a regular basis, please consider 
+contributing to the project financially or with source patches. How 
+else can the project keep going?</P>
+<P>
+So, yes, I'm crazy. :-) I actually believe people are willing to 
+support projects like this one, especially if they are using it daily anyway.</P>
+<P>
+<I>Q: Why should commercial users pay for Monitas?</I></P>
+<P>
+A: If you don't support the project, you can't expect me to offer you 
+1-to-1 technical support.</P>
+<P>
+<!-- $MVD$:spaceretainer() -->&nbsp;</P>
+<H2 ALIGN=CENTER>
+<A NAME="progress"></A>Progress</H2>
+<P>
+The client is coming along nicely. So is the server. It'll be 
+September before beta-testing commences but the alpha code is already available.</P>
+<H3>
+Server</H3>
+<P>
+The server will come in three parts - the daemon, the CLI 
+(command-line interface), and the GUI. The server will keep an SQL 
+database of backup information, so that the sysadm can orchestrate 
+the smooth backup/restore of data over the network.</P>
+<P>
+The daemon will check its schedule once a minute. (The schedule will 
+be a simple text file, to avoid the need to interrogate the SQL 
+database 60 times an hour.) If a backup is due to commence now, the 
+daemon sends a signal to the client, asking it to begin archiving and 
+submitting data for storage. The daemon then receives the data, 
+stores it, labels it and indexes it in the SQL database.</P>
+<P>
+If a restore event is requested by the sysadm (or if it is 
+scheduled), the daemon tells the client to prepare to receive data. 
+The daemon then sends the data and tells the client to reboot if 
+necessary (before or after is determined by the nature of the 
+scheduled/requested event).</P>
+<P>
+The CLI allows the sysadm to schedule and request events. It will be 
+a no-frills interface to the SQL database (and the text file 
+containing the backup schedule). Because the daemon is controlled by 
+one text file and an SQL database, it is easy to write a client for 
+it. So, a GUI should be no problem. I could even write an interface 
+in PHP... :^)</P>
+<P>
+The CLI and GUI are really not that hard. The daemon is the hard 
+part. In theory, I could Open the CLI and GUI, just for the heck of 
+it. The daemon, no way.</P>
+<H3>
+Client</H3>
+<P>
+The client will respond to triggers sent by the server. It will 
+backup and restore noninteractively over the network. Like the 
+server, the client will come in three parts - the daemon, the CLI, 
+and the GUI.</P>
+<P>
+The daemon will wait until it is asked to backup/restore. Then, it 
+backs up / restores. Simple.</P>
+<P>
+The CLI will interrogate the daemon. It will permit the client's user 
+to place a request with the syadm for a backup/restore operation. 
+If/when the sysadm okays it then the backup/restore will proceed.</P>
+<P>
+The GUI will do a prettier job than the CLI. That's about it. The 
+client is pretty much a self-cleaning oven.</P>
+<P>
+<!-- $MVD$:spaceretainer() -->&nbsp;</P>
+<H2 ALIGN=CENTER>
+<A NAME="original_email"></A>How it started</H2>
+<P>
+<I>Here is the original e-mail, sent to the Mondo mailing list on 
+April 26th, 2002:-</I></P>
+<P>
+We've been kicking some ideas around in #mondo 
+(irc.openprojects.net). Here is what we have come up with.</P>
+<P>
+Think, &quot;Client/server backup with an attitude&quot;. This will 
+be Linux-only for now but we could port to Windows in future, in theory.</P>
+<P>
+Mondo Server (hereafter, &quot;MS&quot;) will:-</P>
+<UL>
+<LI CLASS="mvd-P">
+<P>
+accept requests to backup Mondo Clients (hereafter, &quot;MCs&quot;)<BR>
+<LI CLASS="mvd-P">accept requests to restore live to MCs<BR>
+<LI CLASS="mvd-P">send Reboot&amp;Restore trigger to MCs<BR>
+<LI CLASS="mvd-P">send &quot;backup to me&quot; triggers to MCs<BR>
+<LI CLASS="mvd-P">send &quot;restore live from me&quot; triggers to MCs<BR>
+<LI CLASS="mvd-P">keep a database of ISOs and their info, in a format 
+which makes it easy for the sysadm to figure out:-
+<UL>
+<LI CLASS="mvd-P">when was _this_ MC last backed up?<BR>
+<LI CLASS="mvd-P">how old is our most recent backup of 
+/home/hugo/personal/letter-to-girlfriend.doc (or whatever)?<BR>
+<LI CLASS="mvd-P">when is _this_ MC next due to be backed up?<BR>
+<LI CLASS="mvd-P">...etc.</UL>
+<LI CLASS="mvd-P">&nbsp;store MCs' backups on device (tape, CD, hard 
+disks, etc.) controlled by MS, not the MCs</P>
+</UL>
+<P>
+Mondo Client (daemon running on the 'client', a workstation PC) will:-</P>
+<UL>
+<LI CLASS="mvd-P">
+<P>
+receive triggers from MS<BR>
+<LI CLASS="mvd-P">backup PC in response to MS's trigger<BR>
+<LI CLASS="mvd-P">send ISO's to MS<BR>
+<LI CLASS="mvd-P">restore live data streamed from MS to local PC, in 
+response to trigger from MS<BR>
+<LI CLASS="mvd-P">reboot&amp;restore from bare metal noninteractively 
+in response to request from MS; restore data from MS to MC<BR>
+<LI CLASS="mvd-P">send request to MS, asking for a particular 
+directory to be restored to MC (or for a bare-metal restore, if desired)</P>
+</UL>
+<P>
+If you invoke mondoserver (the server program) with -d then it will 
+run in daemon mode. It will trigger backups in accordance with its 
+configuration. I expect that the MS will be configured to start 
+mondoserver at boot-time and to shut it down on reboot/shutdown.</P>
+<P>
+If you invoke mondoclient (the client program) with -d then it will 
+run in daemon mode. It will respond to triggers received from the MS. 
+I expect that the MCs will be configured to start mondoclient at 
+boot-time, etc.</P>
+<P>
+If you run mondoserver without parameters then it will give you a 
+warm, friendly interface with which to configure your MS.</P>
+<P>
+If you run mondoclient without parameters then it will give you a 
+warm, friendly interface to let you watch what mondoclient (the 
+daemon) is doing to your MC. You may push a button to request that 
+your MC be backed up. The MS will decide whether to give you what you 
+want. (The request will probably sit in a special &quot;The user 
+asked for this&quot; queue, where the sysadm can see how often you've 
+requested it, whether you should have it, etc.)</P>
+<P>
+Here are the bits I know how to do:-</P>
+<UL>
+<LI CLASS="mvd-P">
+<P>
+[MS] store MCs' backups on device (tape, CD, hard disks, etc.) 
+controlled by MS, not the MCs<BR>
+<LI CLASS="mvd-P">[MC] backup the local PC in response to MS's trigger<BR>
+<LI CLASS="mvd-P">[MC] reboot&amp;restore from bare metal (without a 
+floppy or a CD) over a network</P>
+</UL>
+<P>
+I haven't figured out these bits yet:-</P>
+<UL>
+<LI CLASS="mvd-P">
+<P>
+[MS] send triggers to MCs<BR>
+<LI CLASS="mvd-P">[MC] receive triggers from MS<BR>
+<LI CLASS="mvd-P">[MS] keep a database of ISOs and their info, in a 
+format which makes it easy for the sysadm to track backups<BR>
+<LI CLASS="mvd-P">[MC/MS] send data back &amp; forth (the backups 
+themselves, I mean) &lt;--- netcat?</P>
+</UL>
+<P>
+Basically, I know very little about networking but I can learn. I 
+also don't own any networked PC's (well, I do but they're 3000 miles 
+away). So, I have to do some serious thinking. I can buy some cheap, 
+used PC's and network them; use them as testbeds/clients; buy a 
+slightly more expensive PC as a server; then I can go from there. I 
+expect to do it for &lt;$1500. My apartment hasn't sold yet, so I 
+can't start the heavy coding until then. I expect to start within a 
+month, though.</P>
+<P>
+I _think_ I can do this by the end of the year. If I'm lucky, I can 
+have most of this running reliably by August/September.</P>
+<P>
+I know there are some fairly big companies which use Mondo. I know 
+some of their employees are on this list. If you think you know 
+someone who would be interested in sponsoring the client/server phase 
+of Mondo, please let me know.</P>
+<P>
+There are 3 or 4 hardcore developers waiting to get this done. &gt;:-D</P>
+<P>
+-Hugo, 04/26/2002</P>
+<P>
+<!-- $MVD$:spaceretainer() -->&nbsp;</TD>
+</TR>
+<TR>
+<TD WIDTH="14%" VALIGN=TOP></TD>
+<TD WIDTH="86%" VALIGN=TOP></TD>
+</TR>
+</TABLE></P>
+<P>
+&nbsp;
+</BODY>
+</HTML>

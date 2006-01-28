@@ -79,8 +79,8 @@
 
 
 #define NOOF_THREADS 10
-#define LOGFILE "/var/log/monitas-server.log"
-#define log_it(x,y) { log_it_SUB(g_logfile,x,y); }
+//#define LOGFILE "/var/log/monitas-server.log"
+//#define log_it(x,y) { log_it_SUB(g_logfile,x,y); }
 
 
 /* externs */
@@ -99,7 +99,7 @@ extern void set_signals(bool);
 extern void termination_in_progress(int);
 extern char *tmsg_to_string(t_msg);
 extern int transmit_file_to_socket(FILE*,int);
-
+extern int parse_options(int argc, char *argv[]);
 
 
 /* global vars */
@@ -107,7 +107,6 @@ extern int transmit_file_to_socket(FILE*,int);
 struct s_clientlist g_clientlist; /* FIXME - lock during login/logout, using mutexes */
 char g_command_fifo[MAX_STR_LEN+1]; // Device which server will monitor for incoming commands
 pthread_t g_threadinfo[NOOF_THREADS]; // One thread per port, to watch for requests from clients
-char g_logfile[MAX_STR_LEN+1] = "/var/log/monitas-server.log";
 char g_server_status_file[MAX_STR_LEN+1];
 
 
@@ -155,18 +154,16 @@ Return: result (0=success, nonzero=failure)
   char tmp[MAX_STR_LEN+1], outfile[MAX_STR_LEN+1];
   FILE*fout;
 
-  sprintf(tmp, "%s - backup of %s commencing", ipaddr, clientpath);
-  log_it(info, tmp);
-  sprintf(outfile, "/var/spool/monitas/%s/%s.dat", ipaddr, call_program_and_get_last_line_of_output("date +%s"));
-  if (does_file_exist(outfile)) { log_it(error, "Backup storage location exists already. That should be impossible."); return(1); }
+  log_it(info, "%s - backup of %s commencing", ipaddr, clientpath);
+  sprintf(outfile, "/var/spool/monitas/%s/%lu.dat", ipaddr, time(NULL));
+  if (does_file_exist(outfile)) { log_it(error, "Backup storage location '%s' exists already. That should be impossible.", outfile); return(1); }
   if (make_hole_for_file(outfile))
-    { res++; log_it(error, "Cannot write archive to spool dir"); }
+    { res++; log_it(error, "Cannot write archive to spool dir '%s'", outfile); }
   else if (!(fout=fopen(outfile, "w")))
-    { res++; log_it(fatal, "Failed to openout temp data file"); }
+    { res++; log_it(fatal, "Failed to openout temp data file '%s'", outfile); }
   else
     {
-      sprintf(tmp, "Backing up %s - archive=%s", ipaddr, outfile);
-      log_it(debug, tmp);
+      log_it(debug, "Backing up %s - archive=%s", ipaddr, outfile);
       rec_to_client.msg_type = trigger_backup;
       strncpy(rec_to_client.body, clientpath, sizeof(rec_to_client.body));
       if (send_msg_to_client(&rec_to_client, ipaddr, port, &socket_fd))
@@ -192,8 +189,7 @@ Return: result (0=success, nonzero=failure)
 /* Return success/failure value */
   if (res>0)
     {
-      sprintf(tmp, "%s - error(s) occurred while backing up %s", ipaddr, clientpath);
-      log_it(error, tmp);
+      log_it(error, "%s - error(s) occurred while backing up %s", ipaddr, clientpath);
       rec_to_client.msg_type = backup_fail;
       sprintf(rec_to_client.body, "Failed to backup %s", clientpath);
       log_it(debug, rec_to_client.body);
@@ -201,8 +197,7 @@ Return: result (0=success, nonzero=failure)
     }
   else
     {
-      sprintf(tmp, "%s - backed up %s ok", ipaddr, clientpath);
-      log_it(info, tmp);
+      log_it(info, "%s - backed up %s ok", ipaddr, clientpath);
       rec_to_client.msg_type = backup_ok;
       sprintf(rec_to_client.body, "%s - backed up ok", clientpath);
       log_it(debug, rec_to_client.body);
@@ -210,8 +205,7 @@ Return: result (0=success, nonzero=failure)
   if (send_msg_to_client(&rec_to_client, ipaddr, port, &socket_fd))
     {
       res++;
-      sprintf(tmp, "Unable to notify %s of backup success/failure", ipaddr);
-      log_it(error, tmp);
+      log_it(error, "Unable to notify %s of backup success/failure", ipaddr);
       i = find_client_in_clientlist(ipaddr);
       if (i>=0) { forcibly_logout_client(i); }
       log_it(info, "I'm assuming the backup was bad because the client cannot be reached.");
@@ -240,22 +234,19 @@ Return: result (0=success, nonzero=failure)
   char tmp[MAX_STR_LEN+1], infile[MAX_STR_LEN+1];
   FILE*fin;
 
-  sprintf(tmp, "%s - comparison of %s commencing", ipaddr, clientpath);
-  log_it(info, tmp);
+  log_it(info, "%s - comparison of %s commencing", ipaddr, clientpath);
 // FIXME - don't assume the latest backup contains the files we want ;)
   sprintf(tmp, "find /var/spool/monitas/%s -type f | sort | tail -n1", ipaddr);
   strcpy(infile, call_program_and_get_last_line_of_output(tmp));
-  sprintf(tmp, "Comparing to data file '%s'", infile);
-  log_it(debug, tmp);
-  if (!does_file_exist(infile)) { log_it(error, "Backup not found. That should be impossible."); return(1); }
-  sprintf(tmp, "Comparing %s - archive=%s", ipaddr, infile);
-  log_it(debug, tmp);
+  log_it(debug, "Comparing to data file '%s'", infile);
+  if (!does_file_exist(infile)) { log_it(error, "Backup '%s' not found. That should be impossible.", infile); return(1); }
+  log_it(debug, "Comparing %s - archive=%s", ipaddr, infile);
   rec_to_client.msg_type = trigger_compare;
   strncpy(rec_to_client.body, clientpath, sizeof(rec_to_client.body));
   if (send_msg_to_client(&rec_to_client, ipaddr, port, &socket_fd))
     { log_it(error, "compare_client - failed to send msg to client"); return(1); }
   if (!(fin=fopen(infile, "r")))
-    { log_it(fatal, "Failed to openin temp data file"); }
+    { log_it(fatal, "Failed to openin temp data file '%s'", infile); }
   res += transmit_file_to_socket(fin, socket_fd);
   len=read(socket_fd, (char*)&i, sizeof(i));
   if (!len) { res++; log_it(error, "Client hasn't told me the result of its call to mondoarchive"); }
@@ -266,24 +257,21 @@ Return: result (0=success, nonzero=failure)
   close(socket_fd);
   if (res>0)
     {
-      sprintf(tmp, "%s - error(s) occurred while comparing %s", ipaddr, clientpath);
-      log_it(error, tmp);
+      log_it(error, "%s - error(s) occurred while comparing %s", ipaddr, clientpath);
       rec_to_client.msg_type = compare_fail;
       sprintf(rec_to_client.body, "Failed to compare %s", clientpath);
       log_it(debug, rec_to_client.body);
     }
   else
     {
-      sprintf(tmp, "%s - compared %s ok", ipaddr, clientpath);
-      log_it(info, tmp);
+      log_it(info, "%s - compared %s ok", ipaddr, clientpath);
       rec_to_client.msg_type = compare_ok;
       sprintf(rec_to_client.body, "%s - compared ok", clientpath);
       log_it(debug, rec_to_client.body);
     }
   if (send_msg_to_client(&rec_to_client, ipaddr, port, &socket_fd))
     {
-      sprintf(tmp, "Unable to notify %s of compare success/failure", ipaddr);
-      log_it(error, tmp);
+      log_it(error, "Unable to notify %s of compare success/failure", ipaddr);
       i = find_client_in_clientlist(ipaddr);
       if (i>=0) { forcibly_logout_client(i); }
     }
@@ -306,14 +294,12 @@ Return: result (<0=not found, 0+=found in element N)
 */
 {
   int i;
-  char tmp[MAX_STR_LEN+1];
 
   for(i = 0; i < g_clientlist.items; i++)
     {
       if (!strcmp(clientIP, g_clientlist.el[i].ipaddr))
 	{ return(i); }
-      sprintf(tmp, "find_client_in_clientlist: Compared %s to clientlist[%d]=%s; failed\n", clientIP, i, g_clientlist.el[i].ipaddr);
-      log_it(debug, tmp);
+      log_it(debug, "find_client_in_clientlist: Compared %s to clientlist[%d]=%s; failed\n", clientIP, i, g_clientlist.el[i].ipaddr);
     }
   return(-1);
 }
@@ -358,18 +344,17 @@ NB:      The client was definitely removed from our login table.
   char tmp[MAX_STR_LEN+1];
   int res=0;
 
-  sprintf(tmp, "Forcibly logging %s out", g_clientlist.el[clientno].ipaddr);
-  log_it(info, tmp);
+  log_it(info, "Forcibly logging %s out", g_clientlist.el[clientno].ipaddr);
   rec_to_client.msg_type = logout_ok; /* to confirm logout */
   strcpy(rec_to_client.body, "Server is shutting down. You are forced to logout");
   res=send_msg_to_client(&rec_to_client, g_clientlist.el[clientno].ipaddr, g_clientlist.el[clientno].port, NULL);
   if (--g_clientlist.items > 0)
     {
-      sprintf(tmp, "Moving clientlist[%d] to clientlist[%d]", clientno, g_clientlist.items);
-      log_it(debug, tmp);
+      log_it(debug, "Moving clientlist[%d] to clientlist[%d]", clientno, g_clientlist.items);
       sprintf(tmp, "Was ipaddr=%s; now is ipaddr=", g_clientlist.el[clientno].ipaddr);
       memcpy((void*)&g_clientlist.el[clientno], (void*)&g_clientlist.el[g_clientlist.items], sizeof(struct s_registered_client_record));
       strcat(tmp, g_clientlist.el[clientno].ipaddr);
+      /* FIXME: tmp must never contain '%'-sequences */
       log_it(debug, tmp);
     }
   return(res);
@@ -418,17 +403,15 @@ Params:	skt - client's port to respond to
 Return: result (0=success, nonzero=failure)
 */
 {
-  char clientIP[MAX_STR_LEN+1], tmp[MAX_STR_LEN+1];
+  char clientIP[MAX_STR_LEN+1];
   unsigned char *ptr;
   int res=0;
 
   //  echo_ipaddr_to_screen(&sin->sin_addr);
   ptr = (unsigned char*)(&sin->sin_addr);
   sprintf(clientIP, "%d.%d.%d.%d", ptr[0], ptr[1], ptr[2], ptr[3]);
-  sprintf(tmp, "clientIP = %s", clientIP);
-  log_it(debug, tmp);
-  sprintf(tmp, "%s message from %s [%s] (port %d)", tmsg_to_string(rec->msg_type), clientIP, rec->body, rec->port);
-  log_it(debug, tmp);
+  log_it(debug, "clientIP = %s", clientIP);
+  log_it(debug, "%s message from %s [%s] (port %d)", tmsg_to_string(rec->msg_type), clientIP, rec->body, rec->port);
   switch(rec->msg_type)
     {
     case login:
@@ -470,7 +453,6 @@ Return: result (0=success, nonzero=failure)
 {
   struct s_server2client_msg_record rec_to_client;
   int clientno;
-  char tmp[MAX_STR_LEN+1];
 
 //FIXME - lock g_clientlist[]
   clientno = find_client_in_clientlist(clientIP);
@@ -478,8 +460,7 @@ Return: result (0=success, nonzero=failure)
     {
       rec_to_client.msg_type = login_fail;
       sprintf(rec_to_client.body, "Sorry, you're already logged in!");
-      sprintf(tmp, "Ignoring login rq from %s: he's already logged in.", clientIP);
-      log_it(error, tmp);
+      log_it(error, "Ignoring login rq from %s: he's already logged in.", clientIP);
 /* FIXME - ping client (which will have a child watching for incoming
 packets by now - you didn't forget to do that, did you? :)) - to find out
 if client is still running. If it's not then say OK, forget it, I'll kill
@@ -496,8 +477,7 @@ already logged in; either you're an idiot or you're a hacker. */
       g_clientlist.el[clientno].port = rec_from_client->port;
       g_clientlist.el[clientno].busy = false;
       g_clientlist.items ++;
-      sprintf(tmp, "Login request from %s ACCEPTED", clientIP);
-      log_it(info, tmp);
+      log_it(info, "Login request from %s ACCEPTED", clientIP);
       strcpy(g_clientlist.el[clientno].last_progress_rpt, "Logged in");
     }
   send_msg_to_client(&rec_to_client, clientIP, rec_from_client->port, NULL);
@@ -522,7 +502,6 @@ Return: result (0=success, nonzero=failure)
 {
   struct s_server2client_msg_record rec_to_client;
   int i, res=0;
-  char tmp[MAX_STR_LEN+1];
 
   i = find_client_in_clientlist(clientIP);
   if (i<0)
@@ -549,8 +528,7 @@ Return: result (0=success, nonzero=failure)
       strncpy(g_clientlist.el[i].hostname_pretty, "WTF? Someone teach Hugo to handle pointers properly, please!", sizeof(g_clientlist.el[i].hostname_pretty));
       g_clientlist.items--;
       rec_to_client.msg_type = logout_ok; /* to confirm logout */
-      sprintf(tmp, "Logout request from %s ACCEPTED", clientIP);
-      log_it(info, tmp);
+      log_it(info,  "Logout request from %s ACCEPTED", clientIP);
     }
   send_msg_to_client(&rec_to_client, clientIP, rec_from_client->port, NULL);
   return(res);
@@ -574,13 +552,11 @@ Return: result (0=success, nonzero=failure)
 {
   struct s_server2client_msg_record rec_to_client;
   int i;
-  char tmp[MAX_STR_LEN+1];
 
   i = find_client_in_clientlist(clientIP);
   if (i < 0)
     {
-      sprintf(tmp, "Hey, %s isn't logged in. I'm not going to pong him.", clientIP);
-      log_it(error, tmp);
+      log_it(error, "Hey, %s isn't logged in. I'm not going to pong him.", clientIP);
     }
   else
     {
@@ -610,13 +586,11 @@ Return: result (0=success, nonzero=failure)
 {
 //  struct s_server2client_msg_record rec_to_client;
   int i, res=0;
-  char tmp[MAX_STR_LEN+1];
 
   i = find_client_in_clientlist(clientIP);
   if (i < 0)
     {
-      sprintf(tmp, "Hey, %s isn't logged in. I'm not going to deal with his progress_rpt.", clientIP);
-      log_it(error, tmp);
+      log_it(error, "Hey, %s isn't logged in. I'm not going to deal with his progress_rpt.", clientIP);
       res++;
     }
   else
@@ -644,13 +618,12 @@ Return: result (0=success, nonzero=failure)
 {
 //  struct s_server2client_msg_record rec_to_client;
   int i, res=0;
-  char tmp[MAX_STR_LEN+1], command[MAX_STR_LEN+1], first_half[MAX_STR_LEN+1], second_half[MAX_STR_LEN+1], *p;
+  char command[MAX_STR_LEN+1], first_half[MAX_STR_LEN+1], second_half[MAX_STR_LEN+1], *p;
 
   i = find_client_in_clientlist(clientIP);
   if (i < 0)
     {
-      sprintf(tmp, "Hey, %s isn't logged in. I'm not going to deal with his request.", clientIP);
-      log_it(error, tmp);
+      log_it(error, "Hey, %s isn't logged in. I'm not going to deal with his request.", clientIP);
       res++;
     }
   else
@@ -658,7 +631,7 @@ Return: result (0=success, nonzero=failure)
       strcpy(first_half, rec_from_client->body);
       p = strchr(first_half, ' ');
       if (!p) { second_half[0]='\0'; } else { strcpy(second_half, p); *p='\0'; }
-      sprintf(command, "echo \"%s %s%s\" > %s", first_half, clientIP, second_half, SERVER_COMDEV);
+      sprintf(command, "echo \"%s %s%s\" > %s", first_half, clientIP, second_half, g->server_comdev);
       log_it(debug, command);
       i = system(command);
       if (i) { res++; log_it(error, "Failed to echo command to FIFO"); }
@@ -682,7 +655,6 @@ Return: result (0=success; nonzero=failure)
 {
 int res=0, port;
 int clientno;
-char tmp[MAX_STR_LEN+1];
 int pos;
 char command[MAX_STR_LEN+1], ipaddr[MAX_STR_LEN+1],
 	path[MAX_STR_LEN+1], aux[MAX_STR_LEN+1];
@@ -697,19 +669,15 @@ char command[MAX_STR_LEN+1], ipaddr[MAX_STR_LEN+1],
             { aux[0] = '\0'; }
 
 //          for(i=0; i<strlen(command); i++) { command[i]=command[i]|0x60; }
-          sprintf(tmp, "cmd=%s ipaddr=%s path=%s", command, ipaddr, path);
-          log_it(debug, tmp);
-          sprintf(tmp, "%s of %s on %s <-- command received", command, path, ipaddr);
-          log_it(info, tmp);
+          log_it(debug, "cmd=%s ipaddr=%s path=%s", command, ipaddr, path);
+          log_it(info, "%s of %s on %s <-- command received", command, path, ipaddr);
           if ((clientno = find_client_in_clientlist(ipaddr)) < 0)
             {
-              sprintf(tmp, "%s not found in clientlist; so, %s failed.", ipaddr, command);
-              log_it(error, tmp);
+              log_it(error, "%s not found in clientlist; so, %s failed.", ipaddr, command);
             }
           else if (g_clientlist.el[clientno].busy == true)
             {
-              sprintf(tmp, "%s is busy; so, %s failed.", ipaddr, command);
-              log_it(error, tmp);
+              log_it(error, "%s is busy; so, %s failed.", ipaddr, command);
             }
           else
             {
@@ -723,8 +691,7 @@ char command[MAX_STR_LEN+1], ipaddr[MAX_STR_LEN+1],
                 { res = restore_client(ipaddr, port, path, aux); }
               else
                 {
-                  sprintf(tmp, "%s - cannot '%s'. Command unknown.", ipaddr, command);
-                  log_it(error, tmp);
+                  log_it(error, "%s - cannot '%s'. Command unknown.", ipaddr, command);
                   res=1;
                 }
               g_clientlist.el[clientno].busy = false;
@@ -752,16 +719,13 @@ Return: result (0=success, nonzero=failure)
   char tmp[MAX_STR_LEN+1], infile[MAX_STR_LEN+1];
   FILE*fin;
 
-  sprintf(tmp, "%s - restoration of %s commencing", ipaddr, clientpath);
-  log_it(info, tmp);
+  log_it(info, "%s - restoration of %s commencing", ipaddr, clientpath);
 // FIXME - don't assume the latest backup contains the files we want ;)
   sprintf(tmp, "find /var/spool/monitas/%s -type f | sort | tail -n1", ipaddr);
   strcpy(infile, call_program_and_get_last_line_of_output(tmp));
-  sprintf(tmp, "Restoring from data file '%s'", infile);
-  log_it(debug, tmp);
-  if (!does_file_exist(infile)) { log_it(error, "Backup not found. That should be impossible."); return(1); }
-  sprintf(tmp, "Restoring %s - archive=%s", ipaddr, infile);
-  log_it(debug, tmp);
+  log_it(debug, "Restoring from data file '%s'", infile);
+  if (!does_file_exist(infile)) { log_it(error, "Backup '%s' not found. That should be impossible.", infile); return(1); }
+  log_it(debug, "Restoring %s - archive=%s", ipaddr, infile);
   rec_to_client.msg_type = trigger_restore;
   strncpy(rec_to_client.body, clientpath, sizeof(rec_to_client.body));
   strncpy(rec_to_client.bodyAux, auxpath, sizeof(rec_to_client.bodyAux));
@@ -781,24 +745,21 @@ Return: result (0=success, nonzero=failure)
   close(socket_fd);
   if (res>0)
     {
-      sprintf(tmp, "%s - error(s) occurred while restoring %s", ipaddr, clientpath);
-      log_it(error, tmp);
+      log_it(error, "%s - error(s) occurred while restoring %s", ipaddr, clientpath);
       rec_to_client.msg_type = restore_fail;
       sprintf(rec_to_client.body, "Failed to restore %s", clientpath);
       log_it(debug, rec_to_client.body);
     }
   else
     {
-      sprintf(tmp, "%s - restored %s ok", ipaddr, clientpath);
-      log_it(info, tmp);
+      log_it(info, "%s - restored %s ok", ipaddr, clientpath);
       rec_to_client.msg_type = restore_ok;
       sprintf(rec_to_client.body, "%s - restored ok", clientpath);
       log_it(debug, rec_to_client.body);
     }
   if (send_msg_to_client(&rec_to_client, ipaddr, port, &socket_fd))
     {
-      sprintf(tmp, "Unable to notify %s of restore success/failure", ipaddr);
-      log_it(error, tmp);
+      log_it(error, "Unable to notify %s of restore success/failure", ipaddr);
       i = find_client_in_clientlist(ipaddr);
       if (i>=0) { forcibly_logout_client(i); }
     }
@@ -829,11 +790,9 @@ Return: result (0=success, nonzero=failure)
 struct hostent *hp;
 struct sockaddr_in sin;
 int  s;
-char tmp[MAX_STR_LEN+1];
 if ((hp = gethostbyname(clientIP)) == NULL)
 {
-sprintf(tmp, "send_msg_to_client: %s: unknown host", clientIP);
-log_it(error, tmp);
+log_it(error, "send_msg_to_client: %s: unknown host", clientIP);
 return(1);
 }
 memset((void*)&sin, 0, sizeof(sin));
@@ -844,11 +803,10 @@ sin.sin_port = htons(port);
 if ((s = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
 { perror("socket"); log_it(error, "send_msg_to_client: SOCKET error"); return(1); }
 if (connect(s, (struct sockaddr*)&sin, sizeof(struct sockaddr_in)) < 0)
-{ sprintf(tmp, "Failed to connect to client %s on port %d", clientIP, port); log_it(error, tmp); return(1); }
+{ log_it(error, "Failed to connect to client %s on port %d", clientIP, port); return(1); }
 send(s, (char*)rec, sizeof(struct s_server2client_msg_record), 0);
 if (psocket) { *psocket=s; } else { close(s); }
-sprintf(tmp, "Sent %s msg [%s] to %s (port %d)", tmsg_to_string(rec->msg_type), rec->body, clientIP, port);
-log_it(debug, tmp);
+log_it(debug, "Sent %s msg [%s] to %s (port %d)", tmsg_to_string(rec->msg_type), rec->body, clientIP, port);
 return(0);
 }
 
@@ -882,8 +840,7 @@ NB:	Called by main()
         }
       usleep(50000);
     }
-  sprintf(tmp, "Now monitoring ports %d thru %d for requests from clients.", 8700, 8700+NOOF_THREADS-1);
-  log_it(info, tmp);
+  log_it(info, "Now monitoring ports %d thru %d for requests from clients.", 8700, 8700+NOOF_THREADS-1);
 }
 
 
@@ -949,7 +906,7 @@ NB:	Function will return nonzero if error occurs during
 {
   int watch_port;
   struct sockaddr_in sin;
-  char buf[MAX_STR_LEN+1], tmp[MAX_STR_LEN+1];
+  char buf[MAX_STR_LEN+1];
   int len, s, new_s;
   struct s_client2server_msg_record rec;
 
@@ -961,25 +918,21 @@ NB:	Function will return nonzero if error occurs during
   sin.sin_port = htons(watch_port);
   if ((s = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
     {
-      sprintf(tmp, "Unable to open socket on port #%d", watch_port);
-      log_it(error, tmp);
+      log_it(error, "Unable to open socket on port #%d", watch_port);
       return((void*)-1);
     }
   if (bind(s, (struct sockaddr*)&sin, sizeof(sin)) < 0)
     {
-      sprintf(tmp, "Cannot bind %d - %s\n", watch_port, strerror(errno));
-      log_it(error, tmp);
+      log_it(error, "Cannot bind %d - %s\n", watch_port, strerror(errno));
       return((void*)-1);
     }
   if (listen(s, MAX_PENDING) < 0)
     {
-      sprintf(tmp, "Cannot setup listen (%d) - %s\n", watch_port, strerror(errno));
-      log_it(error, tmp);
+      log_it(error, "Cannot setup listen (%d) - %s\n", watch_port, strerror(errno));
       return((void*)-1);
     }
   /* service incoming connections */
-  sprintf(tmp, "Bound port #%d OK", watch_port);
-  log_it(debug, tmp);
+  log_it(debug, "Bound port #%d OK", watch_port);
   while(true)
     {
       len = sizeof(sin);
@@ -1015,12 +968,14 @@ Return: result (0=success, nonzero=failure)
 {
   pthread_t server_status_thread;
 
+  parse_options(argc, argv);
+
   log_it(info, "---------- Monitas (server) by Hugo Rabson ----------");
   register_pid(getpid(), "server");
   set_signals(true);
   start_threads_to_watch_ports_for_requests();
-  pthread_create(&server_status_thread, NULL, generate_server_status_file_regularly, (void*)SERVER_STATUS_FILE);
-  create_and_watch_fifo_for_commands(SERVER_COMDEV);
+  pthread_create(&server_status_thread, NULL, generate_server_status_file_regularly, (void*)g->server_status_file);
+  create_and_watch_fifo_for_commands(g->server_comdev);
   log_it(warn, "Execution should never reach this point");
   exit(0);
 }

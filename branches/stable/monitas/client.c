@@ -61,7 +61,7 @@ FIXME
 
 #include "structs.h"
 //#define LOG_THESE_AND_HIGHER debug
-#define LOGFILE "/var/log/monitas-client.log"
+//#define LOGFILE "/var/log/monitas-client.log"
 
 
 
@@ -73,7 +73,6 @@ struct sockaddr_in g_sinClient; /* client port */
 char g_server_name[MAX_STR_LEN+1];
 pthread_t g_mondo_thread=0;
 char g_command_fifo[MAX_STR_LEN+1];
-char g_logfile[MAX_STR_LEN+1] = "/var/log/monitas-client.log";
 
 /* externs */
 
@@ -91,6 +90,7 @@ extern char *tmsg_to_string(t_msg msg_type);
 extern int transmit_file_to_socket(FILE*, int);
 extern void register_pid(pid_t, char*);
 extern void set_signals(bool);
+extern int parse_options(int argc, char *argv[]);
 
 /* prototypes */
 
@@ -201,7 +201,7 @@ Return: result (0=success; nonzero=failure)
       log_it(error, "Unable to create temporary logfile fifo in preparation for the call to mondoarchive");
       return(1);
     }
-  strcpy(mondoparams_str, get_param_from_rcfile(CLIENT_RCFILE, "mondoarchive_params"));
+  strcpy(mondoparams_str, get_param_from_rcfile(g->client_rcfile, "mondoarchive_params"));
   sprintf(tmp, "mondoarchive_params --> '%s'", mondoparams_str);
   log_it(debug, tmp);
   sprintf(command, "mondoarchive -Ou %s -d %s -I %s -F &> %s; rm -f %s %s", mondoparams_str, tempdev, msgbody, temporary_logfile, tempdev, temporary_logfile);
@@ -341,7 +341,7 @@ Return: result (0=success; nonzero=failure)
       log_it(error, "Unable to create temporary logfile fifo in preparation for the call to mondoarchive");
       return(1);
     }
-  strcpy(mondoparams_str, get_param_from_rcfile(CLIENT_RCFILE, "mondoarchive_params"));
+  strcpy(mondoparams_str, get_param_from_rcfile(g->client_rcfile, "mondoarchive_params"));
   sprintf(tmp, "mondoarchive_params --> '%s'", mondoparams_str);
   log_it(debug, tmp);
   sprintf(command, "mondoarchive -Vu -F %s -d %s -I %s > %s"/*; rm -f %s %s"*/, mondoparams_str, tempdev, msgbody, temporary_logfile/*, tempdev, temporary_logfile*/);
@@ -433,14 +433,15 @@ Return: result (>0=success, -1=failure)
   int server_port;
   char tmp[MAX_STR_LEN+1];
 
+      if ((*p_s = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
+	{
+//	  perror("socket");
+      log_it(info, "Creating socket failed: %s", strerror(errno));
+	  return(-1);
+	}
   for(server_port = 8700; server_port < 8710; server_port++)
     {
       sin->sin_port = htons(server_port);
-      if ((*p_s = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
-	{
-	  perror("socket");
-	  return(-1);
-	}
       if (connect(*p_s, (struct sockaddr*)sin, sizeof(struct sockaddr_in)) < 0)
 	{
 	  sprintf(tmp, "Not connecting at %d", server_port);
@@ -449,6 +450,7 @@ Return: result (>0=success, -1=failure)
 	}
       return(server_port);
     }
+  close(*p_s);
   return(-1);
 }
 
@@ -1248,6 +1250,8 @@ Return: result (0=success, nonzero=failure)
 //  bool done;
 //  pthread_t thread;
 
+  parse_options(argc, argv);
+
   log_it(info, "---------- Monitas (client) by Hugo Rabson ----------");
   register_pid(getpid(), "client");
   set_signals(true);
@@ -1283,9 +1287,9 @@ Return: result (0=success, nonzero=failure)
       exit(1);
     }
 
-//  set_param_in_rcfile(CLIENT_RCFILE, "mondoarchive_params", "-1 -L");
+//  set_param_in_rcfile(g->client_rcfile, "mondoarchive_params", "-1 -L");
   log_it(debug, "Awaiting commands from FIFO");
-  create_and_watch_fifo_for_commands(CLIENT_COMDEV);
+  create_and_watch_fifo_for_commands(g->client_comdev);
   logout_and_exit(g_server_name);
   exit(0);
 }

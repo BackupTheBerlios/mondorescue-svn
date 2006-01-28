@@ -7,7 +7,7 @@
 #include "structs.h"
 
 
-extern void log_it_SUB(char*, t_loglevel, char*);
+//extern void log_it_SUB(char*, t_loglevel, char*);
 char *call_program_and_get_last_line_of_output(char*);
 int call_program_and_log_output (char *);
 bool does_file_exist (char *);
@@ -16,7 +16,6 @@ void strip_spaces(char*);
 
 
 
-extern char g_logfile[MAX_STR_LEN+1];
 
 
 /*************************************************************************
@@ -214,25 +213,55 @@ make_hole_for_file (char *outfile_fname)
 
 /*************************************************************************
  * strip_spaces() -- Hugo Rabson                                         *
+ *                   rewitten Stefan Huebner                             *
  *                                                                       *
- * Purpose:                                                              *
+ * Purpose:   remove leading whitespaces and control characters, replace *
+ *            TABs by SPACES, remove previous char when followed with BS,*
+ *            skip control chars, terminate string with '\0' when CR or  *
+ *            NL is detected                                             *
+ *            afterwards remove trailing whitespace                      *
  * Called by:                                                            *
  * Returns:                                                              *
  *************************************************************************/
 void
 strip_spaces (char *in_out)
 {
+    char *r, *w;
+    r = w = in_out;             // initialize read and write pointer
+
+    while ( *r && *r <= ' ' )
+        ++r;                    // skip leading whitespace and control chars
+
+    for ( ; *r ; ++r )          // until end of existing string do:
+      {
+        if (*r == '\t')                 // TAB
+          { *w++ = ' ';                     // write SPACE instead
+            continue; }
+        if (*r == (char) 8)             // BACKSPACE
+          { if (w > in_out) --w;            // remove previous character (if any ;-)
+            continue; }
+        if (*r == '\n' || *r == '\r')   // CR and LF
+            break;                          // terminate copying
+        if (*r < ' ')                   // Control chars
+            continue;                       // are ignored (skipped)
+        *w++ = *r;                      // all other chars are copied
+      }
+    // all characters are copied
+    *w = '\0';                  // terminate the copied string
+    for (--w; w>in_out && *w == ' '; --w)
+        *w = '\0';              // remove trailing whitespaces
+    return;
 	/** buffers ******************************************************/
-  char tmp[MAX_STR_LEN+1];
+//  char tmp[MAX_STR_LEN+1];
 
 	/** pointers *****************************************************/
-  char *p;
+//  char *p;
 
 	/** int *********************************************************/
-  int i;
+//  int i;
 
 	/** end vars ****************************************************/
-  for (i = 0; in_out[i] <= ' ' && i < strlen (in_out); i++);
+/*  for (i = 0; in_out[i] <= ' ' && i < strlen (in_out); i++);
   strcpy (tmp, in_out + i);
   for (i = strlen (tmp); i>0 && tmp[i - 1] <= 32; i--);
   tmp[i] = '\0';
@@ -276,6 +305,7 @@ strip_spaces (char *in_out)
 	}
     }
   in_out[i] = '\0';
+*/
 /*  for(i=strlen(in_out); i>0 && in_out[i-1]<=32; i--) {in_out[i-1]='\0';} */
 }
 

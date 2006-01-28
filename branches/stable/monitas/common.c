@@ -26,6 +26,14 @@
 */
 
 #include "structs.h"
+#include <stdarg.h>
+
+#define CLIENT_RCFILE           "/root/.monitas-client.rc"
+#define CLIENT_COMDEV           "/var/spool/monitas/client-input.dev"
+#define CLIENT_LOGFILE          "/var/log/monitas-client.log"
+#define SERVER_COMDEV           "/var/spool/monitas/server-input.dev"
+#define SERVER_STATUS_FILE      "/var/spool/monitas/server-status.txt"
+#define SERVER_LOGFILE          "/var/log/monitas-server.log"
 
 
 extern char g_command_fifo[MAX_STR_LEN+1];
@@ -42,7 +50,7 @@ void call_program_in_background(pthread_t*, char*);
 void *call_prog_in_bkgd_SUB(void*);
 int create_and_watch_fifo_for_commands(char*);
 int get_bkgd_prog_result(pthread_t*);
-void log_it_SUB(char*, t_loglevel, char*);
+//void log_it_SUB(char*, t_loglevel, char*);
 bool program_still_running(char*);
 int receive_file_from_socket(FILE*fout, int socket_fd);
 void register_pid(pid_t, char*);
@@ -51,6 +59,17 @@ char *tmsg_to_string(t_msg msg_type);
 int read_block_from_fd(int, char*, int);
 void termination_in_progress(int sig);
 int transmit_file_to_socket(FILE*fin, int socket_fd);
+char *my_basename(char *path);
+int parse_options(int argc, char *argv[]);
+
+/* global vars */
+
+/* global (semi-) static data.
+ * Always use following pointer to access this struct!!
+ * Struct is initialized by parse_options() */
+static struct s_globaldata  _global_data;
+/* Global Pointer to access the (semi-) static data */
+struct s_globaldata *g = & _global_data;
 
 
 
@@ -72,7 +91,7 @@ NB:     Use get_bkgd_prog_result() to wait for binary to terminate
   int res;
 
   res = pthread_create(thread, NULL, call_prog_in_bkgd_SUB, (void*)command);
-  if (res) { log_it(fatal, "Unable to call program in background - thread creation failure"); }
+  if (res) { log_it(fatal, "Unable to call program in background - thread creation failure %s", command); }
   log_it(debug, "Done creating pthread. Will continue now.");
 }
 
@@ -89,19 +108,12 @@ Purpose:Subroutine of call_program_in_background()
 Params:	cmd - binary call to be executed
 Return: None
 */
-  char*command;
   int res;
-  char tmp[MAX_STR_LEN+1];
-  static char result_str[MAX_STR_LEN+1];
 
-  command=(char*)cmd;
-  sprintf(tmp, "Calling '%s' in background pthread", command);
-  log_it(debug, tmp);
-  res = system(command);
-  sprintf(tmp, "'%s' is returning from bkgd process - res=%d", command, res); 
-  log_it(debug, tmp);
-  sprintf(result_str, "%d", res);
-  pthread_exit((void*)result_str);
+  log_it(debug, "Calling '%s' in background pthread", cmd);
+  res = system(cmd);
+  log_it(debug, "'%s' is returning from bkgd process - res=%d", cmd, res);
+  pthread_exit((void*)res);
 }
 
 
@@ -118,13 +130,13 @@ Params:	devpath - path+filename of FIFO to create
 Return: result (nonzero=failure; else, infinite loop & notional 0)
 */
 {
-  char tmp[MAX_STR_LEN+1], incoming[MAX_STR_LEN+1];
+  char incoming[MAX_STR_LEN+1];
   int res=0, fd, len, pos=0;
 
   res = make_hole_for_file(devpath) + mkfifo(devpath, 700);
-  if (res) { log_it(error, "Unable to prepare command FIFO"); return(res); }
+  if (res) { log_it(error, "Unable to prepare command FIFO %s", devpath); return(res); }
   strncpy(g_command_fifo, devpath, MAX_STR_LEN);
-  if (!(fd = open(g_command_fifo, O_RDONLY))) { log_it(error, "Unable to openin command FIFO"); return(1); }
+  if (!(fd = open(g_command_fifo, O_RDONLY))) { log_it(error, "Unable to openin command FIFO %s", g_command_fifo); return(1); }
 //  log_it(info, "Awaiting commands from FIFO");
   for(;;)
     {
@@ -139,13 +151,11 @@ Return: result (nonzero=failure; else, infinite loop & notional 0)
           res=process_incoming_command(incoming);
           if (res)
             {
-              sprintf(tmp, "%s <-- errors occurred during processing", incoming);
-              log_it(error, tmp);
+              log_it(error,  "%s <-- errors occurred during processing", incoming);
             }
           else
             {
-              sprintf(tmp, "%s <-- command received OK", incoming);
-              log_it(info, tmp);
+              log_it(info, "%s <-- command received OK", incoming);
             }
         }
     } // forever
@@ -167,12 +177,12 @@ NB:     Binary was executed by call_program_in_background(). This
         subroutine should be called sometime after that call.
 */
 {
-  void*vp;
-  void**pvp;
+  void* vp;
+//  void**pvp;
   int res;
-  char tmp[MAX_STR_LEN+1], *p, result_str[MAX_STR_LEN+1];
+//  char *p, result_str[MAX_STR_LEN+1];
 
-  pvp=&vp;
+/*  pvp=&vp;
   vp=(void*)result_str;
   strcpy(result_str, "(uninitialized)");
   log_it(debug, "Waiting for bkgd prog to finish, so that we can get its result");
@@ -180,9 +190,20 @@ NB:     Binary was executed by call_program_in_background(). This
   p = result_str;
   p = (char*)vp;
   res = atoi(p);
-  sprintf(tmp, "pthread res = %d ('%s')", res, p);
-  log_it(debug, tmp);
+  log_it(debug, "pthread res = %d ('%s')", res, p);
+*/
+  log_it(debug, "Waiting for bkgd prog to finish, so that we can get its result");
+  if ((res = pthread_join(*thread, &vp)) != 0)
+    {
+      log_it(fatal, "pthread_join failed with error  %s",
+        ((res==ESRCH)   ? "ESRCH - No thread could be found corresponding to that specified by 'thread'" :
+        ((res==EINVAL)  ? "EINVAL - The thread has been detached OR Another thread is already waiting on termination of it." :
+        ((res==EDEADLK) ? "EDEADLK - The 'tread' argument refers to the calling thread." :
+          "UNSPECIFIED"))));
+    }
   *thread = 0;
+  res = (int) vp;
+  log_it(debug, "pthread res = %d ('%s')", res, (res>256 || res<-256) ? (char*)vp : "");
   return(res);
 }
 
@@ -200,32 +221,101 @@ Params:	level - level of severity (debug/info/warn/error/fatal)
 Return: None
 */
 {
-  char sz_outstr[MAX_STR_LEN], sz_level[MAX_STR_LEN], sz_time[MAX_STR_LEN];
+  char      *sz_level = "";
   time_t time_rec;
+  struct tm  tm;
   FILE*fout;
 
   time(&time_rec);
+  localtime_r(&time_rec, &tm);
   switch(level)
     {
-      case debug: strcpy(sz_level, "DEBUG"); break;
-      case info:  strcpy(sz_level, "INFO "); break;
-      case warn:  strcpy(sz_level, "WARN "); break;
-      case error: strcpy(sz_level, "ERROR"); break;
-      case fatal: strcpy(sz_level, "FATAL"); break;
-      default:    strcpy(sz_level, "UNKWN"); break;
+      case debug: sz_level = "DEBUG"; break;
+      case info:  sz_level = "INFO "; break;
+      case warn:  sz_level = "WARN "; break;
+      case error: sz_level = "ERROR"; break;
+      case fatal: sz_level = "FATAL"; break;
+      default:    sz_level = "UNKWN"; break;
     }
-  sprintf(sz_time, ctime(&time_rec));
-  sz_time[strlen(sz_time)-6] = '\0';
-  sprintf(sz_outstr, "%s %s: %s", sz_time+11, sz_level, sz_message);
   if ((int)level >= LOG_THESE_AND_HIGHER)
     {
-      while (!(fout=fopen(logfile,"a"))) { usleep((int)(random()%32768)); }
-      fprintf(fout, "%s\n",sz_outstr);
+      while (!(fout=fopen(logfile,"a")))
+        { usleep((int)(random()%32768)); }
+      fprintf(fout, "%02d:%02d:%02d %s: %s\n", tm.tm_hour, tm.tm_min, tm.tm_sec, sz_level, sz_message);
       fclose(fout);
     }
   if (level==fatal)
     {
-      fprintf(stderr, "Aborting now. See %s for more information.\n", g_logfile);
+      fprintf(stderr, "Aborting now. See %s for more information.\n", logfile);
+      terminate_daemon(0);
+      exit(1);
+    }
+}
+
+
+
+/*-----------------------------------------------------------*/
+
+
+
+void logToFile(char *logfile, t_loglevel level, char *filename, char *lineno, char *funcname, char *sz_message, ...)
+/*
+Purpose: Log <sz_message> and its <level> of severity to <logfile>
+Params:	 logfile      name of logfile
+         level        level of severity (debug/info/warn/error/fatal)
+         sz_message   message/event [string]
+     for <level>==debug the location of the event is specified by:
+         filename     name of the file, where <sz_message> was created
+         lineno       number of the line [string], where <sz_message> was created
+         funcname     name of the function, that created the event
+Return:  None
+*/
+{
+  char      *sz_level = "";
+  time_t     time_rec;
+  struct tm  tm;
+  FILE      *fout;
+  va_list    ap;
+
+
+  time(&time_rec);
+  va_start(ap, sz_message);       // initialize the variable arguments
+  localtime_r(&time_rec, &tm);
+  switch(level)
+    {
+      case debug:
+        {
+          // sz_level = "DEBUG"; break;
+          // at debug level we add filename, lineno and functionname instead of "DEBUG"
+          // i.e.  "file.c:123, subfunction()"
+          char *fmt = "%s:%s, %s()";
+          // calculate length of resulting string:
+          size_t size = strlen(fmt) -(3*2) + 1  // length of fmt-string minus 3x 2 chars ("%s") plus 1 for terminating \0'
+                        + strlen(filename)      //   plus length of filename
+                        + strlen(lineno)        //   plus length of linenumber
+                        + strlen(funcname);     //   plus length of functionname
+          sz_level = alloca(size);          // memory is automatically free'd when this function returns
+          snprintf(sz_level, size, "%s:%s, %s()", filename, lineno, funcname);
+        } break;
+      case info:  sz_level = "INFO "; break;
+      case warn:  sz_level = "WARN "; break;
+      case error: sz_level = "ERROR"; break;
+      case fatal: sz_level = "FATAL"; break;
+      default:    sz_level = "UNKWN"; break;
+    }
+  if ((int)level >= LOG_THESE_AND_HIGHER)
+    {
+      while (!(fout=fopen(logfile,"a")))
+        { usleep((int)(random()%32768)); }
+      fprintf(fout, "%02d:%02d:%02d %s: ", tm.tm_hour, tm.tm_min, tm.tm_sec, sz_level);  // print time and level
+      vfprintf(fout, sz_message, ap);             // print message (and further args)
+      fprintf(fout, "\n");
+      fclose(fout);
+    }
+  va_end(ap);                             // finalize the variable arguments
+  if (level==fatal)
+    {
+      fprintf(stderr, "Aborting now. See %s for more information.\n", logfile);
       terminate_daemon(0);
       exit(1);
     }
@@ -427,7 +517,7 @@ void termination_in_progress(int sig)
 {
   log_it(debug, "Termination in progress");
   usleep(1000);
-  pthread_exit(0);
+  pthread_exit(NULL);
 }
 
 
@@ -536,6 +626,80 @@ NB:	socket_fd was created with open() but
   return(retval);
 }
 
+
+
+/*-----------------------------------------------------------*/
+
+
+/*
+Purpose: strip directory from filenames
+Params:	 path    like: "dir1/dir2/file"
+Return:  result  pointer to the first character behind the last '/'
+*/
+char *my_basename(char *path)
+{
+    char *name;
+    if (path == NULL)
+        return (NULL);
+    name = strrchr(path, '/');
+    if (name == NULL)
+        return (path);   /* only a filename was given */
+    else
+        return (++name); /* skip the '/' and return pointer to next char */
+}
+
+
+
+
+/*-----------------------------------------------------------*/
+
+
+/*
+Purpose: analyse command line arguments and write them to global struct
+Params:	 argc   number of arguments
+         argv   arguments as array of strings
+Return: result (0=success, nonzero=failure)
+*/
+int parse_options(int argc, char *argv[])
+{
+    // initialize the global data structure
+    memset( g, 0, sizeof(struct s_globaldata));
+
+    // we use malloc() here for default strings, as we wanna use free() later
+    // when changing the value. free()ing mem in the text segment would be a
+    // bad idea...
+
+    /* Initialize default values */
+#define INIT_DEFAULT_STRING(var, string)                       \
+    if ( ((var) = (char*) malloc(strlen(string)+1)) != NULL )  \
+       strcpy((var), string)
+
+    INIT_DEFAULT_STRING( g->client_rcfile, CLIENT_RCFILE );
+    INIT_DEFAULT_STRING( g->client_comdev, CLIENT_COMDEV );
+    INIT_DEFAULT_STRING( g->server_comdev, SERVER_COMDEV );
+    INIT_DEFAULT_STRING( g->server_status_file, SERVER_STATUS_FILE );
+
+    g->loglevel = LOG_THESE_AND_HIGHER;   // log messages with level >= loglevel to logfile
+
+    // evaluate if we're server or client:
+    // We decide it by looking at the name of the running program
+    if (strstr(my_basename(argv[0]), "server") != NULL)
+      {          // the server may be named 'server', 'monitos-server', 'monserver_start', ...
+        INIT_DEFAULT_STRING( g->logfile, SERVER_LOGFILE );
+      }
+    else if (strstr(my_basename(argv[0]), "client") != NULL)
+      {          // the client may be named 'client', 'monitos-client', 'monclient_start', ...
+        INIT_DEFAULT_STRING( g->logfile, CLIENT_LOGFILE );
+      }
+    else  /* this should never happen */
+      {
+        fprintf(stderr, "Don't know if we're running as server or client, when started as %s", my_basename(argv[0]));
+        INIT_DEFAULT_STRING( g->logfile, "/var/log/monitas.log" );
+      }
+
+#undef INIT_DEFAULT_STRING
+    return 0;
+}
 
 
 

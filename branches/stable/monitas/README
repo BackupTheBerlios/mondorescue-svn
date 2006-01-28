@@ -1,0 +1,89 @@
+MONITAS
+"""""""
+
+Document last updated: June 19th, 2002
+
+
+WARNING
+"""""""
+
+Monitas is alpha-quality code. If it eats you alive, don't blame me. ;)
+However, please bear in mind that I am writing and testing it on a daily
+basis and I haven't lost any data yet.
+
+
+INSTALLING
+""""""""""
+
+Monitas will not work unless you install Mondo first. Mondo has its own 
+dependencies which must be fulfilled before it will run, such as Mindi.
+So, before you even try to install Monitas, please install Mondo. Make
+sure you are installing the LATEST SNAPSHOT from the website
+(http://www.mondorescue.com/download.html).
+
+Unzip the Monitas tarball (the one you've unzipped in order to read
+this message). Then, type:-
+
+# cd monitas-0.1a
+# ./make-server info
+# ./make-client info
+# mkdir /root/monitas
+# cp -f client,server /root/monitas
+
+(If you have problems later on, repeat the 'make' commands but drop the
+'info' parameter from each.)
+
+
+SERVER
+""""""
+
+Because Monitas is alpha-quality code, you should not install it in
+/usr/sbin or /usr/local/sbin. Instead, run it from /root:-
+# /root/monitas/server info &
+
+To monitor the server, type:-
+# tail -f /var/log/monitas/monitas-server.log
+
+To kill the server, type:-
+# kill `cat /var/run/monitas-server.pid`
+
+CLIENT
+""""""
+
+Then, go to another console and type:-
+# /root/monitas/client info 127.0.0.1 &
+Replace '127.0.0.1' with the IP address of the PC on which the server runs.
+
+To monitor the client, type:-
+# tail -f /var/log/monitas/monitas-client.log
+
+To kill the client, type:-
+# kill `cat /var/run/monitas-client.pid`
+
+
+
+
+BACKING UP / COMPARING / RESTORING
+""""""""""""""""""""""""""""""""""
+
+To backup, compare or restore /usr/local, please go to the
+server's console and type one of these:-
+# echo "backup 127.0.0.1 /usr/local" > /var/spool/monitas/server-input.dev
+# echo "compare 127.0.0.1 /usr/local" > /var/spool/monitas/server-input.dev
+# echo "restore 127.0.0.1 /usr/local" > /var/spool/monitas/server-input.dev
+
+To do it while sitting at the client PC, type one of these:-
+# echo "backup /usr/local" > /var/spool/monitas/client-input.dev
+# echo "compare /usr/local" > /var/spool/monitas/client-input.dev
+# echo "restore /usr/local" > /var/spool/monitas/client-input.dev
+
+By default, files are restored to /mnt/RESTORING. To restore to the / dir,
+enter the following at the client's console:-
+# echo "restore /usr/local /" > /var/spool/monitas/client-input.dev
+or this on the server's console:-
+# echo "restore 127.0.0.1 /usr/local /" > /var/spool/monitas/server-input.dev
+
+
+-Hugo
+
+

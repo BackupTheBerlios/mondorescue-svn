@@ -49,8 +49,9 @@ elif [ -e /etc/redhat-release ]; then
 		export suf=".fc${dver}"
 	else
 		export ddir="redhat"
-		export dver=`awk '{print $5}' /etc/redhat-release | sed "s/\.//"`
+		dver=`awk '{print $5}' /etc/redhat-release`
 		export suf=".rh${dver}"
+		export dver=`echo ${dver} | sed "s/\.//"`
 	fi
 elif [ -e /etc/SuSE-release ]; then
 	grep -q Enterprise /etc/SuSE-release

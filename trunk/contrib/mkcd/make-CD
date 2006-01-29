@@ -1,0 +1,29 @@
+#!/bin/sh
+
+if [ ! -e "setup" ] || [ ! -e "TGZS" ] || [ ! -e "SRPMS" ] ; then
+    echo "You're in the wrong directory."
+    exit 1
+fi
+rm -f mindi-[0-1]*tgz
+rm -f mondo-[1-2]*tgz
+
+set -e
+cp -f /root/images/mindi/mindi-boot.2880.img images
+for i in mondoarchive mondorestore mindi ; do
+    if which $i 2> /dev/null ; then
+	cp -f `which $i` stuff
+    fi
+done
+cp -f /usr/local/mindi-kernel-1.x/mindi-kernel-1.0-1.i386.rpm /home/MondoCD/RPMS/
+cp -f /usr/local/mindi-kernel-1.x/mindi-kernel-1.0.tgz /home/MondoCD/TGZS/
+
+rm -Rf  /home/MondoCD/documentation/1.6x-howto
+cp -pRdf /mnt/winB/mondorescue/docs/1.6x-howto /home/MondoCD/documentation
+# -b images/mindi-boot.2880.img
+mkisofs -c boot.cat -b memtest.img -J -r \
+-p MondoRescue -P www.microwerks.net/~hugo/ -A Mondo_Rescue_GPL_Version \
+. > /tmp/out.iso
+dev=`cdrecord -scanbus | grep "CD-ROM" | grep -v "DVD" | tr -s '\t' ' ' | cut -d' ' -f2`
+cdrecord dev=$dev speed=10 blank=fast -eject -v /tmp/out.iso || \
+cdrecord dev=$dev speed=24 -eject -v /tmp/out.iso
+exit $?

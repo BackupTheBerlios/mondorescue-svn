@@ -1,0 +1,8 @@
+- 6  Feb 2004 Michael Spivak <phazeman@linuxkungfu.org>
+	* Change the scratch dir to be the same as the backup dir
+	* Change the temp dir to be the same as the backup dir
+	* Fixed the wrong log name for the mondoarchive (/var/log/mondoarchive)
+	* Remove the typo in the do_cleanup function 
+- 20 Aug 2003 Michael Spivak <phazeman@linuxkungfu.org>
+	* Change the move ISO function to rename the files as backup_$(date)_X.iso
+	* Add user input about removing old backup from the storage dir

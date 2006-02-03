@@ -1,0 +1,358 @@
+/**** Mondo Rescue website default screen Stylesheet ****/
+/** CSS loaded by all browsers V0.2 **/
+/** Reused from http://www.forzen-bubble.org. Many thanks 
+    to you guys for your kind authorization **/
+
+  /** Generic stuff **/
+  body {
+    background:url("/images/background.png");
+    margin:0px;
+    padding:0px;
+    color:#000;
+    font-family: "Bitstream Vera Sans", "Lucida Sans", Geneva, Arial, Helvetica, sans-serif;
+  }
+  a {
+    color: #9B9BC8; 
+    text-decoration:none ;
+  }
+  a:hover { 
+    text-decoration: underline;
+  }
+  h1, h2 {
+    color: #21449c;  
+  }
+  img {
+    border: 0px solid  #fff;
+  }
+  div.c {
+    text-align:center;
+  }
+  /** Top banner **/
+  #topbanner {
+    width:100%;
+    float:left;
+    background:#c0c0c0;
+    border-bottom: 1px solid #999;
+    margin-bottom: 0.5em;
+  }
+  #links, #topinfo {
+    font-size: 70%;
+  }
+  #links, #links a, #topinfo, #topinfo a {
+    color: #404cba;
+  }
+  #links a {
+    margin-right: 1em;
+  }
+  #topinfo {
+    display:block;
+    float: left;
+    text-align: left;
+    margin-left: 1em;
+  }
+  #links {
+    display:block;
+    float: right;
+    text-align: right;
+  }
+
+
+  /** body **/
+  #body {
+    display: block;
+    padding: 1em 5% 5em 5%;
+    margin-left: auto; margin-right: auto;
+    min-width:700px;
+    max-width:1100px;
+    text-align: left;
+  }
+
+
+  /** Logo **/
+  #logo {
+    text-align: center;
+    margin-bottom: 0.5em;
+  }
+
+
+  /** Navbar **/
+  #navbar {
+    width: 100%;
+    padding: 0 0 0 0; 
+    font-size:14px;
+    background:url("/images/navbar-left.png") top left no-repeat;
+  }
+  #navbar ul {
+    width:100%;
+    list-style:none;
+    text-align: center;
+    margin:0 0 0 0;
+    padding:17px 0 30px 0 ; /* 1st param = font v align / Need to be high enough so all bg image is displayed */ 
+    position:relative;
+    right: -11px;
+    background:url("/images/navbar-right.png") top right no-repeat;
+  }
+  #navbar li {
+    display:inline;
+    margin:0;
+    padding:0;
+  }
+  #navbar a {
+    background:url("/images/navbar-dot.png") no-repeat left ;
+    padding: 0 0 0 0.7em;
+    margin: 0 0 0 1em;
+    color: #21449c;
+    font-weight: bold;
+  }
+  #navbar a:hover {
+    background:url("/images/navbar-dot-hover.png") no-repeat left ;
+  }
+  #current a {
+    text-decoration: underline;
+    background:url("/images/navbar-dot-hover.png") no-repeat left;
+  }
+  #current a:hover {
+    text-decoration: underline overline;
+  }
+
+
+  /** Main body stuff **/
+  #main {
+    width:100%;
+    color: #336;
+    font-size: 90%;
+  }
+  #frametopleft {
+    background: url("/images/frame/corner-topleft.png") top left no-repeat;
+    margin:0px;
+    padding-left:15px;
+  }
+  #frametop {
+    background: url("/images/frame/border-top.png") top right repeat-x;
+  }
+  #frametopright {
+    background: url("/images/frame/corner-topright.png") top right no-repeat;
+    position:relative;
+    right: -15px;
+    margin:0px 0px -30px 0px;
+    padding: 15px 0px;
+  }
+  #frameleft {
+    background: url("/images/frame/border-left.png") top left repeat-y;
+    position:relative;
+    left: -30px;
+    padding-top: 15px;
+  }
+  #frameright {
+    background: url("/images/frame/border-right.png") top right repeat-y;
+    position:relative;
+    right: -30px;
+    padding-right: 15px;
+    padding-bottom: 15px;
+  }
+  #framecontent {
+    padding: 0 0 30px 30px;
+    
+    background: #fff;
+  }
+  #framebottomleft {
+    background: url("/images/frame/corner-bottomleft.png") bottom left no-repeat;
+    padding-top: 15px;
+    padding-left: 15px;
+    position:relative;
+    left: -15px;
+  }
+  #framebottom {
+    background: url("/images/frame/border-bottom.png") bottom right repeat-x;
+    background-color: #fff;
+  }  
+  #framebottomright {
+    background: url("/images/frame/corner-bottomright.png") bottom right no-repeat;
+    margin-top: -16px;
+    padding-top: 15px;
+    position:relative;
+    right: -30px;
+  }
+  #main h1 {
+    color: #7395cd;
+    background:url("/images/h1.png") top left no-repeat;
+    padding:6px 0em 1em 40px;
+    margin:0.5em 0 0 0;
+    font-size: 160%;
+  }
+  #main div.h2-1, #main div.h2-2, #main div.h2-3, #main div.h2-4, #main div.h2-5 {
+    width: 90%;
+    padding: 0 0 0 40px; 
+    font-size:100%;
+  }
+  #main h3 {
+    color: #404cba;
+    display: block;
+    padding-left: 1em;
+    font-size: 100%;
+    clear: both;
+  }
+  #main a {
+    color:#33f;
+  }
+  #main a:visited {
+    color:#66c;
+  }
+  #main p {
+    display: block;
+    text-align: justify;
+    padding: 0 75px 0 1em;
+  }
+  #main p.c, #main div.c {
+    text-align: center;
+  }
+  #main p.cs {
+    text-align: center;
+    font-size:80%;
+  }
+  #main ul {
+    padding-left: 4em;
+  }
+  table.enhanced {
+    border-collapse:collapse;
+    border:1px solid #cacaca;
+    width:95%;
+  }
+  table.enhanced td, table enhanced th {
+    border:1px solid #cacaca;
+    padding:4px;
+  }
+  table.enhanced th {
+    background:#d0d9e5;
+    padding: 0.5em;
+    color:#666;
+  }
+  table.enhanced caption {
+    color: #f90;
+    font-weight: bold;
+    padding: 1em 0.3em;
+    font-size:90%;
+  }
+  table.enhanced input[type="image"], table.enhanced img {
+    margin-left: 1.5em;
+  }
+  .enhancedtablecolouredrow{
+    background:#f0f0f0;
+  }
+  .enhancedtablerowhover{
+    background:#e7e9fb;
+  }
+  #servers {
+    width: 50%;
+    margin: 2em auto 2em auto;
+  }
+  #servers input{
+    background: #f0f0f0;
+  }
+  #servers input:hover{
+    background: #e7e9fb;
+  }
+  #servers input:focus{
+    background: #fff;
+  }
+
+  /** Message/forum stuff **/
+  div.message {
+    border: 1px solid #adb4bc;
+    margin: 0px 60px 1em 10px;
+  }
+  div.message div.user, div.message div.admin {
+    background-color: #d0d9e5;
+    padding: 2px;
+  }
+  div.message div.info {
+    margin-bottom: 0.5em;
+    padding: 2px 0 0 25px;
+  }
+  div.user div.info {
+    background:url("/images/icon-page.png") left no-repeat;
+    background-color: #d0d9e5;
+  }
+  div.admin div.info {
+    background:url("/images/icon-user.png") left no-repeat;
+    background-color: #d0d9e5;
+  }
+  div.message div.adminbox {
+    float: right;
+  }
+  div.message div.text {
+    padding: 0.5em 1em;
+    border: 1px solid #adb4bc;
+  }
+  div.message div.user div.text {
+    background-color: #fff;
+  }
+  div.message div.admin div.text {
+    background-color: #ffeeee;
+  }
+ 
+    /*** form stuff ***/
+  #forum input, #forum textarea, #forum select { 
+    background: #f0f0f0;
+    border: 1px solid #cacaca;
+    -moz-border-radius: 4px; /* Moz specific code ! */
+  }
+  #forum label, #forum input, #forum textarea {
+    display: block;
+    float: left;
+    margin-bottom: 1em;
+  }
+  #forum input, #forum textarea {
+    padding: 0 4px;
+  }
+  #forum select {
+    padding-right: 0px;
+    margin-bottom: 1em;
+  }
+  #forum input:hover, #forum textarea:hover, #forum select:hover {
+    background: #e7e9fb;
+  }
+  #forum input:focus, #forum textarea:focus {
+    background: #fff;
+  }
+  #forum label {
+    text-align: right;
+    width: 15em;
+    margin-right: 2em;
+  }
+  #forum div.submit {
+    float: right;
+  }
+  #forum input[type="hidden"] {
+    border: 0px solid #fff;
+    display: none;
+  }
+  #forum input[type="submit"] {
+    margin-left: 1em;
+  }
+  #forum input[type="submit"]:hover {
+    background: #f4cdd1;
+  }
+  #forum abbr, #forum acronym, #forum span.help {
+    display: inline;
+    cursor: help;
+    border-bottom: 1px dashed #999;
+  }
+  #forum fieldset {
+    border:1px solid #e5e5e5; 
+  }
+  #forum legend {
+    color: #21449c;
+    font-weight: bold;
+    padding: 1em 0.3em;
+    font-size:90%;
+    text-align:right;
+  }
+  #forum form div {
+    clear: both;
+  }
+  #forum form {
+    margin-left: auto; margin-right: auto;
+    width: 80%;
+  }
+

@@ -1,14 +1,11 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
-<!--#include toto.shtml-->
-
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" xml:lang="en" lang="en">
   <head>
-		  <title>Mondo Rescue - GPL disaster recovery solution</title>
-<!--#include head.shtml -->
+<!--#include virtual="/head.shtml" -->
   </head>
   <body>
-<!--#include top.shtml -->
+<!--#include virtual="/top.shtml" -->
 
 		<h1>Mondo Rescue Home Page</h1>
   <div class="h2-1">
@@ -21,8 +18,8 @@
   <div class="h2-2">
     <h2>Authors</h2>
   </div>
-  <p><a href="http://www.hyper-linux.org/">Bruno Cornec</a>: maintenance, rpm packaging, web site, documentation<br />
-    <a href="http://">Andree Leidenfrost</a>: aintenance, debian packaging<br />
+  <p><a href="http://www.hyper-linux.org/">Bruno Cornec</a>: development, maintenance, rpm packaging, web site, documentation<br />
+    <a href="http://">Andree Leidenfrost</a>: development, maintenance, debian packaging<br />
   </p>
     <h2>Original Author</h2>
   <p>
@@ -45,6 +42,6 @@
   <p>This website has been designed according to the <a href="http://validator.w3.org/check?uri=http%3A%2F%2Fwww.mondorescue.org">W3C standards</a> in order to be viewable by most standard compliant browsers. Since it uses some CSS techniques, it may not render correctly on some non-free (as in <i>freedom</i>) widely used browser. If this is the case with your browser, you may want to try the latest version of <a href="http://www.mozilla.com/firefox/">Firefox</a>, a standards compliant free software browser.</p>
     <p>This site is best viewed with the free <a href="http://ftp.gnome.org/pub/GNOME/sources/ttf-bitstream-vera/1.10/">"Vera" True Type Font</a>&nbsp;&nbsp;from Bitstream.</p>
 
-<!--#include bottom.shtml -->
+<!--#include virtual="/bottom.shtml" -->
   </body>
 </html>

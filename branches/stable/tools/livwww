@@ -1,0 +1,26 @@
+#!/bin/bash
+#
+# $Id$
+#
+# Delivery of the Web site in a DocumentRoot
+#
+#
+# Please replace with your destination
+#
+DESTDIR=/var/www/html/mondo
+
+
+dname=`dirname $0`
+prem=`echo $dname |cut -c1`
+if [ ${prem} == "/" ]; then
+        export TOOLHOME=$dname
+else
+        export TOOLHOME=${PWD}/$dname
+fi
+
+. $TOOLHOME/common-env
+
+rm -rf $DESTDIR
+cp -a ${BASE}/svn/${VER}/website $DESTDIR
+find $DESTDIR -type d | xargs chmod 755
+find $DESTDIR -type f | xargs chmod 644

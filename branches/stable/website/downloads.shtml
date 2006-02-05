@@ -1,10 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" xml:lang="en" lang="en">
   <head>
-		  <!--#include head.html-->
+		  <!--#include virtual="head.shtml" -->
   </head>
   <body>
-		  <!--#include top.html-->
+		  <!--#include virtual="top.shtml" -->
                     <h1>Download Frozen Bubble</h1>
     <div class="h2-1">
       <h2>This is Free Software</h2>
@@ -103,6 +103,6 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 <li>i586 Mandrake RPM of 0.9.2 (for Mandrake 8.1 / 8.2): <a href="http://frozenbubble.free.fr/fb/frozen-bubble-0.9.2-1mdk.i586.rpm">frozen-bubble-0.9.2-1mdk.i586.rpm</a></li>
 </ul>
 
-		  <!--#include bottom.html-->
+		  <!--#include virtual="bottom.shtml" -->
   </body>
 </html>

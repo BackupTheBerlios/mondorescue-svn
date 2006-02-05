@@ -2,10 +2,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" xml:lang="en" lang="en">
   <head>
 		  <title>About Mondo Rescue</title>
-		  <!--#include head.html -->
+		  <!--#include virtual="/head.shtml" -->
   </head>
   <body>
-		  <!--#include top.html -->
+		  <!--#include virtual="/top.shtml" -->
 
 		<h1>About Mondo Rescue</h1>
   <div class="h2-1">
@@ -81,6 +81,6 @@
        Comments? Suggestions? Click <A HREF="../feedback.html">here</A> 
 This mirror provided by the lovely Joe Cooper of <a href=http://www.swelltech.com>SwellTech</a>.
 
-					<!--#include bottom.html -->
+					<!--#include virtual="/bottom.shtml" -->
   </body>
 </html>

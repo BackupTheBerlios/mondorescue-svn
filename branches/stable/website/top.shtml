@@ -18,18 +18,18 @@
     </div>
     <div id="body">
       <div id="logo">
-        <img src="/images/banner.png" alt="Mondo Rescue logo" title="This is the official Mondo Rescue Website !"/></div>
+			  <img src="/images/protected-button.png" alt="Mondo Rescue logo" title="This is the official Mondo Rescue Website !"/></div>
       <div id="navbar">
         <ul>
-          <li id="current" ><a href="http://www.mondorescue.org" title="Mondo Rescue homepage" >Home</a></li>
-		  <li><a href="http://www.mondorescue.org/about.html" title="About Mondo Rescue" >About</a></li>
-		  <li><a href="http://www.mondorescue.org/news.html" title="News about Mondo Rescue" >News</a></li>
-		  <li><a href="http://www.mondorescue.org/docs.html" title="Documentations about Mondo Rescue" >Docs</a></li>
-          <li><a href="http://www.mondorescue.org/downloads.html" title="Download Mondo Rescue now !" >Downloads</a></li>
-		  <li><a href="http://www.mondorescue.org/artwork.html" title="Artwork of the Website" >Artwork</a></li>
-          <li><a href="http://www.mondorescue.org/support.html" title="If you need support (why it's perfect :-)" >Support</a></li>
-          <li><a href="http://www.mondorescue.org/feedback.html" title="Send us your feedback !" >Feedback</a></li>
-		  <li><a href="http://www.mondorescue.org/thanks.html" title="So many helped us. Many thanks" >Thanks</a></li>
+          <li id="current" ><a href="/" title="Mondo Rescue homepage" >Home</a></li>
+		  <li><a href="/about.shtml" title="About Mondo Rescue" >About</a></li>
+		  <li><a href="/news.shtml" title="News about Mondo Rescue" >News</a></li>
+		  <li><a href="/docs.shtml" title="Documentations about Mondo Rescue" >Docs</a></li>
+          <li><a href="/downloads.shtml" title="Download Mondo Rescue now !" >Downloads</a></li>
+		  <li><a href="/artwork.shtml" title="Artwork of the Website" >Artwork</a></li>
+          <li><a href="/support.shtml" title="If you need support (why it's perfect :-)" >Support</a></li>
+          <li><a href="/feedback.shtml" title="Send us your feedback !" >Feedback</a></li>
+		  <li><a href="/thanks.shtml" title="So many helped us. Many thanks" >Thanks</a></li>
         </ul>
       </div>
       <div id="main">

@@ -13,7 +13,7 @@
   </div>
   <p>
        <B>Mondo is reliable.</B> It backs up your GNU/Linux server or 
-       workstation to tape, CD-R, CD-RW, NFS or hard disk partition. In the 
+       workstation to tape, CD-R, CD-RW, DVD-R[W], DVD+R[W], NFS or hard disk partition. In the 
        event of catastrophic data loss, you will be able to restore all of 
        your data [or as much as you want], from bare metal if necessary. 
 	   Mondo is in use by Lockheed-Martin, Nortel Networks, Siemens, HP, 
@@ -24,12 +24,12 @@
        <B>Mondo is comprehensive.</B> Mondo supports LVM 1/2, RAID, ext2, ext3, 
        JFS, XFS, ReiserFS, VFAT, and can support additional filesystems 
        easily: just e-mail the <A HREF="/feedback.shtml">mailing list</A> 
-       with your request. It supports adjustments in disk geometry, 
+	   with your request. It supports software raid as well as most hardware raid controllers. It supports adjustments in disk geometry, 
        including migration from non-RAID to RAID. Mondo runs on all major 
-       Linux distributions and is getting better all the time. You may even 
+       Linux distributions (RedHat, RHEL, SuSE, SLES, Mandriva, Debian) and is getting better all the time. You may even 
        use it to backup non-Linux partitions, such as NTFS.</P>
 	   <p>
-       <B>Mondo is free!</B> It has been published under the GPL (GNU Public 
+       <B>Mondo is free!</B> It has been published under the GPL v2 (GNU Public 
        License), partly to expose it to thousands of potential beta-testers 
        but mostly as a contribution to the Linux community. 
        </P>

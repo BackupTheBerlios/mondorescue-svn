@@ -5,7 +5,7 @@
   </head>
   <body>
 		  <!--#include virtual="top.shtml" -->
-                    <h1>Download Frozen Bubble</h1>
+                    <h1>Download Mondo Rescue</h1>
     <div class="h2-1">
       <h2>This is Free Software</h2>
     </div>
@@ -15,20 +15,21 @@ This program is <a href="http://www.fsf.org/philosophy/free-sw.html">free softwa
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.</p>
 
     <div class="h2-2">
-      <h2>What's that Free Software about? Isn't it just Freeware, since I can download free of charge?</h2>
+      <h2>Mirrors</h2>
     </div>
-<p>Free software is a very interesting (and important) concept. It was brought to mankind by Richard M. Stallman, the founder of the <a href="http://www.fsf.org/">Free Software Foundation</a>. Free software is copyrighted software with special licensing terms (the GPL, "General Public License") that allow users to copy, ameliorate, and redistribute software as long as the licensing terms don't restrict those rights.
-</p>
-<p>Many people don't like the freedom ideology behind free software, and stick to the sole fact that free software is typically more efficient and robust (unfortunately, that's the case of Linus Torvalds, the Linux kernel author). Free software is not only good quality software. Free software tells you that your freedom is valuable. It tells you that it's good for a society when people can share good software with friends, without being stopped by a license refusing you this right, and can ameliorate/bugfix programs if they are technically literate. It tells you that proprietary software is taking away your freedom.
-</p>
+	<p>We are interested in uptodate mirrors for both the Web and FTP sites. Please contact us on the <a href="/feedback.shtml">mailing list</a>.
 
     <div class="h2-3">
       <h2>Dependencies</h2>
     </div>
-<p>The solution has been written in C/bash/perl and developed on a <a href="http://www.mandriva.com/">Mandriva</a> <a href="http://www.gnu.org/">Gnu</a>/<a href="http://www.lwn.net/">Linux</a> distribution. You will need:</p>
+<p>The solution has been written in C/bash/perl and developed on a <a href="http://www.mandriva.com/">Mandriva</a> <a href="http://www.gnu.org/">Gnu</a>/<a href="http://www.lwn.net/">Linux</a> distribution. For it to work, you will need:</p>
 <ul>
-<li><b><a href="http://www.perl.com/">Perl</a></b>: the most popular scripting language out there</li>
-<li><b><a href="http://www.libsdl.org/">SDL</a></b>: the "standard" cross-platform multimedia C library</li>
+<li><b><a href="">afio</a></b>: the packaging tool used to create the archive packets</li>
+<li><b><a href="">gzip</a></b>: the most standard compressor used by Mondo Rescue</li>
+<li><b><a href="">mkisofs</a></b>: the tool to create ISO images</li>
+<li><b><a href="">busybox</a></b>: the swiss army knife : a full set of commands in a single binary (embedded)</li>
+<li><b><a href="">mindi</a></b>: the mini-distro builder part of the project</li>
+<li><b><a href="">mondo</a></b>: the disaster recovery tool in itself</li>
 </ul>
 
     <div class="h2-4">

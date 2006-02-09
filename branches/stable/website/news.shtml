@@ -47,10 +47,158 @@ Thanks to HP and especially the HP/Intel Solution Center to help me
 hosting the project.
 
 Next step will be the Web site.</p>
+<p><B>2005-12-24</B> 
+I think that it's time to promote our revisions to a newer version, as a
+proof of increased stability, and result of lots of cleanup and
+improvements, even if some small known bugs remain (and other could
+always appear). So here are mindi 1.06 / mondo 2.06 aka Christmas
+Release :-)
+</p><p>
+Now available at ftp://ftp.berlios.de/pub/mondorescue :<br>
+<br>
+mandrake/10.1/mindi-1.06-266.10.1mdk.i386.rpm<br>
+mandrake/10.1/mondo-2.06-266.10.1mdk.i386.rpm<br>
+rhel/3/mindi-1.06-266.rhel3.i386.rpm<br>
+rhel/3/mondo-2.06-266.rhel3.i386.rpm<br>
+rhel/4/mindi-1.06-266.rhel4.i386.rpm<br>
+rhel/4/mondo-2.06-266.rhel4.i386.rpm<br>
+mandriva/2006.0/mindi-1.06-266.2006.0mdk.i586.rpm<br>
+mandriva/2006.0/mondo-2.06-266.2006.0mdk.i586.rpm<br>
+fedora/4/mindi-1.06-266.fc4.i386.rpm<br>
+fedora/4/mondo-2.06-266.fc4.i386.rpm<br>
+redhat/73/mindi-1.06-266.rh73.i386.rpm<br>
+redhat/73/mondo-2.06-266.rh73.i386.rpm<br>
+sles/9/mindi-1.06-266.sles9.i386.rpm<br>
+sles/9/mondo-2.06-266.sles9.i386.rpm<br>
+<br>
+
+So more distros supported and built.<br>
+I've used them for a restore of a failed server recently (PXE mode) so
+they should be working correctly for most of the cases (including now
+people not using RPMs)
+</p><p>
+I'll off till begining of next year, so I wish you all the best for this
+new year 2006 coming, and hope you'll find mondorescue as useful as
+usual !
+</p><p>
+Changelogs are following:
+
+</p><p>
+MONDO CHANGES<br>
+<br>
+v2.06 (2005-12-23)<br>
+- better error handling of failed commands/mindi (Andree Leidenfrost)<br>
+- fix compiler warnings (Andree Leidenfrost)<br>
+- -p improvements for NFS/PXE/ISO modes (Bruno Cornec)<br>
+- support of default route and netmask for PXE/NFS (Bruno Cornec)<br>
+- fix for restoring mondo backups on md-raid systems (Philippe De<br>
+Muyter)<br>
+- remove excessive 'cat' commands (Philippe De Muyter)<br>
+- fix to force growisofs to use speed=1 for DVD burning (Philippe De<br>
+Muyter)<br>
+- now handles cifs correctly (Bruno Cornec)<br>
+- fix issue where mondoarchive ejects CD/DVD despite writing iso images<br>
+(Andree Leidenfrost)<br>
+- Add -P option to df calls (Andree Leidenfrost/Chuan-kai Lin)<br>
+- fix usage of joint -B and -m options (Andree Leidenfrost/Efraim<br>
+Feinstein)<br>
+- Quadrupled ARBITRARY_MAXIMUM from 500 to 2000 for mondorestore's<br>
+filebrowser (Andree Leidenfrost)<br>
+- remove the renice of mondoarchive (Hugo Rabson)<br>
+- relocate what was under /usr/share to /usr/lib (FHS compliance)<br>
+(Bruno Cornec/Andree Leidenfrost)<br>
+- manage non ambiguous delivery under /usr (packages) or /usr/local (tar<br>
+ball) (Bruno Cornec)<br>
+- disable x11 build by default (Bruno Cornec)<br>
+- remove sbminst (Bruno Cornec/Andree Leidenfrost)<br>
+- use parted2fdisk everywhere (Bruno Cornec)<br>
+- exports MONDO_LIB (Bruno Cornec)<br>
+- RPM build for fedora core 4, sles9, redhat 7.3, rhel 3/4, mandriva<br>
+2006.0, mandrake 10.2/10.1 (Bruno Cornec/Gary Granger)<br>
+- interactive mode now asks for image size and prefix in NFS mode<br>
+(Gallig Renaud/Bruno Cornec)<br>
+- iso-prefix should be read in iso mode even when -H not given (Stan<br>
+Benoit)<br>
+- VERSION/RELEASE Tag added (Bruno Cornec)<br>
+- many code cleanup, small fixes, PXE/NFS code improvements<br>
+(Sébastien Aperghis-Tramoni/Bruno Cornec)<br>
+<br>
+MINDI CHANGES<br>
+<br>
+1.06 (2005-12-23)<br>
+- mindi manpage added (Andree Leidenfrost)<br>
+- clean up remaining mount points, mindi.err at the end (Wolfgang<br>
+Rosenauer)<br>
+- fix bugs for SuSE distro around tar, tr and find arguments order<br>
+(Wolfgang Rosenauer)<br>
+- new busybox.net version used for better PXE support (Bruno Cornec)<br>
+- USB keyboard support (Bruno Cornec)<br>
+- -p should now work with ISO/PXE/NFS modes (Bruno Cornec)<br>
+- relocate what was under /usr/share to /usr/lib (FHS compliance)<br>
+(Bruno Cornec/Andree Leidenfrost)<br>
+- manage non ambiguous delivery under /usr (packages) or /usr/local (tar<br>
+ball) (Bruno Cornec)<br>
+- install script rewritten and used for RPM build, with new layout<br>
+(Sébastien Aperghis-Tramoni/Bruno Cornec)<br>
+- use parted2fdisk everywhere (Bruno Cornec)<br>
+- use MONDO_LIB exported by mondoarchive instead of MONDO_HOME guessed<br>
+(Bruno Cornec)<br>
+- RPM build for fedora core 4, sles9, redhat 7.3, rhel 3/4, mandriva<br>
+2006.0, mandrake 10.2/10.1 (Bruno Cornec/Gary Granger)<br>
+- VERSION/RELEASE Tag added (Bruno Cornec)<br>
+- VMPlayer support<br>
+- Code cleanup, small fixes, PXE/NFS code improvements<br>
+(Wolfgang Rosenauer/Sébastien Aperghis-Tramoni/Bruno Cornec<br>
+- New switches for PXE mode (ping & ipconf, Cf README.pxe)<br>
+(Sébastien Aperghis-Tramoni/Bruno Cornec)<br>
+- mindi-kernel added to SVN (Bruno Cornec)<br>
+</p>
 
   <div class="h2-2">
     <h2>Older News</h2>
   </div>
+
+<p><B>2005-11-22</B> 
+
+Following recent discussion here, it has been decided to increase
+version numbers of mondo and mindi to avoid confusion.
+</p><p>
+So I can now annouce the availability of the latest mondo and mindi
+which can be downloadable from http://mondorescue.berlios.de
+</p><p>
+Look also there at the Wiki and the docs. Fill bugs and feature
+requests. We are working with Hugo on the migration of the rest of the
+content and the old Website, domain name in parallel, but it wil take
+some time to be finished.
+
+</p><p>
+Changes are:<br>
+v2.05 (Bruno Cornec <bcornec_at_users.berlios.de)<br>
+- -p options works better for NFS cases<br>
+- ia64 is now working for rhel3<br>
+- delivery process to BerliOS improved<br>
+- Add -p option to generate ISO images file names with prefix. The new<br>
+default name for ISO images is mondorescue-1.iso, ... For PXE environment,<br>
+you have to use the prefix option on the command line (read README.pxe)<br>
+- Mandrake 2005 support<br>
+- NFS patches (Yann Aubert <technique_at_alixen.fr>)<br>
+- mondorestore shouldn't now ask final questions with -H<br>
+(this is an unattended mode)<br>
+<br>
+1.05 (2005-11-19)<br>
+- Bug fix for ldd output incorrectly handled, leading to "grep not<br>
+found" error<br>
+(Andree Leidenfrost)<br>
+- NFS now works in interactive mode, and nolock problems are solve<br>
+(Andree Leidenfrost)<br>
+- IA-64 support is now working for rhel 3<br>
+(Bruno Cornec)<br>
+- add MINDI_CONF to the mindi LOGFILE<br>
+(Philippe De Muyter)<br>
+- Speed up fdisk'ing dev/ida raid devices<br>
+(Philippe De Muyter)<br>
+  </p>
+<p><B>2005-09-28</B> Creation of the Berlios SVN repository to take over the non-working one missing since more than one year. Integration of the first patches waiting.
 
   <div class="h2-3">
     <h2>Oldest News</h2>

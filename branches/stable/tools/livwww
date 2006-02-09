@@ -22,5 +22,6 @@ fi
 
 rm -rf $DESTDIR
 cp -a ${BASE}/svn/${VER}/website $DESTDIR
+cp -a ${BASE}/svn/${VER}/documentation/* $DESTDIR/docs
 find $DESTDIR -type d | xargs chmod 755
 find $DESTDIR -type f | xargs chmod 644

@@ -1,0 +1,10 @@
+#!/bin/bash
+#
+# Create the Mondo Rescue CD
+# Should be run through the crontab of the ftp account
+#
+# $Id$
+#
+
+cd /mondo/ftp
+mkisofs -o iso/mondorescue.iso -A "MondoRescue_CD" -J -publisher "Mondo Dev Team <mondo@mondorescue.org>" -p "Bruno Cornec <bruno@mondorescue.org>" -r -sysid "MondoRescue" -V "MondoRescue_CD" -volset "1" -hfs -x iso .

@@ -15,37 +15,6 @@
        DEBs. I am trying to create my own snapshot DEBs but I have not yet 
        succeeded. Please be gentle with your criticism. :) My thanks go to 
        Steve Hindle and Dagfinn Bakken for helping me with Debian.</P>
-      <P ALIGN=JUSTIFY>
-       If you want the<B> source code to BusyBox</B>, whose precompiled 
-       binaries are present in Mindi, please go to<A HREF="http://www.busybox.net"> http://www.busybox.net</A> 
-       and download from there.</P>
-      <P ALIGN=JUSTIFY>
-       <B>CVS </B>is on here! It is now accessable through 
-       cvs.mondorescue.org, e.g.:-</P>
-      <P ALIGN=JUSTIFY>
-       <FONT FACE="Century Schoolbook,serif"><FONT SIZE="2"># cvs -d 
-       :pserver:anon@cvs.mondorescue.org:/mondorescue co mindi-devel</FONT></FONT></P>
-      <P ALIGN=JUSTIFY>
-       (or for you developers)</P>
-      <P ALIGN=JUSTIFY>
-       <FONT FACE="Courier New"><FONT SIZE="2"># export CVS_RSH=ssh</FONT></FONT><BR>
-       <FONT FACE="Courier New"><FONT SIZE="2"># cvs -d 
-       :ext:username@cvs.mondorescue.org:/data/cvs/mondorescue commit</FONT></FONT></P>
-      <P ALIGN=JUSTIFY>
-       The modules are mondo-stable, mondo-devel, mindi-stable, and mindi-devel.</P>
-      <P ALIGN=JUSTIFY>
-       <A HREF="http://sourceforge.net/project/showfiles.php?group_id=4220">Click
-        here</A> to see Jesse Keating's SourceForge packages for Mondo 1.4x 
-       and Mindi 0.6x - the stable branches of 2002. Jesse is the 1.4x/0.6x 
-       maintainer and a fine fellow as well.</P>
-      <P ALIGN=CENTER>
-       I'll resume development of Monitas when time permits.</P>
-      <CENTER>
-      <P ALIGN=CENTER>
-       <TABLE WIDTH="600" CELLPADDING="2" CELLSPACING="1" BORDER="1">
-        <TR>
-         <TD WIDTH="30%" VALIGN=CENTER>
-          <P ALIGN=CENTER>
            <A HREF="daily/unstable/changes">Monitas</A> (alpha-quality)</TD>
          <TD WIDTH="25%" VALIGN=CENTER>
           <P ALIGN=CENTER>
@@ -62,32 +31,3 @@
         </TR>
        </TABLE></P>
       </CENTER>
-      <P ALIGN=JUSTIFY>
-       See the <A HREF="../docs/docs.html">Documentation</A> page if you 
-       have problems running or installing Mondo or Mindi.</P>
-      <P ALIGN=JUSTIFY>
-       BTW, do you need an 'atftp' RPM? Here's the <A HREF="misc/atftp-0.6-1.src.rpm">SRPM</A>,
-        just for run. To build it, just type 'rpmbuild --rebuild 
-       &lt;package&gt;' after downloading it.</P>
-      <P ALIGN=JUSTIFY>
-       Still reading? The default contribute page looks like <A HREF="contrib-default.html">this</A>.
-        I've had to put it here so that my snapshot roller script will do 
-       its thing. Don't ask. It's very complicated. A dozen chickens 
-       perished so that this script could live. Muahahahaha. I am 
-       Ozymandias, king of kings... Look upon my works, o ye people, and... 
-       look, a pony!</TD>
-    </TR>
-    <TR>
-     <TD BGCOLOR="#333333" VALIGN=CENTER>
-      <P>
-       <IMG SRC="shared_graphics/spacer.gif" WIDTH="1" HEIGHT="1" VSPACE="0" HSPACE="0" BORDER="0"></TD>
-    </TR>
-    <TR>
-     <TD BGCOLOR="WHITE" VALIGN=CENTER CLASS="footer">
-      <P ALIGN=CENTER>
-       Comments? Suggestions? Click <A HREF="../feedback/feedback.html">here</A> 
-This mirror provided by the lovely Joe Cooper of <a href=http://www.swelltech.com>SwellTech</a>.
-    </TR>
-   </TABLE>
- </BODY>
-</HTML>

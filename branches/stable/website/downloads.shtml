@@ -27,9 +27,9 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 <li><b><a href="">afio</a></b>: the packaging tool used to create the archive packets</li>
 <li><b><a href="">gzip</a></b>: the most standard compressor used by Mondo Rescue</li>
 <li><b><a href="">mkisofs</a></b>: the tool to create ISO images</li>
-<li><b><a href="">busybox</a></b>: the swiss army knife : a full set of commands in a single binary (embedded)</li>
-<li><b><a href="">mindi</a></b>: the mini-distro builder part of the project</li>
-<li><b><a href="">mondo</a></b>: the disaster recovery tool in itself</li>
+<li><b><a href="http://www.busybox.net">busybox</a></b>: the swiss army knife : a full set of commands in a single binary (embedded)</li>
+<li><b><a href="http://www.mondorescue.org">mindi</a></b>: the mini-distro builder part of the project</li>
+<li><b><a href="http://www.mondorescue.org">mondo</a></b>: the disaster recovery tool in itself</li>
 </ul>
 
 <p>For Mandriva/Mandrake distributions, just use the magic :<br>

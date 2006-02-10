@@ -17,7 +17,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
     <div class="h2-2">
       <h2>Mirrors</h2>
     </div>
-	<p>We are interested in uptodate mirrors for both the Web and FTP sites. Please contact us on the <a href="/feedback.shtml">mailing list</a>.
+	<p>We are interested in up to date mirrors for both the Web and FTP sites. Please contact us on the <a href="/support.shtml">mailing list</a>.
 
     <div class="h2-3">
       <h2>Dependencies</h2>
@@ -71,7 +71,7 @@ in the directory containing all the required packages, and solve dependancies ma
 
 <h3>Mondo Rescue CD</h3>
 
-<p>In order to make it as easy as possible for you to use Mondo Rescue, you may want to download the latest <a href="ftp://ftp.mondorescue.org/iso/mondorescue.iso">Mondo Rescue CD</a> which contains all the packages with its dependancies available on the ftp site.
+<p>In order to make it as easy as possible for you to use Mondo Rescue, you may want to download the latest <a href="ftp://ftp.mondorescue.org/iso/mondorescue.iso">Mondo Rescue CD</a> which contains all the packages with its dependancies available on the ftp site. It is updated daily.
 
 <!--
     <div class="h2-5">

@@ -23,7 +23,7 @@
 	   <p>
        <B>Mondo is comprehensive.</B> Mondo supports LVM 1/2, RAID, ext2, ext3, 
        JFS, XFS, ReiserFS, VFAT, and can support additional filesystems 
-       easily: just e-mail the <A HREF="/feedback.shtml">mailing list</A> 
+       easily: just e-mail the <A HREF="/support.shtml">mailing list</A> 
 	   with your request. It supports software raid as well as most hardware raid controllers. It supports adjustments in disk geometry, 
        including migration from non-RAID to RAID. Mondo runs on all major 
        Linux distributions (RedHat, RHEL, SuSE, SLES, Mandriva, Debian) and is getting better all the time. You may even 
@@ -95,7 +95,7 @@
        supports the same filesystems (including RAID and LVM), and its 
        author is friendly and helpful.</P>
       <P>
-       Comments? Suggestions? Click <A HREF="../feedback.shtml">here</A> 
+       Comments? Suggestions? Click <A HREF="../support.shtml">here</A> 
 
 					<!--#include virtual="/bottom.shtml" -->
   </body>

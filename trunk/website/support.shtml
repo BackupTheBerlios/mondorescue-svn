@@ -1,92 +1,50 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" xml:lang="en" lang="en">
   <head>
-    <title>Frozen Bubble - the official home</title>
-    <meta name="Author" content="Amaury" />
-    <meta name="keywords" lang="en" content="frozen bubble best addictive gnu linux arcade game" />
-    <meta name="description" lang="en" content="Frozen bubble" />
-    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" /> 
-    <link rel="SHORTCUT ICON" href="/favicon.ico" />
-    <link rel="stylesheet" type="text/css" media="screen" href="/css/common.css" />
-    <link rel="stylesheet" type="text/css" media="screen" href="/css/allbrowsers.css" />
-    <script type="text/javascript" src="/js/functions.js"></script>
+<!--#include virtual="/head.shtml" -->
   </head>
   <body>
-    <!-- 
-      Yup, we know this website may not be fully W3C compatible.
-      We tried our best, though, to make it viewable by the broadest audience (even Internet Explorer users).
+<!--#include virtual="/top.shtml" -->
+<h1>Support around Mondo Rescue</h1>
 
-      Please send an email to the webmaster @ frozen-bubble,org should you have any problem accessing the website. 
-    -->
-    <div id="topbanner">
-      <div id="links">
-        <a href="http://www.73lab.com/">www.73lab.com</a> <a href="http://happypenguin.org/">LinuxGameTome</a> <a href="http://libsdl.org/">SDLnow!</a>
-      </div>
-      <div id="topinfo">
-        fbweb0.9.2      </div>
+    <div class="h2-1">
+      <h2>Help yourself</h2>
     </div>
-    <div id="body">
-      <div id="logo">
-        <a href="http://www.frozen-bubble.org/"><img src="/images/banner.png" alt="Frozen Bubble logo" title="Go to Frozen Bubble homepage" /></a>      </div>
-      <div id="navbar">
-        <ul>
-          <li><a href="http://www.frozen-bubble.org/home/" title="Frozen Bubble website homepage" >home</a></li>
-          <li><a href="http://www.frozen-bubble.org/news/" title="News about the game" >news</a></li>
-          <li><a href="http://www.frozen-bubble.org/downloads/" title="Download Frozen Bubble now !" >downloads</a></li>
-          <li><a href="http://www.frozen-bubble.org/artwork/" title="Artwork from the game" >artwork</a></li>
-          <li><a href="http://www.frozen-bubble.org/music/" title="Music from the game" >music</a></li>
-          <li><a href="http://www.frozen-bubble.org/making%20of/" title="Frozen Bubble : the making of" >making&nbsp;of</a></li>
-          <li><a href="http://www.frozen-bubble.org/feedback/" title="Send us your feedback !" >feedback</a></li>
-          <li id="current" ><a href="http://www.frozen-bubble.org/troubleshooting/" title="Having trouble running the game ?" >troubleshooting</a></li>
-        </ul>
-      </div>
-      <div id="main">
-        <div id="frametopleft">
-          <div id="frametop">
-            <div id="frametopright">
-	      <div id="frameleft">
-	        <div id="frameright">
-	          <div id="framecontent">
-                    <!-- ##############  Main stuff goes here  ################ -->
-                    <h1>Having problems running Frozen Bubble ?</h1>
-
-<p><b>If you are colourblind, we already have what you're looking for:</b> please use the <tt>-cb</tt> commandline parameter, and bubbles will be printed
-with little geometrical symbols inside.</p>
-
-  <div class="h2-1">
-    <h2>Fix your problems</h2>
-  </div>
-<p>Most of the problems you can encounter with Frozen-Bubble don't require contacting us directly, and actually we can't fix most of them. </p>
-<p>First, please notice that we have developed this software on the Gnu/Linux platform. There are ports to other operating-systems, but we can't and don't want to support them. If you happen to be using Frozen-Bubble on FreeBSD, Windows or Mac OSX, please contact the authors of this "version" if you have trouble installing/running/whatever. Thank you.</p>
-
-  <div class="h2-2">
-    <h2>Troubleshoot most common problems on Gnu/Linux</h2>
-  </div>
-<p>First, please notice that we are not a Gnu/Linux vendor, we are not Debian, Gentoo or Mandrakesoft. So if you can't install it with apt-get, emerge, urpmi, yum or whatever, or if you managed to install it but it won't start or won't run properly, there are much higher chances this is a problem with your vendor, not with us. Try to think before contacting us: is your problem really with our software? or with how your vendor compiled/integrated it with the system? </p>
-
-<p>Now, to ease your life, we provide links to common problems you may encounter.</p>
-<ul>
-<li><u><tt>...cannot handle TLS data...</tt> message at startup</u>: it seems this is related with buggy or badly installed nvidia drivers (now you see that proprietary drivers add to the troubles, but anyway). Debian has a <a href="http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=223096"> bugreport and a fix</a> for this one.</li>
-<li><u><tt>Can't locate SDL.pm in @INC...</tt> message at startup</u>: either you didn't install sdlperl, or you installed it at the wrong location. Check where the file "SDL.pm" was installed on your system and what is the @INC search path of perl, there are chances they don't match.</li>
-<li><u>crash with a <tt>SIGILL</tt> when trying to start a new game</u>: you're probably using buggy <tt>SDL-1.2.6</tt> on an Intel processors; please update to <tt>SDL-1.2.7</tt> or more recent.</li>
-<li><u><tt>Not a HASH reference at /usr/games/frozen-bubble line 310</tt> message at startup</u>: it seems that you're using an incompatible (too recent) version of perl-SDL. Either downgrade or apply <a href="/perl-SDL.patch">this patch</a>.</li>
-</ul>
-<p>If you have more to add, you may want to contact us: <img src="/images/mailto.png" alt="graphic email address" title="graphic email address" />.</p>
-                    <!-- ##############  Main stuff ends here  ################ -->
-	          </div> <!-- Content -->
-	        </div> <!-- Right -->
-	      </div> <!-- Left -->
-	    </div> <!-- Top -->
-          </div> <!-- Topright -->
-          <div id="framebottomleft">
-            <div id="framebottom">
-	      <div id="framebottomright">
-		    &nbsp;
-	      </div> <!-- bottomright -->
-	    </div> <!-- bottom -->
-          </div> <!-- bottomleft -->
-        </div> <!-- Topleft -->
-      </div> <!-- #main -->
-    </div> <!-- #body -->
+	<p>First, when you have an issue, please try to read the various log files that Mondo Rescue produces. 99% of the time, the error is described in it in clear text. Those file are:
+	<ul>
+			<li><tt>/var/log/mondo-archive.log</tt></li>
+			<li><tt>/var/log/mindi.log</tt></li>
+			<li><tt>/var/log/mondo-restore.log</tt></li>
+	</ul></p>
+	<p>Second look at the <a href="/docs.shtml">Mondo Rescue documentation</a> and the extensive FAQ section of the Mondo Rescue HOWTO, as a lot of good tip and tricks are provided there.</p>
+	<p>Third look at the <a href="http://openfacts.berlios.de/index-en.phtml?title=mondorescue">Mondo Rescue wiki</a> which may contain additional comments,and feel free to contribute by adding your remarks.</p>
+	<p>Fourth look at the <a href="http://sourceforge.net/mailarchive/forum.php?forum_id=5086">Mondo Rescue Mailing List Archives</a> as you're probably not the first with this problem.</p>
+	<p>Finally post on the <a href="mailto:mondo-devel_at_lists.sourceforge.net">Mondo Rescue Mailing List</a> if you did not find what you were looking for, as there are more than 400 users there who could help you, including dev team members. <b>But</b>, they can only help you if your provide at least the above mentionned <b>2 first log files</b>.</p>
+	<p>If your think you found a bug in Mondo Rescue, please <a href="https://developer.berlios.de/bugs/?group_id=2524">fill a bug report</a> and also include the log files.</p>
+	<p>Likely, if you wish Mondo Rescue had your dreamed new shiny function, feel free to create an <a href="https://developer.berlios.de/feature/?group_id=2524">feature request</a>.</p>
+    <div class="h2-3">
+			<h2>Mondo Rescue Mailing Lists</h2>
+    </div>
+	<p>There are 4 mailing lists for the Mondo Rescue Community:</p>
+	<ul>
+			<li>The <a href="https://lists.berlios.de/mailman/listinfo/mondorescue-announce">Mondo Rescue Announce Mailing List</a> with low traffic dedicated to annoucements around Mondo Rescue.</li>
+			<li>The <a href="https://lists.berlios.de/mailman/listinfo/mondorescue-ia64">Mondo Rescue Itanium (aka ia64) Mailing List</a> with moderate traffic dedicated to discussions around Mondo Rescue port on the Intel Itanium processor based systems.</li>
+			<li>The <a href="http://lists.sourceforge.net/mailman/listinfo/mondo-devel">Mondo Rescue Mailing List</a> with most of the traffic dedicated to discussions around Mondo Rescue.</li>
+			<li>The <a href="https://lists.berlios.de/mailman/listinfo/mondorescue-devel">Mondo Rescue Developpers Mailing List</a> with moderate traffic dedicated to discussions between Mondo Rescue developpers.</li>
+	</ul>
+    <div class="h2-5">
+			<h2>Professional support services</h2>
+    </div>
+	<p>If you're ready to pay for a support contract around Mondo Rescue, for your business, you may enter in contact with the following companies which have the structure to deliver it:
+	<ul>
+			<li><b><a href="http://www.linagora.com/en">Linagora</a></b> - Contact: <a href="mailto:support_at_linagora.com">Support Service</a></li>
+	</ul></p>
+	<p>If you're ready to pay for enhancement/consulting services around Mondo Rescue, for your business, you may enter in contact with the following companies which have the structure to deliver it:
+	<ul>
+			<li><b><a href="http://www.hp.com/linux">HP</a></b> - Contact: <a href="mailto:pingouin_at_hp.com">Free, Libre and Open Source Expertise Center</a></li>
+			<li><b><a href="http://www.harmsconsulting.com/main.html">Harms Consulting</a></b> - Contact: <a href="mailto:info_at_harmsconsulting.com">Consulting Department</a></li>
+	</ul></p>
+<!--#include virtual="/bottom.shtml" -->
+    
   </body>
 </html>

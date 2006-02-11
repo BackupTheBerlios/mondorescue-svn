@@ -130,7 +130,7 @@ con cintas y NFS, tambien.
 
 %files
 %defattr(644,root,root,755)
-%doc ChangeLog svn.log mondo/docs/en/*
+%doc ChangeLog svn.log
 %doc INSTALL COPYING README TODO AUTHORS NEWS
 
 %attr(755,root,root) %{_sbindir}/*

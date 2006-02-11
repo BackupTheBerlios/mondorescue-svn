@@ -23,7 +23,7 @@
 	   <p>
        <B>Mondo is comprehensive.</B> Mondo supports LVM 1/2, RAID, ext2, ext3, 
        JFS, XFS, ReiserFS, VFAT, and can support additional filesystems 
-       easily: just e-mail the <A HREF="/feedback.shtml">mailing list</A> 
+       easily: just e-mail the <A HREF="/support.shtml">mailing list</A> 
 	   with your request. It supports software raid as well as most hardware raid controllers. It supports adjustments in disk geometry, 
        including migration from non-RAID to RAID. Mondo runs on all major 
        Linux distributions (RedHat, RHEL, SuSE, SLES, Mandriva, Debian) and is getting better all the time. You may even 
@@ -49,6 +49,7 @@
         [<A HREF="http://www.linuxjournal.com/article.php?sid=5449">LJ again</A>]
         [<A HREF="http://www.linuxjournal.com/article.php?sid=6808">and again</A>]
         [<A HREF="http://www.ccp14.ac.uk/ccp14admin/linux-server/mondorescue/mondo_misc.html">CCP14</A>]</P>
+		<p>We also have <a href="http://freshmeat.net/projects/mondorescue">freshmeat</a>, <a href="http://directory.fsf.org/MondoRescue.html">FSF</a>, <a href="http://europa.eu.int/idabc/en/document/5183/5807">IDABC</a> entries.</p>
 
   <div class="h2-3">
 		  <h2>Who is behind Mondo Rescue ?</h2>
@@ -57,11 +58,21 @@
 		is in the Mondo Devteam?</P>
       <P ALIGN=CENTER>
 	  <I><B>Bruno Cornec</B></I><BR>
-	  development, maintenance, documentation, web site, rpm packaging</P>
+	  development, maintenance, documentation, web site, rpm packaging, Mandriva packaging</P>
       <P ALIGN=CENTER>
 	  <I><B>Andree Leidenfrost</B></I><BR>
 	  development, maintenance, Debian packaging</P>
-		<p><A NAME="old-devteam"></A>Who
+      <P ALIGN=CENTER>
+	  <I><B>Lars Rupp</B></I><BR>
+	  Offical SuSE packaging</P>
+      <P ALIGN=CENTER>
+	  <I><B>Mike Roark</B></I><BR>
+	  Contributor SuSE packaging</P>
+	  <p></p>
+  <div class="h2-4">
+		  <h2>Who has been behind Mondo Rescue ?</h2>
+  </div>
+	  <p><A NAME="old-devteam"></A>Who
 	   has been	in the Mondo Devteam?</P>
       <P ALIGN=CENTER>
        <I>Hugo Rabson</I><BR>
@@ -78,10 +89,11 @@
       <P ALIGN=CENTER>
        <I>Michael Clark</I><BR>
        original DPF docs</P>
+  <div class="h2-5">
+		  <h2>The Mondo Rescue Community</h2>
+  </div>
       <P ALIGN=JUSTIFY>
-       There are dozens of regular contributors and over 400 members of the 
-       mailing list. The user base is estimated at between 50,000 and 
-       100,000.</P>
+	  There are dozens of regular <a href="/thanks.shtml">contributors</a> and over 400 members of the mailing list. The user base is estimated at between 50,000 and 100,000.</P>
       <P>
 	  Mondo Rescue was first created because there was nothing like 
 	  it available at that time under a free license. Nowadays, 
@@ -91,7 +103,7 @@
        supports the same filesystems (including RAID and LVM), and its 
        author is friendly and helpful.</P>
       <P>
-       Comments? Suggestions? Click <A HREF="../feedback.shtml">here</A> 
+       Comments? Suggestions? Click <A HREF="/support.shtml">here</A> 
 
 					<!--#include virtual="/bottom.shtml" -->
   </body>

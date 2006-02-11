@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" xml:lang="en" lang="en">
+  <head>
+<!--#include virtual="/head.shtml" -->
+  </head>
+  <body>
+<!--#include virtual="/top.shtml" -->
+
+		<h1>Mondo Rescue Documentations</h1>
+  <div class="h2-1">
+    <h2>Mondo Rescue HOWTO</h2>
+  </div>
+  <p>The Mondo Rescue HOWTO is available under various formats:</p>
+  <ul>
+		  <li>A <a href="/docs/mondorescue-howto.html">single HTML</a> page.</li>
+		  <li>A <a href="/docs/mondorescue-howto.pdf">PDF</a> document.</li>
+		  <li>A <a href="/docs/mondorescue-howto.rtf">RTF</a> document.</li>
+		  <li>A <a href="/docs/mondorescue-howto.ps">PostScript</a> document.</li>
+		  <li>A <a href="/docs/mondorescue-howto.txt">Text</a> document.</li>
+		  <li><a href="/docs/mondorescue-howto/index.html">online</a>.</li>
+  </ul>
+</p>
+
+  <div class="h2-2">
+    <h2>Other Documents</h2>
+  </div>
+  <p>Here are some other documents seaking of Mondo Rescue:</p>
+  <ul>
+		  <li>A Mondo Rescue <a href="/docs/mondo-intro.pdf">introduction</a> (in French) made by Gallig Renaud.
+		  <li>A Mondo Rescue <a href="/docs/mondo-presentation-v1.pdf">presentation</a> made by Bruno Cornec.
+		  <li>A Mondo Rescue hardware migration <a href="/docs/HOWTO-_Deploy_Linux_from_SCSI_to_SATA.pdf">guide</a> made by François-Xavier Horel.
+
+<!--#include virtual="/bottom.shtml" -->
+  </body>
+</html>

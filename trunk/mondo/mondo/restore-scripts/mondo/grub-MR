@@ -148,6 +148,12 @@ else
     MNT_RESTORING=""
 fi
 
+echo "Now I'll use grub-install" >> $LOGFILE
+chroot /mnt/RESTORING grub-install $1 >> $LOGFILE
+res=$?
+echo "grub-install returned $res" >> $LOGFILE
+[ "$res" -eq "0" ] && exit 0
+
 echo "Trying a hack" >> $LOGFILE
 FindBootPart $1 $2
 mbrpart=$1

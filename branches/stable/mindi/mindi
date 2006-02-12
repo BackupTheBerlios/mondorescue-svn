@@ -1927,8 +1927,10 @@ Sorry, your kernel is too big for a boot/root floppy.\nI'll try the new boot/roo
 		cp -f $TMP_ROOT/mindi.rdz $imagesdir/mindi-root.1440.img
 	res=$(($res+$?))
 	rm -f $imagefile
-	[ "$res" -ne "0" ] && LogIt "Warning - failed to create 1.44MB boot/root floppies\n"
-	rm -f $imagesdir/mindi-*.1440.img
+	if [ "$res" -ne "0" ]; then
+		LogIt "Warning - failed to create 1.44MB boot/root floppies\n"
+		rm -f $imagesdir/mindi-*.1440.img
+	fi
 	return $res
 	fi
 	free_space=`df -k -P $mountpoint | tail -n1 | tr -s ' ' '\t' | cut -f4`
@@ -2065,7 +2067,10 @@ Sorry, your kernel is too big for a boot/root floppy.\nI'll try the new boot/roo
 		cp -f $TMP_ROOT/mindi.rdz $imagesdir/mindi-root.1440.img
 		res=$(($res+$?))
 		rm -f $imagefile
-		[ "$res" -ne "0" ] && LogIt "Warning - failed to create 1.44MB boot/root floppies\n"
+		if [ "$res" -ne "0" ]; then
+			LogIt "Warning - failed to create 1.44MB boot/root floppies\n"
+			rm -f $imagesdir/mindi-*.1440.img
+		fi
 		return $res
 	fi
 	free_space=`df -k -P $mountpoint | tail -n1 | tr -s ' ' '\t' | cut -f4`

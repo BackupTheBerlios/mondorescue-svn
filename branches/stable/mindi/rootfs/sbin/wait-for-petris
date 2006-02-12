@@ -5,8 +5,19 @@
 
 # Say what we are doing
 echo -n "Waiting for petris"
+# Get the right linker for architecture
+arch=`uname -m`
+case $arch in
+  'ia64')
+    linker="/lib/ld-linux-ia64.so.2" ;;
+  'x86_64')
+    linker="/lib/ld-linux-x86-64.so.2" ;;
+  *)
+    # we only run on the above two and IA32, so this must be it
+    linker="/lib/ld-linux.so.2" ;;
+esac
 # First wait for the libraries to become available...
-while   [ ! -f /lib/libncurses.so.5 -o ! -f /lib/libc.so.6 -o ! -f /lib/ld-linux.so.2 ] ; do
+while   [ ! -f /lib/libncurses.so.5 -o ! -f /lib/libc.so.6 -o ! -f "$linker" ] ; do
   echo -n "."
   sleep 1
 done

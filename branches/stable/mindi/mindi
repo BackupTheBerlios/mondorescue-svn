@@ -1314,7 +1314,7 @@ absolute_partition old_partition_fmt
 	
 	if [ -d "/proc/lvm" ] || [ -d "/dev/mapper" ]; then
 	echo -en "\rAnalyzing LVM...\r"
-	all_partitions=`$MINDI_SBIN/analyze-my-lvm | fgrep ">>>" | cut -d' ' -f2-32`
+	all_partitions=`$MINDI_LIB/analyze-my-lvm | fgrep ">>>" | cut -d' ' -f2-32`
 	fi
 	all_partitions="$all_partitions `ListAllPartitions 2> /dev/null`"
 #    echo "all partitions = $all_partitions" > /dev/stderr
@@ -2216,8 +2216,8 @@ PrepareDataDiskImages() {
 	cp -f $TMP_ROOT/mountlist.txt $minidir_root/$noof_disks/tmp/mountlist.txt || Die "Cannot copy mountlist.txt from $TMP_ROOT to data disk"
 	cp -f $TMP_ROOT/mountlist.txt $CACHE_LOC
 	[ "`DidMondoCallMe`" ] && cp -f $minidir_root/$noof_disks/tmp/mountlist.txt $MONDO_TMP/.
-	[ -d "/proc/lvm" ] && $MINDI_SBIN/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
-	[ -d "/dev/mapper" ] && $MINDI_SBIN/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
+	[ -d "/proc/lvm" ] && $MINDI_LIB/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
+	[ -d "/dev/mapper" ] && $MINDI_LIB/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
 	cat $minidir_root/$noof_disks/tmp/mountlist.txt >> $LOGFILE
 	ZipMinidirsIntoTarballs $minidir_root $tardir $noof_disks
 	CreateDataDiskImagesFromTarballs $tardir $imagesdir $noof_disks

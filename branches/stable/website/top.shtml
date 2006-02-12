@@ -18,7 +18,7 @@
     </div>
     <div id="body">
       <div id="logo">
-			  <img src="/images/protected-button.png" alt="Mondo Rescue logo" title="This is the official Mondo Rescue Website !"/></div>
+			  <img src="/images/protected-button_trans.png" alt="Mondo Rescue logo" title="This is the official Mondo Rescue Website !"/></div>
       <div id="navbar">
         <ul>
           <li id="current" ><a href="/" title="Mondo Rescue homepage" >Home</a></li>

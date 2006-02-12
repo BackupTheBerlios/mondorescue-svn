@@ -8,8 +8,14 @@
 <!--#include virtual="/top.shtml" -->
 
 		<h1>Mondo Rescue Home Page</h1>
+  <div class="h2-5">
+		  <h2>Latest news</h2>
+  </div>
+<!--#include virtual="/latest-news.html" -->
+  <p> For more news look <a href="/news.shtml">here</a></p>
+
   <div class="h2-1">
-    <h2>Mondo Rescue</h2>
+		  <h2>What is Mondo Rescue ?</h2>
   </div>
   <div class="c"> <img src="/images/screenshots.png" alt="Mondo Rescue screenshots" title="Mondo Rescue Screenshots" /></div>
   <p class="c">Mondo Rescue is a GPL disaster recovery solution. It supports Linux (i386, x86_64, ia64) and FreeBSD (i386). It's packaged for multiple distributions (RedHat, RHEL, SuSE, SLES, Mandriva, Debian). </p>
@@ -19,29 +25,29 @@
   <div class="h2-2">
     <h2>Authors</h2>
   </div>
-  <p><a href="http://www.hyper-linux.org/">Bruno Cornec</a>: development, maintenance, rpm packaging, web site, documentation<br />
-    <a href="http://www.desknow.com/desknow/directfiles/aleidenfrost/mr-debs-unofficial/index.html">Andree Leidenfrost</a>: development, maintenance, debian packaging<br />
+  <p><a href="http://www.hyper-linux.org/">Bruno Cornec</a>: lead development, maintenance, rpm packaging, web site, documentation<br />
+    <a href="http://www.desknow.com/desknow/directfiles/aleidenfrost/mr-debs-unofficial/index.html">Andree Leidenfrost</a>: co-development, maintenance, debian packaging<br />
   </p>
     <p>Original Author</p>
   <p>
   <a href="mailto:hugo_at_mondorescue.org">Hugo Rabson</a>: Creator of Mondo Rescue<br />
   </p>
 
-  <p>Sponsored by <a href="http://www.hp.com/go/linux">HP</a> and the <a href="http://www.hpintelco.net">HP/Intel Solution Center</a>.</p>
 
   <div class="h2-4">
     <h2>Made with</h2>
   </div>
-  <div class="c"><a href="http://www.73lab.com/"><img src="/images/icon-73lab.png" width="89" height="40" alt="73lab logo" title="Graphics by Ayo" /></a>
     <a href="http://www.gnu.org"><img src="/images/gnubanner-2_114x40.png" width="114" height="40" alt="GNU logo" title="We run GNU" /></a>
     <a href="http://www.vim.org"><img src="/images/icon-vim.png" width="140" height="40" alt="Vim logo" title="Edited with Vim" /></a>
     <a href="http://www.perl.org/"><img src="/images/icon-perl.png" width="100" height="40" alt="Perl" title="Made with Perl" /></a>
-	<a href="http://www.mandriva.com/"><img src="/images/icon-mandriva.png" width="160" height="40" alt="Mandriva" title="Hosted on Mandriva Linux" /></a>
   </div>
 
   <div class="h2-3">
     <h2>About this website</h2>
   </div>
+  <div class="c"><a href="http://www.73lab.com/"><img src="/images/icon-73lab.png" width="89" height="40" alt="73lab logo" title="Graphics by Ayo" /></a>
+	<a href="http://www.mandriva.com/"><img src="/images/icon-mandriva.png" width="160" height="40" alt="Mandriva" title="Hosted on Mandriva Linux" /></a>
+  <p>This Web site is sponsored by <a href="http://www.hp.com/go/linux">HP</a> and the <a href="http://www.hpintelco.net">HP/Intel Solution Center</a>.</p>
   <p>This website has been designed according to the <a href="http://validator.w3.org/check?uri=http%3A%2F%2Fwww.mondorescue.org">W3C standards</a> in order to be viewable by most standard compliant browsers. Since it uses some CSS techniques, it may not render correctly on some non-free (as in <i>freedom</i>) widely used browser. If this is the case with your browser, you may want to try the latest version of <a href="http://www.mozilla.com/firefox/">Firefox</a>, a standards compliant free software browser.</p>
     <p>This site is best viewed with the free <a href="http://ftp.gnome.org/pub/GNOME/sources/ttf-bitstream-vera/1.10/">"Vera" True Type Font</a>&nbsp;&nbsp;from Bitstream.</p>
 

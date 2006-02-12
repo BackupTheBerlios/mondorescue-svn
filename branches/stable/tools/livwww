@@ -28,7 +28,7 @@ cp -a ${BASE}/svn/${VER}/website $DESTDIR
 cp -a ${BASE}/svn/${VER}/documentation/* $DESTDIR/docs
 find $DESTDIR -type d | xargs chmod 755
 find $DESTDIR -type f | xargs chmod 644
-if [ _"$1" == _"" ); then
+if [ _"$1" == _"" ]; then
 		exit 0
 fi
 cd $DESTDIR

@@ -175,8 +175,9 @@
   }
   #main h1 {
     color: #7395cd;
-    background:url("/images/h1.png") top left no-repeat;
-    padding:6px 0em 1em 40px;
+    background:url("/images/bird_world.png") top left no-repeat;
+    /* background:url("/images/h1.png") top left no-repeat; */
+    padding:12px 0em 1em 80px;
     margin:0.5em 0 0 0;
     font-size: 160%;
   }

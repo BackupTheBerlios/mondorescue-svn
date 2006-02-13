@@ -11,6 +11,7 @@ DESTDIR=/var/www/html/mondo
 DESTMACH=www1.mondorescue.org
 DESTUSER=apache
 MONDODIR=/mondo/www/html/mondo
+TESTDIR=/mondo/www/html/test
 
 
 dname=`dirname $0`
@@ -28,11 +29,17 @@ cp -a ${BASE}/svn/${VER}/website $DESTDIR
 cp -a ${BASE}/svn/${VER}/documentation/* $DESTDIR/docs
 find $DESTDIR -type d | xargs chmod 755
 find $DESTDIR -type f | xargs chmod 644
+cd $DESTDIR
 if [ _"$1" == _"" ]; then
 		exit 0
+else
+	if [ _"$1" == _"test" ]; then
+		DESTDIR=$TESTDIR
+	else
+		DESTDIR=$MONDODIR
+	fi
 fi
-cd $DESTDIR
 tar cfj /tmp/mondo-www.tz2 .
-ssh ${DESTUSER}@${DESTMACH} "rm -rf ${MONDODIR} ; mkdir ${MONDODIR}"
+ssh ${DESTUSER}@${DESTMACH} "rm -rf ${DESTDIR} ; mkdir ${DESTDIR}"
 scp /tmp/mondo-www.tz2 ${DESTUSER}@${DESTMACH}:/tmp
-ssh ${DESTUSER}@${DESTMACH} "cd ${MONDODIR} ; tar xfj /tmp/mondo-www.tz2"
+ssh ${DESTUSER}@${DESTMACH} "cd ${DESTDIR} ; tar xfj /tmp/mondo-www.tz2"

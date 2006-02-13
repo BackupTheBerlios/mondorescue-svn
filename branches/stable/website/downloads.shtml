@@ -48,7 +48,7 @@ in the directory containing all the required packages, and solve dependancies ma
     </div>
 <h3>Source code</h3>
 <ul>
-	<li>tarball available under <a href="http://ftp.mondorescue.org/src">http://ftp.mondorescue.org/src</a></li>
+	<li>tarball available under <a href="ftp://ftp.mondorescue.org/src">ftp://ftp.mondorescue.org/src</a></li>
 	<li>Subversion browing available at <a href="http://svn.berlios.de/viewcvs/mondorescue">http://svn.berlios.de/viewcvs/mondorescue</a></li>
 	<li>Anonymous HTTP Subversion check out of the project available with the following instruction set: <pre><tt>svn checkout http://svn.berlios.de/svnroot/repos/mondorescue/branches/stable</tt></pre></li>
 	<li>Anonymous SVN Subversion check out of the project available with the following instruction set: <pre><tt>svn checkout svn://svn.berlios.de/mondorescue/branches/stable</tt></pre></li>

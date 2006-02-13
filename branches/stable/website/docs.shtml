@@ -13,12 +13,12 @@
   </div>
   <p>The Mondo Rescue HOWTO is available under various formats:</p>
   <ul>
-		  <li>A <a href="/docs/mondorescue-howto.html">single HTML</a> page.</li>
-		  <li>A <a href="/docs/mondorescue-howto.pdf">PDF</a> document.</li>
-		  <li>A <a href="/docs/mondorescue-howto.rtf">RTF</a> document.</li>
-		  <li>A <a href="/docs/mondorescue-howto.ps">PostScript</a> document.</li>
-		  <li>A <a href="/docs/mondorescue-howto.txt">Text</a> document.</li>
-		  <li><a href="/docs/mondorescue-howto/index.html">online</a>.</li>
+		  <li>A <a href="/docs/mondorescue-howto.html" target="_blank">single HTML</a> page.</li>
+		  <li>A <a href="/docs/mondorescue-howto.pdf" target="_blank">PDF</a> document.</li>
+		  <li>A <a href="/docs/mondorescue-howto.rtf" target="_blank">RTF</a> document.</li>
+		  <li>A <a href="/docs/mondorescue-howto.ps" target="_blank">PostScript</a> document.</li>
+		  <li>A <a href="/docs/mondorescue-howto.txt" target="_blank">Text</a> document.</li>
+		  <li><a href="/docs/mondorescue-howto/index.html" target="_blank">online</a>.</li>
   </ul>
 </p>
 
@@ -27,9 +27,9 @@
   </div>
   <p>Here are some other documents seaking of Mondo Rescue:</p>
   <ul>
-		  <li>A Mondo Rescue <a href="/docs/mondo-intro.pdf">introduction</a> (in French) made by Gallig Renaud.
-		  <li>A Mondo Rescue <a href="/docs/mondo-presentation-v1.pdf">presentation</a> made by Bruno Cornec.
-		  <li>A Mondo Rescue hardware migration <a href="/docs/HOWTO-_Deploy_Linux_from_SCSI_to_SATA.pdf">guide</a> made by François-Xavier Horel.
+		  <li>A Mondo Rescue <a href="/docs/mondo-intro.pdf" target="_blank">introduction</a> (in French) made by Gallig Renaud.
+		  <li>A Mondo Rescue <a href="/docs/mondo-presentation-v1.pdf target="_blank"">presentation</a> made by Bruno Cornec.
+		  <li>A Mondo Rescue hardware migration <a href="/docs/HOWTO-_Deploy_Linux_from_SCSI_to_SATA.pdf target="_blank"">guide</a> made by François-Xavier Horel.
 
 <!--#include virtual="/bottom.shtml" -->
   </body>

@@ -3,7 +3,7 @@
 <!ENTITY curver "VVV">
 
 <!ENTITY WWWB "http://www.mondorescue.org/">
-<!ENTITY WWW '<ulink url=&WWWB;>MondoRescue</ulink>'>
+<!ENTITY WWW '<ulink url="http://www.mondorescue.org">MondoRescue</ulink>'>
 <!ENTITY ML '<ulink url="http://lists.sourceforge.net/lists/listinfo/mondo-devel">mondorescue mailing list</ulink>'>
 <!ENTITY gfdl SYSTEM "fdl.sgml">
 ]>
@@ -1370,6 +1370,7 @@ archives are on the CD's). Or, you can boot from the Mindi floppies
 <para>Those ISO images can also be used for a PXE restore. For this 
 		to work, please refer to the file README.pxe provided with 
 		your mindi package.
+</para>
 </sect2>
 </sect1>
 </chapter>
@@ -2266,6 +2267,8 @@ Cannot open root device "100" or 01:00 Please append a correct
 at <link linkend="overview-sysrq-kernelreq">Linux Kernel support</link>to
 see what you're kernel must support.</para>
 </answer>
+</qandaentry>
+<qandaentry>
 <question>
 <para><anchor id="COPYBOOTDATADISK"/>Q: How do i copy boot+data
 		disk images to physical floppy disks ?</para>

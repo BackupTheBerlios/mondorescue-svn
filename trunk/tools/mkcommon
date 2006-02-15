@@ -21,10 +21,6 @@ if [ "`echo $c | grep mindi-kernel`" != "" ]; then
 	echo "Management of mindi-kernel ${MINDI_VER}-$REVISION"
 	rm -fr mindi-kernel-${MINDI_VER}
 	svn export ${VER}/mindi-kernel mindi-kernel-${MINDI_VER}
-	#cp -a ${VER}/mindi-kernel mindi-kernel-${MINDI_VER}
-	#find mindi-kernel-${MINDI_VER} -type d -name .svn | xargs rm -rf
-	#find mindi-kernel-${MINDI_VER} -type f -name '.*.swp' | xargs rm -rf
-	#find mindi-kernel-${MINDI_VER} -type f -name '*~' | xargs rm -rf
 	mkdir -p ${TOPDIR}/SOURCES 
 
 	echo "Creating mindi-kernel tar files"
@@ -36,14 +32,9 @@ if [ "`echo $c | grep -v kernel | grep mindi`" != "" ]; then
 	echo "Management of mindi ${MINDI_VER}-$REVISION"
 	rm -fr mindi-${MINDI_VER}
 	svn export ${VER}/mindi mindi-${MINDI_VER}
-	#cp -a ${VER}/mindi mindi-${MINDI_VER}
 	cp -a /tmp/mondorescue-svn.log mindi-${MINDI_VER}/svn.log
 	echo "$REVISION" > mindi-${MINDI_VER}/REVISION
-	#find mindi-${MINDI_VER} -type d -name .svn | xargs rm -rf
-	#find mindi-${MINDI_VER} -type f -name '.*.swp' | xargs rm -rf
-	#find mindi-${MINDI_VER} -type f -name '*~' | xargs rm -rf
 	rm -f mindi-${MINDI_VER}/rootfs/sbin/parted2fdisk-ia64 
-	#rm -f mindi-${MINDI_VER}/parted2fdisk mindi-${MINDI_VER}/parted2fdisk.c mindi-${MINDI_VER}/rootfs/sbin/parted2fdisk-ia64 
 
 	echo "Creating mindi tar files"
 	tar cfhz ${TOPDIR}/SOURCES/mindi-${MINDI_VER}.tgz mindi-${MINDI_VER}
@@ -55,19 +46,18 @@ if [ "`echo $c | grep  mondo`" != "" ]; then
 	echo "Management of mondo ${MONDO_VER}-$REVISION"
 	rm -rf mondo-${MONDO_VER}
 	svn export ${VER}/mondo mondo-${MONDO_VER}
-	#cp -a ${VER}/mondo mondo-${MONDO_VER}
 	cp -a /tmp/mondorescue-svn.log mondo-${MONDO_VER}/svn.log
 	echo "$REVISION" > mondo-${MONDO_VER}/REVISION
 	rm -rf documentation-${MONDO_VER}
 	svn export ${VER}/documentation documentation-${MONDO_VER}
 	cd documentation-${MONDO_VER}
 	make install INSTALLDIR=../mondo-${MONDO_VER}/mondo/docs/en
+	if [ $? != 0 ]; then
+		exit -1
+	fi
 	cd ../mondo-${MONDO_VER}
 	echo "Bootstraping mondo ... "
 	./bootstrap
-	#find . -type d -name .svn | xargs rm -rf
-	#find . -type f -name '.*.swp' | xargs rm -rf
-	#find . -type f -name '*~' | xargs rm -rf
 	cd ..
 
 	echo "Creating mondo tar files"

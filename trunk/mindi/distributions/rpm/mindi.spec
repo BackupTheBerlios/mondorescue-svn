@@ -1,42 +1,16 @@
 #
 # $Id$
 #
-%define is_mandriva %(test -e /etc/mandriva-release && echo 1 || echo 0)
-%define is_mandrake %(test -e /etc/mandrake-release && echo 1 || echo 0)
-%define is_suse %(test -e /etc/SuSE-release && echo 1 || echo 0)
-%define is_fedora %(test -e /etc/fedora-release && echo 1 || echo 0)
-%define is_redhat %(test -e /etc/redhat-release && echo 1 || echo 0)
-
 %define name	mindi
 %define version	VVV
 %define mrel	RRR
+%define src		SSS
+%define grp		GRP
+%define addreqb	bzip2 >= 0.9, mkisofs, ncurses, binutils, gawk, dosfstools
+%define addreq	DDD
+
 # if mandriva official build (rpm --with is_official)
 %{?is_official:%define rel %{mkrel} %{mrel}}%{!?is_official:%define rel %{mrel}}
-%define	src		%{name}-%{version}.tgz
-%define grp		Archiving/Backup
-%define addreqb	bzip2 >= 0.9, mkisofs, ncurses, binutils, gawk, dosfstools, afio
-
-%if %is_redhat
-%define grp		Applications/Archiving
-%define addreq	%{addreqb}, which, grep >= 2.5
-Autoreq:	0
-%endif
-
-%if %is_mandrake
-%define	src		%{name}-%{version}.tar.bz2
-%define addreq	%{addreqb}, which, grep >= 2.5
-Autoreqprov: no
-%endif
-
-%if %is_mandriva
-%define	src		%{name}-%{version}.tar.bz2
-%define addreq	%{addreqb}, which, grep >= 2.5
-Autoreqprov: no
-%endif
-
-%if %is_suse
-%define addreq	%{addreqb}
-%endif
 
 # define the mkrel macro if it is not already defined if mandriva offical build
 %if is_official
@@ -81,10 +55,6 @@ export CONFDIR=${RPM_BUILD_ROOT}%{_sysconfdir}
 export RPMBUILDMINDI="true"
 
 ./install.sh
-
-%if %is_suse
-%{__rm} -rf $RPM_BUILD_ROOT/%{_datadir}/doc/%name-%{version}
-%endif
 
 %clean
 %{__rm} -rf $RPM_BUILD_ROOT

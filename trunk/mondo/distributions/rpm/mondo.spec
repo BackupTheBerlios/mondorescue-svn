@@ -1,42 +1,15 @@
 #
 # $Id$
 #
-%define is_mandriva %(test -e /etc/mandriva-release && echo 1 || echo 0)
-%define is_mandrake %(test -e /etc/mandrake-release && echo 1 || echo 0)
-%define is_suse %(test -e /etc/SuSE-release && echo 1 || echo 0)
-%define is_fedora %(test -e /etc/fedora-release && echo 1 || echo 0)
-%define is_redhat %(test -e /etc/redhat-release && echo 1 || echo 0)
 
 %define name	mondo
 %define version	VVV
 %define mrel	RRR
 # if mandriva official build (rpm --with is_official)
 %{?is_official:%define rel %{mkrel} %{mrel}}%{!?is_official:%define rel %{mrel}}
-%define	src		%{name}-%{version}.tgz
-%define grp		Archiving/Backup
+%define src		SSS
+%define grp		GRP
 %define addreqb	mindi >= 1.05, bzip2 >= 0.9, afio, mkisofs, binutils, newt >= 0.50, slang >= 1.4.1
-
-%if %is_redhat
-%define	grp		Applications/Archiving
-%define addreq	%{addreqb}
-Autoreq:		0
-%endif
-
-%if %is_mandrake
-%define src		%{name}-%{version}.tar.bz2
-%define addreq	%{addreqb}
-Autoreqprov:	no
-%endif
-
-%if %is_mandriva
-%define src		%{name}-%{version}.tar.bz2
-%define addreq	%{addreqb}
-Autoreqprov:	no
-%endif
-
-%if %is_suse
-%define addreq	%{addreqb}
-%endif
 
 Summary:	A program which a Linux user can utilize to create a rescue/restore CD/tape
 Summary(fr):	Un programme pour les utilisateurs de Linux pour cr�r un CD/tape de sauvegarde/restauration

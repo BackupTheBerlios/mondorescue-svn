@@ -10,6 +10,7 @@
 %define src		SSS
 %define grp		GRP
 %define addreqb	mindi >= 1.05, bzip2 >= 0.9, afio, mkisofs, binutils, newt >= 0.50, slang >= 1.4.1
+%define addreq	DDD
 
 Summary:	A program which a Linux user can utilize to create a rescue/restore CD/tape
 Summary(fr):	Un programme pour les utilisateurs de Linux pour cr�r un CD/tape de sauvegarde/restauration
@@ -87,9 +88,6 @@ con cintas y NFS, tambien.
 %install
 %{__rm} -rf $RPM_BUILD_ROOT
 %makeinstall
-%if %is_suse
-%{__rm} -rf $RPM_BUILD_ROOT/%{_datadir}/doc/%name-%{version}
-%endif
 
 %post
 /sbin/ldconfig

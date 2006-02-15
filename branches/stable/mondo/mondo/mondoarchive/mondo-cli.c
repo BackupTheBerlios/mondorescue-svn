@@ -442,7 +442,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 			strcat(bkpinfo->include_paths, " ");
 		}
 		if (stat(flag_val['I'], &buf) != 0) {
-			log_msg("ERROR ! %s doesn't exist", flag_val['I']);
+			log_msg(1, "ERROR ! %s doesn't exist", flag_val['I']);
 			fatal_error("ERROR ! You specified a directory to include which doesn't exist");
 		}
 		strncpy(bkpinfo->include_paths + strlen(bkpinfo->include_paths),

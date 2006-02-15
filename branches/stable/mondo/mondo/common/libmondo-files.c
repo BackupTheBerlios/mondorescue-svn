@@ -340,11 +340,23 @@ void exclude_nonexistent_files(char *inout)
 int figure_out_kernel_path_interactively_if_necessary(char *kernel)
 {
 	char tmp[MAX_STR_LEN];
+	char *command;
 
 	if (!kernel[0]) {
 		strcpy(kernel,
 			   call_program_and_get_last_line_of_output
 			   ("mindi --findkernel 2> /dev/null"));
+	}
+	// If we didn't get anything back, check whether mindi raised a fatal error
+	if (!kernel[0]) {
+		malloc_string(command);
+		strcpy(command, "grep 'Fatal error' /var/log/mindi.log");
+		strcpy(tmp, call_program_and_get_last_line_of_output(command));
+		if (strlen(tmp) > 1) {
+			popup_and_OK(tmp);
+			fatal_error("Mindi gave a fatal error. Please check '/var/log/mindi.log'.");
+		}
+		paranoid_free(command);
 	}
 	log_it("Calling Mindi with kernel path of '%s'", kernel);
 	while (!kernel[0]) {

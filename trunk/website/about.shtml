@@ -5,6 +5,7 @@
 		  <!--#include virtual="/head.shtml" -->
   </head>
   <body>
+		  <!--#set var="curpage" value="about.shtml" -->
 		  <!--#include virtual="/top.shtml" -->
 
 		<h1>About Mondo Rescue</h1>

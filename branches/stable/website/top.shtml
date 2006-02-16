@@ -21,15 +21,23 @@
 			  <img src="/images/protected-button_trans.png" alt="Mondo Rescue logo" title="This is the official Mondo Rescue Website !"/></div>
       <div id="navbar">
         <ul>
-          <li id="current" ><a href="/" title="Mondo Rescue homepage" >Home</a></li>
-		  <li><a href="/about.shtml" title="About Mondo Rescue" >About</a></li>
-		  <li><a href="/news.shtml" title="News about Mondo Rescue" >News</a></li>
-		  <li><a href="/docs.shtml" title="Documentations about Mondo Rescue" >Docs</a></li>
-          <li><a href="/downloads.shtml" title="Download Mondo Rescue now !" >Downloads</a></li>
-		  <li><a href="/artwork.shtml" title="Artwork of the Website" >Artwork</a></li>
-          <li><a href="/support.shtml" title="If you need support (why it's perfect :-)" >Support</a></li>
-          <li><a href="http://openfacts.berlios.de/index-en.phtml?title=mondorescue" title="Use the Wiki" >Wiki</a></li>
-		  <li><a href="/thanks.shtml" title="So many helped us. Many thanks" >Thanks</a></li>
+				<li <!--#if expr="\"$curpage\" = \"index.shtml\"" --> id="current" <!--#endif -->>
+				<a href="/" title="Mondo Rescue homepage" >Home</a></li>
+				<li <!--#if expr="\"$curpage\" = \"about.shtml\"" --> id="current" <!--#endif -->>
+				<a href="/about.shtml" title="About Mondo Rescue" >About</a></li>
+				<li <!--#if expr="\"$curpage\" = \"news.shtml\"" --> id="current" <!--#endif -->>
+				<a href="/news.shtml" title="News about Mondo Rescue" >News</a></li>
+		  <li <!--#if expr="\"$curpage\" = \"docs.shtml\"" --> id="current" <!--#endif -->>
+		  <a href="/docs.shtml" title="Documentations about Mondo Rescue" >Docs</a></li>
+          <li <!--#if expr="\"$curpage\" = \"downloads.shtml\"" --> id="current" <!--#endif -->>
+		  <a href="/downloads.shtml" title="Download Mondo Rescue now !" >Downloads</a></li>
+		  <li <!--#if expr="\"$curpage\" = \"artwork.shtml\"" --> id="current" <!--#endif -->>
+		  <a href="/artwork.shtml" title="Artwork of the Website" >Artwork</a></li>
+          <li <!--#if expr="\"$curpage\" = \"support.shtml\"" --> id="current" <!--#endif -->>
+		  <a href="/support.shtml" title="If you need support (why it's perfect :-)" >Support</a></li>
+          <li><a href="http://openfacts.berlios.de/index-en.phtml?title=mondorescue" title="Use the Wiki" target="_blank" >Wiki</a></li>
+		  <li <!--#if expr="\"$curpage\" = \"thanks.shtml\"" --> id="current" <!--#endif -->>
+		  <a href="/thanks.shtml" title="So many helped us. Many thanks" >Thanks</a></li>
         </ul>
       </div>
       <div id="main">

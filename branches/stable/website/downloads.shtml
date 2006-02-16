@@ -4,12 +4,15 @@
 		  <!--#include virtual="head.shtml" -->
   </head>
   <body>
+		  <!--#set var="curpage" value="downloads.shtml" -->
 		  <!--#include virtual="top.shtml" -->
                     <h1>Download Mondo Rescue</h1>
     <div class="h2-1">
       <h2>This is Free Software</h2>
     </div>
-    <p>Copyright (c) 2000-2005 Mondo Devteam</p>
+    <p>Copyright (c) 2000-2006
+	Mondo Rescue is a copyrighted work, written collectively by many
+	<a href="/thanks.shtml">contributors</a>, delivered under the GPL.</p>
     <p>
 This program is <a href="http://www.fsf.org/philosophy/free-sw.html">free software</a>; you can redistribute it and/or modify it under the terms of the <a href="http://www.fsf.org/copyleft/gpl.html">GNU General Public License</a> version 2, as published by the <a href="http://www.fsf.org/">Free Software Foundation</a>.<br/>
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.</p>

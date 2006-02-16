@@ -4,6 +4,7 @@
 <!--#include virtual="/head.shtml" -->
   </head>
   <body>
+		  <!--#set var="curpage" value="thanks.shtml" -->
 <!--#include virtual="/top.shtml" -->
 <h1>Thanks !</h1>
 

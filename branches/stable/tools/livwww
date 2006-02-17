@@ -8,9 +8,17 @@
 # Please replace with your destination
 #
 LOCALDIR=/var/www/html/mondo
+LOCALDOC=/var/www/html/mondo-doc
 DESTUSER=apache
 MONDODIR=/mondo/www/html/mondo
 TESTDIR=/mondo/www/html/test
+
+force=0
+
+if [ "$1" = "-f" ]; then
+		force=1
+		shift
+fi
 
 /sbin/ifconfig | grep -q 10.3 2>&1 > /dev/null
 if [ $? = 0 ]; then
@@ -29,17 +37,28 @@ fi
 
 . $TOOLHOME/common-env
 
+cd ${BASE}/svn
+
 rm -rf $LOCALDIR
-cp -a ${BASE}/svn/${VER}/website $LOCALDIR
-(cd ${BASE}/svn/${VER}/documentation ; make)
-mkdir -p $LOCALDIR/docs
-cp -a ${BASE}/svn/${VER}/documentation/* $LOCALDIR/docs
+svn export ${VER}/website $LOCALDIR
+
+rm -rf $LOCALDOC
+svn export ${VER}/documentation $LOCALDOC
+cd $LOCALDOC
+make -f Makefile.howto
+make -f Makefile.man
+mv $LOCALDOC $LOCALDIR/docs
 #
 # Man pages corrections
 #
 perl -pi -e 's~/man8/~/docs/~g' $LOCALDIR/docs/*.8.html
 perl -pi -e 's~<A HREF[=./A-z0-9"]*/man1/[^<]*>([A-z0-9]*)</A>~$1~g' $LOCALDIR/docs/*.8.html
 perl -pi -e 's~/index.html~/index.shtml~' $LOCALDIR/docs/*.8.html 
+#
+# Version handling
+#
+perl -pi -e "s~VVV-rRRR~${VER}-r${REVISION}~g" $LOCALDIR/head.shtml
+
 find $LOCALDIR -type d | xargs chmod 755
 find $LOCALDIR -type f | xargs chmod 644
 cd $LOCALDIR

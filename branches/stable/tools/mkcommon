@@ -51,7 +51,9 @@ if [ "`echo $c | grep  mondo`" != "" ]; then
 	rm -rf documentation-${MONDO_VER}
 	svn export ${VER}/documentation documentation-${MONDO_VER}
 	cd documentation-${MONDO_VER}
-	make install INSTALLDIR=../mondo-${MONDO_VER}/mondo/docs/en
+	make -f Makefile.howto install INSTALLDIR=../mondo-${MONDO_VER}/mondo/docs/en
+	make -f Makefile.man install-mindi INSTALLDIR=../mindi-${MINDI_VER}
+	make -f Makefile.man install-mondo INSTALLDIR=../mondo-${MONDO_VER}/docs/man
 	if [ $? != 0 ]; then
 		exit -1
 	fi

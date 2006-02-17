@@ -32,25 +32,6 @@ Requires:	%{addreq}, elilo, parted
 Requires:	%{addreq}, syslinux >= 1.52
 %endif
 
-#%package xmondo
-#Summary:	A QT based graphical front end for %{name}
-#Group:		Applications/Archiving
-#Requires:	%{name} = %{version}-${release}, qt, kdelibs
-#
-#%package %{name}-devel
-#Summary:	Header files for building against Mondo
-#%if %is_mandrake
-#Group:		Development/Libraries
-#%endif
-#if %is_redhat
-#Group:		Development/Other
-#%endif
-#Provides: libmondo-devel mondo-devel
-#Obsoletes: libmondo-devel
-#
-#%description -n %{name}-devel
-#Mondo libraries and includes
-
 %description
 Mondo is a GPL disaster recovery solution to create backup media (CD, DVD, tape, network images) that can be used to redeploy the damaged system, as well as deploy similar or less similar systems.
 
@@ -74,10 +55,7 @@ Mondo es un programa que permite cualquier usuario de Linux a crear una CD
 de restoracion/rescate (o CDs, si su instalacion es >2GO aprox.).  Funciona 
 con cintas y NFS, tambien.
 
-#%description xmondo
-#Xmondo is a QT based graphical frontend to mondoarchive.  It can help you 
-#set up a backup by following onscreen prompts.
-
+%debug_package
 %prep
 %setup -q -n %name-%{version}
 

@@ -1,6 +1,6 @@
 <!DOCTYPE BOOK PUBLIC "-//OASIS//DTD DocBook V4.1//EN" [
 <!ENTITY curdate "DDD">
-<!ENTITY curver "VVV">
+<!ENTITY curver "VVV-rRRR">
 
 <!ENTITY WWWB "http://www.mondorescue.org/">
 <!ENTITY WWW '<ulink url="http://www.mondorescue.org">MondoRescue</ulink>'>

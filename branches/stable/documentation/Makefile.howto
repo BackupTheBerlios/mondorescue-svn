@@ -62,4 +62,4 @@ install: all
 	@echo ""
 	@echo "Delivering mondorescue howto"
 	@echo ""
-	@if [ "${INSTALLDIR}" != "" ]; then cp -a $(TARGET).{html,pdf,ps,txt,rtf} $(TARGET) ${INSTALLDIR} ; cp -a ${IMAGESDIR} ${INSTALLDIR}/$(TARGET) ; else echo "No INSTALLDIR specified aborting install"; fi
+	@if [ "${INSTALLDIR}" != "" ]; then mkdir -p ${INSTALLDIR} ; cp -a $(TARGET).{html,pdf,ps,txt,rtf} $(TARGET) ${INSTALLDIR} ; cp -a ${IMAGESDIR} ${INSTALLDIR}/$(TARGET) ; else echo "No INSTALLDIR specified aborting install"; fi

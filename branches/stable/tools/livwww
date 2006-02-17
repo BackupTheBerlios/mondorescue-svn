@@ -7,6 +7,8 @@
 #
 # Please replace with your destination
 #
+
+
 LOCALDIR=/var/www/html/mondo
 LOCALDOC=/var/www/html/mondo-doc
 DESTUSER=apache
@@ -17,7 +19,10 @@ force=0
 
 if [ "$1" = "-f" ]; then
 		force=1
+		optsvn=""
 		shift
+else
+		optsvn="--force"
 fi
 
 /sbin/ifconfig | grep -q 10.3 2>&1 > /dev/null
@@ -39,11 +44,25 @@ fi
 
 cd ${BASE}/svn
 
-rm -rf $LOCALDIR
-svn export ${VER}/website $LOCALDIR
+if [ $force -eq 1 ]; then
+	echo "Purging $LOCALDIR"
+	rm -rf $LOCALDIR
+fi
 
-rm -rf $LOCALDOC
-svn export ${VER}/documentation $LOCALDOC
+svn export $optsvn ${VER}/website $LOCALDIR
+
+if [ $force -eq 1 ]; then
+	echo "Purging $LOCALDOC"
+	rm -rf $LOCALDOC
+fi
+
+svn export $optsvn ${VER}/documentation $LOCALDOC
+
+#
+# Version handling
+#
+$TOOLHOME/expandver $LOCALDIR/top.shtml $LOCALDOC/mondorescue-howto.sgml $LOCALDOC/*.8; do
+
 cd $LOCALDOC
 make -f Makefile.howto
 make -f Makefile.man
@@ -54,14 +73,16 @@ mv $LOCALDOC $LOCALDIR/docs
 perl -pi -e 's~/man8/~/docs/~g' $LOCALDIR/docs/*.8.html
 perl -pi -e 's~<A HREF[=./A-z0-9"]*/man1/[^<]*>([A-z0-9]*)</A>~$1~g' $LOCALDIR/docs/*.8.html
 perl -pi -e 's~/index.html~/index.shtml~' $LOCALDIR/docs/*.8.html 
-#
-# Version handling
-#
-perl -pi -e "s~VVV-rRRR~${VER}-r${REVISION}~g" $LOCALDIR/head.shtml
-
 find $LOCALDIR -type d | xargs chmod 755
 find $LOCALDIR -type f | xargs chmod 644
+
 cd $LOCALDIR
+#
+# Some links for the Web site
+#
+ln -sf /var/www/html/mediawiki .
+ln -sf /var/www/html/admin .
+
 if [ _"$1" == _"" ]; then
 		exit 0
 else

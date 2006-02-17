@@ -32,21 +32,21 @@
 		  		<li>A <a href="/docs/mondoarchive.8.html" target="_blank">HTML</a></li>
 		  		<li>A <a href="/docs/mondoarchive.8.pdf" target="_blank">PDF</a></li>
 		  		<li>A <a href="/docs/mondoarchive.8.ps" target="_blank">PostScript</a></li>
-		  		<li>A <a href="/docs/mondoarchive.8.txt" target="_blank">Test</a></li>
+		  		<li>A <a href="/docs/mondoarchive.8.txt" target="_blank">Text</a></li>
   			</ul>
 		  <li>mondorestore</li>
   			<ul>
 		  		<li>A <a href="/docs/mondorestore.8.html" target="_blank">HTML</a></li>
 		  		<li>A <a href="/docs/mondorestore.8.pdf" target="_blank">PDF</a></li>
 		  		<li>A <a href="/docs/mondorestore.8.ps" target="_blank">PostScript</a></li>
-		  		<li>A <a href="/docs/mondorestore.8.txt" target="_blank">Test</a></li>
+		  		<li>A <a href="/docs/mondorestore.8.txt" target="_blank">Text</a></li>
   			</ul>
 		  <li>mindi</li>
   			<ul>
 		  		<li>A <a href="/docs/mindi.8.html" target="_blank">HTML</a></li>
 		  		<li>A <a href="/docs/mindi.8.pdf" target="_blank">PDF</a></li>
 		  		<li>A <a href="/docs/mindi.8.ps" target="_blank">PostScript</a></li>
-		  		<li>A <a href="/docs/mindi.8.txt" target="_blank">Test</a></li>
+		  		<li>A <a href="/docs/mindi.8.txt" target="_blank">Text</a></li>
   			</ul>
   </ul>
 
@@ -56,8 +56,8 @@
   <p>Here are some other documents seaking of Mondo Rescue:</p>
   <ul>
 		  <li>A Mondo Rescue <a href="/docs/mondo-intro.pdf" target="_blank">introduction</a> (in French) made by Gallig Renaud.
-		  <li>A Mondo Rescue <a href="/docs/mondo-presentation-v1.pdf target="_blank"">presentation</a> made by Bruno Cornec.
-		  <li>A Mondo Rescue hardware migration <a href="/docs/HOWTO-_Deploy_Linux_from_SCSI_to_SATA.pdf target="_blank"">guide</a> made by François-Xavier Horel.
+		  <li>A Mondo Rescue <a href="/docs/mondo-presentation-v1.pdf" target="_blank">presentation</a> made by Bruno Cornec.
+		  <li>A Mondo Rescue hardware migration <a href="/docs/HOWTO-_Deploy_Linux_from_SCSI_to_SATA.pdf" target="_blank">guide</a> made by François-Xavier Horel.
 
 <!--#include virtual="/bottom.shtml" -->
   </body>

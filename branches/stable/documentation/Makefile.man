@@ -38,7 +38,7 @@ TXTSET=$(shell echo ${MANPAGES} | sed 's~.8~.8.txt~g')
 
 %.8.ps: %.8
 	@man2dvi ./$< > $<.dvi
-	@dvips $<.dvi -o $@
+	@dvips -q $<.dvi -o $@
 	@rm -f $<.dvi
 
 %.8.pdf: %.8.ps

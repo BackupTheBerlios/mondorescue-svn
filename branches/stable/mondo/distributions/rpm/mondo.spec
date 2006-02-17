@@ -60,7 +60,7 @@ con cintas y NFS, tambien.
 %setup -q -n %name-%{version}
 
 %build
-%configure %{!?_without_xmondo:--with-x11}
+%configure
 %{__make} VERSION=%{version} CFLAGS="-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_REENTRANT"
 
 %install
@@ -81,19 +81,18 @@ con cintas y NFS, tambien.
 %defattr(644,root,root,755)
 %doc ChangeLog svn.log
 %doc INSTALL COPYING README TODO AUTHORS NEWS
+%doc docs/en/mondorescue-howto.html docs/en/mondorescue-howto.pdf
 
 %attr(755,root,root) %{_sbindir}/*
 #%attr(755,root,root) %{_libdir}/%{name}/restore-scripts/%{name}/*
 %{_libdir}
 %{_mandir}
 
-#%{!?_without_xmondo:%files xmondo}
-#%{!?_without_xmondo:%{_sbindir}/xmondo}
-#%{!?_without_xmondo:%{_libdir}/libXmondo-%{libversion}.so}
-#%{!?_without_xmondo:%{_libdir}/libXmondo.so}
-#%{!?_without_xmondo:%{_datadir}/mondo/mondo.png}
-
 %changelog
+* Fri Feb 17 2006 Bruno Cornec <bcornec@users.berlios.de> 2.0.7
+- Updated to 2.0.7
+- RPM sepc files are now generated
+
 * Fri Nov 05 2005 Bruno Cornec <bcornec@users.berlios.de> 1.05
 - ia64 is now working
 - -p option related bug fixed

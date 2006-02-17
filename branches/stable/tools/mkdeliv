@@ -1,13 +1,13 @@
 #!/bin/bash
 #
-# Deliver RPMs packages and tgz files to BerliOS
+# Deliver RPMs packages and tgz files to ftp.mondorescue.org
 #
 # $Id$
 #
 
 # BerliOS FTP/SSH setup
-BERLIOSAC=bcornec@shell.berlios.de
-DSTDIR=/home/groups/ftp/pub/mondorescue
+BERLIOSAC=bruno@ftp.mondorescue.org
+DSTDIR=/
 FTPSERV="ftp.berlios.de"
 FTPDIR="/incoming"
 

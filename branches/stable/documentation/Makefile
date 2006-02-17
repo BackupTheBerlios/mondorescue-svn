@@ -9,7 +9,81 @@ DSL=$(TARGET).dsl
 IMAGESDIR=images
 IMAGES=$(shell ls ${IMAGESDIR}/*.png | sed 's/\.png/.eps/g')
 
-all: $(TARGET).ps $(TARGET).pdf $(TARGET)/index.html $(TARGET).txt $(TARGET).html $(TARGET).rtf
+#
+# Man pages handling
+#
+MRMPDIR=../mondo/mondo/mondorestore
+MRMPNAM=mondorestore.8
+MAMPDIR=../mondo/mondo/mondoarchive
+MAMPNAM=mondoarchive.8
+MIMPDIR=../mindi
+MIMPNAM=mindi.8
+
+all: all-howto all-man
+
+all-howto: $(TARGET).ps $(TARGET).pdf $(TARGET)/index.html $(TARGET).txt $(TARGET).html $(TARGET).rtf
+
+all-man: .all-man-html .all-man-pdf .all-man-txt
+
+.all-man-html: $(MRMPNAM).html $(MAMPNAM).html $(MIMPNAM).html
+	@echo ""
+	@echo "Generating Man pages in HTML format"
+	@echo "-----------------------------------"
+	@touch .all-man-html
+
+.all-man-pdf: $(MRMPNAM).pdf $(MAMPNAM).pdf $(MIMPNAM).pdf
+	@echo ""
+	@echo "Generating Man pages in PDF and PS format"
+	@echo "-----------------------------------------"
+	@touch .all-man-pdf
+
+.all-man-txt: $(MRMPNAM).txt $(MAMPNAM).txt $(MIMPNAM).txt
+	@echo ""
+	@echo "Generating Man pages in TXT format"
+	@echo "----------------------------------"
+	@touch .all-man-txt
+
+$(MRMPNAM).html: $(MRMPDIR)/$(MRMPNAM)
+	@man2html -r $< > $@
+
+$(MAMPNAM).html: $(MAMPDIR)/$(MAMPNAM)
+	@man2html -r $< > $@
+
+$(MIMPNAM).html: $(MIMPDIR)/$(MIMPNAM)
+	@man2html -r $< > $@
+
+$(MRMPNAM).ps: $(MRMPDIR)/$(MRMPNAM)
+	@man2dvi $< > $(MRMPNAM).dvi
+	@dvips $(MRMPNAM).dvi -o $@
+	@rm -f $(MRMPNAM).dvi
+
+$(MAMPNAM).ps: $(MAMPDIR)/$(MAMPNAM)
+	@man2dvi $< > $(MAMPNAM).dvi
+	@dvips $(MAMPNAM).dvi -o $@
+	@rm -f $(MAMPNAM).dvi
+
+$(MIMPNAM).ps: $(MIMPDIR)/$(MIMPNAM)
+	@man2dvi $< > $(MIMPNAM).dvi
+	@dvips $(MIMPNAM).dvi -o $@
+	@rm -f $(MIMPNAM).dvi
+
+$(MRMPNAM).pdf: $(MRMPNAM).ps
+	@ps2pdf $<
+
+$(MAMPNAM).pdf: $(MAMPNAM).ps
+	@ps2pdf $<
+
+$(MIMPNAM).pdf: $(MIMPNAM).ps
+	@ps2pdf $<
+
+$(MRMPNAM).txt: $(MRMPDIR)/$(MRMPNAM)
+	@nroff -man $< > $@
+
+$(MAMPNAM).txt: $(MAMPDIR)/$(MAMPNAM)
+	@nroff -man $< > $@
+
+$(MIMPNAM).txt: $(MIMPDIR)/$(MIMPNAM)
+	@nroff -man $< > $@
 
 ${IMAGESDIR}/%.eps: ${IMAGESDIR}/%.png
 	@echo "Converting $< to $@"

@@ -36,6 +36,7 @@ bootable disks (or 1 bootable CD image). You may then boot from the disks/CD
 and do system maintenance - e.g. format partitions, backup/restore data,
 verify packages, etc.
 
+%debug_package
 %prep
 %{__rm}  -rf $RPM_BUILD_ROOT
 %setup -n %name-%{version}
@@ -78,6 +79,10 @@ fi
 %attr(755,root,root) %{_sbindir}/*
 
 %changelog
+* Fri Feb 16 2006 Bruno Cornec <bcornec@users.berlios.de> 1.0.7
+- Updated to 1.0.7
+- RPMS spec are now generated instead of using '%' variables
+
 * Fri Nov 05 2005 Bruno Cornec <bcornec@users.berlios.de> 1.05
 - ia64 is now working
 - use install.sh script

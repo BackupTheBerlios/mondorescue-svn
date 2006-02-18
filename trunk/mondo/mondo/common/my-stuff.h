@@ -313,7 +313,7 @@ extern void _mondo_assert_fail(const char *file, const char *function,
 /**
  * Malloc @p x to be MAX_STR_LEN bytes and call fatal_error() if we're out of memory.
  */
-#define malloc_string(x) { x = malloc(MAX_STR_LEN); if (!x) { fatal_error("Unable to malloc"); } x[0] = x[1] = '\0'; }
+#define malloc_string(x) { x = (char *)malloc(MAX_STR_LEN); if (!x) { fatal_error("Unable to malloc"); } x[0] = x[1] = '\0'; }
 
 /**
  * Path to the location the hard drive is mounted on during a restore.

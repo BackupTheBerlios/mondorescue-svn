@@ -31,25 +31,6 @@ Requires:	%{addreq}, elilo, parted
 Requires:	%{addreq}, syslinux >= 1.52
 %endif
 
-#%package xmondo
-#Summary:	A QT based graphical front end for %{name}
-#Group:		Applications/Archiving
-#Requires:	%{name} = %{version}-${release}, qt, kdelibs
-#
-#%package %{name}-devel
-#Summary:	Header files for building against Mondo
-#%if %is_mandrake
-#Group:		Development/Libraries
-#%endif
-#if %is_redhat
-#Group:		Development/Other
-#%endif
-#Provides: libmondo-devel mondo-devel
-#Obsoletes: libmondo-devel
-#
-#%description -n %{name}-devel
-#Mondo libraries and includes
-
 %description
 Mondo is a GPL disaster recovery solution to create backup media (CD, DVD, tape, network images) that can be used to redeploy the damaged system, as well as deploy similar or less similar systems.
 
@@ -73,15 +54,12 @@ Mondo es un programa que permite cualquier usuario de Linux a crear una CD
 de restoracion/rescate (o CDs, si su instalacion es >2GO aprox.).  Funciona 
 con cintas y NFS, tambien.
 
-#%description xmondo
-#Xmondo is a QT based graphical frontend to mondoarchive.  It can help you 
-#set up a backup by following onscreen prompts.
-
+%debug_package
 %prep
 %setup -q -n %name-%{version}
 
 %build
-%configure %{!?_without_xmondo:--with-x11}
+%configure
 %{__make} VERSION=%{version} CFLAGS="-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_REENTRANT"
 
 %install
@@ -105,19 +83,18 @@ con cintas y NFS, tambien.
 %defattr(644,root,root,755)
 %doc ChangeLog svn.log
 %doc INSTALL COPYING README TODO AUTHORS NEWS
+%doc docs/en/mondorescue-howto.html docs/en/mondorescue-howto.pdf
 
 %attr(755,root,root) %{_sbindir}/*
 #%attr(755,root,root) %{_libdir}/%{name}/restore-scripts/%{name}/*
 %{_libdir}
 %{_mandir}
 
-#%{!?_without_xmondo:%files xmondo}
-#%{!?_without_xmondo:%{_sbindir}/xmondo}
-#%{!?_without_xmondo:%{_libdir}/libXmondo-%{libversion}.so}
-#%{!?_without_xmondo:%{_libdir}/libXmondo.so}
-#%{!?_without_xmondo:%{_datadir}/mondo/mondo.png}
-
 %changelog
+* Fri Feb 17 2006 Bruno Cornec <bcornec@users.berlios.de> 2.0.7
+- Updated to 2.0.7
+- RPM sepc files are now generated
+
 * Fri Nov 05 2005 Bruno Cornec <bcornec@users.berlios.de> 1.05
 - ia64 is now working
 - -p option related bug fixed

@@ -15,7 +15,7 @@
 ### Which arch are we on (useful for ia64 port)
 export ARCH=`/bin/arch`
 
-ADDITIONAL_BOOT_PARAMS="acpi=off apm=off devfs=nomount exec-shield=0"
+ADDITIONAL_BOOT_PARAMS="acpi=off apm=off devfs=nomount exec-shield=0 noresume selinux=0 barrier=off"
 
 RUN_AFTER_INITIAL_BOOT_PHASE="echo \"Who lives in a pineapple under the sea?\" > /tmp/spongebob.squarepants.txt"
 	# after booting from floppy/CD image but before

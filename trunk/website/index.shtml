@@ -18,7 +18,7 @@
   <div class="h2-1">
 		  <h2>What is Mondo Rescue ?</h2>
   </div>
-  <div class="c"> <img src="/images/screenshots.png" width="500" height="250" alt="Mondo Rescue screenshots" title="Mondo Rescue Screenshots" /></div>
+  <div class="c"> <img src="/images/screenshots.png" alt="Mondo Rescue screenshots" title="Mondo Rescue Screenshots" /></div>
   <p class="c">Mondo Rescue is a GPL disaster recovery solution. It supports Linux (i386, x86_64, ia64) and FreeBSD (i386). It's packaged for multiple distributions (RedHat, RHEL, SuSE, SLES, Mandriva, Debian). </p>
   <p class="c">It supports tapes, disks, network and CD/DVD as backup media, multiple filesystems, LVM, software and hardware Raid.</p>
   <p class="c">You need it to be safe.</p>

@@ -1,5 +1,5 @@
 #
-# Makefile for mondorescue documentation build
+# Makefile for mondorescue howto
 #
 # $Id$
 #
@@ -54,12 +54,12 @@ $(TARGET).rtf: $(SRC) $(DSL) $(IMAGES)
 
 clean: 
 	@echo ""
-	@echo "Cleaning up the documentation directory"
+	@echo "Cleaning up the documentation directory for the Howto"
 	@echo ""
 	@rm -fr $(TARGET).{aux,log,out,tex,dvi,pdf,ps,txt,rtf,html} $(TARGET)
 
 install: all
 	@echo ""
-	@echo "Delivering mondorescue documentation"
+	@echo "Delivering mondorescue howto"
 	@echo ""
-	@if [ "${INSTALLDIR}" != "" ]; then cp -a $(TARGET).{html,pdf,ps,txt,rtf} $(TARGET) ${INSTALLDIR} ; cp -a ${IMAGESDIR} ${INSTALLDIR}/$(TARGET) ; else echo "No INSTALLDIR specified aborting install"; fi
+	@if [ "${INSTALLDIR}" != "" ]; then mkdir -p ${INSTALLDIR} ; cp -a $(TARGET).{html,pdf,ps,txt,rtf} $(TARGET) ${INSTALLDIR} ; cp -a ${IMAGESDIR} ${INSTALLDIR}/$(TARGET) ; else echo "No INSTALLDIR specified aborting install"; fi

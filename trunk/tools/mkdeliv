@@ -1,13 +1,13 @@
 #!/bin/bash
 #
-# Deliver RPMs packages and tgz files to BerliOS
+# Deliver RPMs packages and tgz files to ftp.mondorescue.org
 #
 # $Id$
 #
 
 # BerliOS FTP/SSH setup
-BERLIOSAC=bcornec@shell.berlios.de
-DSTDIR=/home/groups/ftp/pub/mondorescue
+ACCOUNT=bruno@ftp.mondorescue.org
+DSTDIR=/
 FTPSERV="ftp.berlios.de"
 FTPDIR="/incoming"
 
@@ -45,12 +45,13 @@ if [ "`echo $c | grep  mondo`" != "" ]; then
 	rpms="$rpms ${TOPDIR}/RPMS/${ARCH}/mondo-${MONDO_VER}-${rev}${suf}.${ARCH}.rpm"
 	srpms="$srpms ${TOPDIR}/SRPMS/mondo-${MONDO_VER}-${rev}${suf}.src.rpm"
 fi
-echo "Sources delivery to ${BERLIOSAC}:${DSTDIR}/src"
-scp ${tgz} ${BERLIOSAC}:${DSTDIR}/src
-ssh ${BERLIOSAC} "mkdir -p ${DSTDIR}/${ddir}/${dver}"
-echo "Packages delivery to ${BERLIOSAC}:${DSTDIR}/${ddir}/${dver}"
-scp ${rpms} ${BERLIOSAC}:${DSTDIR}/${ddir}/${dver}
-scp ${srpms} ${BERLIOSAC}:${DSTDIR}/${ddir}/${dver}
+echo "Sources delivery to ${ACCOUNT}:${DSTDIR}/src"
+scp ${tgz} ${ACCOUNT}:${DSTDIR}/src
+
+echo "Packages delivery to ${ACCOUNT}:${DSTDIR}/${ddir}/${dver}"
+ssh ${ACCOUNT} "mkdir -p ${DSTDIR}/${ddir}/${dver}"
+scp ${rpms} ${srpms} ${ACCOUNT}:${DSTDIR}/${ddir}/${dver}
+
 echo "Sources delivery to ${FTPSERV} ${FTPDIR}"
 if [ "`which ncftpput`" != "" ]; then
 	ncftpput ${FTPSERV} ${FTPDIR} ${tgz}

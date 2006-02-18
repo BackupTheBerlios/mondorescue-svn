@@ -33,6 +33,13 @@ if [ "`echo $c | grep -v kernel | grep mindi`" != "" ]; then
 	rm -fr mindi-${MINDI_VER}
 	svn export ${VER}/mindi mindi-${MINDI_VER}
 	cp -a /tmp/mondorescue-svn.log mindi-${MINDI_VER}/svn.log
+	cp -a ${VER}/documentation/mindi.8 mindi-${MINDI_VER}
+	rm -rf documentation-${MONDO_VER}
+	svn export ${VER}/documentation documentation-${MONDO_VER}
+	cd documentation-${MONDO_VER}
+	$TOOLHOME/expandver mindi*8
+	make -f Makefile.man install-mindi INSTALLDIR=../mindi-${MINDI_VER}
+	cd ..
 	echo "$REVISION" > mindi-${MINDI_VER}/REVISION
 	rm -f mindi-${MINDI_VER}/rootfs/sbin/parted2fdisk-ia64 
 
@@ -47,11 +54,18 @@ if [ "`echo $c | grep  mondo`" != "" ]; then
 	rm -rf mondo-${MONDO_VER}
 	svn export ${VER}/mondo mondo-${MONDO_VER}
 	cp -a /tmp/mondorescue-svn.log mondo-${MONDO_VER}/svn.log
+	mkdir -p mondo-${MONDO_VER}/docs/man
+	cp -a ${VER}/documentation/mondo*.8 mondo-${MONDO_VER}/docs/man
 	echo "$REVISION" > mondo-${MONDO_VER}/REVISION
 	rm -rf documentation-${MONDO_VER}
 	svn export ${VER}/documentation documentation-${MONDO_VER}
 	cd documentation-${MONDO_VER}
-	make install INSTALLDIR=../mondo-${MONDO_VER}/mondo/docs/en
+	$TOOLHOME/expandver mondorescue-howto.sgml mondo*8
+	make -f Makefile.howto install INSTALLDIR=../mondo-${MONDO_VER}/docs/en
+	if [ $? != 0 ]; then
+		exit -1
+	fi
+	make -f Makefile.man install-mondo INSTALLDIR=../mondo-${MONDO_VER}/docs/man
 	if [ $? != 0 ]; then
 		exit -1
 	fi

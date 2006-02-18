@@ -1,0 +1,9 @@
+cat > /tmp/md.x << EOF
+*~
+*_berlios
+Makefile.in
+Makefile
+configure
+aclocal.m4
+EOF
+diff --exclude-from=/tmp/md.x -rNc ${HOME}/Work/bruno/mondo/svn ${HOME}/mondo/svn | less

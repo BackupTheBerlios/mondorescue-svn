@@ -1,0 +1,1 @@
+egrep -ri $* . | egrep -v '\.svn|~:' | less

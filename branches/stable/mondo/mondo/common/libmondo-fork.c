@@ -657,6 +657,7 @@ int feed_into_ntfsprog(char *input_device, char *output_fname)
 	sprintf(command, "ntfsclone --force --save-image --overwrite %s %s", output_fname, input_device);
 	res = run_program_and_log_output(command, 5);
 	paranoid_free(command);
+	unlink(output_fname);
 	return (res);
 }
 

@@ -78,6 +78,7 @@ case $build in
 	*linux*)
 		AC_CHECK_LIB(pthread, pthread_create, true, [echo "*** Cannot find -lpthread."; echo "*** Please make sure you have the linuxthreads glibc add-on installed."; exit 1])
 		PTHREAD="-lpthread"
+		CFLAGS="$CFLAGS -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_REENTRANT"
 		;;
 	*)
 		echo "*** Sorry, only Linux and FreeBSD are supported at this time. Want to help?"

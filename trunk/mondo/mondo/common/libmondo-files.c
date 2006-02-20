@@ -528,7 +528,7 @@ long long length_of_file(char *filename)
 		log_OS_error("Unable to openin filename");
 		return (-1);
 	}
-	fseek(fin, 0, SEEK_END);
+	fseeko(fin, 0, SEEK_END);
 	length = ftell(fin);
 	paranoid_fclose(fin);
 	return (length);

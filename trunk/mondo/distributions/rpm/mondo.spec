@@ -60,7 +60,7 @@ con cintas y NFS, tambien.
 
 %build
 %configure
-%{__make} VERSION=%{version} CFLAGS="-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_REENTRANT"
+%{__make} VERSION=%{version}
 
 %install
 %{__rm} -rf $RPM_BUILD_ROOT

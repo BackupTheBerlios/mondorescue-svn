@@ -61,7 +61,7 @@ svn export $optsvn ${VER}/documentation $LOCALDOC
 #
 # Version handling
 #
-$TOOLHOME/expandver $LOCALDIR/top.shtml $LOCALDOC/mondorescue-howto.sgml $LOCALDOC/*.8; do
+$TOOLHOME/expandver $LOCALDIR/top.shtml $LOCALDOC/mondorescue-howto.sgml $LOCALDOC/*.8
 
 cd $LOCALDOC
 make -f Makefile.howto

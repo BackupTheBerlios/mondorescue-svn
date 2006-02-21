@@ -16,16 +16,21 @@ MONDODIR=/mondo/www/html/mondo
 TESTDIR=/mondo/www/html/test
 
 force=0
+nodoc=0
 
 if [ "$1" = "-f" ]; then
 		force=1
 		optsvn=""
 		shift
+elif [ "$1" = "-nodoc" ]; then
+		nodoc=1
+		optsvn="--force"
+		shift
 else
 		optsvn="--force"
 fi
 
-/sbin/ifconfig | grep -q 10.3 2>&1 > /dev/null
+/sbin/ifconfig | egrep -q '10\.3' 2>&1 > /dev/null
 if [ $? = 0 ]; then
 	DESTMACH=mondo.hpintelco.org
 else
@@ -63,16 +68,18 @@ svn export $optsvn ${VER}/documentation $LOCALDOC
 #
 $TOOLHOME/expandver $LOCALDIR/top.shtml $LOCALDOC/mondorescue-howto.sgml $LOCALDOC/*.8
 
-cd $LOCALDOC
-make -f Makefile.howto
-make -f Makefile.man
-mv $LOCALDOC $LOCALDIR/docs
-#
-# Man pages corrections
-#
-perl -pi -e 's~/man8/~/docs/~g' $LOCALDIR/docs/*.8.html
-perl -pi -e 's~<A HREF[=./A-z0-9"]*/man1/[^<]*>([A-z0-9]*)</A>~$1~g' $LOCALDIR/docs/*.8.html
-perl -pi -e 's~/index.html~/index.shtml~' $LOCALDIR/docs/*.8.html 
+if [ $nodoc -eq 0 ]; then
+	cd $LOCALDOC
+	make -f Makefile.howto
+	make -f Makefile.man
+	mv $LOCALDOC $LOCALDIR/docs
+	#
+	# Man pages corrections
+	#
+	perl -pi -e 's~/man8/~/docs/~g' $LOCALDIR/docs/*.8.html
+	perl -pi -e 's~<A HREF[=./A-z0-9"]*/man1/[^<]*>([A-z0-9]*)</A>~$1~g' $LOCALDIR/docs/*.8.html
+	perl -pi -e 's~/index.html~/index.shtml~' $LOCALDIR/docs/*.8.html 
+fi
 find $LOCALDIR -type d | xargs chmod 755
 find $LOCALDIR -type f | xargs chmod 644
 

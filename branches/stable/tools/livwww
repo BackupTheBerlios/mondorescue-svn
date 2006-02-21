@@ -30,7 +30,7 @@ else
 		optsvn="--force"
 fi
 
-/sbin/ifconfig | grep -q 10.3 2>&1 > /dev/null
+/sbin/ifconfig | egrep -q '10\.3' 2>&1 > /dev/null
 if [ $? = 0 ]; then
 	DESTMACH=mondo.hpintelco.org
 else

@@ -1,0 +1,12 @@
+#!/bin/bash
+#
+# $Id$
+#
+# Script to expand version in docs, man pages, ...
+#
+ddd=`date '+%Y-%m-%d'`
+for d in $*; do
+    perl -pi -e "s~VVV-rRRR~${MONDO_VER}-r${REVISION}~g" $d
+    perl -pi -e "s~DDD~${ddd}~g" $d
+done
+

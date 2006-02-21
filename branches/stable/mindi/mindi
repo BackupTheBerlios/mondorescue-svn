@@ -2810,7 +2810,7 @@ TurnTgzIntoRdz() {
 		echo -en "$LAST_FILELIST_NUMBER" > $mountpoint/tmp/LAST-FILELIST-NUMBER
 		[ "$USE_LZO" = "yes" ] && echo -en "Pras 4 Pres 2004" >> $mountpoint/tmp/USING-LZO
 		[ "$USE_COMP" = "yes" ] && echo -en "Compression, yep" >> $mountpoint/tmp/USING-COMP
-	[ "$USE_STAR" = "yes" ] && echo =en "Using star. Hooray." >> $mountpoint/tmp/USING-STAR
+		[ "$USE_STAR" = "yes" ] && echo -en "Using star. Hooray." >> $mountpoint/tmp/USING-STAR
 	fi
 	mkdir -p $mountpoint/tmp
 	mkdir -p $mountpoint/proc

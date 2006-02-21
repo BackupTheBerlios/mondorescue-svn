@@ -11,6 +11,7 @@
 %define grp		GRP
 %define addreqb	mindi >= 1.05, bzip2 >= 0.9, afio, mkisofs, binutils, newt >= 0.50, slang >= 1.4.1
 %define addreq	DDD
+%define rel		%{mrel}
 
 Summary:	A program which a Linux user can utilize to create a rescue/restore CD/tape
 Summary(fr):	Un programme pour les utilisateurs de Linux pour crï¿½r un CD/tape de sauvegarde/restauration
@@ -19,7 +20,7 @@ Summary(sp):	Un programa para los usuarios de Linux por crear una CD/cinta de re
 
 Name:		%{name}
 Version:	%{version}
-Release:	%{mrel}
+Release:	%{rel}
 License:	GPL
 Group:		%{grp}
 Url:		http://mondorescue.berlios.de
@@ -33,12 +34,17 @@ Requires:	%{addreq}, syslinux >= 1.52
 %endif
 
 %description
-Mondo is a GPL disaster recovery solution to create backup media (CD, DVD, tape, network images) that can be used to redeploy the damaged system, as well as deploy similar or less similar systems.
+Mondo is a GPL disaster recovery solution to create backup media 
+(CD, DVD, tape, network images) that can be used to redeploy the 
+damaged system, as well as deploy similar or less similar systems.
 
 %description -l fr
 Objectif
 """"""""
-Mondo est une solution GPL de sauvegarde en cas de désastre pour créer des médias (CD, DVD, bande, images réseau) qui peuvent être utilisés pour redéployer le système endomangé, aussi bien que des systèmes similaires, ou moins similaires.
+Mondo est une solution GPL de sauvegarde en cas de désastre pour 
+créer des médias (CD, DVD, bande, images réseau) qui peuvent être 
+utilisés pour redéployer le système endomangé, aussi bien que des 
+systèmes similaires, ou moins similaires.
 
 %description -l it
 Scopo
@@ -55,7 +61,6 @@ Mondo es un programa que permite cualquier usuario de Linux a crear una CD
 de restoracion/rescate (o CDs, si su instalacion es >2GO aprox.).  Funciona 
 con cintas y NFS, tambien.
 
-%debug_package
 %prep
 %setup -q -n %name-%{version}
 
@@ -67,13 +72,6 @@ con cintas y NFS, tambien.
 %{__rm} -rf $RPM_BUILD_ROOT
 %makeinstall
 
-%post
-/sbin/ldconfig
-%{__chmod} 755 %{_libdir}/%{name}/restore-scripts/%{name}/*
-
-%postun
-/sbin/ldconfig
-
 %clean
 %{__rm} -rf $RPM_BUILD_ROOT
 
@@ -84,9 +82,11 @@ con cintas y NFS, tambien.
 %doc docs/en/mondorescue-howto.html docs/en/mondorescue-howto.pdf
 
 %attr(755,root,root) %{_sbindir}/*
-#%attr(755,root,root) %{_libdir}/%{name}/restore-scripts/%{name}/*
-%{_libdir}
-%{_mandir}
+%attr(755,root,root) %{_libdir}/%{name}/restore-scripts/%{name}/*
+%attr(755,root,root) %{_libdir}/%{name}/autorun
+%attr(755,root,root) %{_libdir}/%{name}/post-nuke.sample/usr/bin/post-nuke
+%{_libdir}/*
+%{_mandir}/man8/*
 
 %changelog
 * Fri Feb 17 2006 Bruno Cornec <bcornec@users.berlios.de> 2.0.7

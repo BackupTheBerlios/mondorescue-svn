@@ -28,7 +28,9 @@ if [ "`echo $c | grep mindi-kernel`" != "" ]; then
 	cd ${BASE}/svn
 	mkdir -p ${TOPDIR}/SOURCES 
 	$TOOLHOME/mkspec ${MINDI_VER} mindi-kernel-${MINDI_VER}/mindi-kernel.spec > ${TOPDIR}/SPECS/mindi-kernel.spec
-	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mindi-kernel-${MINDI_VER}-${REVISION}${suf}.${ARCH}.rpm"
+	pkg1="${TOPDIR}/RPMS/${ARCH}/mindi-kernel-${MINDI_VER}-${REVISION}${suf}.${ARCH}.rpm"
+	pkg="$pkg $pkg1"
+	rm -f $pkg1
 fi
 if [ "`echo $c | grep -v kernel | grep mindi`" != "" ]; then
 	cd ${BASE}/svn
@@ -36,7 +38,9 @@ if [ "`echo $c | grep -v kernel | grep mindi`" != "" ]; then
 	rm -rf mindi-${MINDI_VER}/distributions
 	mkdir -p ${TOPDIR}/SOURCES 
 
-	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mindi-${MINDI_VER}-${REVISION}${suf}.${ARCH}.rpm"
+	pkg1="${TOPDIR}/RPMS/${ARCH}/mindi-${MINDI_VER}-${REVISION}${suf}.${ARCH}.rpm"
+	pkg="$pkg $pkg1"
+	rm -f $pkg1
 	# ATTENTION: This could be dangerous for your setup
 	opt="rm -rf /usr/lib/mindi ;"
 fi
@@ -45,7 +49,9 @@ if [ "`echo $c | grep  mondo`" != "" ]; then
 	$TOOLHOME/mkspec ${MONDO_VER} mondo-${MONDO_VER}/distributions/rpm/mondo.spec > ${TOPDIR}/SPECS/mondo.spec
 	rm -rf mondo-${MONDO_VER}/distributions
 
-	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mondo-${MONDO_VER}-${REVISION}${suf}.${ARCH}.rpm"
+	pkg1="${TOPDIR}/RPMS/${ARCH}/mondo-${MONDO_VER}-${REVISION}${suf}.${ARCH}.rpm"
+	pkg="$pkg $pkg1"
+	rm -f $pkg1
 fi
 
 cd ${TOPDIR}/SPECS

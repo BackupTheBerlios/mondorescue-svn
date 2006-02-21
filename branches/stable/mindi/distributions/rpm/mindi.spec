@@ -8,14 +8,7 @@
 %define grp		GRP
 %define addreqb	bzip2 >= 0.9, mkisofs, ncurses, binutils, gawk, dosfstools
 %define addreq	DDD
-
-# if mandriva official build (rpm --with is_official)
-%{?is_official:%define rel %{mkrel} %{mrel}}%{!?is_official:%define rel %{mrel}}
-
-# define the mkrel macro if it is not already defined if mandriva offical build
-%if is_official
-%{?!mkrel:%define mkrel(c:) %{-c:0.%{-c*}.}%{!?_with_unstable:%(perl -e '$_="%{1}";m/(.\*)(\\d+)$/;$rel=${2}-1;re;print "$1$rel";').%{?subrel:%subrel}%{!?subrel:1}.%{?distversion:%distversion}%{?!distversion:%(echo $[%{mdkversion}/10])}}%{?_with_unstable:%{1}}%{?distsuffix:%distsuffix}%{?!distsuffix:mdk}}
-%endif
+%define rel		%{mrel}
 
 Summary:	Mindi creates emergency boot disks/CDs using your kernel, tools and modules
 Name:		%name
@@ -36,7 +29,6 @@ bootable disks (or 1 bootable CD image). You may then boot from the disks/CD
 and do system maintenance - e.g. format partitions, backup/restore data,
 verify packages, etc.
 
-%debug_package
 %prep
 %{__rm}  -rf $RPM_BUILD_ROOT
 %setup -n %name-%{version}
@@ -61,11 +53,6 @@ export RPMBUILDMINDI="true"
 %{__rm} -rf $RPM_BUILD_ROOT
 
 %post
-for i in %{_libdir}/mindi/aux-tools/sbin/* %{_libdir}/mindi/rootfs/bin/* %{_libdir}/mindi/rootfs/sbin/* ; do
-	if [ ! -h $i ]; then
-		%{__chmod} 755 $i
-	fi
-done
 if [ -f /usr/local/sbin/mindi ]; then
 	echo "WARNING: /usr/local/sbin/mindi exists. You should probably remove your manual mindi installation !"
 fi
@@ -74,9 +61,12 @@ fi
 %defattr(644,root,root,755)
 %config(noreplace) %{_sysconfdir}/mindi/deplist.txt
 %doc ChangeLog INSTALL COPYING README TODO README.ia64 README.pxe README.busybox svn.log
-%{_mandir}
+%{_mandir}/man8/*
 %{_libdir}/mindi
 %attr(755,root,root) %{_sbindir}/*
+%attr(755,root,root) %{_libdir}/mindi/aux-tools/sbin/*
+%attr(755,root,root) %{_libdir}/mindi/rootfs/bin/*
+%attr(755,root,root) %{_libdir}/mindi/rootfs/sbin/*
 
 %changelog
 * Fri Feb 16 2006 Bruno Cornec <bcornec@users.berlios.de> 1.0.7

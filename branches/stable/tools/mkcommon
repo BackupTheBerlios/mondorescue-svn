@@ -54,8 +54,6 @@ if [ "`echo $c | grep  mondo`" != "" ]; then
 	rm -rf mondo-${MONDO_VER}
 	svn export ${VER}/mondo mondo-${MONDO_VER}
 	cp -a /tmp/mondorescue-svn.log mondo-${MONDO_VER}/svn.log
-	mkdir -p mondo-${MONDO_VER}/docs/man
-	cp -a ${VER}/documentation/mondo*.8 mondo-${MONDO_VER}/docs/man
 	echo "$REVISION" > mondo-${MONDO_VER}/REVISION
 	rm -rf documentation-${MONDO_VER}
 	svn export ${VER}/documentation documentation-${MONDO_VER}

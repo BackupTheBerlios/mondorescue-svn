@@ -351,7 +351,7 @@ else { print $0;};}' $file.old  > $file ; fi ; done");
 int find_and_store_mondoarchives_home(char *home_sz)
 {
 	assert(home_sz != NULL);
-	strcpy(home_sz, MONDO_LIB);
+	strcpy(home_sz, MONDO_SHARE);
 	return (0);
 }
 

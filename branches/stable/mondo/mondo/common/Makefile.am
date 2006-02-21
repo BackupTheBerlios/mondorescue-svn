@@ -1,7 +1,7 @@
 ##
 ## Process this file with Automake to generate `Makefile.in'
 ##
-AM_CPPFLAGS = -DMONDO_LIB=\"$(pkglibdir)\"
+AM_CPPFLAGS = -DMONDO_SHARE=\"$(pkgdatadir)\"
 
 ## libmondo
 noinst_LIBRARIES = libmondo.a

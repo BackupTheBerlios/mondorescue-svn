@@ -28,6 +28,7 @@ if [ "`echo $c | grep mindi-kernel`" != "" ]; then
 	cd ${BASE}/svn
 	mkdir -p ${TOPDIR}/SOURCES 
 	$TOOLHOME/mkspec ${MINDI_VER} mindi-kernel-${MINDI_VER}/mindi-kernel.spec > ${TOPDIR}/SPECS/mindi-kernel.spec
+	chmod 644 ${TOPDIR}/SPECS/mindi-kernel.spec
 	pkg1="${TOPDIR}/RPMS/${ARCH}/mindi-kernel-${MINDI_VER}-${REVISION}${suf}.${ARCH}.rpm"
 	pkg="$pkg $pkg1"
 	rm -f $pkg1
@@ -35,6 +36,8 @@ fi
 if [ "`echo $c | grep -v kernel | grep mindi`" != "" ]; then
 	cd ${BASE}/svn
 	$TOOLHOME/mkspec ${MINDI_VER} mindi-${MINDI_VER}/distributions/rpm/mindi.spec > ${TOPDIR}/SPECS/mindi.spec
+	cat mindi-${MINDI_VER}/distributions/$dfam/changelog >> ${TOPDIR}/SPECS/mindi.spec
+	chmod 644 ${TOPDIR}/SPECS/mindi.spec
 	rm -rf mindi-${MINDI_VER}/distributions
 	mkdir -p ${TOPDIR}/SOURCES 
 
@@ -47,6 +50,8 @@ fi
 if [ "`echo $c | grep  mondo`" != "" ]; then
 	cd ${BASE}/svn
 	$TOOLHOME/mkspec ${MONDO_VER} mondo-${MONDO_VER}/distributions/rpm/mondo.spec > ${TOPDIR}/SPECS/mondo.spec
+	cat mondo-${MONDO_VER}/distributions/$dfam/changelog >> ${TOPDIR}/SPECS/mondo.spec
+	chmod 644 ${TOPDIR}/SPECS/mondo.spec
 	rm -rf mondo-${MONDO_VER}/distributions
 
 	pkg1="${TOPDIR}/RPMS/${ARCH}/mondo-${MONDO_VER}-${REVISION}${suf}.${ARCH}.rpm"

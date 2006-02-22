@@ -71,7 +71,6 @@ extern int restore_to_live_filesystem(struct s_bkpinfo *);
 extern void swap_mountlist_entries(struct mountlist_itself *, int, int);
 extern void sort_mountlist_by_mountpoint(struct mountlist_itself *, bool);
 extern void sort_mountlist_by_device(struct mountlist_itself *);
-extern void success_message(void);
 extern void twenty_seconds_til_yikes(void);
 extern int run_raw_mbr(bool offer_to_hack_scripts, char *bd);
 extern int save_mountlist_to_disk(struct mountlist_itself *, char *);

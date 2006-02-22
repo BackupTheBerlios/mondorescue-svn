@@ -26,7 +26,6 @@ void streamline_changes_file(char *, char *);
 void set_signals(int on);
 void setup_global_filenames(struct s_bkpinfo *bkpinfo);
 //void setup_signals(int);
-void success_message(void);
 void twenty_seconds_til_yikes(void);
 int run_raw_mbr(bool offer_to_hack_scripts, char *bd);
 void terminate_daemon(int);

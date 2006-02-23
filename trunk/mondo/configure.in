@@ -20,10 +20,10 @@ AC_ARG_PROGRAM
 AM_INIT_AUTOMAKE([mondo], MONDO_VER)
 AM_MAINTAINER_MODE
 
-AM_PROG_LIBTOOL
 AC_PROG_CXX
 AC_PROG_AWK
 AC_PROG_CC
+AC_PROG_RANLIB
 AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
@@ -48,7 +48,7 @@ AC_DEFINE_UNQUOTED(EXTTAPE, $exttape, [Tape blocksize])
 # ( which automake 2>/dev/null >/dev/null && ( automake --version 2>&1 | grep -q 1.5 || automake --version 2>&1 | grep -q 1.7 || AC_MSG_ERROR([Automake must be version 1.5 or 1.7, if you have it at all]) ) )
 
 # Checks for libraries.
-AC_CHECK_LIB([dl], [main])
+dnl AC_CHECK_LIB([dl], [main])
 AC_CHECK_LIB([newt], [newtInit])
 standardthread=0;
 
@@ -103,8 +103,6 @@ AC_SUBST(ARCH)
 
 LIBS="$LIBS $PTHREAD"
 AC_SUBST(LIBS)
-
-dnl AC_FIND_BZIP2
 
 # Checks for header files.
 AC_HEADER_STDC

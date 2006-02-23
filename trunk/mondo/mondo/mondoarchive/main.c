@@ -170,8 +170,8 @@ int main(int argc, char *argv[])
 /* Add the ARCH environment variable for ia64 purposes */
 	setenv("ARCH", get_architecture(), 1);
 
-	/* Add MONDO_LIB environment variable for mindi */
-	setenv_mondo_lib();
+	/* Add MONDO_SHARE environment variable for mindi */
+	setenv_mondo_share();
 
 	unlink(MONDO_LOGFILE);
 

@@ -394,7 +394,6 @@ extern void _mondo_assert_fail(const char *file, const char *function,
 #define MNT_CDROM "/mnt/cdrom"
 #define MNT_FLOPPY "/mnt/floppy"
 
-#define FREELOADER				// You're not a paying customer
 #define DEFAULT_MR_LOGLEVEL 4
 
 #endif							/* _MY_STUFF_H_ */

@@ -627,7 +627,7 @@ FindHomeOfMindiAndMondo() {
 	echo "MINDI_SBIN = $MINDI_SBIN" >> $LOGFILE
 	[ "$MINDI_CONF" = "YYY" ] && Die "Mindi has not been installed correctly."
 	echo "MINDI_CONF = $MINDI_CONF" >> $LOGFILE
-	echo "MONDO_LIB = $MONDO_LIB" >> $LOGFILE
+	echo "MONDO_SHARE = $MONDO_SHARE" >> $LOGFILE
 	mkdir -p $CACHE_LOC
 }
 
@@ -1612,7 +1612,7 @@ OfferToMakeBootableISO() {
 	if [ "$ARCH" != "ia64" ] ; then
 		cp -f $TMP_ROOT/iso/isolinux/{isolinux.cfg,initrd.img,vmlinuz,isolinux.bin,message.txt} $MONDO_ROOT || Die "Cannot copy core files to ramdisk for boot disk. Did you run out of disk space?"
 	fi
-	[ "$MONDO_LIB" ] && cp -f $MONDO_LIB/autorun .   
+	[ "$MONDO_SHARE" ] && cp -f $MONDO_SHARE/autorun .   
 	if [ -d "/home/MondoCD" ] ; then
 	cp -pRdu /home/MondoCD/* .
 	fi
@@ -2195,9 +2195,9 @@ PrepareDataDiskImages() {
 	if [ -e "$MINDI_LIB/x11-tools.tgz" ] ; then
 	tar -zxf $MINDI_LIB/x11-tools.tgz 2>> $LOGFILE || LogIt "Warning - error occurred while unzipping x11-tools.tgz\n"
 	fi
-	if [ -e "$MONDO_LIB/restore-scripts" ] ; then
-		cp -Rdf $MONDO_LIB/restore-scripts/* . 2>> $LOGFILE
-		[ "$?" -ne "0" ] && [ "`DidMondoCallMe`" ] && Die "Cannot find/install $MONDO_LIB/restore-scripts"
+	if [ -e "$MONDO_SHARE/restore-scripts" ] ; then
+		cp -Rdf $MONDO_SHARE/restore-scripts/* . 2>> $LOGFILE
+		[ "$?" -ne "0" ] && [ "`DidMondoCallMe`" ] && Die "Cannot find/install $MONDO_SHARE/restore-scripts"
 	fi
 	[ -d "/lib/dev-state" ] && cp --parents -pRdf /lib/dev-state .
 	cd $old_pwd
@@ -2810,7 +2810,7 @@ TurnTgzIntoRdz() {
 		echo -en "$LAST_FILELIST_NUMBER" > $mountpoint/tmp/LAST-FILELIST-NUMBER
 		[ "$USE_LZO" = "yes" ] && echo -en "Pras 4 Pres 2004" >> $mountpoint/tmp/USING-LZO
 		[ "$USE_COMP" = "yes" ] && echo -en "Compression, yep" >> $mountpoint/tmp/USING-COMP
-	[ "$USE_STAR" = "yes" ] && echo =en "Using star. Hooray." >> $mountpoint/tmp/USING-STAR
+		[ "$USE_STAR" = "yes" ] && echo -en "Using star. Hooray." >> $mountpoint/tmp/USING-STAR
 	fi
 	mkdir -p $mountpoint/tmp
 	mkdir -p $mountpoint/proc

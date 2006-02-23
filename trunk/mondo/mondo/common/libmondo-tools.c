@@ -189,7 +189,7 @@ char *find_and_store_mondoarchives_home()
 {
 	char *home_sz = NULL;
 
-	asprintf(&home_sz, MONDO_LIB);
+	asprintf(&home_sz, MONDO_SHARE);
 	return (home_sz);
 }
 

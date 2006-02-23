@@ -1,35 +1,26 @@
 ##
 ## Process this file with Automake to generate `Makefile.in'
 ##
+AM_CPPFLAGS = -DMONDO_SHARE=\"$(pkgdatadir)\"
 
-AM_CPPFLAGS = -DMONDO_LIB=\"$(pkglibdir)\"
-## Headers
+## libmondo
+noinst_LIBRARIES = libmondo.a
 
-noinst_HEADERS       = libmondo-archive.h libmondo-devices.h \
+libmondo_a_SOURCES  = libmondo-archive.c libmondo-devices.c libmondo-fifo.c \
+                       libmondo-filelist.c libmondo-files.c libmondo-fork.c \
+                       libmondo-mountlist.c libmondo-raid.c \
+                       libmondo-stream.c libmondo-string.c libmondo-tools.c \
+                       libmondo-verify.c newt-specific.c \
+					   libmondo-archive.h libmondo-devices.h \
                        libmondo-filelist.h libmondo-files.h libmondo-fork.h \
                        libmondo-gui.h libmondo-mountlist.h libmondo-raid.h \
                        libmondo-stream.h libmondo-string.h libmondo-tools.h \
                        libmondo-verify.h libmondo-fifo.h \
                        libmondo-archive-EXT.h my-stuff.h mondostructures.h \
-                       libmondo-devices-EXT.h libmondo-fifo-EXT.h libmondo-filelist-EXT.h \
-                       libmondo-files-EXT.h libmondo-fork-EXT.h libmondo-gui-EXT.h \
-                       libmondo-mountlist-EXT.h libmondo-raid-EXT.h libmondo-stream-EXT.h \
-                       libmondo-string-EXT.h libmondo-tools-EXT.h libmondo-verify-EXT.h \
+                       libmondo-devices-EXT.h libmondo-fifo-EXT.h \
+                       libmondo-files-EXT.h libmondo-fork-EXT.h \
+					   libmondo-gui-EXT.h libmondo-filelist-EXT.h \
+                       libmondo-mountlist-EXT.h libmondo-raid-EXT.h  \
+                       libmondo-string-EXT.h libmondo-tools-EXT.h \
+					   libmondo-verify-EXT.h  libmondo-stream-EXT.h \
                        newt-specific.h
-
-## Libraries
-lib_LTLIBRARIES      = libmondo.la libmondo-newt.la
-
-## libmondo
-libmondo_la_SOURCES  = libmondo-archive.c libmondo-devices.c libmondo-fifo.c \
-                       libmondo-filelist.c libmondo-files.c libmondo-fork.c \
-                       libmondo-mountlist.c libmondo-raid.c \
-                       libmondo-stream.c libmondo-string.c libmondo-tools.c \
-                       libmondo-verify.c
-libmondo_la_LDFLAGS  = -version-info 2:3:0 -shrext .so
-libmondo_la_LIBADD   = @LIBS@
-
-## libmondo-newt
-libmondo_newt_la_SOURCES = newt-specific.c
-libmondo_newt_la_LDFLAGS = -version-info 1:0:0 -shrext .so
-libmondo_newt_la_LIBADD  = -lnewt

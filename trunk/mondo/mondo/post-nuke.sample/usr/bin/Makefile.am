@@ -1,2 +1,2 @@
-postnukeusrbindir      = $(pkglibdir)/post-nuke.sample/usr/bin
+postnukeusrbindir      = $(pkgdatadir)/post-nuke.sample/usr/bin
 postnukeusrbin_SCRIPTS = post-nuke

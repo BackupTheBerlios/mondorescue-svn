@@ -391,7 +391,6 @@
 #include <pthread.h>
 #endif
 
-extern void success_message(void);
 extern void twenty_seconds_til_yikes(void);
 
 
@@ -1225,13 +1224,16 @@ nuke_mode(struct s_bkpinfo *bkpinfo,
 		log_to_screen
 			("PC was restored successfully. Thank you for using Mondo Rescue.");
 		log_to_screen
-			("Please visit http://www.mondorescue.org and thank the dev team.");
+			("Please visit our website at http://www.mondorescue.org for more information.");
 	} else {
-#ifdef FREELOADER
-		success_message();
-#else
-		log_to_screen("PC was restored successfully!");
-#endif
+		strcpy(tmp," Mondo has restored your system. Please remove the backup media and reboot.\n\nPlease visit our website at http://www.mondorescue.org for more information.");
+		if (strstr(call_program_and_get_last_line_of_output("cat /proc/cmdline"), "restore") == NULL) {
+			popup_and_OK(tmp);
+		}
+		log_to_screen
+			("Mondo has restored your system. Please remove the backup media and reboot.");
+		log_to_screen
+			("Please visit our website at http://www.mondorescue.org for more information.");
 	}
 	g_I_have_just_nuked = TRUE;
 /*

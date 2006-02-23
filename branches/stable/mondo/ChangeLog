@@ -2,7 +2,7 @@
 
 MONDO CHANGES
 
-v2.07 ()
+v2.07 (2006-02-23)
 - useless cat, sort|uniq commands removed 
   (Bruno Cornec/Sébastien Aperghis-Tramoni)
 - Doc cleanup (Andree Leidenfrost)
@@ -14,6 +14,16 @@ v2.07 ()
 - Replaced partimagehack with ntfsclone from ntfsprogs package.
   (Andree Leidenfrost)
 - use df -P everywhere (Bruno Cornec)
+- Paypal incitations removed (Andree Leidenfrost)
+- mondo now uses /usr/share for the restore-scripts (Bruno Cornec)
+- rpmlint cleanups (Bruno Cornec)
+- no shared librairies and no X11 anymore (were useless) (Bruno Cornec)
+- files > 2GB are now really supported (Andree Leidenfrost)
+- new SGML based Mondo Rescue documentation + new Web site 
+  (Bruno Cornec/Andree Leidenfrost)
+- mondoarchive aborts when 'mindi --findkernel' gives a fatal error (See also Debian bug #352323.) (Andree Leidenfrost)
+- /tmp not excluded anymore from backup (Bruno Cornec)
+- New RPM Build environement (Bruno Cornec)
 
 v2.06 (2005-12-23)
 - better error handling of failed commands/mindi (Andree Leidenfrost)

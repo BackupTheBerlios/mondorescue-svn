@@ -2,7 +2,7 @@
 
 MINDI CHANGES
 
-1.07 ()
+1.07 (2006-02-23)
 - stop creating further size of floppy disks if the smaller one succeeds 
   (Bruno Cornec)
 - init revamped (removed unnecessary second general module loading phase,
@@ -15,6 +15,25 @@ MINDI CHANGES
 - Doc cleanup (Andree Leidenfrost)
 - Bug fix for chown in install.sh (JeffS)
 - CHANGES renamed also in install.sh now (Bruno Cornec)
+- rpmlint cleanups
+- Get mindi to look for analyze-my-lvm in it's library directory MINDI_LIB (See also Debian bug #351446.)
+- mindi only deletes freshly created 1440kb images in case of error (See also Debian Bug #348966.)
+  (Andree Leidenfrost)
+- try standard grub-install in grub-MR restore script before trying anything fancy
+  (Andree Leidenfrost)
+- busybox mount should be called with -o ro for PXE (Make RHEL 3 works in PXE
+with a 2.6 failsafe kernel now available)
+  (Bruno Cornec)
+- Fix mindi for 2.6 Failsafe support
+  (Bruno Cornec)
+- mindi now depends on grep >= 2.5 (for -m option)
+  (Marco Puggelli/Bruno Cornec)
+- Fix a bug in LVM context for RHEL4 in GetValueFromField
+  (Rémi Bondoin/Bruno Cornec)
+- New RPM Build environement (Bruno Cornec)
+- mindi now supports x86_64 natively (Bruno Cornec)
+- stop creating further size of floppy disks if the smaller one succeeds
+  (Bruno Cornec)
 
 1.06 (2005-12-23)
 - mindi manpage added (Andree Leidenfrost)

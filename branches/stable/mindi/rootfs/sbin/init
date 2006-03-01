@@ -347,6 +347,12 @@ HowMuchFreeSpaceOnRamdisk() {
 
 
 InsertEssentialModules() {
+#   Load the VIA IDE module first thing if it exists (requires ide-core).
+#   This is to ensure that DMA is working for VIA chipsets with 2.6 kernels.
+    for module in /ide-core.ko /via82cxxx.ko; do
+        [ -f "$module" ] && MyInsmod $module > /dev/null 2> /dev/null
+    done
+#   Then load the remaining modules in normal (i.e. arbitrary) order.
     for j in 1 2 3 4 5 ; do
         for i in `ls /*.*o* 2> /dev/null` ; do
             [ -f "$i" ] && MyInsmod $i > /dev/null 2> /dev/null

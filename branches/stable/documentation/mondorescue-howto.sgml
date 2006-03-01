@@ -888,6 +888,8 @@ disk)</para>
 <listitem>
 <para>If the backup media is CD-RW then you need SCSI emulation
 also</para>
+<para>vfat support in the active kernel - mindi needs this when creating
+syslinux boot floppies</para>
 </listitem>
 </itemizedlist>
 <para>Please note that the stock kernels of Red Hat/RHEL/Fedora,

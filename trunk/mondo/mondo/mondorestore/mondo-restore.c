@@ -1633,7 +1633,7 @@ restore_a_biggiefile_from_CD(struct s_bkpinfo *bkpinfo,
 	if (use_ntfsprog_hack) {
 		log_msg(3, "Waiting for ntfsclone to finish");
 		sprintf(tmp,
-				" ps ax | grep \" ntfsclone \" | grep -v grep > /dev/null 2> /dev/null");
+				" ps | grep \" ntfsclone \" | grep -v grep > /dev/null 2> /dev/null");
 		while (system(tmp) == 0) {
 			sleep(1);
 		}
@@ -1886,7 +1886,7 @@ int restore_a_biggiefile_from_stream(struct s_bkpinfo *bkpinfo, char *orig_bf_fn
 	if (use_ntfsprog_hack) {
 		log_msg(3, "Waiting for ntfsclone to finish");
 		sprintf(tmp,
-				" ps ax | grep \" ntfsclone \" | grep -v grep > /dev/null 2> /dev/null");
+				" ps | grep \" ntfsclone \" | grep -v grep > /dev/null 2> /dev/null");
 		while (system(tmp) == 0) {
 			sleep(1);
 		}

@@ -2140,7 +2140,11 @@ distro. What do I do?</para></question>
 I can find, have included cramfs and other 'goodies' with their
 kernel. In the meantime, please use '-k FAILSAFE' in your command
 line when calling Mondo.</para>
-<para>A: Upgrade to Sarge as it's fairly well supported by Andree Leidenfrost</para>
+<para>A: From Sarge onwards, all stock Debian 2.6 kernels should work fine. If
+you are still using stock Debian 2.4 kernels, FAILSAFE is the way to go.
+Of course, if you have compiled your own kernel and experience problems,
+FAILSAFE is the way to go as well, but this is not really
+Debian-specific.</para>
 </answer>
 </qandaentry>
 <qandaentry>

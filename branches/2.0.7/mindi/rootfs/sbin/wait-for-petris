@@ -1,0 +1,37 @@
+#!/bin/sh
+#
+# Startup Petris
+#
+
+# Say what we are doing
+echo -n "Waiting for petris"
+# Get the right linker for architecture
+arch=`uname -m`
+case $arch in
+  'ia64')
+    linker="/lib/ld-linux-ia64.so.2" ;;
+  'x86_64')
+    linker="/lib/ld-linux-x86-64.so.2" ;;
+  *)
+    # we only run on the above two and IA32, so this must be it
+    linker="/lib/ld-linux.so.2" ;;
+esac
+# First wait for the libraries to become available...
+while   [ ! -f /lib/libncurses.so.5 -o ! -f /lib/libc.so.6 -o ! -f "$linker" ] ; do
+  echo -n "."
+  sleep 1
+done
+# ...then wait for petris
+which petris > /dev/null
+while [ $? -ne 0 ] ; do
+  echo -n "."
+  sleep 1
+  which petris > /dev/null
+done
+# Keep running petris until it's killed or crashes
+while [ $? -eq 0 ] ; do
+    clear
+    sleep 1
+    petris
+done
+exit 0

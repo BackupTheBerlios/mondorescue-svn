@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" xml:lang="en" lang="en">
+  <head>
+<!--#include virtual="/head.shtml" -->
+  </head>
+  <body>
+		  <!--#set var="curpage" value="support.shtml" -->
+<!--#include virtual="/top.shtml" -->
+<h1>Support around Mondo Rescue</h1>
+
+    <div class="h2-1">
+      <h2>Help yourself</h2>
+    </div>
+	<p>First, when you have an issue, please try to read the various log files that Mondo Rescue produces. 99% of the time, the error is described in it in clear text. Those file are:
+	<ul>
+			<li><tt>/var/log/mondo-archive.log</tt></li>
+			<li><tt>/var/log/mindi.log</tt></li>
+			<li><tt>/var/log/mondo-restore.log</tt></li>
+	</ul></p>
+	<p>Second look at the <a href="/docs.shtml">Mondo Rescue documentation</a> and the extensive FAQ section of the Mondo Rescue HOWTO, as a lot of good tip and tricks are provided there.</p>
+	<p>Third look at the <a href="http://openfacts.berlios.de/index-en.phtml?title=mondorescue">Mondo Rescue wiki</a> which may contain additional comments,and feel free to contribute by adding your remarks.</p>
+	<p>Fourth look at the <a href="http://sourceforge.net/mailarchive/forum.php?forum_id=5086">Mondo Rescue Mailing List Archives</a> as you're probably not the first with this problem.</p>
+	<p>Finally post on the <a href="mailto:mondo-devel_at_lists.sourceforge.net">Mondo Rescue Mailing List</a> if you did not find what you were looking for, as there are more than 400 users there who could help you, including dev team members. <b>But</b>, they can only help you if your provide at least the above mentionned <b>2 first log files</b>.</p>
+	<p>If your think you found a bug in Mondo Rescue, please <a href="https://developer.berlios.de/bugs/?group_id=2524">fill a bug report</a> and also include the log files.</p>
+	<p>Likely, if you wish Mondo Rescue had your dreamed new shiny function, feel free to create an <a href="https://developer.berlios.de/feature/?group_id=2524">feature request</a>.</p>
+    <div class="h2-3">
+			<h2>Mondo Rescue Mailing Lists</h2>
+    </div>
+	<p>There are 4 mailing lists for the Mondo Rescue Community:</p>
+	<ul>
+			<li>The <a href="https://lists.berlios.de/mailman/listinfo/mondorescue-announce">Mondo Rescue Announce Mailing List</a> with low traffic dedicated to annoucements around Mondo Rescue.</li>
+			<li>The <a href="https://lists.berlios.de/mailman/listinfo/mondorescue-ia64">Mondo Rescue Itanium (aka ia64) Mailing List</a> with moderate traffic dedicated to discussions around Mondo Rescue port on the Intel Itanium processor based systems.</li>
+			<li>The <a href="http://lists.sourceforge.net/mailman/listinfo/mondo-devel">Mondo Rescue Mailing List</a> with most of the traffic dedicated to discussions around Mondo Rescue.</li>
+			<li>The <a href="https://lists.berlios.de/mailman/listinfo/mondorescue-devel">Mondo Rescue Developpers Mailing List</a> with moderate traffic dedicated to discussions between Mondo Rescue developpers.</li>
+	</ul>
+    <div class="h2-5">
+			<h2>Professional support services</h2>
+    </div>
+	<p>For commercial support contracts for Mondo Rescue please contact one of the following companies:
+	<ul>
+			<li><b><a href="http://www.linagora.com/en">Linagora</a></b> - Contact: <a href="mailto:support_at_linagora.com">Support Service</a></li>
+	</ul></p>
+	<p>For commercial enhancement and consulting services around Mondo Rescue,
+	please contact one of the following companies:
+	<ul>
+			<li><b><a href="http://www.hp.com/linux">Hewlett-Packard</a></b> - Contact: <a href="mailto:pingouin_at_hp.com">Free, Libre and Open Source Expertise Center</a></li>
+			<li><b><a href="http://www.harmsconsulting.com/main.html">Harms Consulting</a></b> - Contact: <a href="mailto:info_at_harmsconsulting.com">Consulting Department</a></li>
+	</ul></p>
+<!--#include virtual="/bottom.shtml" -->
+    
+  </body>
+</html>

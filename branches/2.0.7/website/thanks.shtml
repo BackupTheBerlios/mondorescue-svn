@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" xml:lang="en" lang="en">
+  <head>
+<!--#include virtual="/head.shtml" -->
+  </head>
+  <body>
+		  <!--#set var="curpage" value="thanks.shtml" -->
+<!--#include virtual="/top.shtml" -->
+<h1>Thanks !</h1>
+
+<p>A lot of people have helped the Mondo Rescue project during time. You really deserve that "Thank you" page.</p>
+<p>If you're not listed here and you think you should be, please contact <a href="mailto:mondo_at_mondorescue.org">us</a> and don't be embarrassed about it: if you have contributed, your name should be here.</p>
+
+    <div class="h2-1">
+      <h2>Original dev team</h2>
+    </div>
+	<p>Without Hugo and these people, you won't have any project today :</p>
+	<ul>
+			<li>Hugo Rabson,</li>
+			<li>Jesse Keating,</li>
+			<li>Stan Benoit,</li>
+			<li>Mikael Hultgren,</li>
+			<li>H&eacute;ctor Garc&iacute;a &Aacute;lvarez,</li>
+			<li>Josh Oreman,</li>
+			<li>Michael Clark,</li>
+			<li>Scott Godin.</li>
+	</ul>
+    <div class="h2-5">
+      <h2>Sponsors</h2>
+    </div>
+	<p>These people helped financially the development of Mondo Rescue:</p> 
+	<p>
+	
+	Charles Acker, Tim Allen, Poe Chen (Flometrics), Cube Consulting Technology Group, Ali-Reza Anghaie, 
+	Ugo Bellavance, John Blauveltt, Joe Baker, R. E. Baker, Stan Benoit, Fred Beondo, Bryan Bilyeu, J.R. Black, Perry Blalock, Michael Bockelie, Thomas Boilard, Dmitri Bosiers, Matthew Brett, Jocelyn Brouillard, Christopher Bryant, Benedikt Carda, Bruce Carlson, Bill Catlan, 
+	Paul Cheshire, JT Chiodi, Matthew Cline, Michael Cocke, William Codington, Herve Collin, Bob Collins, Anthony A. Cooke, Joe Cooper, Joop Cousteau, Sam Cramer, Lachlan Cranswick, Roy Cromartie, John Croson, Graham Currie, 
+	DaveD, Richard Damian, Andrew Davidson, Hakan Dedorsson, Randy Delfs, Shekhar Dhotre, Daniel Dickinson, Lloyd Dieter, David Disser, Warren Dodge, David Donovan, Nelson Doucet, Neil Dunbar, John Duinkerken, 
+	Rolf Eichenseher, Don Erickson, Lukas Efler, Rodolfo Estrada, 
+	Scott Farwell, Larry Finger, Santiago Flores, Michael Francis, David Franklin, Doreen Friesen, 
+	Andreas Gartner, Brian Goodyear, Todd Gould, Robert Granger, Bruce Griffis, Scott Grimes, David Grubb, 
+	Carrie Hallquist,  Steve Haworth, Douglas Heady, Stefan U Hegner, Greg Henderson, Karlheinz Herrmann, Hewlett-Packard, Robert Hieger, Robert F. Hill, John Holbrook, HP Intel Solution Center, John Huttley, 
+	Paul Isaacs, 
+	Maurice Janssen, William Jennings, 
+	Ted Kaczmarek, Merwan Kashouty, Jesse Keating, Roy Kimbrell, Thomas Klettke, Barry Kline, Herman Knief, Edward Konz, Aaron Kulbe, 
+	Andrew Latham, Robert E. Laughlin, Scott Leerssen, Andree Leidenfrost, Mark Lindsay, David Looney, 
+	Scott Mace, Jonathan Manning, Andrew McDade, Norrie McKinley, Shannon McMurtrey, Sasha Mitelman, Bruce Martin, Chris Mason, Roy McBroom, Brian Moore, Dellae McKenzie, Douglas McIntosh, George McQuade, TJ Meadows, Bill Mixter, Mark Jed Murphy, 
+	Mark Newman, Mark Nienberg, Zina Nieuwland, 
+	James Ots, Bill Ott, Fergus O'Rorke, 
+	Danny Patel, Sean McPherson, Benjamin Merembeck, Sasha Mitelman, Danny Patel, Andreas Pirrung, Randall Potvin, Frank Precissi, David Price, 
+	Robert Ragosta, Scott Redford, Kevin Rennert, James Richard, Eric Roark, Seth Rothberg, 
+	Daniel Sabo, Dan Sanderson, Anatole Sarko, Mark Schmidt, Knut Schneider, Neil Schneider, Efren Seldura, Michael Sestak, Michael Shehan, David Schaub, Edward Sheldrake, Rei Shinozuka, Thomas Simmons, Bradley Sims, Eric Sixt, Andreas Söchtig, SolarPC, Jeffrey Sofferin, Squeegy, Stephen Squier, Marius Steurer, Neil Stevens, 
+	Hal Thompson, Louis Townsend, Dale Tronrud, Pinhas Tsruya,
+	Derek Verbeeck, 
+	Dean Wadsworth, Jason Ware, Wynja Web, Benjamin Weiss, Roger West, J. Whitacre, Glenn Williams, Bob Wooden, David Wilson, David Wrisley, 
+	Gregory Yasko, Chris Young, 
+	Tobias Zetterkvist, Zuehike Engineering AG.</P>
+    <div class="h2-4">
+      <h2>Contributors</h2>
+    </div>
+	<p>These people helped technically the development of Mondo Rescue:</p> 
+	<p>
+           Fayrouz Abdelkhalek, AlfOS, Alphaome, H&eacute;ctor Garc&iacute;a &Aacute;lvarez, Erik Andersen,
+           Dagfinn Bakken, Sergio Javier Belkin, Stan &quot;Troff&quot; Benoit, Eric Boo, Fran Boon, Braindead, Fr&eacute;d&eacute;ric Brin, Alex Butcher,
+           Cafeole, Rick Calder, Dean Carpenter, Michael &quot;Miark&quot; Clark, Gene Cooper, Joe Cooper, Bruno Cornec, Joop Cousteau, Rhys Cuff,
+           Conor Daly, Bill Davidsen, Mike Davis, Phillip Deackes, Randy Delfs, Aaron Digulla, Krzysztof Dubowitz,
+           Dave Ellis,
+           Fred Feirtag, Johannes Franken,
+           Charles Galpin, Stuart D. Gathman, Andrew Glass, Daniel Grandjean, Dave Granz, Ralph Grewe,
+           Mark Hannah, Ole Hanson, Chad Harrelson, John Harrison, Lee Harvey, Bradley Hartin, Rick Haskin, David Hess, Robert W. Holder, Mikael Hultgren, John Huttley,
+           Jesse &quot;KP&quot; Keating, Donald Kerns, David Kim, Andreas Kotowicz, Maciej Kulasa, Charly K&uuml;hnast,
+           Fabrice Laborie, Jan-Eric Lindh, Gary Lowder,
+           John Mann, Markus Markert, Markus Marquardt, Jean-David Marrow, Marshall McMullen, Roger Merchberger, Benjamin Mickens, Jeff Miller, Michael Moellney, Eberhard Moenkeberg, Andreas Mohr, Jason Murray, Philippe de Muyler,
+           Matija Nalis, Doug Nordwall, Kosaku Nagasaka,
+           Marcus Oberhumer, Joshua Oreman, Jay Osborne,
+           Packetknife and co., Paolo, Michael Ralph Pape, Frank Petzold, Steve Pitts, Dave Polniak, John Price, Terry Pritchard,
+           Avatar Roadkill, Tobias Reckhard, Mike Roark,
+           Petre Scheie, Heiko Schlittermann, Roger Schmeits, Jochen Schmitt, Doc Shepler, Chris Siebenmann, Harold Sinclair, &Oslash;ystein Skadsem, Adam Sleight, Bryan Smith, Carl Wilhelm Soderstrom, Sergey Sokolov, Suzhe &amp; Lonius, Steve Swantz,
+           Christian Titulaer, TLC, Tom (Consultant),
+           Nick Uniatowski, UnSpawn,
+           Jeroen Van Pelt, Ronald Verlaan, Bruno Vidal, Carlos Vidal,
+           Webdragon, Art Wells, Joachim Wickman,
+           Stephan Zegherd,
+
+		   </p>
+<!--#include virtual="/bottom.shtml" -->
+    
+  </body>
+</html>

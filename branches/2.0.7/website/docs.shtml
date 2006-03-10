@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" xml:lang="en" lang="en">
+  <head>
+<!--#include virtual="/head.shtml" -->
+  </head>
+  <body>
+		  <!--#set var="curpage" value="docs.shtml" -->
+<!--#include virtual="/top.shtml" -->
+
+		<h1>Mondo Rescue Documentations</h1>
+  <div class="h2-1">
+    <h2>Mondo Rescue HOWTO</h2>
+  </div>
+  <p>The Mondo Rescue HOWTO is available under various formats:</p>
+  <ul>
+		  <li>A <a href="/docs/mondorescue-howto.html" target="_blank">single HTML</a> page.</li>
+		  <li>A <a href="/docs/mondorescue-howto.pdf" target="_blank">PDF</a> document.</li>
+		  <li>A <a href="/docs/mondorescue-howto.rtf" target="_blank">RTF</a> document.</li>
+		  <li>A <a href="/docs/mondorescue-howto.ps" target="_blank">PostScript</a> document.</li>
+		  <li>A <a href="/docs/mondorescue-howto.txt" target="_blank">Text</a> document.</li>
+		  <li><a href="/docs/mondorescue-howto/index.html" target="_blank">online</a>.</li>
+  </ul>
+
+  <div class="h2-3">
+    <h2>Mondo Rescue man pages</h2>
+  </div>
+  <p>The Mondo Rescue man pages are available under various formats:</p>
+  <ul>
+		  <li>mondoarchive</li>
+  			<ul>
+		  		<li>A <a href="/docs/mondoarchive.8.html" target="_blank">HTML</a></li>
+		  		<li>A <a href="/docs/mondoarchive.8.pdf" target="_blank">PDF</a></li>
+		  		<li>A <a href="/docs/mondoarchive.8.ps" target="_blank">PostScript</a></li>
+		  		<li>A <a href="/docs/mondoarchive.8.txt" target="_blank">Text</a></li>
+  			</ul>
+		  <li>mondorestore</li>
+  			<ul>
+		  		<li>A <a href="/docs/mondorestore.8.html" target="_blank">HTML</a></li>
+		  		<li>A <a href="/docs/mondorestore.8.pdf" target="_blank">PDF</a></li>
+		  		<li>A <a href="/docs/mondorestore.8.ps" target="_blank">PostScript</a></li>
+		  		<li>A <a href="/docs/mondorestore.8.txt" target="_blank">Text</a></li>
+  			</ul>
+		  <li>mindi</li>
+  			<ul>
+		  		<li>A <a href="/docs/mindi.8.html" target="_blank">HTML</a></li>
+		  		<li>A <a href="/docs/mindi.8.pdf" target="_blank">PDF</a></li>
+		  		<li>A <a href="/docs/mindi.8.ps" target="_blank">PostScript</a></li>
+		  		<li>A <a href="/docs/mindi.8.txt" target="_blank">Text</a></li>
+  			</ul>
+  </ul>
+
+  <div class="h2-2">
+    <h2>Other Documents</h2>
+  </div>
+  <p>Here are some other documents seaking of Mondo Rescue:</p>
+  <ul>
+		  <li>A Mondo Rescue <a href="/docs/mondo-intro.pdf" target="_blank">introduction</a> (in French) made by Gallig Renaud.
+		  <li>A Mondo Rescue <a href="/docs/mondo-presentation-v1.pdf" target="_blank">presentation</a> made by Bruno Cornec.
+		  <li>A Mondo Rescue hardware migration <a href="/docs/HOWTO-_Deploy_Linux_from_SCSI_to_SATA.pdf" target="_blank">guide</a> made by François-Xavier Horel.
+
+<!--#include virtual="/bottom.shtml" -->
+  </body>
+</html>

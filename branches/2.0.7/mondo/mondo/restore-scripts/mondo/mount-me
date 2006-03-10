@@ -1,0 +1,22 @@
+#!/bin/sh
+
+mountlist=/tmp/mountlist.txt
+
+if [ "$#" -ne "0" ] ;then
+    echo "mount-me <no params>"
+    echo "...mountlist is assumed to be at $mountlist"
+    exit 1
+fi
+
+if [ ! -f "$mountlist" ] ; then
+    echo "I cannot find the mountlist '$mountlist'. Aborting."
+    exit 1
+fi
+
+paths=`grep -v " raid " $mountlist | grep -v "lvm lvm" | tr -s ' ' ' ' | cut -d' ' -f2 | sort`
+> $mountlist.sorted
+for i in $paths ; do
+    grep " $i " $mountlist >> $mountlist.sorted
+done
+mount-subroutine-me < $mountlist.sorted
+exit $?

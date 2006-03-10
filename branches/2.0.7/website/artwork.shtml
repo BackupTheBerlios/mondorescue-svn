@@ -1,0 +1,21 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" xml:lang="en" lang="en">
+  <head>
+<!--#include virtual="/head.shtml" -->
+  </head>
+  <body>
+		  <!--#set var="curpage" value="artwork.shtml" -->
+<!--#include virtual="/top.shtml" -->
+  <h1>Artwork of this site</h1>
+
+	<p>"I think I've already seen your look and feel somewhere"
+
+    <div class="h2-1">
+      <h2>Graphics made by Alexis Younes (Ayo73) and Amaury Amblard-Ladurantie</h2>
+    </div>
+	<p>These 2 incredible guys have accepted to let us reuse the design they made for the not less incredible game <a href="http://www.frozen-bubble.org">Frozen Bubble</a>. Many thanks guys ! Just hope Mondo Rescue will help you some days as much as I played to frozen bubble myself :-)</p>
+	<p>Don't miss Ayo's site at <a href="http://www.73lab.com">73lab.com</a> as it provides all his artworks, some of them reusable.
+<!--#include virtual="/bottom.shtml" -->
+    
+  </body>
+</html>

@@ -1,0 +1,287 @@
+#!/bin/sh
+#
+# $Id$
+#
+
+#------------------------- ANALYZE-MY-LVM ----------------------- Hugo Rabson
+# 07/14
+# - no longer blank first 4k of /dev/mdX
+#
+# 06/14/2004
+# - fixed "n >= 2.00" bug (shell doesn't handle floating points properly)
+# - handle dm_mod as well as dm-mod
+#
+# 02/18/2004
+# - nice patch to fix ListAllVolumeGroups() --- J. Richard
+# - patch to support LVM2 by Takeru Komoriya
+#
+# 10/15/2003
+# - fixed '-L'-handling to allow for floating-point gigabyte values
+#
+# 01/15/2003
+# - patch (LVM) by Brian Borgeson
+#
+# 12/10/2002
+# - patch by Benjamin Mampaey
+#
+# 09/05/2002
+# - additional patch by Ralph Gruwe
+#
+# 08/30/2002
+# - modified by Ralph Gruwe
+#
+# 10/01/2001
+# - last modified by Hugo :)
+#------------------------------------------------------------------------------
+
+Die() {
+	echo "$1" >> /dev/stderr
+	exit 1
+}
+
+
+
+GetValueFromField() {
+	local res
+	sed s/'    '/~/ "$1" | tr -s ' ' ' ' | sed s/'~ '/'~'/ | grep -i "$2~" | cut -d'~' -f2,3,4,5 | tr '~' ' ' | gawk '{ if ($2=="MB") {printf "%dm",$1;} else if ($2=="KB") {printf "%dk",$1;} else if ($2=="GB") {printf "%dg",$1;} else {print $0;};}'
+}
+
+
+GetLastBit() {
+	local i res
+	i=20
+	res=""
+	while [ ! "$res" ] ; do
+		i=$(($i-1))
+		res=`echo "$1" | cut -d'/' -f$i`
+	done
+	echo "$res"
+}
+
+
+ProcessLogicalVolume() {
+	local LV_full_string fname logical_volume volume_group device
+	LV_full_string=$1
+	[ ! -e "$1" ] && Die "Cannot find LV file $1"
+	volume_group=`echo "$LV_full_string" | cut -d'/' -f3`
+	logical_volume=`echo "$LV_full_string" | cut -d'/' -f4`
+	if [ $lvmversion = 2 ]; then
+		device=$LV_full_string
+		params=`GenerateLvcreateParameters $device`
+	else
+		fname=/proc/lvm/VGs/$volume_group/LVs/$logical_volume
+		if [ ! -e "$fname" ] ; then
+	    	echo "Warning - cannot find $volume_group's $logical_volume LV file"
+		else
+	    	device=`GetValueFromField $fname "name:"`
+	    	params=`GenerateLvcreateParameters $device`
+		fi
+	fi
+	echo "# $LVMCMD lvcreate$params -n $logical_volume $volume_group"
+}
+
+
+GenerateLvcreateParameters() {
+	local device stripes stripesize device fname allocation output readahead
+	fname=/tmp/PLF.$$.txt
+	device=$1
+	output=""
+	$LVMCMD lvdisplay $device > $fname
+	stripes=`GetValueFromField $fname "Stripes"`
+	stripesize=`GetValueFromField $fname "Stripe size (MByte)"`m
+	[ "$stripesize" = "m" ] && stripesize=`GetValueFromField $fname "Stripe size (KByte)"`k
+	[ "$stripesize" = "k" ] && stripesize=""
+	allocation=`GetValueFromField $fname "LV Size"`
+	[ ! "`echo "$allocation" | grep "[k,m,g]"`" ] && allocation="$allocation"m
+	if echo "$allocation" | grep -x ".*g" > /dev/null 2> /dev/null ; then
+		val=`echo "$allocation" | sed s/g//`
+		allocation=`echo "$val" | awk '{c=$1; printf "%d", c*1024;}'`m
+	fi
+	readahead=`GetValueFromField $fname "Read ahead sectors"`
+	rm -f $fname
+	[ "$stripes" ]    && output="$output -i $stripes"
+	[ "$stripesize" ] && output="$output -I $stripesize"
+	[ "$allocation" ] && output="$output -L $allocation"
+	[ "$readahead" ]  && output="$output -r $readahead"
+	echo "$output"
+}
+
+
+
+GenerateVgcreateParameters() {
+	local current_VG device fname incoming VG_info_file max_logical_volumes max_physical_volumes physical_extent_size output blanklines
+	current_VG=$1
+	VG_info_file=/tmp/$$.vg-info.txt
+	$LVMCMD vgdisplay $current_VG > $VG_info_file
+	max_logical_volumes=`GetValueFromField "$VG_info_file" "MAX LV"`
+	[ $max_logical_volumes -ge 256 ] && max_logical_volumes=255
+	max_physical_volumes=`GetValueFromField "$VG_info_file" "MAX PV"`
+	[ $max_physical_volumes -ge 256 ] && max_physical_volumes=255
+	physical_extent_size=`GetValueFromField "$VG_info_file" "PE Size"`
+	output=""
+	[ "$max_logical_volumes" ]  && output="$output -l $max_logical_volumes"
+	[ "$max_physical_volumes" ] && output="$output -p $max_physical_volumes"
+	[ "$physical_extent_size" ] && output="$output -s $physical_extent_size"
+	echo "$output"
+	rm -f $VG_info_file
+}
+
+
+
+
+
+ProcessVolumeGroup() {
+	local current_VG physical_volumes i list_of_devices VG_params
+	current_VG=$1
+	if [ $lvmversion = 2 ]; then
+		VG_params=`GenerateVgcreateParameters $current_VG`
+		list_of_devices=`$LVMCMD pvs | grep "$current_VG" | awk '{print $1}'`
+	else
+		info_file=/proc/lvm/VGs/$current_VG/group
+		physical_volumes=`ls /proc/lvm/VGs/$current_VG/PVs`
+		VG_params=`GenerateVgcreateParameters $current_VG`
+		list_of_devices=""
+		for i in $physical_volumes ; do
+	    	fname=/proc/lvm/VGs/$current_VG/PVs/$i
+	    	device=`GetValueFromField $fname "name:"`
+	    	list_of_devices="$list_of_devices $device"
+		done
+	fi
+	echo "# $LVMCMD vgcreate $current_VG$VG_params $list_of_devices"
+	echo "# $LVMCMD vgchange -a y $current_VG"
+}
+
+
+
+ListAllPhysicalVolumes() {
+	if [ $lvmversion = 2 ]; then
+		$LVMCMD pvscan 2> /dev/null | grep 'PV' | awk '{print $2}'
+	else
+		pvscan 2> /dev/null | grep '"' | cut -d'"' -f2
+	fi
+}
+
+
+ListAllVolumeGroups() {
+	$LVMCMD vgdisplay 2> /dev/null | awk '/^ *VG Name/ {print $3;}'
+}
+
+
+ListLvmDrivesAndPartitions() {
+	$LVMCMD vgdisplay -v |grep "PV Name" | awk '{print $3}'
+}
+
+
+
+PrettifyList() {
+	local i
+	echo -en "$1"
+	for i in $2 ; do
+		echo -en "$i "
+	done
+	echo ""
+}
+
+
+ListAllLogicalVolumes() {
+	if [ $lvmversion = 2 ]; then
+		$LVMCMD lvscan | grep "'" | cut -d"'" -f2
+	else
+		lvscan | grep '"' | cut -d'"' -f2
+	fi
+}
+
+
+
+WriteShutdownScript() {
+	local i
+	echo ""
+	echo "Finally, to shut down and delete the volumes, do this:-"
+	for i in `ListAllLogicalVolumes` ; do
+	    echo "($LVMCMD lvremove -f $i)"
+	done
+	for i in `ListAllVolumeGroups` ; do
+	    echo "($LVMCMD vgchange -a n $i)"
+	done
+	for i in `ListAllVolumeGroups` ; do
+	    echo "($LVMCMD vgremove $i)"
+	done
+	if [ $lvmversion = 2 ]; then
+		echo "(rmmod dm-mod & rmmod dm_mod & )"
+	else
+		echo "(rmmod lvm-mod)"
+	fi
+}
+
+
+
+# -------------------------------- main -----------------------------------
+which lvmdiskscan 2>/dev/null 2>&1 || Die "Cannot find lvmdiskscan. Are you sure you're using LVM?"
+if [ -e "/proc/lvm/global" ] && [ "`tr -s '\t' ' ' < /proc/lvm/global | grep "0 VGs 0 PVs 0 LVs"`" != "" ] ; then
+	exit 0
+fi
+
+lvmversion=`lvmdiskscan --help 2>&1 |
+  grep -E "Logical Volume Manager|LVM version:" |
+  cut -d: -f2 | cut -d. -f1 |
+  awk '{print $NF}' |
+  sed -e 's/ //g'`
+
+if which lvm 2>/dev/null; then
+	version=`lvm version | grep "LVM version" | awk '{print $3}'`
+	i="`echo "$version" | cut -d'.' -f1`"
+	echo "i=$i"
+	if [ "$i" -ge "2" ] ; then
+		lvmversion=2
+	fi
+fi
+
+if [ $lvmversion = 2 ]; then
+	echo "LVM version >= 2.0 found."
+	LVMCMD="lvm"
+else
+	LVMCMD=""
+fi
+
+all_lvm_drives_and_partitions=`ListLvmDrivesAndPartitions`
+echo "Just before you extrapolate mountlist to include RAID partitions,"
+echo "extrapolate it to include the following LVM drives and partitions:-"
+PrettifyList ">>>>> " "$all_lvm_drives_and_partitions"
+echo "To get started, type:-"
+if [ $lvmversion = 2 ]; then
+	echo "(insmod dm-mod)"
+	echo "(insmod dm_mod)"
+else
+	echo "(insmod lvm-mod)"
+fi
+echo "# $LVMCMD vgchange -an"
+for i in `ListAllPhysicalVolumes` ; do
+	echo "# echo y | $LVMCMD pvcreate -ff $i"
+done
+echo "# $LVMCMD vgscan; echo"
+echo ""
+echo "Create and activate the VG's (volume groups)."
+all_volume_groups=`ListAllVolumeGroups`
+for current_VG in $all_volume_groups ; do
+	if [ $lvmversion -ne 2 ]; then
+	    echo "# rm -Rf /dev/$current_VG"
+	fi
+	ProcessVolumeGroup $current_VG
+done
+echo ""
+echo "Finally, create the LV's (logical volumes)."
+all_logical_volumes=`ListAllLogicalVolumes`
+for current_LV in $all_logical_volumes ; do
+	ProcessLogicalVolume $current_LV
+done
+echo ""
+echo "# $LVMCMD vgscan"
+echo "Now you may format the LV's:-"
+for i in `ListAllLogicalVolumes` ; do
+	echo "(mkfs -t foo $i or something like that)"
+done
+WriteShutdownScript
+exit 0
+
+
+

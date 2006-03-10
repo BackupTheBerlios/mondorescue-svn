@@ -1,0 +1,30 @@
+#!/bin/bash
+#
+# Creates SPEC file for RPMs packages from SVN repository
+#
+# 1st parameter: the version of the tool
+# 2nd parameter: the original file to process
+#
+# $Id$
+#
+
+dir=`dirname $2`
+if [ -f ${dir}/../$ddir/spec.m4 ]; then 
+	inc=${dir}/../$ddir/spec.m4
+elif [ -f ${dir}/../$ddmir/spec.m4 ]; then 
+	inc=${dir}/../$ddmir/spec.m4
+else
+	echo "Unable to build RPM for this distro. Please report to authors"
+	exit -1
+fi
+
+# Do not echo as stdout redirected
+#echo "Using $inc customization to build SPEC file"
+
+cp $inc /tmp/mondorescue.mc
+cat >> /tmp/mondorescue.mc << EOF
+define(\`RRR', ${REVISION}${suf})dnl
+define(\`VVV', ${1})dnl
+EOF
+m4 /tmp/mondorescue.mc $2
+rm -f /tmp/mondorescue.mc

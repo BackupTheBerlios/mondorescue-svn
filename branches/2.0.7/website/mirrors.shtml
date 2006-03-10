@@ -1,0 +1,358 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+  <!-- $MVD$:app("MicroVision WebExpress","769") -->
+  <!-- $MVD$:template("","0","0") -->
+  <!-- $MVD$:color("18","999966","Custom #1","0") -->
+  <!-- $MVD$:color("19","333333","Custom #2","0") -->
+  <!-- $MVD$:color("20","80ff","Orange","1") -->
+  <!-- $MVD$:color("21","ffd6ce","Lavender","1") -->
+  <!-- $MVD$:fontset("Arial Black","Arial Black","Arial","Helvetica") -->
+  <TITLE>Mondo Rescue: Mirrors</TITLE>
+  <SCRIPT LANGUAGE="JavaScript" SRC="../rollover_level1.js"></SCRIPT><LINK
+  REL="stylesheet" HREF="../mondo.css" TYPE="text/css"></HEAD>
+ <BODY BGCOLOR="WHITE" LEFTMARGIN="0" TOPMARGIN="0" MARGINWIDTH="0" MARGINHEIGHT="0">
+  <P>
+   <TABLE WIDTH="700" CELLPADDING="0" CELLSPACING="0" BORDER="0">
+    <TR>
+     <TD COLSPAN="2" VALIGN=CENTER>
+      <P>
+       <!-- $MVD$:picsz("1","1") --><IMG SRC="../shared_graphics/spacer.gif" WIDTH="1" HEIGHT="35" VSPACE="0" HSPACE="0" BORDER="0"></TD>
+    </TR>
+    <TR>
+     <TD VALIGN=CENTER>
+      <P>
+       <A HREF="../index.html"><IMG SRC="../shared_graphics/header/mondo_logo.gif" WIDTH="188" HEIGHT="21" VSPACE="0" HSPACE="0" ALT="Mondo Rescue" BORDER="0"></A></TD>
+     <TD VALIGN=BOTTOM><DIV ALIGN=RIGHT>
+      <P ALIGN=RIGHT>
+       <TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0">
+        <TR>
+         <TD VALIGN=CENTER>
+          <P>
+           <IMG SRC="../shared_graphics/header/donate.gif" WIDTH="46" HEIGHT="7" VSPACE="0" HSPACE="0" ALT="Donate:" BORDER="0"></TD>
+         <TD VALIGN=CENTER>
+          <P>
+           <A HREF="contribute.html"><IMG SRC="../shared_graphics/header/paypal_button.gif" WIDTH="42" HEIGHT="17" VSPACE="0" HSPACE="0" ALT="PayPal" BORDER="0"></A></TD>
+         <TD VALIGN=CENTER>
+          <P>
+           <IMG SRC="../shared_graphics/header/mirrors.gif" WIDTH="61" HEIGHT="7" VSPACE="0" HSPACE="0" ALT="Mirrors:" BORDER="0"></TD>
+         <TD VALIGN=CENTER>
+          <P>
+           <A HREF="http://linux.freak.school.nz/mondo/download/download.html"><IMG SRC="../shared_graphics/header/nz_flag.gif" WIDTH="23" HEIGHT="16" VSPACE="0" HSPACE="0" ALT="NZ" BORDER="0"></A></TD>
+         <TD VALIGN=CENTER>
+          <P>
+           <IMG SRC="../shared_graphics/header/nz.gif" WIDTH="20" HEIGHT="7" VSPACE="0" HSPACE="0" BORDER="0"></TD>
+         <TD VALIGN=CENTER>
+          <P>
+           <A HREF="mirrors.html"><IMG SRC="../shared_graphics/header/usa_flag.gif" WIDTH="23" HEIGHT="16" VSPACE="0" HSPACE="0" ALT="USA" BORDER="0"></A></TD>
+         <TD VALIGN=CENTER>
+          <P>
+           <IMG SRC="../shared_graphics/header/usa.gif" WIDTH="26" HEIGHT="7" VSPACE="0" HSPACE="0" BORDER="0"></TD>
+         <TD VALIGN=CENTER>
+          <P>
+           <A HREF="http://mondorescue.norsklinux.no/download/mirrors.html"><IMG SRC="../shared_graphics/header/no_flag.gif" WIDTH="23" HEIGHT="16" VSPACE="0" HSPACE="0" ALT="CH" BORDER="0"></A></TD>
+         <TD VALIGN=CENTER>
+          <P>
+           <IMG SRC="../shared_graphics/header/no.gif" WIDTH="24" HEIGHT="7" VSPACE="0" HSPACE="0" BORDER="0"></TD>
+         <TD VALIGN=CENTER>
+          <P>
+           <A HREF="http://samba.epfl.ch/mondo/download/mirrors.html"><IMG SRC="../shared_graphics/header/ch_flag.gif" WIDTH="23" HEIGHT="16" VSPACE="0" HSPACE="0" ALT="CH" BORDER="0"></A></TD>
+         <TD VALIGN=CENTER>
+          <P>
+           <IMG SRC="../shared_graphics/header/ch.gif" WIDTH="24" HEIGHT="7" VSPACE="0" HSPACE="0" BORDER="0"></TD>
+        </TR>
+       </TABLE></TD>
+    </TR>
+    <TR>
+     <TD COLSPAN="2" VALIGN=CENTER>
+      <P>
+       <!-- $MVD$:picsz("1","1") --><IMG SRC="../shared_graphics/spacer.gif" WIDTH="1" HEIGHT="5" VSPACE="0" HSPACE="0" BORDER="0"></TD>
+    </TR>
+   </TABLE>
+   <TABLE WIDTH="700" CELLPADDING="0" CELLSPACING="0" BORDER="0">
+    <TR>
+     <TD VALIGN=CENTER>
+      <P>
+       <A HREF="../index.html" ONMOUSEOVER="switchOn('home');" ONMOUSEOUT="switchOff('home');"><IMG SRC="../shared_graphics/nav/home_off.gif" WIDTH="63" HEIGHT="19" VSPACE="0" HSPACE="0" ALT="Home" BORDER="0" NAME="home"></A></TD>
+     <TD WIDTH="1" BGCOLOR="WHITE" VALIGN=CENTER>
+      <P>
+       <IMG SRC="../shared_graphics/spacer.gif" WIDTH="1" HEIGHT="1" VSPACE="0" HSPACE="0" BORDER="0"></TD>
+     <TD VALIGN=CENTER>
+      <P>
+       <A HREF="../about/about.html" ONMOUSEOVER="switchOn('about');" ONMOUSEOUT="switchOff('about');"><IMG SRC="../shared_graphics/nav/about_off.gif" WIDTH="66" HEIGHT="19" VSPACE="0" HSPACE="0" ALT="About" BORDER="0" NAME="about"></A></TD>
+     <TD WIDTH="1" BGCOLOR="WHITE" VALIGN=CENTER>
+      <P>
+       <IMG SRC="../shared_graphics/spacer.gif" WIDTH="1" HEIGHT="1" VSPACE="0" HSPACE="0" BORDER="0"></TD>
+     <TD VALIGN=CENTER>
+      <P>
+       <A HREF="../docs/docs.html" ONMOUSEOVER="switchOn('docs');" ONMOUSEOUT="switchOff('docs');"><IMG SRC="../shared_graphics/nav/docs_off.gif" WIDTH="112" HEIGHT="19" VSPACE="0" HSPACE="0" ALT="Documentation" BORDER="0" NAME="docs"></A></TD>
+     <TD WIDTH="1" BGCOLOR="WHITE" VALIGN=CENTER>
+      <P>
+       <IMG SRC="../shared_graphics/spacer.gif" WIDTH="1" HEIGHT="1" VSPACE="0" HSPACE="0" BORDER="0"></TD>
+     <TD VALIGN=CENTER>
+      <P>
+       <A HREF="download.html" ONMOUSEOVER="switchOn('download');" ONMOUSEOUT="switchOff('download');"><IMG SRC="../shared_graphics/nav/download_off.gif" WIDTH="87" HEIGHT="19" VSPACE="0" HSPACE="0" ALT="Download" BORDER="0" NAME="download"></A></TD>
+     <TD WIDTH="1" BGCOLOR="WHITE" VALIGN=CENTER>
+      <P>
+       <IMG SRC="../shared_graphics/spacer.gif" WIDTH="1" HEIGHT="1" VSPACE="0" HSPACE="0" BORDER="0"></TD>
+     <TD VALIGN=CENTER>
+      <P>
+       <A HREF="../news/news.html"><IMG SRC="../shared_graphics/nav/news_off.gif" WIDTH="63" HEIGHT="19" VSPACE="0" HSPACE="0" ALT="News" BORDER="0" NAME="news"></A></TD>
+     <TD WIDTH="1" BGCOLOR="WHITE" VALIGN=CENTER>
+      <P>
+       <A HREF="download.html"><IMG SRC="../shared_graphics/spacer.gif" WIDTH="1" HEIGHT="1" VSPACE="0" HSPACE="0" BORDER="0"></A></TD>
+     <TD VALIGN=CENTER>
+      <P>
+       <A HREF="../support/support.html"><IMG SRC="../shared_graphics/nav/support_off.gif" WIDTH="80" HEIGHT="19" VSPACE="0" HSPACE="0" ALT="Support" BORDER="0" NAME="support"></A></TD>
+     <TD WIDTH="1" BGCOLOR="WHITE" VALIGN=CENTER>
+      <P>
+       <A HREF="../feedback/feedback.html"><IMG SRC="../shared_graphics/spacer.gif" WIDTH="1" HEIGHT="1" VSPACE="0" HSPACE="0" BORDER="0"></A></TD>
+     <TD VALIGN=CENTER>
+      <P>
+       <A HREF="../feedback/feedback.html"><IMG SRC="../shared_graphics/nav/feedback_off.gif" WIDTH="84" HEIGHT="19" VSPACE="0" HSPACE="0" ALT="Feedback" BORDER="0" NAME="feedback"></A></TD>
+     <TD WIDTH="1" BGCOLOR="WHITE" VALIGN=CENTER>
+      <P>
+       <A HREF="../thanks/thanks.html"><IMG SRC="../shared_graphics/spacer.gif" WIDTH="1" HEIGHT="1" VSPACE="0" HSPACE="0" BORDER="0"></A></TD>
+     <TD VALIGN=CENTER>
+      <P>
+       <A HREF="../thanks/thanks.html"><IMG SRC="../shared_graphics/nav/thanks_off.gif" WIDTH="94" HEIGHT="19" VSPACE="0" HSPACE="0" ALT="Thank You's" BORDER="0" NAME="thanks"></A></TD>
+     <TD WIDTH="1" BGCOLOR="WHITE" VALIGN=CENTER>
+      <P>
+       <IMG SRC="../shared_graphics/spacer.gif" WIDTH="1" HEIGHT="1" VSPACE="0" HSPACE="0" BORDER="0"></TD>
+     <TD WIDTH="100%" BGCOLOR="#669999" VALIGN=CENTER>
+      <P>
+       &nbsp;</TD>
+    </TR>
+   </TABLE>
+   <TABLE WIDTH="700" CELLPADDING="0" CELLSPACING="0" BORDER="0">
+    <TR>
+     <TD BGCOLOR="WHITE" VALIGN=CENTER>
+      <P>
+       <!-- $MVD$:picsz("1","1") --><IMG SRC="../shared_graphics/spacer.gif" WIDTH="700" HEIGHT="1" VSPACE="0" HSPACE="0" BORDER="0"></TD>
+    </TR>
+   </TABLE>
+   <TABLE WIDTH="700" CELLPADDING="15" CELLSPACING="0" BORDER="0">
+    <TR>
+     <TD BGCOLOR="WHITE" VALIGN=CENTER>
+      <P ALIGN=CENTER>
+       <FONT FACE="Arial Black,Arial,Helvetica"><FONT SIZE="4">Mirrors</FONT></FONT></P>
+      <P ALIGN=JUSTIFY>
+       To setup a mirror, use rsync (e.g. 'rsync --recursive 
+       www.mondorescue.org::mondo'). Please give me your details and I'll 
+       put you on this list. Ladies, fellas, your contribution to the 
+       project is appreciated by everyone.</P>
+      <DIV ALIGN=JUSTIFY>
+      <P ALIGN=JUSTIFY>
+       <TABLE WIDTH="100%" CELLPADDING="2" CELLSPACING="0" BORDER="0">
+        <TR>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           <A HREF="http://ccp14.semo.edu/ccp/web-mirrors/mondorescue/">http://ccp14.semo.edu/ccp/web-mirrors/mondorescue/</A></TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           USA</TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Lachlan Cranswick</TD>
+        </TR>
+        <TR>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           <A HREF="http://www.microwerks.net/~hugo">http://www.microwerks.net/~hugo</A></TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Colby, KS, USA</TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Rick Haskin</TD>
+        </TR>
+        <TR>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           <A HREF="http://palmettodomains.com/mondo">http://palmettodomains.com/mondo</A></TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Lexington, SC, USA</TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Thomas E. Dukes</TD>
+        </TR>
+        <TR>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           <A HREF="http://mondomirror.nightowlsnetwork.net">http://mondomirror.nightowlsnetwork.net</A></TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Tampa Bay, FL, USA</TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Joseph Dobransky</TD>
+        </TR>
+        <TR>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           <A HREF="http://furnace.physics.auburn.edu/~mondo">http://furnace.physics.auburn.edu/~mondo</A></TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Auburn U., Alabama, USA</TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Drew York</TD>
+        </TR>
+        <TR>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           <A HREF="http://mondo.30below.com">http://mondo.30below.com</A></TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           USA</TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Roger Merchberger</TD>
+        </TR>
+        <TR>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           <A HREF="http://mondorescue.topnet.it">http://mondorescue.topnet.it</A></TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Italy</TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Antonio Prado</TD>
+        </TR>
+        <TR>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           <A HREF="http://www.ccp14.ac.uk/ccp/web-mirrors/mondorescue/">http://www.ccp14.ac.uk/ccp/web-mirrors/mondorescue/</A></TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           London, UK</TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Lachlan Cranswick</TD>
+        </TR>
+        <TR>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           <A HREF="http://ccp14.sims.nrc.ca/ccp/web-mirrors/mondorescue/">http://ccp14.sims.nrc.ca/ccp/web-mirrors/mondorescue/</A></TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Canada</TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Lachlan Cranswick</TD>
+        </TR>
+        <TR>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           <A HREF="http://ccp14.minerals.csiro.au/ccp/web-mirrors/mondorescue/">http://ccp14.minerals.csiro.au/ccp/web-mirrors/mondorescue/</A></TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Australia</TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Lachlan Cranswick</TD>
+        </TR>
+        <TR>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           <A HREF="http://mondorescue.norsklinux.no/">http://mondorescue.norsklinux.no/</A></TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Norway</TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Dagfinn Bakken</TD>
+        </TR>
+        <TR>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           <A HREF="http://ftp.gwdg.de/pub/linux/misc/mondorescue/">http://ftp.gwdg.de/pub/linux/misc/mondorescue/</A></TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Germany</TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Eberhard Moenkeberg</TD>
+        </TR>
+        <TR>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           <A HREF="http://www.mikenjane.net/mondo">http://www.mikenjane.net/mondo</A></TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Germany</TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Mike Roark</TD>
+        </TR>
+        <TR>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           <A HREF="http://mirror.mondorescue.de">http://mirror.mondorescue.de</A></TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Germany</TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Jochen Schmitt</TD>
+        </TR>
+        <TR>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           <A HREF="http://web12.austria182.server4free.de/projekte/mondorescue">http://web12.austria182.server4free.de/projekte/mondorescue</A></TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Germany</TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Markus Markert</TD>
+        </TR>
+       <TR>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           <A HREF="http://mondo.hulksolutions.com">http://mondo.hulksolutions.com</A></TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Malaysia</TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Paul Tan</TD>
+        </TR>
+         <TR>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           <A HREF="http://samba.epfl.ch/mondo">http://samba.epfl.ch/mondo</A></TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Switzerland</TD>
+         <TD WIDTH="33%" VALIGN=TOP>
+          <P>
+           Daniel Grandjean</TD>
+        </TR>
+       </TABLE></P>
+      </DIV>
+      <P ALIGN=JUSTIFY>
+       To mirror the mondorescue.org site, use something like this:-</P>
+      <P ALIGN=JUSTIFY>
+       # rsync --recursive www.mondorescue.org::mondo /home/mondorescue.norsklinux.no/htdocs/</P>
+      <P ALIGN=JUSTIFY>
+       Are you missing from here? <A HREF="mailto:hugorabson@msn.com">Let me know!</A></P>
+      <P ALIGN=JUSTIFY>
+       <!-- $MVD$:spaceretainer() -->&nbsp;</TD>
+    </TR>
+    <TR>
+     <TD BGCOLOR="#333333" VALIGN=CENTER>
+      <P>
+       <IMG SRC="shared_graphics/spacer.gif" WIDTH="1" HEIGHT="1" VSPACE="0" HSPACE="0" BORDER="0"></TD>
+    </TR>
+    <TR>
+     <TD BGCOLOR="WHITE" VALIGN=CENTER CLASS="footer">
+      <P ALIGN=CENTER>
+       Comments? Suggestions? Click <A HREF="../feedback/feedback.html">here</A> 
+       for contact information.</TD>
+    </TR>
+   </TABLE>
+ </BODY>
+</HTML>

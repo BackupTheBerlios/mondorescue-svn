@@ -1,0 +1,83 @@
+#!/bin/sh
+
+LogIt "compare-subroutine-me --- starting"
+
+wildpath=""
+
+if [ "$#" -ne "2" ] && [ "$#" -ne "1" ] ; then
+    LogIt "compare-subroutine-me <archive> (<wildpath>)" 1
+    LogIt "e.g. compare-subroutine-me archives/15.afio.bz2" 1
+    Logit "or   compare-subroutine-me archives/15.afio.bz2 /mnt/dos/*" 1
+    exit 1
+fi
+
+archive=$1
+if [ "$#" -eq "2" ] ; then
+    wildpath=$2
+fi
+
+if [ ! -f "$archive" ] ; then
+    LogIt "Cannot find archive $archive" 1
+    exit 1
+fi
+
+# ---------------- compare a tarball --------------
+
+cd /mnt/RESTORING
+if [ "$?" -ne "0" ] ; then
+    LogIt "Cannot cd to /mnt/RESTORING" 1
+    exit 1
+fi
+
+
+if [ "`echo "$archive" | grep "\.bz2"`" != "" ]; then
+    callstr="-P bzip2 -Z"
+elif [ "`echo "$archive" | grep "\.lzo"`" != "" ] ; then
+    callstr="-P lzop -Z"
+elif [ "`echo "$archive" | grep "\.gz"`" != "" ]; then
+    callstr="-Z"
+elif [ "`echo "$archive" | grep "\.afio"`" != "" ]; then
+    callstr=""
+else
+    LogIt "Unknown filetype - $archive" 1
+    exit 1
+fi
+
+setno=`echo "$archive" | tr '/' '.' | tr '[:alpha:]' '.' --squeeze-repeats | cut -d'.' -f2`
+path=`echo "$archive" | gawk '{i=split($0,res,"/");j=1;while(j<i){printf res[j]"/";j++;};}'`
+#echo "archive = $archive"
+#echo "path    = $path"
+#echo "setno   = $setno"
+if [ "$wildpath" = "" ] ; then
+# ----verify----
+    afio -r $callstr $archive 2> /tmp/afio.log
+    res=$?
+#    afio -t $callstr $archive > /tmp/rsm.lst.tmp
+    if [ -s "$path/cklist.$setno" ] ; then
+# ----md5sum----
+	mondo-checksum $path/filelist.$setno $path/cklist.$setno /mnt/RESTORING --verify &> /tmp/mck.log
+	r=$?
+        res=$(($res+$r))
+	if [ "$r" -ne "0" ] ; then
+	    if [ "`cat /tmp/mck.log`" != "" ] ; then
+		echo "Files which, according to md5sum, have changed:-" >> /tmp/compare-me.log
+		cat /tmp/mck.log | tee -a /tmp/compare-me.log
+	    else
+		LogIt "Unable to run mondo-checksum."
+	    fi
+	fi
+    fi
+else
+    afio -r -y $wildpath $callstr $archive &> /tmp/afio.log
+    res=$(($res+$?))
+fi
+if [ "`cat /tmp/afio.log`" != "" ] ; then
+    echo "Files reported by afio as changed:-" > /tmp/afio.log.mashed
+    sed s/'afio: "'/'|'/ /tmp/afio.log | sed s/'": '/'|'/ \
+| cut -d'|' -f2 | gawk '{ if (substr($0,1,1)!="/") {print"/"$0;} \
+else {print $0;};};' | sort -u >> /tmp/afio.log.mashed
+    cat /tmp/afio.log.mashed | tee -a /tmp/compare-me.log
+fi
+
+LogIt "compare-subroutine-me --- leaving"
+exit $res

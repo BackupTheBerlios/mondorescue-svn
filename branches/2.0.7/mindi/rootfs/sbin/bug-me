@@ -1,0 +1,28 @@
+#!/bin/sh
+
+Die() {
+    echo "$1" >> /dev/stderr
+    exit 1
+}
+
+
+echo -en "Insert a blank floppy and press ENTER"
+read line
+mke2fs /dev/fd0 || Die "Failed to format floppy disk"
+mkdir -p /tmp/bug-me
+cp /tmp/*log /tmp/bug-me/
+cp /tmp/{fstab,mountlist.txt} /tmp/bug-me/
+cat /proc/cpuinfo > /tmp/bug-me/cpuinfo.txt
+uname -r > /tmp/bug-me/uname-r.txt
+cat /proc/meminfo > /tmp/bug-me/meminfo.txt
+tar -c /tmp/bug-me | gzip -9 > /tmp/bug-me.tgz
+rm /tmp/bug-me -Rf
+mount /dev/fd0 -t ext2 /mnt/floppy || Die "I cannot mount /dev/fd0 as filesystem type ext2 at /mnt/floppy."
+cp -f /tmp/bug-me.tgz /mnt/floppy
+umount /mnt/floppy
+echo "I have copied bug-me.tgz to the floppy. Please send the file to hugo@firstlinux.net"
+echo "Please make sure you have read the FAQ, the manual and preferably the log"
+echo "and the mailing list before you seek assistance."
+
+
+

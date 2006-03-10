@@ -1,0 +1,15 @@
+#!/bin/sh
+
+if [ "$#" -eq "0" ] ; then
+    level=debug
+else
+    level=$1
+fi
+
+gcc -Wall -pedantic -D_REENTRANT -DLOG_THESE_AND_HIGHER=$level -lpthread server.c from-mondo.c common.c -o server
+exit $?
+
+
+
+
+

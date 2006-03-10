@@ -1,0 +1,24 @@
+#!/bin/sh
+
+mountlist=/tmp/mountlist.txt
+
+if [ "$#" -ne "0" ] ;then
+    echo "unmount-me <no params>"
+    echo "...mountlist is assumed to be at $mountlist"
+    exit 1
+fi
+
+#unmount-subroutine-me < $mountlist
+#unmount-subroutine-me < $mountlist
+
+#for j in 1 2 ; do
+for i in `mount | grep /mnt/RESTORING | cut -d' ' -f3 | sort -r`; do
+    umount $i
+done
+
+for i in `cut -d' ' -f1 /proc/swaps | grep /dev`; do
+    swapoff $i
+done
+
+exit 0
+

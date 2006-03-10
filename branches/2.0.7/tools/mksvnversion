@@ -1,0 +1,32 @@
+#!/bin/bash
+#
+# on every build, record the working copy revision string
+#
+# $Id$
+#
+
+# TOOLHOME should be provided by callers
+if [ _"$TOOLHOME" = _"" ]; then
+	# It's not the case so compute it
+	dname=`dirname $0`
+	prem=`echo $dname |cut -c1`
+	if [ ${prem} == "/" ]; then
+        export TOOLHOME=$dname
+	else
+        export TOOLHOME=${PWD}/$dname
+	fi
+fi
+
+rel=`svnversion $TOOLHOME/..`
+
+cat > $TOOLHOME/../mondo/REVISION << EOF
+${rel}
+EOF
+cat > $TOOLHOME/../mindi/REVISION << EOF
+${rel}
+EOF
+
+#
+# return the release
+#
+echo ${rel}

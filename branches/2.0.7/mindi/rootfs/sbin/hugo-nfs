@@ -1,0 +1,18 @@
+#!/bin/sh
+
+set -e
+echo hi > /tmp/NOPAUSE
+isodir=/tmp/isodir
+if [ ! "`mount | grep $isodir`" ] ; then
+    ifconfig eth0 192.168.0.33
+    echo -en "Mounting NFS..."
+    mkdir -p $isodir
+    mount 192.168.0.2:/home/mondostuff $isodir -t nfs -o async
+    cp $isodir/mondorestore.static /
+#    umount $isodir
+else
+    cp $isodir/mondorestore.static /
+fi
+echo "Done."
+/mondorestore.static $1 $2 $3 $4
+exit $?

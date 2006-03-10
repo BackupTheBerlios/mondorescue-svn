@@ -1,0 +1,27 @@
+#!/bin/sh
+#
+# $Id$
+#
+
+if ! mount | grep cdrom ; then 
+    LogIt "CD-ROM is not mounted. Darn."
+    exit 0
+fi
+
+if ! ls /mnt/cdrom/archives/* > /dev/null 2> /dev/null ; then
+    LogIt "Can't find /mnt/cdrom/archives; darn."
+    exit 0
+fi
+
+LogIt "OK, we've found /mnt/cdrom/archives/*; great."
+
+if ! grep "backup-media-type iso" /tmp/mondo-restore.cfg ; then
+    LogIt "Config file is fine, BTW."
+    exit 0
+fi
+
+LogIt "Re-jigging mondo-restore.cfg because you backed up to ISOs and then burned them to CDs" 1
+mv -f /tmp/mondo-restore.cfg /tmp/mrco
+sed 's/backup-media-type iso/backup-media-type cdr/' /tmp/mrco > /tmp/mondo-restore.cfg
+LogIt "Done re-jigging. Yay."
+exit 0

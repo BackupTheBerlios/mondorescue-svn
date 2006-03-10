@@ -1,0 +1,60 @@
+#!/bin/sh
+
+
+LOGFILE=/tmp/mondo-restore.log
+
+
+
+if [ "$#" -ne "1" ] && [ "$#" -ne "2" ] ; then
+    echo "make-me-bootable <fname> (dummy)"
+    exit 1
+fi
+
+dummy=$2
+boot_drv=""
+boot_part=""
+root_drv=""
+root_part=""
+
+HAVE_ACTIVE="false"
+for i in `cat $1 | tr -s '\t' ' ' | cut -d' ' -f1 | grep -v "/dev/fd" | grep -v "none" | grep -v "#"` ; do
+    mountpt=`grep "$i " $1 | tr -s '\t' ' ' | cut -d' ' -f2`
+    format=`grep "$i " $1 | tr -s '\t' ' ' | cut -d' ' -f3`
+    drive=`echo $i | sed -e 's/[0-9]*$//' -e 's/\([0-9]\)p$/\1/'`
+    partno=`echo $i | sed -e 's/^.*[^0-9]\([0-9]*\)$/\1/'`
+
+    if [ "$HAVE_ACTIVE" = "false" ] && [ "`parted2fdisk -l $drive | tr -s '\t' ' ' | grep "$i " | grep -v "*"`" ] ; then
+        if [ "$mountpt" = "/" ] ; then
+            root_drv=$drive
+	    root_part=$partno
+        elif [ "$mountpt" = "/boot" ] ; then
+            boot_drv=$drive
+            boot_part=$partno
+        fi
+    fi
+done
+
+if [ "$boot_drv" ] ; then
+    drive=$boot_drv
+    partno=$boot_part
+elif [ "$root_drv" ] ; then
+    drive=$root_drv
+    partno=$root_part
+else
+    driveline=`grep -w /boot $1`
+    [ ! "$driveline" ] && driveline=`grep -w / $1`
+    partno=`echo "$driveline" | cut -d' ' -f1 | awk -F "[a-z]" '{print $NF;}'`
+#    echo "driveline=$driveline --> partno=$partno"
+fi
+
+if [ "$drive" ] ; then
+    if [ "$dummy" != "" ] ; then
+    	if [ "$partno" = "0" ] || [ ! "$partno" ] ; then
+	    partno="1"
+	fi
+        echo "$partno"
+    else
+        echo -en "a\n$partno\nw\n" | parted2fdisk $drive >> $LOGFILE 2>> $LOGFILE
+    fi
+fi
+exit 0

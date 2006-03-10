@@ -1,0 +1,93 @@
+#!/bin/bash
+#
+# Creates debs packages from SVN repository for local tests
+#
+# $Id$
+#
+
+umask 022
+dname=`dirname $0`
+prem=`echo $dname |cut -c1`
+if [ ${prem} == "/" ]; then
+	export TOOLHOME=$dname
+else
+	export TOOLHOME=${PWD}/$dname
+fi
+
+. $TOOLHOME/deb-env
+
+if [ "$1" = "" ]; then
+	c="mindi mondo"
+else
+	c=$1
+fi
+
+$TOOLHOME/mkcommon "$c"
+
+if [ "`echo $c | grep mindi-kernel`" != "" ]; then
+	cd ${BASE}/svn
+	mkdir -p ${TOPDIR}/SOURCES 
+	sed "s/^%define mrel..*RRR/%define mrel	${REVISION}${suf}/" mindi-kernel-${MINDI_VER}/mindi-kernel.spec > ${TOPDIR}/SPECS/mindi-kernel.spec
+	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mindi-kernel-${MINDI_VER}-${REVISION}${suf}.${ARCH}.rpm"
+fi
+if [ "`echo $c | grep -v kernel | grep mindi`" != "" ]; then
+	cd ${BASE}/svn
+	if [ -f mindi-${MINDI_VER}/distributions/${ddir}/mindi.spec ]; then
+		specfile=mindi-${MINDI_VER}/distributions/${ddir}/mindi.spec
+	else
+		specfile=mindi-${MINDI_VER}/distributions/common/mindi.spec
+	fi
+	sed -e "s/^%define mrel..*RRR/%define mrel	${REVISION}${suf}/" -e "s/VVV/${MINDI_VER}/" $specfile > ${TOPDIR}/SPECS/mindi.spec
+	rm -rf mindi-${MINDI_VER}/distributions
+	mkdir -p ${TOPDIR}/SOURCES 
+
+	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mindi-${MINDI_VER}-${REVISION}${suf}.${ARCH}.rpm"
+	# ATTENTION: This could be dangerous for your setup
+	opt="rm -rf /usr/lib/mindi ;"
+fi
+if [ "`echo $c | grep  mondo`" != "" ]; then
+	cd ${BASE}/svn
+	if [ -f mondo-${MONDO_VER}/distributions/${ddir}/mondo.spec ]; then
+		specfile=mondo-${MONDO_VER}/distributions/${ddir}/mondo.spec
+	else
+		specfile=mondo-${MONDO_VER}/distributions/common/mondo.spec
+	fi
+	sed -e "s/^%define mrel..*RRR/%define mrel	${REVISION}${suf}/" -e "s/VVV/${MONDO_VER}/" $specfile > ${TOPDIR}/SPECS/mondo.spec
+	rm -rf mondo-${MONDO_VER}/distributions
+
+	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mondo-${MONDO_VER}-${REVISION}${suf}.${ARCH}.rpm"
+fi
+
+cd ${TOPDIR}/SPECS
+status=0
+if [ "`echo $c | grep kernel`" != "" ]; then
+	echo "Generating mindi-kernel RPMS"
+	log=/tmp/mindi-kernel-rpm.log
+	rpmbuild -ba mindi-kernel.spec 2> $log 1> $log
+	if [ $? != 0 ]; then 
+		cat $log
+		status=-1
+	fi
+fi
+if [ "`echo $c | grep -v kernel | grep mindi`" != "" ]; then
+	echo "Generating mindi RPMS"
+	log=/tmp/mindi-rpm.log
+	rpmbuild -ba mindi.spec 2> $log 1> $log
+	if [ $? != 0 ]; then
+		cat $log
+		status=-1
+	fi
+fi
+if [ "`echo $c | grep mondo`" != "" ]; then
+	echo "Generating mondo RPMS"
+	log=/tmp/mondo-rpm.log
+	rpmbuild -ba mondo.spec 2> $log 1> $log
+	if [ $? != 0 ]; then 
+		cat $log
+		status=-1
+	fi
+fi
+if [ $status = 0 ]; then
+	echo "Installing RPMS as root ($pkg)"
+	su - -c "$opt rpm -Uvh --force $pkg"
+fi

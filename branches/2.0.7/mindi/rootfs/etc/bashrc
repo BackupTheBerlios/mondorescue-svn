@@ -1,0 +1,11 @@
+PATH=/mondo:/usr/lib/mondo:/usr/lib/mindi:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/X11R6/bin:.
+HOSTNAME="mondo"
+TERM=linux
+PS1="[\u@\h \W]\\$ "
+ignoreeof=10
+LD_LIBRARY_PATH=/lib:/usr/lib:/usr/local/lib
+export PATH HOSTNAME DISPLAY PS1 TERM ignoreeof LD_LIBRARY_PATH
+# alias ls="ls -s --color"
+# alias rm="rm -i"
+# alias ll="ls -l"
+

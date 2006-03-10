@@ -1,0 +1,67 @@
+#!/bin/sh
+
+LogIt "mount-subroutine-me --- starting"
+if [ "$#" -ne "0" ] ; then
+    LogIt "mount-subroutine-me < mountlist" 1
+    exit 1
+fi
+
+# ----------- mount partitions to be restored to --------------
+
+#echo "START mount-me"
+
+errors=0
+
+read incoming
+while [ "$incoming" != "" ] ; do
+    partno=`echo $incoming | cut -d' ' -f1`
+    mountpt=`echo $incoming | cut -d' ' -f2`
+    mounttype=`echo $incoming | cut -d' ' -f3`
+    mountdir="/mnt/RESTORING$mountpt"
+    if [ "$mounttype" = "swap" ] ; then
+	swapon $partno
+    else
+        if [ -e "$mountdir" ] && [ ! -d "$mountdir" ] ; then
+            LogIt "$mountdir exists (but not a dir). Deleting..." 2
+            rm "$mountdir" -f
+            mkdir -p "$mountdir"
+        else
+            LogIt "Making dir $mountdir..." 2
+            mkdir -p "$mountdir"
+        fi
+        if [ "$?" -ne "0" ] ; then
+            LogIt "Failed to mkdir $mountdir" 3
+            errors=$(($errors+1))
+        else
+            LogIt "$mountdir mounted ok." 2
+        fi
+        LogIt "Mounting $partno..." 2
+	if [ -e "/tmp/MOUNT-READONLY" ] ; then
+            mount $partno -t $mounttype -o ro $mountdir
+        else
+            mount $partno -t $mounttype $mountdir
+        fi
+        if [ "$?" -ne "0" ] ; then
+    	    LogIt "Failed to mount $partno" 3
+	    errors=$(($errors+1))
+	fi
+	res=`mount | grep "$partno"`
+	if [ "$res" = "" ] ; then
+	    LogIt "I think I failed to mount $partno" 3
+	    errors=$(($errors+1))
+	else
+            LogIt "$partno mounted ok." 2
+        fi
+    fi
+    read incoming
+    [ "$incoming" != "" ] || read incoming
+done
+
+if [ "$errors" = "0" ] ; then
+     LogIt "All partitions mounted ok." 3
+else
+     LogIt "$errors errors occurred during mounting process." 3
+fi
+
+LogIt "mount-subroutine-me --- leaving"
+exit $errors

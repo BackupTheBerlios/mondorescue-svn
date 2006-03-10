@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" xml:lang="en" lang="en">
+  <head>
+		  <!--#include virtual="head.shtml" -->
+  </head>
+  <body>
+		  <!--#set var="curpage" value="downloads.shtml" -->
+		  <!--#include virtual="top.shtml" -->
+                    <h1>Download Mondo Rescue</h1>
+    <div class="h2-1">
+      <h2>This is Free Software</h2>
+    </div>
+    <p>Copyright (c) 2000-2006
+	Mondo Rescue is a copyrighted work, written collectively by many
+	<a href="/thanks.shtml">contributors</a>, delivered under the GPL.</p>
+    <p>
+This program is <a href="http://www.fsf.org/philosophy/free-sw.html">free software</a>; you can redistribute it and/or modify it under the terms of the <a href="http://www.fsf.org/copyleft/gpl.html">GNU General Public License</a> version 2, as published by the <a href="http://www.fsf.org/">Free Software Foundation</a>.<br/>
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.</p>
+
+    <div class="h2-2">
+      <h2>Mirrors</h2>
+    </div>
+	<p>We are interested in up to date mirrors for both the Web and FTP sites. Please contact us on the <a href="/support.shtml">mailing list</a>.
+
+    <div class="h2-3">
+      <h2>Dependencies</h2>
+    </div>
+<p>The solution has been written in C/bash/perl and developed on a <a href="http://www.mandriva.com/">Mandriva</a> <a href="http://www.gnu.org/">Gnu</a>/<a href="http://www.lwn.net/">Linux</a> distribution. For it to work, you will need:</p>
+<ul>
+<li><b><a href="">afio</a></b>: the packaging tool used to create the archive packets</li>
+<li><b><a href="">gzip</a></b>: the most standard compressor used by Mondo Rescue</li>
+<li><b><a href="">mkisofs</a></b>: the tool to create ISO images</li>
+<li><b><a href="http://www.busybox.net">busybox</a></b>: the swiss army knife : a full set of commands in a single binary (embedded)</li>
+<li><b><a href="http://www.mondorescue.org">mindi</a></b>: the mini-distro builder part of the project</li>
+<li><b><a href="http://www.mondorescue.org">mondo</a></b>: the disaster recovery tool in itself</li>
+</ul>
+
+<p>For Mandriva/Mandrake distributions, just use the magic :<br>
+<tt>urpmi mondo</tt></p>
+<p>
+For Debian, just use the magic : <br>
+<tt>apt-get install mondo</tt></p>
+<p>
+For the other RPM based distributions, you will have to issue a <br>
+<tt>rpm -ivh *.rpm</tt><br>
+in the directory containing all the required packages, and solve dependancies manually.
+</p>
+
+    <div class="h2-4">
+      <h2>Downloads</h2>
+    </div>
+	<p>Mondo's FTP site is available at <a href="ftp://ftp.mondorescue.org">ftp://ftp.mondorescue.org</a></p>
+<h3>Source code</h3>
+<ul>
+	<li>tarballs are available under <a href="ftp://ftp.mondorescue.org/src">ftp://ftp.mondorescue.org/src</a></li>
+	<li>Subversion browing available at <a href="http://svn.berlios.de/viewcvs/mondorescue">http://svn.berlios.de/viewcvs/mondorescue</a></li>
+	<li>Anonymous HTTP Subversion check out of the project available with the following instruction set: <pre><tt>svn checkout http://svn.berlios.de/svnroot/repos/mondorescue/branches/stable</tt></pre></li>
+	<li>Anonymous SVN Subversion check out of the project available with the following instruction set: <pre><tt>svn checkout svn://svn.berlios.de/mondorescue/branches/stable</tt></pre></li>
+</ul>
+
+<h3>Packages</h3>
+
+<p>Most of the time, you'll be able to download directly the packages suited for your distribution. Currently we provide packages for :
+<ul>
+		<li>RedHat <a href="ftp://ftp.mondorescue.org/redhat/7.3">7.3</a>.</li>
+		<li>Fedora <a href="ftp://ftp.mondorescue.org/fedora/4">Core 4</a>.</li>
+		<li>RedHat Enterprise Linux <!--<a href="ftp://ftp.mondorescue.org/rhel/2.1">2.1</a>, --><a href="ftp://ftp.mondorescue.org/rhel/3">3</a>, <a href="ftp://ftp.mondorescue.org/rhel/4">4</a>.</li>
+		<li>OpenSuSE <a href="ftp://ftp.mondorescue.org/suse/9.3">9.3</a>, <a href="ftp://ftp.mondorescue.org/suse/10.0">10.0</a>. Look also at <a href="http://www.mikenjane.net/~mike/">this</a> web page for SuSE details.
+		<li>SuSE Linux Enterprise Server <a href="ftp://ftp.mondorescue.org/sles/9">9</a>.</li>
+		<li>Debian <a href="ftp://ftp.mondorescue.org/debian/3.1">3.1</a>. Look also at <a href="http://www.desknow.com/desknow/directfiles/aleidenfrost/mr-debs-unofficial/index.html">this</a> web page for Debian details.</li>
+		<li>Mandriva <a href="ftp://ftp.mondorescue.org/mandrake/10.1">10.1</a>, <a href="ftp://ftp.mondorescue.org/mandrake/10.2">10.2</a>, <a href="ftp://ftp.mondorescue.org/mandriva/2006.0">2006.0</a>.</li>
+</ul>
+
+<p>Older packages are also on the <a href="ftp://ftp.mondorescue.org/">ftp</a> site to help for some old fashion distros/versions.</p>
+
+<h3>Mondo Rescue CD</h3>
+
+<p>In order to make it as easy as possible for you to use Mondo Rescue, you may want to download the latest <a href="ftp://ftp.mondorescue.org/iso/mondorescue.iso">Mondo Rescue CD</a> which contains all the packages with its dependancies available on the ftp site. It is updated daily.
+
+<!--
+    <div class="h2-5">
+      <h2>Change Logs</h2>
+    </div>
+	-->
+
+		  <!--#include virtual="bottom.shtml" -->
+  </body>
+</html>

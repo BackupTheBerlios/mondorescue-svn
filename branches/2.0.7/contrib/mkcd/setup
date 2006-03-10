@@ -1,0 +1,770 @@
+#!/bin/sh
+
+
+##########################################################################
+# SETUP for Mondo/Mindi installation CD, by Hugo Rabson
+#
+#
+# 07/14
+# - added SLES support
+# - added NNA support
+#
+# 06/29/2004
+# - if finals and snapshots are present, use snapshots
+#
+# 06/20/2004
+# - patch by Geofuz@netscape.com
+#
+# 06/08/2004
+# - upgraded to Mondo 2.0, Mindi 1.0
+# - fixed bug related to softlinks (xxx.86-64 --> xxxx.amd64)
+#
+# 05/23/2004
+# - added SuSE 9.1 (64-bit) slang/newt workaround
+#
+# 04/25/2004
+# - fixed bug which stopped RPM-based distros whose dirs are softlinks
+#   from having their dependencies resolved properly
+#
+# 04/15/2004
+# - fixed RHT9-specific Mondo/Mindi installation bug
+#
+# 04/02/2004
+# - added RHE2.1 support
+#
+# 03/29/2004
+# - added Fedora 2 and SuSE 8.1 support (thanks, Mike Roark, for slang RPM)
+#
+# 03/25/2004
+# - changed $command from 'rpm -Uvh ...' to just '...'; now, it's called
+#   as 'rpm -Uvh $command' not '$command' --- required for SuSE 9
+#   compatibility
+#
+# 03/23/2004
+# - added Knoppix 3.3 preliminary support
+#
+# 02/22/2004
+# - added Mitel 6.0 support (a.k.a. SME 6.0)
+#
+# 01/15/2004
+# - added RHE 3.0 to the mix
+#
+# 01/02/2004
+# - FindMissingRPMs() was installing finals, not snapshots, under
+#   certain circumstances - FIXED
+#
+# 11/18/2003
+# - make sure to remove all _old_ mindi, mondo stuff from HDD
+#
+# 10/20/2003
+# - added Fedore Core support
+#
+# 10/19/2003
+# - added code to distinguish zisofs from zisofs-tools when looking
+#   for missing RPMs
+#
+# 10/16/2003
+# - friendlier messages re: umount /mnt/cdrom
+#
+# 10/06/2003
+# - better handling of dirs w/ final & snapshot in them at same time
+#
+# 09/22/2003
+# - added SuSE and Trustix to the mix
+# - uninstall cdrecord if version is < 1.10
+#
+# 09/08/2003
+# - added partimagehack to the mix
+#
+# 07/31/2003
+# - fixed input param bug
+#
+# 05/20/2003
+# - added code to deal with mindi-kernel rpm
+#
+# 05/03/2003
+# - copy self to /tmp/$RANDOM.$RANDOM.txt and run from there
+# - unmount (if not supermount) and eject CD at end of install
+#
+# 04/25/2003
+# - pause before exiting, even Die()'ing
+#
+# 01/10/2003
+# - misc bugs fixed
+#
+# 12/10/2002
+# - misc bugs fixed
+#
+# 12/07/2002
+# - changed ALX to ARK (ArkLinux)
+#
+# 11/31/2002
+# - report success/failure at end
+#
+# 11/29/2002
+# - tweaked it to automount; also to look for mondo/mindi RPMs in
+#   the distro's directory before trying the vanilla RPMs
+#
+# 08/12/2002
+# - minor tweaks
+#
+# 03/29/2002
+# - started keeping a changelog in here
+##########################################################################
+
+
+InBkgd() {
+   cd /
+   sleep 1
+   umount $1
+   eject $2
+}
+
+# ------------------------- main ------------------------- 
+
+
+LOGFILE=/tmp/mondo-setup.log
+STABLE_BRANCH=2.0
+DEVEL_BRANCH=2.1
+
+
+
+
+Die() {
+    LogIt "$1"
+    LogIt ""
+    echo -en "Press ENTER to abort." 2> /dev/stderr
+    read line
+    cd /
+    exit 1
+}
+
+
+
+GetDistroBanner() {
+    local fname res
+
+    if uname -a | grep Knoppix > /dev/null ; then
+	echo "Knoppix LiveCD"
+	return
+    fi
+
+    res=`cat /etc/issue.net 2>/dev/null | fgrep -i turbolinux | head -n1`
+    if [ "$res" != "" ] ; then
+	echo "$res"
+        return
+    fi
+
+    for fname in `find /etc -maxdepth 1 | fgrep release` /etc/issue.net ; do
+        res=`cat $fname 2>/dev/null | fgrep -i "linux" | head -n1 | tr -s '\t' ' '`
+        [ "$res" = "" ] && res=`cat $fname |head -n1 | tr -s '\t' ' '`
+        if [ "$res" != "" ] ; then
+            echo "$res"
+            return
+        fi
+    done
+#echo "fname = $fname" > /dev/stderr
+
+    echo "UNKNOWN"
+}
+
+#GetDistroBanner
+#exit 0
+
+
+GetDistroName() {
+    local banner name
+    banner="`GetDistroBanner`"
+    name="X"   ;# unknown
+#echo "banner = $banner" >> /dev/stderr
+    StrStr "`cat /etc/issue.net 2> /dev/null | head -n1`" "SuSE Linux Openexchange" && name=SLX; # SuSE Openexchange
+    StrStr "`cat /etc/issue.net 2> /dev/null | head -n1`" "SuSE SLES" && name=SLE; # SLES
+    StrStr "$banner" "OpenNA"            && name="NNA" ;# OpenNA
+    StrStr "$banner" "Fedora"            && name="FDR" ;# Fedora
+    StrStr "$banner" "Red Hat"           && name="RHT" ;# Red Hat
+    StrStr "$banner" "Red Hat Linux Advanced"  && name="RHE" ;# Red Hat E
+    StrStr "$banner" "Red Hat Linux Enterprise" &&name="RHE" ;# Red Hat E
+    StrStr "$banner" "Red Hat Advanced"  && name="RHE"
+    StrStr "$banner" "Red Hat Enterprise" && name="RHE"
+    StrStr "$banner" "White Box Enterprise" && name="RHE";# Red Hat Enterpr.
+    StrStr "$banner" "Red Hat Enterprise"   && name="RHE"
+    StrStr "$banner" "Mandrake"          && name="MDK" ;# Mandrake
+    StrStr "$banner" "e-Smith"           && name="SME" ;# e-Smith / SME
+    StrStr "$banner" "SME Server"        && name="SME" ;# e-Smith / SME
+    StrStr "$banner" "Mitel"             && name="SME" ;# Mitel a.k.a. SME
+    StrStr "$banner" "SuSE"              && name="SUS" ;# SuSE
+    StrStr "$banner" "Trustix"           && name="TSL" ;# Trustix
+    uname -a | grep Knoppix > /dev/null  && name="KPX" ;# Knoppix
+    if StrStr "$banner" "Turbolinux" ; then
+        StrStr "$banner" "Server"        && name="TLS" ;# TurboLinux Server
+        StrStr "$banner" "Server"        || name="TLW" ;# TurboLinux WorkSt'n
+    fi
+    if StrStr "$banner" "Caldera" ; then
+        StrStr "$banner" "Server"        && name="CALe";# Caldera e-Server
+        StrStr "$banner" "Server"        || name="CALo";# Caldera OpenLinux
+    fi
+    if [ "$name" != "RHE" ] ; then
+	for i in "ArkLinux ARK" "Gentoo GEN" "RedHat RHT" "Mandrake MDK" ; do
+	    d=`echo "$i" | cut -d' ' -f1`
+	    e=`echo "$i" | cut -d' ' -f2`
+	    if strings /etc/ld.so.cache | grep -i "$d" &> /dev/null ; then
+		echo $e
+		return
+	    fi
+	done
+    fi
+    echo "$name"
+}
+
+
+
+FindMissingRPMs() {
+    local i pkg missing_packages j todo k blah q
+    missing_packages=""
+    todo=`find $1/*.rpm | grep -v mondo | grep -v mindi`
+    if [ "`GetDistroName`" = "NNA" ] ; then
+        echo "Sorry - no mindi-kernel or partimagehack for OpenNNA" > /dev/stderr
+    else
+    for i in mindi-kernel partimagehack ; do
+# "mindi-$MINDI_BRANCH" "mondo-$MY_BRANCH" ; do
+        [ "`echo "$i" | grep mindi`" ] && qq=head || qq=tail
+        j=`find $1/ -type f -maxdepth 1 | grep "$i" | $qq -n1`
+        [ ! "$j" ] && j=`find RPMS/ -type f -maxdepth 1 | fgrep "$i" | $qq -n1`
+        if [ ! "$j" ] ; then
+	    echo "Looking for $i" >> /dev/stderr
+	    echo "Looking in $1" >> /dev/stderr
+	    echo "pwd = `pwd`" >> /dev/stderr
+	    echo "I ran 'find $1 -type f -maxdepth 1 | grep $i" >> /dev/stderr
+	    Die "Unable to find $i in $1 or RPMS/"
+	fi
+        todo="$todo $j"
+    done
+    fi
+
+#    echo "todo = '$todo'" >> /dev/stderr
+
+    for i in $todo ; do
+#	echo "i = $i" > /dev/stderr
+	[ -d "$i" ] && continue
+	StrStr "$i" ".rpm" || continue
+	i=`basename $i`
+	j=`echo "$i" | tr '.' '#' | sed s/#rpm// | sed s/#i[3-8]86// | tr -s '#' '.'`
+	k=`echo "$j" | cut -d'-' -f1`
+	for blah in devel doc http kernel libs newt theme tools ; do
+	    if echo "$j" | grep "\-$blah" &> /dev/null ; then
+		k=`echo "$j" | cut -d'-' -f1,2`
+		if echo "$j" | grep -x "[A-Z,a-Z]*-[A-Z,a-Z]*-[A-Z,a-z]*-.*" &> /dev/null ; then
+		    k=`echo "$j" | cut -d'-' -f1,2,3`
+		fi
+	    fi
+	done
+	rpm -q $k &> /dev/null && continue
+## remove xmondo thingy
+	echo "$i" | grep xmondo &> /dev/null && continue
+	missing_packages="$missing_packages $i"
+    done
+    echo "$missing_packages"
+}
+
+
+
+GetDistroVersion() {
+    local banner i res j
+    banner="`GetDistroBanner`"
+    res=""
+    j="`cat /etc/issue.net 2> /dev/null | head -n1`"
+    if StrStr "$j" "Openexchange" || StrStr "$j" "SLES" ; then
+	banner="$j"
+    fi
+#    echo "banner = $banner" >> /dev/stderr
+    for i in $banner ; do
+	j=`echo $i | grep -x "[v|V][0-9]+*.*"`
+	[ ! "$j" ] && j=`echo $i | grep -x "[0-9]+*.*"`
+	echo "$j" | grep -x "[0-9]*)" > /dev/null && continue
+	[ "$j" ] && res=`echo $j | sed s/v// | sed s/V//`
+    done
+    [ "$res" = "2.1AS" ] && res="2.1"
+    if echo "$banner" | grep SLES &> /dev/null ; then
+        res="`echo "$banner" | sed s/SLES/#/ | cut -d'#' -f2 | cut -d' ' -f2`"
+#        echo "banner = $banner"
+#        echo "res = $res"
+    fi
+    [ "$res" ] && echo "$res"
+}
+
+
+GetDistroArchitecture() {
+    local arch
+    for arch in x86_64 x86-64 amd64 opteron ia64 ; do
+	if grep -i "$arch" /etc/issue.net &> /dev/null ; then
+#	    [ "$arch" = "x86_64" ] && arch=amd64; # hack - FIXME
+	    echo $arch
+	    return 0
+	fi
+    done
+
+    for arch in itanium ; do
+	if grep -i "$arch" /etc/issue.net &> /dev/null ; then
+	    echo itan
+	    return 0
+	fi
+    done
+
+    echo ia32
+    return 0
+}
+
+
+
+
+
+InstallFromRpms() {
+    local distro_TLA distro_ver distro_title replacement ch res q distro_arch rpms_path
+    distro_TLA=$1
+    distro_ver=$2
+    distro_arch=$3
+# Look in directory 'RPMS/$distro_TLA' for a file called 'name' which contains
+# the user-friendly name of this distribution.
+    distro_title=`cat RPMS/$distro_TLA/name`
+    echo "InstallFromRPMS($distro_TLA,$distro_ver,$distro_arch) --- title = $distro_title" >> $LOGFILE
+# $CDPATH/
+    rpms_path=RPMS/$distro_TLA/$distro_ver
+    [ "$distro_arch" != "ia32" ] && rpms_path=$rpms_path.$distro_arch
+
+# Find a (compatible) version closest or identical to this user's version.
+    if [ ! -d "$rpms_path" ] ; then
+	replacement=`find RPMS/$distro_TLA -type d | tail -n1`
+	replacement=`basename $replacement`
+	echo -en "Version $distro_ver is not supported. Would $replacement do? "
+	read ch
+	StrStr "YyYESyesYes" "$ch" && distro_ver=$replacement || Die "Please install Mondo manually.\nType 'cd $CDPATH/RPMS/$distro_TLA and \ninstall the RPMs of your choice."
+    fi
+# Install RPMs from this directory.
+    LogIt "Locating and installing packages suitable for $distro_title v $distro_ver"
+    for q in XMondo mondo mindi mindi-kernel partimagehack bootsplash-theme-SuSE ; do
+	echo -en "."
+        rpm -q $q &> /dev/null && rpm --erase $q --nodeps 2>> $LOGFILE >> $LOGFILE
+    done
+# make list of and install missing packages
+    if rpm -q cdrecord 2> /dev/null | grep "cdrecord-1\.[5-8]" ; then
+        echo -en "Uninstalling outdated cdrecord package..."
+        rpm --erase --nodeps cdrecord
+	echo "Done."
+    fi
+    echo -en "."
+
+    rm -Rf /usr/local/share/mondo /usr/share/mondo /usr/local/share/mindi /usr/share/mindi
+
+# remove packages which could be broken, then upgrade them
+    if find $rpms_path/*slang*rpm > /dev/null 2> /dev/null ; then
+	rpm --erase --nodeps slang 2> /dev/null
+	rpm --erase --nodeps slang-devel 2> /dev/null
+	rpm -i --nodeps $rpms_path/*slang*rpm
+    fi
+    if find $rpms_path/*newt*rpm > /dev/null 2> /dev/null ; then
+        rpm --erase --nodeps newt 2> /dev/null
+	rpm --erase --nodeps newt-devel 2> /dev/null
+	rpm --erase --nodeps lib64newt0.50 2> /dev/null
+	rpm --erase --nodeps lib64newt0.51 2> /dev/null
+    fi
+
+    for i in mondoarchive mondorestore mindi ; do
+        for j in 1 2 3 ; do
+            which $i &> /dev/null && rm -f `which $i`
+        done
+    done
+
+# install missing pkgs
+
+#    echo "rpms_path = $rpms_path" >> /dev/stderr
+    [ "$rpms_path" = "RPMS/SUS/9.1.x86-64" ] && ln -sf libnewt.so.0.51 /usr/lib64/libnewt.so.0.50
+    if [ "$rpms_path" = "RPMS/SUS/9.1" ] ; then
+	ln -sf libnewt.so.0.51 /usr/lib/libnewt.so.0.50
+	if ! ls /usr/lib/libslang-utf8* &> /dev/null ; then 
+	    ln -sf libslang.so.1 /usr/lib/libslang-utf8.so.1
+	fi
+    fi
+#    [ "$rpms_path" = "RPMS/SLE/8" ] && ln -sf libslang-utf8.so.1 /usr/lib/libslang.so.1
+    if ls $rpms_path/mondo* &> /dev/null ; then
+        InstallMissingPackages $rpms_path $rpms_path
+    else
+        InstallMissingPackages $rpms_path RPMS
+    fi
+    res=$?
+#    PostInstallSanityChecks
+#    res=$(($res+$?))
+    return $res
+}
+
+
+UntarAndMakeMindi() {
+    local tarball res builddir pkg q branch tarball outdir bindir
+
+    pkg=mindi
+    branch=$1
+    builddir=/tmp/setup.$$
+    mkdir -p $builddir
+    cd $builddir
+
+    tarball=`find $CDPATH/TGZS/$pkg-$branch*tgz | tail -n1`
+    [ -e "$tarball" ] || return 1
+    tar -zxf $tarball || return 1
+    if uname -a | grep Knoppix > /dev/null ; then
+        stub=`echo "$tarball" | gawk -F '/' '{print $NF;}' | cut -d'.' -f1,2`
+#        echo "stub = $stub"
+        outdir=/ramdisk/tmp/$pkg
+        mkdir -p $outdir || return 1
+	tar -zxf $tarball -C $outdir
+	cd $outdir
+	cd $outdir/$stub
+#	cp -f /mnt/mondostuff/mondocvs/mindi-devel/install.sh . 2> /dev/null
+#	cp -f /mnt/mondostuff/mondocvs/mindi-devel/mindi . 2> /dev/null
+	./install.sh || return 1
+    else
+	Die "Not written yet"
+    fi
+
+    cd /tmp
+    [ "$builddir" ] && [ -d "$builddir" ] && rm -Rf $builddir
+    return 0
+}
+
+
+
+UntarAndMakeMondo() {
+    local tarball res builddir pkg q branch tarball q outdir bindir
+
+    pkg=mondo
+    branch=$1
+    builddir=/tmp/setup.$$
+    mkdir -p $builddir
+    cd $builddir
+
+    tarball=`find $CDPATH/TGZS/$pkg-$branch*tgz | tail -n1`
+    [ -e "$tarball" ] || return 1
+    tar -zxf $tarball || return 1
+    if uname -a | grep Knoppix > /dev/null ; then
+	stub=`echo "$tarball" | gawk -F '/' '{print $NF;}' | cut -d'.' -f1,2`
+#	echo "stub = $stub"
+	outdir=/ramdisk/usr/local/share/$pkg
+	bindir=/ramdisk/usr/bin
+	mkdir -p $bindir
+	mkdir -p $outdir || return 1
+	rm -Rf $outdir/*
+	tar -zxf $tarball -C $outdir $stub/$pkg/{restore-scripts,do-not-compress-these}
+	mv $outdir/$stub/$pkg/* $outdir
+	rm -Rf $outdir/$stub
+	for q in mondoarchive mondorestore ; do
+	    cp -f $CDPATH/stuff/$q.static $outdir/$q || Die "Can't copy static $q"
+	    ln -sf $outdir/$q $bindir/$q
+	done
+    else
+	tar -zxf $tarball || return 1
+	dir=`find $pkg-$branch* -type d`
+	echo hi > test.txt
+	cd $builddir/$dir || return 1
+	./configure || return 1
+	make VERSION=$MY_BRANCH -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_REENTRANT || return 1
+	make install || return 1
+    fi
+    cd /tmp
+    [ "$builddir" ] && [ -d "$builddir" ] && rm -Rf $builddir
+    return 0
+}
+
+
+
+
+InstallPIH() {
+    local pkg branch builddir tarball
+    pkg=partimagehack
+    branch=$1
+    builddir=/tmp/setup.$$
+    outdir=/ramdisk/usr/bin
+    mkdir -p $builddir
+    cd $builddir
+
+    tarball=`find $CDPATH/TGZS/$pkg-$branch*bz2 | tail -n1`
+    [ -e "$tarball" ] || return 1
+
+    if uname -a | grep Knoppix > /dev/null ; then
+        stub=`echo "$tarball" | gawk -F '/' '{print $NF;}' | cut -d'.' -f1,2,3`
+#       echo "stub = $stub"
+       tar -jxf $tarball -C $outdir $stub/partimagehack || return 1
+       mv -f $outdir/$stub/partimagehack $outdir
+    else
+	Die "InstallPIH doesn't work for non-Knoppix systems yet"
+    fi
+    cd /tmp
+    return 0
+}
+
+
+
+
+#CDPATH=/mnt/mondostuff/MondoCD
+#InstallPIH 0.6
+#UntarAndMakeMondo 1.7
+#UntarAndMakeMindi 0.9
+#exit 0
+
+
+InstallFromTgzs() {
+    local res old_pwd
+
+    old_pwd=`pwd`
+    res=0
+    if uname -a | grep Knoppix > /dev/null && [ "$MY_BRANCH" = "1.6" ] ; then
+	Die "Only mondo-devel supports Knoppix."
+    fi
+
+    UntarAndMakeMondo $MY_BRANCH || Die "Failed to build mondo $MY_BRANCH"
+    UntarAndMakeMindi $MINDI_BRANCH || Die "Failed to build mindi $MINDI_BRANCH"
+    InstallPIH 0.6 || Die "Failed to install partimagehack from tarball"
+    cd $old_pwd
+    return $res
+}
+
+
+
+
+InstallMissingPackages() {
+    local res pkg missing_packages command packages_path mindimondo_path possible_packages c2
+    packages_path=$1
+    mindimondo_path=$2
+#    echo "mindimondo_path = $2" >> /dev/stderr
+    missing_packages=`FindMissingRPMs $1`
+    echo "missing_packages =$missing_packages" >> $LOGFILE
+    sync
+
+#    echo -en "Press ENTER to continue." ; read line
+
+    command=""
+    for pkg in $missing_packages ; do
+	echo -en "."
+        if [ -e "$packages_path/$pkg" ] ; then
+	    command="$command $packages_path/$pkg"
+	elif [ -e "RPMS/$pkg" ] ; then
+	    command="$command RPMS/$pkg"
+	else
+	    Die "Cannot find local path of $pkg - it's neither at RPMS nor at $packages_path"
+	fi
+    done
+
+#    echo "\$2 = '$2'" >> /dev/stderr
+
+    c2="`find $mindimondo_path/mindi-$MINDI_BRANCH*rpm 2> $LOGFILE | tail -n1` `find $mindimondo_path/mondo-$MY_BRANCH*rpm 2>> $LOGFILE | tail -n1`"
+
+#    echo "c2 = '$c2'" >> /dev/stderr
+
+    command="`echo "$command" | tr ' ' '\n' | sort -u | tr '\n' ' '`"
+    if echo "$c2" | grep mondo &> /dev/null && echo "$command" | grep mondo &> /dev/null ; then
+#        echo "command was $command"
+        command="`echo "$command" | tr ' ' '\n' | grep -v mondo | tr '\n' ' '`"
+#        echo "command is now $command"
+    fi
+    command="`echo "$command $c2" | tr ' ' '\n' | sort -u | tr '\n' ' '`"
+    echo "Calling 'rpm -Uvh $command'" >> $LOGFILE
+    echo -en "\r"
+    rpm -Uvh $command
+    res=$?
+    [ "$res" -ne "0" ] && Die "Some packages failed to be installed."
+    return $res
+}
+
+
+
+LogIt() {
+    echo -e "$1" >> /dev/stderr
+    echo -e "$1" >> $LOGFILE
+}
+
+
+
+PostInstallSanityChecks()
+{
+    local res
+    res=0
+    if which /usr/local/mondo/mondo-archive &> /dev/null ; then
+	echo "mondo-archive available to be executed" >> $LOGFILE
+    else
+	LogIt "mondo-archive --help failed"
+	res=$(($res+1))
+    fi
+    if [ "`/usr/local/mondo/mondo-tarme --wu-tang`" = "dollar dollar bill, y'all" ]; then
+	echo "mondo-tarme executable intact" >> $LOGFILE
+    else
+	LogIt "mondo-tarme executable not available"
+	res=$(($res+1))
+    fi
+    if [ "`/usr/local/mondo/mondo-restore --cream`" = "dollar dollar bill, y'all" ] ; then
+	echo "mondo-restore executable intact" >> $LOGFILE
+    else
+	LogIt "mondo-restore executable not available"
+	res=$(($res+1))
+    fi
+    return $res
+}
+
+
+
+StrStr() {
+  [ "`echo "$1" | fgrep -i "$2"`" ] && return 0 || return 1
+}
+
+
+
+WelcomeMessage() {
+    LogIt ""
+    LogIt "Welcome to the Mondo Rescue installer! This script"
+    LogIt "will install Mondo and any missing dependencies."
+    LogIt "--------------------------------------------------"
+    echo "banner=`GetDistroBanner`" >> $LOGFILE
+    echo "name  =`GetDistroName`" >> $LOGFILE
+    echo "ver   =`GetDistroVersion`" >> $LOGFILE
+    echo "arch  =`GetDistroArchitecture`" >> $LOGFILE
+}
+
+
+InstallXmondoFromRpms() {
+    rpm -i RPMS/XMondo-1*rpm
+    return $?
+}
+
+
+
+InstallXmondoFromTgz() {
+    echo "InstallXmondoFromTgz() --- not written yet"
+    return 1
+}
+
+
+
+
+# ------------------------------- main -------------------------------
+
+
+
+cd `dirname $0`
+CDPATH=`pwd`
+if [ "$#" -ge "1" ] ; then
+    if [ "`pwd`" != "/tmp" ] ; then
+	rm -f /tmp/mondo-cd-setup.*
+	new_fname="/tmp/mondo-cd-setup.$RANDOM.$RANDOM.$$.sh"
+	cat $0 > $new_fname
+	chmod +x $new_fname
+	cd /
+	exec sh $new_fname $0
+    fi
+    cd `dirname $1`
+fi
+
+> $LOGFILE
+echo "pwd=`pwd`" >> $LOGFILE
+[ -e "/usr/local/mondo.devel" ] && [ -e "/usr/local/mindi" ] && Die "Noooo! Hugo, type 'mv /usr/local/mindi /usr/local/mindi.orig' first, please."
+MY_BRANCH=$STABLE_BRANCH
+MINDI_BRANCH=1.0
+WelcomeMessage
+
+#echo "distr=`GetDistroName`"
+#echo "version=`GetDistroVersion`"
+#echo "arch=`GetDistroArchitecture`"
+#exit 1
+
+echo -en "Do you want to install the (S)table or the (D)evelopment branch of Mondo? "
+read ch
+if [ "`echo "development" | fgrep -i "$ch"`" ] ; then
+    MY_BRANCH=$DEVEL_BRANCH
+    MINDI_BRANCH=1.1
+#    XMONDO=yes
+fi
+[ "$MY_BRANCH" = "$STABLE_BRANCH" ] && LogIt "Installing stable branch." || LogIt "Installing development branch."
+# LogIt "I see you are running `GetDistroBanner`"
+distro=`GetDistroName`
+version=`GetDistroVersion`
+architecture=`GetDistroArchitecture`
+LogIt "distro=$distro version=$version arch=$architecture"
+
+[ "$distro" = "ARK" ] && version=1.0
+# patch by Geofuz@netscape.com
+if [ "$distro" = "FDR" ] ; then
+  if [ "$version" = "2" ] || [ "$version" = "1.90" ] ; then
+    version=2.0
+  else
+    version=1.0
+  fi
+fi  
+# end patch
+[ "$distro" = "KPX" ] && version=3.3; # Knoppix
+[ ! "$version" ] && Die "Distro=$distro but I cannot ascertain version of distro"
+if [ ! -d "RPMS/$distro" ] && rpm --version &> /dev/null && [ "$distro" != "KPX" ] ; then
+    LogIt "You are using an unknown version but you have RPM available, which means"
+    LogIt "I could try installing the Red Hat 7.2-compatible stuff. It will probably work."
+    echo -en "Shall I do that (y/n)? "
+    read ch
+    if [ "`echo "YESyesYes" | fgrep "$ch"`" ] ; then
+        distro=RHT
+        version=7.2
+    fi
+fi
+res=0
+if [ -d "RPMS/$distro" ] ; then
+    InstallFromRpms "$distro" "$version" "$architecture"
+    res=$(($res+$?))
+    if [ "$XMONDO" ] ; then
+        InstallXmondoFromRpms
+        res=$(($res+$?))
+    fi
+elif [ -d "TGZS/$distro" ] ; then
+    InstallFromTgzs "$distro" "$version" "$architecture"
+    res=$(($res+$?))
+    if [ "$XMONDO" ] ; then
+        InstallXmondoFromTgzs
+        res=$(($res+$?))
+    fi
+else
+    LogIt "`GetDistroBanner` is not supported by this script."
+    LogIt "RPMs are stored in /RPMS and the tarballs are in /TGZS, both on the CD."
+    Die "Please install Mondo manually."
+fi
+if [ "$res" -eq "0" ] ; then
+    LogIt "Running 'ldconfig' to refresh library cache..."
+    ldconfig
+    LogIt "End of install. Mondo was installed OK."
+else
+    LogIt "End of install. Errors occurred."
+fi
+
+cd /
+if [ "$#" -ge "1" ] ; then
+    mountpt=`dirname $1`
+    dev=`mount | tr -s '\t' ' ' | grep "$mountpt " | awk '{print $1;}'`
+    if [ ! "$dev" ] || [ "$dev" = "none" ] ; then
+	dev=`mount | tr -s '\t' ' ' | grep "$mountpt " | tr -s ',' '\n' | sed s/dev=// | grep /dev`
+	mountpt=""; # supermount - don't unmount it :)
+    fi
+    [ "$mountpt" ] && umount $mountpt
+    [ "$dev" ] && eject $dev
+    echo "mountpt=$mountpt; dev=$dev" >> $LOGFILE
+else
+    LogIt "Please type:-"
+    LogIt "       cd /"
+    LogIt "       umount $CDPATH"
+    LogIt "Then remove the Mondo installation CD."
+fi
+
+LogIt "Refer to Mondo's manual for instructions"
+LogIt "on the care and feeding of Mondo Rescue."
+LogIt ""
+#if fdisk -l | grep -w 7 &> /dev/null || fdisk -l | grep -wi ntfs &> /dev/null ; then
+#    LogIt "To backup your NTFS partition, you must first install"
+#    LogIt "partimagehack. This is in the CD's /TGZS directory as"
+#    LogIt "partimagehack-0.6.2.tar.bz2, FYI."
+#    which partimagehack &> /dev/null & LogIt "...Oh my, I think you already have. Good show!"
+#fi
+#LogIt ""
+LogIt "Log in as root and type 'mondoarchive' to backup your PC."
+LogIt ""
+echo -en "Press ENTER to finish."
+read line
+exit $res

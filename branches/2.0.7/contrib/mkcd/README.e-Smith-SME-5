@@ -1,0 +1,20 @@
+README for SME-5 users                                              01/25/2002
+""""""""""""""""""""""
+
+If you plan to backup to CD then you need to make sure your kernel can detect
+and access your CD writer. Type 'cdrecord -scanbus'. If your CD writer is not
+listed in the output, and if it is an IDE drive, then you should find out
+which device it is - /dev/hda, /dev/hdb, etc. - and add an entry to
+/etc/lilo.conf, something like this:-
+
+	append="hdX=ide-scsi"
+
+Replace hdX with your CD writer's device (mine is hdb). Then run 'lilo' and
+reboot. You will have to type 'insmod sg st ide-scsi ide-cd' after rebooting,
+if the kernel does not detect and configure the CD writer for you.
+
+You may now backup your whole system. Type:-
+# mondo-archive
+
+See the manual for more information.
+

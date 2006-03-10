@@ -2,7 +2,8 @@
 
 MINDI CHANGES
 
-1.07 (2006-02-23)
+1.0.7 (2006-03-10)
+- Fix issue for 2.6 kernels with VIA chipsets (Andree Leidenfrost)
 - stop creating further size of floppy disks if the smaller one succeeds 
   (Bruno Cornec)
 - init revamped (removed unnecessary second general module loading phase,

@@ -98,9 +98,9 @@ else
 	else
 		DESTDIR=$MONDODIR
 	fi
+	echo "Delivering to $DESTDIR on ${DESTMACH}"
 fi
 tar cfz /tmp/mondo-www.tgz .
-ssh ${DESTUSER}@${DESTMACH} "rm -rf ${DESTDIR} ; mkdir ${DESTDIR}"
 scp /tmp/mondo-www.tgz ${DESTUSER}@${DESTMACH}:/tmp
 rm -f /tmp/mondo-www.tgz
-ssh ${DESTUSER}@${DESTMACH} "cd ${DESTDIR} ; tar xfz /tmp/mondo-www.tgz"
+ssh ${DESTUSER}@${DESTMACH} "rm -rf ${DESTDIR} ; mkdir ${DESTDIR} ; cd ${DESTDIR} ; tar xfz /tmp/mondo-www.tgz"

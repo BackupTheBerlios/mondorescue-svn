@@ -62,9 +62,9 @@ for m in $SVN_VM; do
 		qemu -m 256 -redir tcp:${sp}:${ipvm}:22 /users/vmplayer/$m.qemu &
 		sleep 240
 	fi
-	scp -p $sp /tmp/mkmondo bruno@$ipvm:
-	ssh bruno@$ipvm "chmod 755 ./mkmondo ; ./mkmondo" | tee /tmp/mkvm.log
+	scp -P $sp /tmp/mkmondo bruno@localhost:
+	ssh -p $sp bruno@localhost "chmod 755 ./mkmondo ; ./mkmondo" | tee /tmp/mkvm.log
 	if [ $vmp -eq 1 ]; then
-		ssh root@$ipvm "halt -p"
+		ssh -p $sp root@localhost "halt -p"
 	fi
 done

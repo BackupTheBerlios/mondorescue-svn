@@ -46,7 +46,7 @@ fi
 \$SVN_HOME/$1/tools/mkdeliv
 EOF
 
-ipvm=10.0.2.16
+ipvm=10.0.2.15
 sp=2222
 
 for m in $SVN_VM; do

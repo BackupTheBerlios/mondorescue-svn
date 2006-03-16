@@ -11,8 +11,8 @@
 dir=`dirname $2`
 if [ -f ${dir}/../$ddir/spec.m4 ]; then 
 	inc=${dir}/../$ddir/spec.m4
-elif [ -f ${dir}/../$ddmir/spec.m4 ]; then 
-	inc=${dir}/../$ddmir/spec.m4
+elif [ -f ${dir}/../$dfam/spec.m4 ]; then 
+	inc=${dir}/../$dfam/spec.m4
 else
 	echo "Unable to build RPM for this distro. Please report to authors"
 	exit -1

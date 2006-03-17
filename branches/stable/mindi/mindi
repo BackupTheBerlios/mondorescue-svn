@@ -1339,7 +1339,11 @@ absolute_partition old_partition_fmt
 		absolute_partition=`ResolveSoftlink $c_p`
 	partition_mountpt=`tr -s '\t' ' ' < $MY_FSTAB | grep -w "$current_partition" | grep -vx " *#.*" | $AWK '{print $2}' | head -n1`
 	redhat_label=""
-	if [ "`echo "$current_partition" | fgrep -i "LABEL="`" != "" ] ; then
+	if [ "`echo "$current_partition" | fgrep -i "LABEL=SWAP"`" != "" ] ; then
+			redhat_label=`echo "$current_partition" | cut -d'=' -f2`
+			actual_dev="/dev/`echo "$redhat_label" | cut -d '-' -f2`"
+			current_partition=$actual_dev
+	elif [ "`echo "$current_partition" | fgrep -i "LABEL="`" != "" ] ; then
 		str_to_find_fmt_with=$current_partition
 		redhat_label=`echo "$current_partition" | cut -d'=' -f2`
 		actual_dev=`mount -l | fgrep " [$redhat_label]" | cut -d' ' -f1`

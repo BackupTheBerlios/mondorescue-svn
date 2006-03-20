@@ -45,11 +45,13 @@ install -m 755 -d $conf $locallib/mindi $MANDIR $local/sbin $DOCDIR
 echo "Copying files ..."
 install -m 644 isolinux.cfg msg-txt sys-disk.raw.gz isolinux-H.cfg syslinux.cfg syslinux-H.cfg dev.tgz $locallib/mindi
 install -m 644 deplist.txt $conf
+install -m 644 distributions/conf/mindi.conf $conf
 
 cp -af rootfs aux-tools $locallib/mindi
 chmod 755 $locallib/mindi/rootfs/bin/*
 chmod 755 $locallib/mindi/rootfs/sbin/*
 chmod 755 $locallib/mindi/aux-tools/sbin/*
+chmod 755 $conf/mindi.conf
 
 if [ "$RPMBUILDMINDI" = "true" ]; then
 	sed -e "s~^MINDI_PREFIX=XXX~MINDI_PREFIX=/usr~" -e "s~^MINDI_CONF=YYY~MINDI_CONF=/etc/mindi~" -e "s~^MINDI_VER=VVV~MINDI_VER=$MINDIVER~" -e "s~^MINDI_REV=RRR~MINDI_REV=$MINDIREV~" mindi > $local/sbin/mindi

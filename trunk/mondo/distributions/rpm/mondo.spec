@@ -9,7 +9,7 @@
 %{?is_official:%define rel %{mkrel} %{mrel}}%{!?is_official:%define rel %{mrel}}
 %define src		SSS
 %define grp		GRP
-%define addreqb	mindi >= 1.05, bzip2 >= 0.9, afio, mkisofs, binutils, newt >= 0.50, slang >= 1.4.1
+%define addreqb	mindi >= 1.0.7, bzip2 >= 0.9, afio, mkisofs, binutils, newt >= 0.50, slang >= 1.4.1
 %define rel		%{mrel}
 
 Summary:	A program which a Linux user can utilize to create a rescue/restore CD/tape

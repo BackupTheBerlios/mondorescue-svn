@@ -65,7 +65,7 @@ con cintas y NFS, tambien.
 %setup -q -n %name-%{version}
 
 %build
-%configure
+%configure --program-prefix=%{?_program_prefix}
 %{__make} VERSION=%{version}
 
 %install

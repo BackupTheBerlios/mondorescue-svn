@@ -40,12 +40,13 @@ echo $ARCH | grep -x "x86_64" &> /dev/null && ARCH=i386 && locallib=$local/lib64
 export ARCH
 
 echo "Creating target directories ..."
-install -m 755 -d $conf $locallib/mindi $MANDIR $local/sbin $DOCDIR
+install -m 755 -d $conf $conf/deplist.d $locallib/mindi $MANDIR $local/sbin $DOCDIR
 
 echo "Copying files ..."
 install -m 644 isolinux.cfg msg-txt sys-disk.raw.gz isolinux-H.cfg syslinux.cfg syslinux-H.cfg dev.tgz $locallib/mindi
 install -m 644 deplist.txt $conf
-install -m 644 distributions/conf/mindi.conf $conf
+install -m 644 distributions/conf/deplist.d/* $conf/deplist.d
+install -m 755 distributions/conf/mindi.conf $conf
 
 cp -af rootfs aux-tools $locallib/mindi
 chmod 755 $locallib/mindi/rootfs/bin/*

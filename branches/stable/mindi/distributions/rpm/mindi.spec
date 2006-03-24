@@ -59,7 +59,9 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%config(noreplace) %{_sysconfdir}/mindi/deplist.txt %{_sysconfdir}/mindi/mindi.conf
+%config(noreplace) %{_sysconfdir}/mindi/deplist.txt 
+%config(noreplace) %{_sysconfdir}/mindi/deplist.d/* 
+%config(noreplace) %{_sysconfdir}/mindi/mindi.conf
 %doc ChangeLog INSTALL COPYING README TODO README.ia64 README.pxe README.busybox svn.log
 %{_mandir}/man8/*
 %{_libdir}/mindi

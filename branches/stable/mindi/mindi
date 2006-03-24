@@ -63,7 +63,7 @@ else
 fi
 
 if [ "$mindi_deplist_dir" == "" ]; then
-	DEPLIST_DIR="/etc/mindi/deplist.d"
+	DEPLIST_DIR="$MINDI_CONF/deplist.d"
 else
 	DEPLIST_DIR="$mindi_deplist_dir"
 fi
@@ -327,7 +327,7 @@ ChopUpAndCopyFile() {
 	slicesize=$3
 	biggienumber=$4
 
-	[ -d "$filename" ] && Die "Cannot chop up $filename: it's a directory. Please amend deplist.txt accordingly."
+	[ -d "$filename" ] && Die "Cannot chop up $filename: it's a directory. Please amend deplist file accordingly."
 	mkdir -p $outdir
 
 	sliceno=0
@@ -874,9 +874,6 @@ GenerateGiantDependencyList() {
 		LocateDeps $fname > $tempdepfile
 	echo "$fname" >> $outfile.pre
 		cat $tempdepfile >> $outfile.pre
-#        echo "$fname ----> dependencies:-" >> $LOGFILE
-#        cat $tempdepfile | tr -s '/' '/' | sort -u >> $LOGFILE
-#        echo -en "(end of deplist of $fname)\n\n" >> $LOGFILE
 		rm -f $tempdepfile
 	progress=$(($progress+1))
 		echo -en "\r\t\t\t\t\t\t\t\t"
@@ -1363,7 +1360,7 @@ absolute_partition old_partition_fmt
 	
 	if [ -d "/proc/lvm" ] || [ -d "/dev/mapper" ]; then
 	echo -en "\rAnalyzing LVM...\r"
-	all_partitions=`$MINDI_LIB/analyze-my-lvm | fgrep ">>>" | cut -d' ' -f2-32`
+	all_partitions=`$MINDI_SBIN/analyze-my-lvm | fgrep ">>>" | cut -d' ' -f2-32`
 	fi
 	all_partitions="$all_partitions `ListAllPartitions 2> /dev/null`"
 #    echo "all partitions = $all_partitions" > /dev/stderr
@@ -2168,8 +2165,8 @@ PrepareDataDiskImages() {
 	mkdir -p $bigdir/usr/bin
 	tardir=$TMP_ROOT/tardir
 
-	lines=`grep -vx " *#.*" $MINDI_CONF/deplist.txt | grep -vx "" | wc -l`
-	cat $MINDI_CONF/deplist.txt | GenerateGiantDependencyList $needlist $lines
+	lines=`grep -vx " *#.*" $MINDI_CONF/deplist.txt $DEPLIST_DIR/* | grep -vx "" | wc -l`
+	cat $MINDI_CONF/deplist.txt $DEPLIST_DIR/* | GenerateGiantDependencyList $needlist $lines
 	res=$?
 	if [ "$YOUR_KERNEL_SUCKS" ]; then
 	pwd=`pwd`
@@ -2269,8 +2266,8 @@ PrepareDataDiskImages() {
 	cp -f $TMP_ROOT/mountlist.txt $minidir_root/$noof_disks/tmp/mountlist.txt || Die "Cannot copy mountlist.txt from $TMP_ROOT to data disk"
 	cp -f $TMP_ROOT/mountlist.txt $CACHE_LOC
 	[ "`DidMondoCallMe`" ] && cp -f $minidir_root/$noof_disks/tmp/mountlist.txt $MONDO_TMP/.
-	[ -d "/proc/lvm" ] && $MINDI_LIB/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
-	[ -d "/dev/mapper" ] && $MINDI_LIB/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
+	[ -d "/proc/lvm" ] && $MINDI_SBIN/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
+	[ -d "/dev/mapper" ] && $MINDI_SBIN/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
 	cat $minidir_root/$noof_disks/tmp/mountlist.txt >> $LOGFILE
 	ZipMinidirsIntoTarballs $minidir_root $tardir $noof_disks
 	CreateDataDiskImagesFromTarballs $tardir $imagesdir $noof_disks
@@ -2953,17 +2950,6 @@ ZipMinidirsIntoTarballs() {
 ##############################################################################
 #----------------------------------- main -----------------------------------#
 ##############################################################################
-
-
-#AWK=`which gawk`
-#LocateDeps $1
-#MakeModuleLoadingScript /tmp/load-modules.sh
-#exit 0
-
-
-#cat /etc/mindi/deplist.txt | GenerateGiantDependencyList /tmp/deplist.old 200
-#exit 0
-
 
 
 if [ "$1" = "-V" ] || [ "$1" = "-v" ] || [ "$1" = "--version" ] || [ "$1" = "-version" ] ; then

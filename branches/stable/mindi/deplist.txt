@@ -1,89 +1,28 @@
-# Mindi-Linux's dependency list                                      07/10/2004
+# Mindi-Linux's dependency list
 #
 # NB:
 # 1. Directories are allowed. Their contents will be included by Mindi.
 # 2. If you put 'libncurses' (w/o quotation marks) on an uncommented line then
 #    Mindi will find /lib/libncurses* and include all matching files.
-# 3. You may give an absolute path if you think Mindi will have trouble finding
-#    the file on its own.
+# 3. You have to give an absolute path
 # 4. If you want to add something, just add it on its own line. K.I.S.S.
 # 5. You must _not_ put a semicolon & comment after an entry. e.g. 'foo; #bar'.
-# 6. All these worlds are yours except Europa. Attempt no landing there.
+# 6. you can add also entries in a file inside the deplist.d subdirectory
 
-#------------------------- STUFF ADDED BY THE USER ----------------------------
-#---vvvv     vvvv     vvvv  list your stuff here!  vvvv     vvvv     vvvv
-#
-# bar
-# foo
-#
-#---^^^^     ^^^^     ^^^^  list your stuff here!  ^^^^     ^^^^     ^^^^
-#------------------------------------------------------------------------------
-
-#----- Covers a multitude of sins, including XFS, JFS, ReiserFS, and RAID -----
-mkfs mkswap mkswapfs mkfs.swap mkfs.ext2 mke2fs mkfs.vfat mkfs.dos mkdosfs mkvfatfs mkfatfs mkreiserfs mkfs.reiserfs mkfs.reiser mkfs.ext3 mke3fs mkfs.jfs mkfs.xfs mkxfs mkjfs mkxfsfs mkjfsfs logdump logredo xchkdmp xchklog xpeek mkpv mkraid raid0run raidhotadd raidhotremove raidsetfaulty raidstart raidstop e2label tune2fs e2fsadm mdadm
-fsck fsck.ext2 fsck.reiserfs fsck.reiser fsck.xfs fsck.ext3 fsck.jfs badblocks
+#----- Kept for compatibility -----
+mkswapfs mkfs.swap mkfs.dos mkvfatfs mkfatfs mkfs.reiser mke3fs mkxfs mkjfs mkxfsfs mkjfsfs logdump logredo xchkdmp xchklog xpeek e2fsadm fsck.reiser
 
 #-------------------------------- ESSENTIAL -----------------------------------
-fstab raidtab modules.conf conf.modules mondorestore mt modules.conf.local
-afio star ntfsclone parted ms-sys file getfattr setfattr getfacl setfacl
-buffer
-awk gawk
-bzip2 bunzip2 lzop
-date ctrlaltdel
-dd
-eject
-grep ld-linux.so.2 ld-2.3.4.so
-hosts host.conf resolv.conf hosts.allow hosts.deny
-wc
-xargs
-gzip gunzip
-klogd sysklogd
-fdisk hdparm parted arch
-less less.bin less.dummy less.dupe less.hot.weather.in.texas.please
-loadkeys
-mount
-ping devfsd burnBX burnK6 burnK7 burnMMX burnP5 burnP6 lucifer tiobench tiotest bonnie++ mprime ide-smart
+conf.modules modules.conf.local ms-sys
+less.bin less.dummy less.dupe less.hot.weather.in.texas.please
+burnBX burnK6 burnK7 burnMMX burnP5 burnP6 lucifer tiobench tiotest bonnie++ mprime ide-smart
 
-# ------------------------------- for X (Hugo) --------------------------------
-#tar
-#ldd lddlibc4
-#libXmu
-#libz
-#X
-#startx
-#xinitrc
-#xinit
-#/etc/X11/XF86Config
-#xauth
-#libXext
-# --- end of X stuff ---
-
-insmod insmod.static insmod.static.old lsmod
-
-#-------------------------- For mounting NFS volumes --------------------------
-ifconfig route /sbin/start-nfs
-#ifconfig host.conf resolv.conf ping ip portmap rpc.statd
-#rpc.lockd rpc.statd nfsstat rpc.nfsd rpc.mountd rpc.exportfs exportfs hosts exports hosts.allow hosts.deny showmount /etc/sysconfig/network /etc/sysconfig/network-scripts service usernetctl services protocols inetd inetd.conf /etc/rc.d ifup ifdown
-
-
+insmod.static insmod.static.old
 
 #------------------------ Added for Stuart D. Gathman -------------------------
 #lc l lf netstat inetd tcpd in.telnetd route ldconfig ldd telnet rsh rcp services protocols rpc inetd.conf nsswitch.conf localtime security libresolv libutil libcrypt lbnss_compat libnss_files libnss_dns libpwdb libncurses
 
-
-
-#------------------------- Part of the Cuckoo Project -------------------------
-#mkisofs
-#cdrecord
-#losetup
-#fdformat
-#lilo grub
-#/usr/local/share/mondo
-#mondoarchive
-#mindi
-#/usr/local/share/mindi
-
 #----------------- For all you LVM users out there, much love -----------------
 LVMFILES:
-lvmiopversion lvchange lvcreate lvdisplay lvextend lvmchange lvmcreate_initrd lvmdiskscan lvmsadc lvmsar lvreduce lvremove lvrename lvscan pvchange pvcreate pvdata pvdisplay pvmove pvscan vgcfgbackup vgcfgrestore vgchange vgck vgcreate vgdisplay vgexport vgextend vgimport vgmerge vgmknodes vgreduce vgremove vgrename vgscan vgsplit liblvm lvm lvm-10 /etc/lvm/lvm.conf
+lvmiopversion  lvmcreate_initrd  pvdata
 #------------------------------------------------------------------------------

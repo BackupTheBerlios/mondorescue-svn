@@ -20,7 +20,7 @@ Url:		http://mondorescue.berlios.de
 Source:		%{src}
 BuildRoot:	%{_tmppath}/%{name}-%{version}
 Requires:	%{addreq}
-Epoch:		%(echo %%{mrel} | cut -d- -f1 | sed "s~M~~")
+Epoch:		%(echo EEE | cut -d- -f1 | sed "s~M~~")
 # Not on all systems
 #Conflicts:	bonnie++
 

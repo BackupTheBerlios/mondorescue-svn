@@ -27,7 +27,7 @@ Url:		http://mondorescue.berlios.de
 Source:		%{src}
 BuildRoot:	%{_tmppath}/%{name}-%{version}
 BuildRequires:	newt-devel >= 0.50, slang-devel >= 1.4.1, gcc
-Epoch:		%(echo %%{mrel} | cut -d- -f1 | sed "s~M~~")
+Epoch:		%(echo EEE | cut -d- -f1 | sed "s~M~~")
 OBS
 %ifarch ia64
 Requires:	%{addreq}, elilo, parted

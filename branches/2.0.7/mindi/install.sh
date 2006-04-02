@@ -108,4 +108,9 @@ if [ "$RPMBUILDMINDI" != "true" ]; then
 	fi
 fi
 
+# Special case for SuSE family wher doc is put elsewhere in the RPM
+if [ _"$dfam" != _"suse" ] then;
+	rm -rf $DOCDIR
+fi
+
 exit 0

@@ -24,6 +24,7 @@ fi
 cp $inc /tmp/mondorescue.mc
 cat >> /tmp/mondorescue.mc << EOF
 define(\`RRR', ${REVISION}${suf})dnl
+define(\`EEE', ${REVISION})dnl
 define(\`VVV', ${1})dnl
 EOF
 m4 /tmp/mondorescue.mc $2

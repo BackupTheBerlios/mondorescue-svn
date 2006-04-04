@@ -47,9 +47,9 @@ fi
 EOF
 
 ipvm=10.0.2.15
-sp=2222
 
 for m in $SVN_VM; do
+	sp=22`host $m.mondo.musique-ancienne.org | cut -d. -f7`
 	vmp=0
 	if [ ! -f /users/vmplayer/$m.qemu ]; then
 			echo "VM unaccessible. Verify NFS mount"

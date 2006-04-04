@@ -35,17 +35,71 @@ MINDI_PREFIX=XXX
 MINDI_CONF=YYY
 MINDI_SBIN=${MINDI_PREFIX}/sbin
 
-
 if [ "$ARCH" = "x86_64" ] ; then
 	MINDI_LIB=${MINDI_PREFIX}/lib64/mindi
 else
 	MINDI_LIB=${MINDI_PREFIX}/lib/mindi
 fi
 
-EXTRA_SPACE=24576         ; # increase if you run out of ramdisk space
-IA64_BOOT_SIZE=8192       ; # size of the ia64 boot disk
-TMP_ROOT=/tmp
-WRITE_BOOT_FLOPPIES="yes" ; # do you want to be prompted to write floppy images
+MINDI_CONFIG="$MINDI_CONF/mindi.conf"
+if [ ! -f $MINDI_CONFIG ]; then
+	echo "No $MINDI_CONFIG file found using sensible values"
+else
+	. $MINDI_CONFIG
+fi	
+
+#
+# Manages defaults coming from conf files
+#
+if [ "$mindi_extra_space" == "" ]; then
+	EXTRA_SPACE=24576
+else
+	EXTRA_SPACE=$mindi_extra_space
+fi
+if [ "$mindi_ia64_boot_size" == "" ]; then
+	IA64_BOOT_SIZE=8192
+else
+	IA64_BOOT_SIZE=$mindi_ia64_boot_size
+fi
+
+if [ "$mindi_deplist_dir" == "" ]; then
+	DEPLIST_DIR="$MINDI_CONF/deplist.d"
+else
+	DEPLIST_DIR="$mindi_deplist_dir"
+fi
+if [ "$mindi_write_boot_floppy" == "" ]; then
+	WRITE_BOOT_FLOPPIES="yes"
+else
+	WRITE_BOOT_FLOPPIES="$mindi_write_boot_floppy"
+fi
+if [ "$mindi_write_mindi_cd" == "" ]; then
+	WRITE_BOOT_FLOPPIES="yes"
+else
+	WRITE_BOOT_FLOPPIES="$mindi_write_boot_floppy"
+fi
+if [ "$mindi_images_dir" == "" ]; then
+	CACHE_LOC="/var/cache/mindi"
+else
+	CACHE_LOC="$mindi_images_dir"
+fi
+if [ "$mindi_dual_floppies" == "" ]; then
+	FORCE_DUAL_FLOPPIES="/var/cache/mindi"
+else
+	FORCE_DUAL_FLOPPIES="$mindi_dual_floppies"
+fi
+if [ "$mindi_tmp_dir" == "" ]; then
+	TMP_ROOT="/tmp"
+else
+	TMP_ROOT="$mindi_tmp_dir"
+fi
+if [ "$mindi_fd_device" == "" ]; then
+	FDDEVICE="/dev/fd0"
+else
+	FDDEVICE="$mindi_fd_device"
+fi
+
+# Other parameters
+# Useless ??
 PROMPT_WRITE_BOOT_FLOPPIES="yes"
 	# do you want to be prompted to write
 	# floppy images out to floppy disks?
@@ -59,10 +113,7 @@ USE_OWN_KERNEL="no"
 	# If set to "no", you will be prompted for whether or not
 	# you want to use your own kernel, or the supplied default.
 	# If "yes" mindi will automatically use your own kernel.
-MINDI_CONFIG="$MINDI_CONF/mindi.conf"
-if [ -f $MINDI_CONFIG ]; then
-	. $MINDI_CONFIG
-fi
+
 MY_FSTAB=/etc/fstab
 FLOPPY_MODS="ide-floppy floppy"
 TAPE_MODS="ht st osst ide-tape ide_tape"
@@ -76,9 +127,6 @@ CDROM_MODS="$TAPE_MODS $FLOPPY_MODS $IDE_MODS af_packet cdrom isocd isofs inflat
 NET_MODS="sunrpc nfs nfs_acl lockd loop mii 3c59x e100 bcm5700 e1000 eepro100 ne2k-pci tg3 pcnet32 8139cp 8139too 8390 vmxnet"
 EXTRA_MODS="$CDROM_MODS vfat fat loop linear raid0 raid1 raid5 lvm-mod dm-mod jfs xfs xfs_support pagebuf reiserfs ext2 ext3 minix nfs nfs_acl nfsd lockd sunrpc jbd"
 LOGFILE=/var/log/mindi.log
-FDDEVICE=/dev/fd0             ; # 1.44MB floppy #0
-CACHE_LOC=/var/cache/mondo-archive
-FORCE_DUAL_FLOPPIES=no
 
 BOOT_MEDIA_MESSAGE="\
 To format and restore all files automatically, type 'nuke' <enter>.\n\
@@ -279,7 +327,7 @@ ChopUpAndCopyFile() {
 	slicesize=$3
 	biggienumber=$4
 
-	[ -d "$filename" ] && Die "Cannot chop up $filename: it's a directory. Please amend deplist.txt accordingly."
+	[ -d "$filename" ] && Die "Cannot chop up $filename: it's a directory. Please amend deplist file accordingly."
 	mkdir -p $outdir
 
 	sliceno=0
@@ -489,7 +537,8 @@ Die() {
 
 	my_partitions=`mount | fgrep $$ | cut -f1 -d' '`
 	[ "$my_partitions" != "" ] && umount $my_partitions
-	[ "$TMP_ROOT" != "/tmp" ] && rm -Rf $TMP_ROOT
+	# BCO : Too Dangerous !!!
+	#[ "$TMP_ROOT" != "/tmp" ] && rm -Rf $TMP_ROOT
 	cd /tmp
 	mkdir -p mindi.err
 	for i in /etc/fstab /etc/lilo.conf /etc/raidtab $LOGFILE /var/log/mondo-archive.log /tmp/mountlist.txt.$$ $FDISKLOG ; do
@@ -825,9 +874,6 @@ GenerateGiantDependencyList() {
 		LocateDeps $fname > $tempdepfile
 	echo "$fname" >> $outfile.pre
 		cat $tempdepfile >> $outfile.pre
-#        echo "$fname ----> dependencies:-" >> $LOGFILE
-#        cat $tempdepfile | tr -s '/' '/' | sort -u >> $LOGFILE
-#        echo -en "(end of deplist of $fname)\n\n" >> $LOGFILE
 		rm -f $tempdepfile
 	progress=$(($progress+1))
 		echo -en "\r\t\t\t\t\t\t\t\t"
@@ -1314,7 +1360,7 @@ absolute_partition old_partition_fmt
 	
 	if [ -d "/proc/lvm" ] || [ -d "/dev/mapper" ]; then
 	echo -en "\rAnalyzing LVM...\r"
-	all_partitions=`$MINDI_LIB/analyze-my-lvm | fgrep ">>>" | cut -d' ' -f2-32`
+	all_partitions=`$MINDI_SBIN/analyze-my-lvm | fgrep ">>>" | cut -d' ' -f2-32`
 	fi
 	all_partitions="$all_partitions `ListAllPartitions 2> /dev/null`"
 #    echo "all partitions = $all_partitions" > /dev/stderr
@@ -2119,8 +2165,8 @@ PrepareDataDiskImages() {
 	mkdir -p $bigdir/usr/bin
 	tardir=$TMP_ROOT/tardir
 
-	lines=`grep -vx " *#.*" $MINDI_CONF/deplist.txt | grep -vx "" | wc -l`
-	cat $MINDI_CONF/deplist.txt | GenerateGiantDependencyList $needlist $lines
+	lines=`grep -vx " *#.*" $MINDI_CONF/deplist.txt $DEPLIST_DIR/* | grep -vx "" | wc -l`
+	cat $MINDI_CONF/deplist.txt $DEPLIST_DIR/* | GenerateGiantDependencyList $needlist $lines
 	res=$?
 	if [ "$YOUR_KERNEL_SUCKS" ]; then
 	pwd=`pwd`
@@ -2220,8 +2266,8 @@ PrepareDataDiskImages() {
 	cp -f $TMP_ROOT/mountlist.txt $minidir_root/$noof_disks/tmp/mountlist.txt || Die "Cannot copy mountlist.txt from $TMP_ROOT to data disk"
 	cp -f $TMP_ROOT/mountlist.txt $CACHE_LOC
 	[ "`DidMondoCallMe`" ] && cp -f $minidir_root/$noof_disks/tmp/mountlist.txt $MONDO_TMP/.
-	[ -d "/proc/lvm" ] && $MINDI_LIB/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
-	[ -d "/dev/mapper" ] && $MINDI_LIB/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
+	[ -d "/proc/lvm" ] && $MINDI_SBIN/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
+	[ -d "/dev/mapper" ] && $MINDI_SBIN/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
 	cat $minidir_root/$noof_disks/tmp/mountlist.txt >> $LOGFILE
 	ZipMinidirsIntoTarballs $minidir_root $tardir $noof_disks
 	CreateDataDiskImagesFromTarballs $tardir $imagesdir $noof_disks
@@ -2904,17 +2950,6 @@ ZipMinidirsIntoTarballs() {
 ##############################################################################
 #----------------------------------- main -----------------------------------#
 ##############################################################################
-
-
-#AWK=`which gawk`
-#LocateDeps $1
-#MakeModuleLoadingScript /tmp/load-modules.sh
-#exit 0
-
-
-#cat /etc/mindi/deplist.txt | GenerateGiantDependencyList /tmp/deplist.old 200
-#exit 0
-
 
 
 if [ "$1" = "-V" ] || [ "$1" = "-v" ] || [ "$1" = "--version" ] || [ "$1" = "-version" ] ; then

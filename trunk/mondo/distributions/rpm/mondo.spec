@@ -13,7 +13,7 @@
 %define rel		%{mrel}
 
 Summary:	A program which a Linux user can utilize to create a rescue/restore CD/tape
-Summary(fr):	Un programme pour les utilisateurs de Linux pour crï¿½r un CD/tape de sauvegarde/restauration
+Summary(fr):	Un programme pour les utilisateurs de Linux pour créer un CD/tape de sauvegarde/restauration
 Summary(it):	Un programma per utenti Linux per creare un CD/tape di rescue
 Summary(sp):	Un programa para los usuarios de Linux por crear una CD/cinta de restoracion/rescate
 
@@ -26,6 +26,8 @@ Url:		http://mondorescue.berlios.de
 Source:		%{src}
 BuildRoot:	%{_tmppath}/%{name}-%{version}
 BuildRequires:	newt-devel >= 0.50, slang-devel >= 1.4.1, gcc
+Epoch:		%(echo EEE | cut -d- -f1 | sed "s~M~~")
+OBS
 %ifarch ia64
 Requires:	%{addreq}, elilo, parted
 %else
@@ -64,7 +66,7 @@ con cintas y NFS, tambien.
 %setup -q -n %name-%{version}
 
 %build
-%configure
+%configure --program-prefix=%{?_program_prefix}
 %{__make} VERSION=%{version}
 
 %install

@@ -499,7 +499,7 @@ CreateOneDataDiskImage() {
 	mke2fs -N 12 -F $imagefile > /tmp/mke2fs.$$ 2>> /tmp/mke2fs.$$
 	[ "$?" -ne "0" ] && cat /tmp/mke2fs.$$
 	rm -f /tmp/mke2fs.$$
-	mount -t ext2 -o loop $imagefile $mountpoint || Die "Can't loopmount $mountpoint; does your kernel support loopfs? If not, please recompile your kernel. Your Linux distro is broken."
+	mount -t ext2 -o loop $imagefile $mountpoint || Die "Can't loopmount $imagefile to $mountpoint! The reason may be missing support for loopfs or ext2 (or both) in the running kernel."
 	mv $tarball $mountpoint/
 	if [ "$?" -ne "0" ] ; then
 	umount $mountpoint
@@ -2744,7 +2744,7 @@ TurnTgzIntoRdz() {
 	rm -f /tmp/mke2fs.$$
 	echo -en "..."
 	mkdir -p $mountpoint
-	mount -t ext2 -o loop $tempfile $mountpoint || Die "Cannot loopmount $tempfile to $mountpoint"
+	mount -t ext2 -o loop $tempfile $mountpoint || Die "Cannot loopmount $tempfile to $mountpoint! The reason may be missing support for loopfs or ext2 (or both) in the running kernel."
 	echo -en "..."
 	old_pwd=`pwd`
 	cd $mountpoint

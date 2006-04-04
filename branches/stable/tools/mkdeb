@@ -27,35 +27,34 @@ $TOOLHOME/mkcommon "$c"
 if [ "`echo $c | grep mindi-kernel`" != "" ]; then
 	cd ${BASE}/svn
 	mkdir -p ${TOPDIR}/SOURCES 
-	sed "s/^%define mrel..*RRR/%define mrel	${REVISION}${suf}/" mindi-kernel-${MINDI_VER}/mindi-kernel.spec > ${TOPDIR}/SPECS/mindi-kernel.spec
-	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mindi-kernel-${MINDI_VER}-${REVISION}${suf}.${ARCH}.rpm"
+	$TOOLHOME/mkspec ${MINDI_VER} mindi-kernel-${MINDI_VER}/mindi-kernel.spec > ${TOPDIR}/SPECS/mindi-kernel.spec
+	chmod 644 ${TOPDIR}/SPECS/mindi-kernel.spec
+	pkg1="${TOPDIR}/RPMS/${ARCH}/mindi-kernel-${MINDI_VER}-${REVISION}${suf}.${ARCH}.rpm"
+	pkg="$pkg $pkg1"
+	rm -f $pkg1
 fi
 if [ "`echo $c | grep -v kernel | grep mindi`" != "" ]; then
 	cd ${BASE}/svn
-	if [ -f mindi-${MINDI_VER}/distributions/${ddir}/mindi.spec ]; then
-		specfile=mindi-${MINDI_VER}/distributions/${ddir}/mindi.spec
-	else
-		specfile=mindi-${MINDI_VER}/distributions/common/mindi.spec
-	fi
-	sed -e "s/^%define mrel..*RRR/%define mrel	${REVISION}${suf}/" -e "s/VVV/${MINDI_VER}/" $specfile > ${TOPDIR}/SPECS/mindi.spec
+	$TOOLHOME/mkspec ${MINDI_VER} mindi-${MINDI_VER}/distributions/rpm/mindi.spec > ${TOPDIR}/SPECS/mindi.spec
+	cat mindi-${MINDI_VER}/distributions/$dfam/changelog >> ${TOPDIR}/SPECS/mindi.spec
+	chmod 644 ${TOPDIR}/SPECS/mindi.spec
 	rm -rf mindi-${MINDI_VER}/distributions
 	mkdir -p ${TOPDIR}/SOURCES 
 
-	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mindi-${MINDI_VER}-${REVISION}${suf}.${ARCH}.rpm"
-	# ATTENTION: This could be dangerous for your setup
-	opt="rm -rf /usr/lib/mindi ;"
+	pkg1="${TOPDIR}/RPMS/${ARCH}/mindi-${MINDI_VER}-${REVISION}${suf}.${ARCH}.rpm"
+	pkg="$pkg $pkg1"
+	rm -f $pkg1
 fi
 if [ "`echo $c | grep  mondo`" != "" ]; then
 	cd ${BASE}/svn
-	if [ -f mondo-${MONDO_VER}/distributions/${ddir}/mondo.spec ]; then
-		specfile=mondo-${MONDO_VER}/distributions/${ddir}/mondo.spec
-	else
-		specfile=mondo-${MONDO_VER}/distributions/common/mondo.spec
-	fi
-	sed -e "s/^%define mrel..*RRR/%define mrel	${REVISION}${suf}/" -e "s/VVV/${MONDO_VER}/" $specfile > ${TOPDIR}/SPECS/mondo.spec
+	$TOOLHOME/mkspec ${MONDO_VER} mondo-${MONDO_VER}/distributions/rpm/mondo.spec > ${TOPDIR}/SPECS/mondo.spec
+	cat mondo-${MONDO_VER}/distributions/$dfam/changelog >> ${TOPDIR}/SPECS/mondo.spec
+	chmod 644 ${TOPDIR}/SPECS/mondo.spec
 	rm -rf mondo-${MONDO_VER}/distributions
 
-	pkg="$pkg ${TOPDIR}/RPMS/${ARCH}/mondo-${MONDO_VER}-${REVISION}${suf}.${ARCH}.rpm"
+	pkg1="${TOPDIR}/RPMS/${ARCH}/mondo-${MONDO_VER}-${REVISION}${suf}.${ARCH}.rpm"
+	pkg="$pkg $pkg1"
+	rm -f $pkg1
 fi
 
 cd ${TOPDIR}/SPECS

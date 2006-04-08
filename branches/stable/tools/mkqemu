@@ -11,7 +11,7 @@ if [ _"$1" == _"" ]; then
 fi
 
 if [ _"$2" == _"" ]; then
-	export SVN_VM="mdk101 mdk102 mdv2006 rh73 rh9 fc4 fc5 rhel3 rhel4 sles9 debian31"
+	export SVN_VM="mdk101 mdk102 mdv2006 rh73 rh9 fc4 fc5 rhel3 rhel4 suse10 sles9 debian31"
 else
 	export SVN_VM="$2"
 fi

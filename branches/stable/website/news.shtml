@@ -13,6 +13,12 @@
     <h2>Latest News</h2>
   </div>
   <!--#include virtual="/latest-news.html" -->
+<p><B>2006-02-02 </B>Mondo Rescue rsync server available</p>
+<p>In our always increasing set of services :-) I'd like to announce the
+availability of an rsync mirror service for mondo-rescue.
+
+Try rsync rsync.mondorescue.org::</p>
+
 <p><B>2006-02-01 </B>Mondo Rescue ftp server available</p>
 <p>Things are progressing. I've gathered all the packages that were originally on <a href="http://www.mondorescue.org">http://www.mondorescue.org</a> and also added Mike's SuSE RPMs
 + all the latest packages I've produced and put them on a new ftp server

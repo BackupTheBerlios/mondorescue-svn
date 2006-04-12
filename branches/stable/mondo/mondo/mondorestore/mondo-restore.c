@@ -1961,7 +1961,7 @@ restore_a_tarball_from_CD(char *tarball_fname,
 	malloc_string(xattr_fname);
 	malloc_string(acl_fname);
 
-	log_msg(5, "Entering");
+	dev-team(5, "Entering");
 	filelist_subset_fname[0] = '\0';
 	use_star = (strstr(tarball_fname, ".star")) ? TRUE : FALSE;
 //  sprintf(files_to_restore_this_time_fname, "/tmp/ftrttf.%d.%d", (int)getpid(), (int)random());
@@ -1976,7 +1976,7 @@ restore_a_tarball_from_CD(char *tarball_fname,
 		log_msg(2, "There are _zero_ files in filelist '%s'",
 				filelist_name);
 		log_msg(2,
-				"This is a bit silly (ask Hugo to fix mondo-makefilelist, please)");
+				"This is a bit silly (ask dev-team to fix mondo-makefilelist, please)");
 		log_msg(2,
 				"but it's non-critical. It's cosmetic. Don't worry about it.");
 		retval = 0;
@@ -2053,7 +2053,7 @@ restore_a_tarball_from_CD(char *tarball_fname,
 		} else {
 			if (filelist_subset_fname[0] != '\0') {
 				sprintf(command,
-						"afio -i -M 8m -b %ld -c %ld %s -w %s %s",
+						"afio -i -M 8m -b %ld -c %ld %s -w '%s' %s",
 						TAPE_BLOCK_SIZE,
 						BUFSIZE, executable, filelist_subset_fname,
 //             files_to_restore_this_time_fname,

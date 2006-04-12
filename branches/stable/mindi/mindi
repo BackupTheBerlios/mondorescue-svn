@@ -2569,7 +2569,7 @@ TryToFindKernelPath() {
 	else
 	   root="/"
 	fi
-	for fname in `find $root -maxdepth 2 -type f | fgrep lin | fgrep -v /proc/` ; do
+	for fname in `find $root -maxdepth 2 -type f | fgrep lin | egrep -v '^/proc/|^/net/'` ; do
 	[ ! -e "$fname" ] && continue
 		[ "$fname" = "/boot/vmlinuz.shipped" ] && [ -f "/boot/vmlinuz" ] && continue; # ignore SuSE's extra kernel
 	file $fname | grep -q gzip

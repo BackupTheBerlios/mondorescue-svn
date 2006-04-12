@@ -1961,7 +1961,7 @@ restore_a_tarball_from_CD(char *tarball_fname,
 	malloc_string(xattr_fname);
 	malloc_string(acl_fname);
 
-	dev-team(5, "Entering");
+	log_msg(5, "Entering");
 	filelist_subset_fname[0] = '\0';
 	use_star = (strstr(tarball_fname, ".star")) ? TRUE : FALSE;
 //  sprintf(files_to_restore_this_time_fname, "/tmp/ftrttf.%d.%d", (int)getpid(), (int)random());

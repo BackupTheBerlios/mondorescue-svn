@@ -935,8 +935,8 @@ int verify_cd_image(struct s_bkpinfo *bkpinfo)
 	assert(bkpinfo != NULL);
 
 	asprintf(&mountpoint, "%s/cdrom", bkpinfo->tmpdir);
-	asprintf(&fname, "%s/%s/%s-%d.iso", bkpinfo->isodir, bkpinfo->prefix,
-			 bkpinfo->nfs_remote_dir, g_current_media_number);
+	asprintf(&fname, "%s/%s/%s-%d.iso", bkpinfo->isodir, bkpinfo->nfs_remote_dir,
+			 bkpinfo->prefix, g_current_media_number);
 
 	mkdir(mountpoint, 1777);
 	sync();

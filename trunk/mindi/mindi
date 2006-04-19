@@ -15,8 +15,6 @@
 ### Which arch are we on (useful for ia64 port)
 export ARCH=`/bin/arch`
 
-ADDITIONAL_BOOT_PARAMS="acpi=off apm=off devfs=nomount exec-shield=0 noresume selinux=0 barrier=off"
-
 RUN_AFTER_INITIAL_BOOT_PHASE="echo \"Who lives in a pineapple under the sea?\" > /tmp/spongebob.squarepants.txt"
 	# after booting from floppy/CD image but before
 	# accessing auxiliary data disks (or the rest of
@@ -61,22 +59,24 @@ if [ "$mindi_ia64_boot_size" == "" ]; then
 else
 	IA64_BOOT_SIZE=$mindi_ia64_boot_size
 fi
-
 if [ "$mindi_deplist_dir" == "" ]; then
 	DEPLIST_DIR="$MINDI_CONF/deplist.d"
 else
 	DEPLIST_DIR="$mindi_deplist_dir"
 fi
+# TBC
 if [ "$mindi_write_boot_floppy" == "" ]; then
 	WRITE_BOOT_FLOPPIES="yes"
 else
 	WRITE_BOOT_FLOPPIES="$mindi_write_boot_floppy"
 fi
-if [ "$mindi_write_mindi_cd" == "" ]; then
-	WRITE_BOOT_FLOPPIES="yes"
+# TBC
+if [ "$mindi_write_cd" == "" ]; then
+	WRITE_MINDI_CD="yes"
 else
-	WRITE_BOOT_FLOPPIES="$mindi_write_boot_floppy"
+	WRITE_MINDI_CD="$mindi_write_cd"
 fi
+# TBC
 if [ "$mindi_images_dir" == "" ]; then
 	CACHE_LOC="/var/cache/mindi"
 else
@@ -97,6 +97,12 @@ if [ "$mindi_fd_device" == "" ]; then
 else
 	FDDEVICE="$mindi_fd_device"
 fi
+if [ "mindi_boot_params" == "" ]; then
+	ADDITIONAL_BOOT_PARAMS="acpi=off apm=off devfs=nomount exec-shield=0 noresume selinux=0 barrier=off"
+else
+	ADDITIONAL_BOOT_PARAMS="$mindi_boot_params"
+fi
+
 
 # Other parameters
 # Useless ??
@@ -1360,7 +1366,7 @@ absolute_partition old_partition_fmt
 	
 	if [ -d "/proc/lvm" ] || [ -d "/dev/mapper" ]; then
 	echo -en "\rAnalyzing LVM...\r"
-	all_partitions=`$MINDI_SBIN/analyze-my-lvm | fgrep ">>>" | cut -d' ' -f2-32`
+	all_partitions=`$MINDI_LIB/analyze-my-lvm | fgrep ">>>" | cut -d' ' -f2-32`
 	fi
 	all_partitions="$all_partitions `ListAllPartitions 2> /dev/null`"
 #    echo "all partitions = $all_partitions" > /dev/stderr
@@ -1783,22 +1789,6 @@ write_full_floppy_of_kernel() {
 
 	return $res
 
-# --- the kernel-only method NO LONGER WORKS. Not since Apr 2002.
-# It should work, according to the Boot Disk HOWTO, but it doesn't.
-# It works for my failsafe kernel & for RH7.2 but not RH7.3, 8.0, etc.
-# -Hugo, Apr 19th 2004
-#	dd if=$1 of=$2 bs=1k &> /dev/null || Die "Cannot dd blank file"
-#	dd if=/dev/zero bs=1k count=$3 >> $2 2> /dev/null || Die "Cannot dd blank file"
-#	mv -f $2 $2.old
-#	dd if=$2.old bs=1k count=$3 of=$2 &> /dev/null || Die "Cannot dd blank file"
-#	rm -f $2.old
-#	if [ "$3" = "1440" ] ; then
-#	    rdev $2 "/dev/fd0H"$3
-#	else
-#	    rdev $2 "/dev/fd0u"$3
-#	fi
-#	rdev -R $2 0
-#	rdev -r $2 49152
 }
 
 
@@ -2256,18 +2246,13 @@ PrepareDataDiskImages() {
 	SplitDirectoryIntoMinidirs $bigdir $minidir_root
 	noof_disks=$?
 	[ "$noof_disks" -eq "0" ] && Die "Too much stuff!"
-#    if [ "$noof_disks" -ge "8" ] ; then
-#        LogIt "You are putting a ludicrously large amount of data on these disks."
-#        LogIt "I shall therefore double EXTRA_SPACE, just in case your ramdisk is too small."
-#        EXTRA_SPACE=$(($EXTRA_SPACE*2))
-#    fi
 	MakeMountlist $TMP_ROOT/mountlist.txt
 	mkdir -p $minidir_root/$noof_disks/tmp
 	cp -f $TMP_ROOT/mountlist.txt $minidir_root/$noof_disks/tmp/mountlist.txt || Die "Cannot copy mountlist.txt from $TMP_ROOT to data disk"
 	cp -f $TMP_ROOT/mountlist.txt $CACHE_LOC
 	[ "`DidMondoCallMe`" ] && cp -f $minidir_root/$noof_disks/tmp/mountlist.txt $MONDO_TMP/.
-	[ -d "/proc/lvm" ] && $MINDI_SBIN/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
-	[ -d "/dev/mapper" ] && $MINDI_SBIN/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
+	[ -d "/proc/lvm" ] && $MINDI_LIB/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
+	[ -d "/dev/mapper" ] && $MINDI_LIB/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
 	cat $minidir_root/$noof_disks/tmp/mountlist.txt >> $LOGFILE
 	ZipMinidirsIntoTarballs $minidir_root $tardir $noof_disks
 	CreateDataDiskImagesFromTarballs $tardir $imagesdir $noof_disks
@@ -2584,7 +2569,7 @@ TryToFindKernelPath() {
 	else
 	   root="/"
 	fi
-	for fname in `find $root -maxdepth 2 -type f | fgrep lin | fgrep -v /proc/` ; do
+	for fname in `find $root -maxdepth 2 -type f | fgrep lin | egrep -v '^/proc/|^/net/'` ; do
 	[ ! -e "$fname" ] && continue
 		[ "$fname" = "/boot/vmlinuz.shipped" ] && [ -f "/boot/vmlinuz" ] && continue; # ignore SuSE's extra kernel
 	file $fname | grep -q gzip
@@ -3233,10 +3218,15 @@ if [ "$USE_LILO" = "yes" ] ; then
 		PrepareBootDiskImage_LILO $imagesdir $IA64_BOOT_SIZE $kernelpath $ramdisk_size || Die "Failed to create ia64 floppy disk image."
 	else
 		if ! PrepareBootDiskImage_LILO $imagesdir 1722 $kernelpath $ramdisk_size ; then
-		LogIt "Warning - failed to create 1.72MB boot image. Please reduce your kernel's size\n"
-		LogIt "if you want to make a 1.72MB floppy disk.\n"
+			LogIt "Warning - failed to create 1.72MB boot image. Please reduce your kernel's size\n"
+			LogIt "if you want to make a 1.72MB floppy disk.\n"
 		fi
-		PrepareBootDiskImage_LILO $imagesdir 2880 $kernelpath $ramdisk_size || Die "Failed to create 2.88MB floppy disk image."
+		if ! PrepareBootDiskImage_LILO $imagesdir 2880 $kernelpath $ramdisk_size ;  then
+			LogIt "Warning - failed to create 2.88MB floppy disk image.\n"
+			LogIt "Please reduce your kernel's size\n"
+			LogIt "if you want to make a 2.88MB floppy disk.\n"
+			PrepareBootDiskImage_LILO $imagesdir 5760 $kernelpath $ramdisk_size || Die "Failed to create 2.88MB floppy disk image."
+		fi
 	fi
 else
 	if ! PrepareBootDiskImage_SYSLINUX $imagesdir 1722 $kernelpath $ramdisk_size ; then

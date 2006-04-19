@@ -60,7 +60,8 @@ else
 	sed -e "s~^MINDI_PREFIX=XXX~MINDI_PREFIX=$local~" -e "s~^MINDI_CONF=YYY~MINDI_CONF=$conf~" -e "s~^MINDI_VER=VVV~MINDI_VER=$MINDIVER~" -e "s~^MINDI_REV=RRR~MINDI_REV=$MINDIREV~" mindi > $local/sbin/mindi
 fi
 chmod 755 $local/sbin/mindi
-install -m 755 analyze-my-lvm parted2fdisk.pl $local/sbin
+install -m 755 parted2fdisk.pl $local/sbin
+install -m 755 analyze-my-lvm $locallib/mindi
 
 install -m 644 mindi.8 $MANDIR
 install -m 644 ChangeLog COPYING README README.busybox README.ia64 README.pxe TODO INSTALL svn.log $DOCDIR
@@ -105,14 +106,14 @@ rm -f $locallib/mindi/rootfs/sbin/parted2fdisk-*
 
 if [ "$RPMBUILDMINDI" != "true" ]; then
 	chown -R root:root $locallib/mindi $conf $DOCDIR
-	chown root:root $local/sbin/mindi $MANDIR/mindi.8 $local/sbin/analyze-my-lvm $local/sbin/parted2fdisk.pl 
+	chown root:root $local/sbin/mindi $MANDIR/mindi.8 $locallib/mindi/analyze-my-lvm $local/sbin/parted2fdisk.pl 
 	if [ "$ARCH" = "ia64" ] ; then
 		chown root:root $local/sbin/parted2fdisk
 	fi
 fi
 
-# Special case for SuSE family wher doc is put elsewhere in the RPM
-if [ _"$dfam" != _"suse" ] then;
+# Special case for SuSE family where doc is put elsewhere in the RPM
+if [ _"$dfam" = _"suse" ]; then
 	rm -rf $DOCDIR
 fi
 

@@ -2453,8 +2453,7 @@ formatting for you.</para>
 </answer>
 </qandaentry>
 <qandaentry>
-<question><para>Q: Where is my CD burner, in SCSI
-				terms?</para></question>
+<question><para>Q: Where is my CD burner, in SCSI terms?</para></question>
 <answer>
 <para>A: Type:</para>
 <para></para>
@@ -2480,6 +2479,27 @@ lucky, just use '-Oc 2'; Mondo will (a) assume you want to write at
 <para>A: Mondo should be able to handle almost any hardware. So
 long as your kernel and modules support it, Mindi will support it
 and therefore so will Mondo.</para>
+</answer>
+</qandaentry>
+<qandaentry>
+		<question><para>Q: Why doesn't cdrecord -scanbus work ?</para></question>
+		<answer>
+				<para>A: If you have a 2.4.x kernel (typical example are fedora legacy kernels for redhat 7.X/8/9) and an IDE CDRW device, and the drive is not
+listed when you run
+
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+bash# cdrecord -scanbus
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+
+try adding the following kernel option to your boot script to enable
+SCSI emulation: hdx=ide-scsi, where "hdx" should be replaced with the
+appropriate drive letter of the CDRW device, e.g., "hdc".
+(Answer provided by Christopher Moriarity cdm7_at_cdc.gov)
+</para>
 </answer>
 </qandaentry>
 </qandaset>

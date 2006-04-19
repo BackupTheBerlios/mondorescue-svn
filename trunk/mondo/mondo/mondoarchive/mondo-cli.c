@@ -216,6 +216,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 	/*@ buffers ** */
 	char *tmp;
 	char *tmp2;
+	char *tmp1;
 	char *psz;
 
 	long itbs;
@@ -299,10 +300,30 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		if (bkpinfo->include_paths[0]) {
 			strcat(bkpinfo->include_paths, " ");
 		}
-		if (stat(flag_val['I'], &buf) != 0) {
-			log_msg("ERROR ! %s doesn't exist", flag_val['I']);
-			fatal_error("ERROR ! You specified a directory to include which doesn't exist");
+		asprintf(&tmp1, flag_val['I']);
+		char *p = tmp1;
+		char *q = tmp1;
+
+		/* Cut the flag_val['I'] in parts containing all paths to test them */
+		while (p != NULL) {
+			q = strchr(p, ' ');
+			if (q != NULL) {
+				*q = '\0';
+				p = q+1 ;
+				if (stat(p, &buf) != 0) {
+					log_msg(1, "ERROR ! %s doesn't exist", p);
+					fatal_error("ERROR ! You specified a directory to include which doesn't exist");
+				}
+			} else {
+				if (stat(p, &buf) != 0) {
+					log_msg(1, "ERROR ! %s doesn't exist", p);
+					fatal_error("ERROR ! You specified a directory to include which doesn't exist");
+				}
+				p = NULL;
+			}
 		}
+		paranoid_free(tmp1);
+
 		strncpy(bkpinfo->include_paths + strlen(bkpinfo->include_paths),
 				flag_val['I'],
 				MAX_STR_LEN - strlen(bkpinfo->include_paths));
@@ -515,9 +536,28 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		if (bkpinfo->exclude_paths[0]) {
 			strcat(bkpinfo->exclude_paths, " ");
 		}
-		if (stat(flag_val['E'], &buf) != 0) {
-			log_msg(1, "WARNING ! %s doesn't exist", flag_val['E']);
+		asprintf(&tmp1, flag_val['E']);
+		char *p = tmp1;
+		char *q = tmp1;
+
+		/* Cut the flag_val['E'] in parts containing all paths to test them */
+		while (p != NULL) {
+			q = strchr(p, ' ');
+			if (q != NULL) {
+				*q = '\0';
+				p = q+1 ;
+				if (stat(p, &buf) != 0) {
+					log_msg(1, "WARNING ! %s doesn't exist", p);
+				}
+			} else {
+				if (stat(p, &buf) != 0) {
+					log_msg(1, "WARNING ! %s doesn't exist", p);
+				}
+				p = NULL;
+			}
 		}
+		paranoid_free(tmp1);
+
 		strncpy(bkpinfo->exclude_paths + strlen(bkpinfo->exclude_paths),
 				flag_val['E'],
 				MAX_STR_LEN - strlen(bkpinfo->exclude_paths));
@@ -762,7 +802,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 	if (!flag_set['o']
 		&&
 		!run_program_and_log_output
-		("grep -i suse /etc/issue.net | grep 64", TRUE)) {
+		("egrep -i suse /etc/issue.net | egrep '9.0' | grep 64", TRUE)) {
 		bkpinfo->make_cd_use_lilo = TRUE;
 		log_to_screen
 			("Forcing you to use LILO. SuSE 9.0 (64-bit) has a broken mkfs.vfat binary.");

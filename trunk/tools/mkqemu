@@ -11,7 +11,7 @@ if [ _"$1" == _"" ]; then
 fi
 
 if [ _"$2" == _"" ]; then
-	export SVN_VM="mdk101 mdk102 mdv2006 rhel3 rhel4 rh73 fc4 sles9"
+	export SVN_VM="mdk101 mdk102 mdv2006 rh73 rh9 fc4 fc5 rhel3 rhel4 suse10 sles9 debian31"
 else
 	export SVN_VM="$2"
 fi
@@ -42,11 +42,17 @@ else
 			exit -1
 	fi
 fi
-\$SVN_HOME/$1/tools/mkrpm < /dev/null
+echo \$SVN_VM | grep -q "debian"
+if [ \$? -eq 0 ]; then
+	\$SVN_HOME/$1/tools/mkdeb < /dev/null
+else
+	\$SVN_HOME/$1/tools/mkrpm < /dev/null
+fi
 \$SVN_HOME/$1/tools/mkdeliv
 EOF
 
 ipvm=10.0.2.15
+
 
 for m in $SVN_VM; do
 	sp=22`host $m.mondo.musique-ancienne.org | cut -d. -f7`
@@ -59,12 +65,17 @@ for m in $SVN_VM; do
 	if [ $? -ne 0 ]; then
 		# Virtual machine alreday started
 		vmp=1
-		qemu -m 256 -redir tcp:${sp}:${ipvm}:22 /users/vmplayer/$m.qemu &
-		sleep 240
+		qemu -m 256 $QEMUOPT -redir tcp:${sp}:${ipvm}:22 /users/vmplayer/$m.qemu &
+		sleep 300
 	fi
 	scp -P $sp /tmp/mkmondo bruno@localhost:
 	ssh -p $sp bruno@localhost "chmod 755 ./mkmondo ; ./mkmondo" | tee /tmp/mkvm.log
 	if [ $vmp -eq 1 ]; then
 		ssh -p $sp root@localhost "halt -p"
+		sleep 300
+		proces=`ps auxww | grep qemu | grep -v grep | grep -q /users/vmplayer/$m.qemu | awk '{print $2}'`
+		if [ "$proces" != "" ]; then
+			kill $proces
+		fi
 	fi
 done

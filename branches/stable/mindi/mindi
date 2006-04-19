@@ -1305,7 +1305,7 @@ MakeModuleLoadingScript() {
 	# Make temporary modprobe.conf file if we are told so
 	if [ $tmpmodprobe_flag == "Y" ] ; then
 		infile="/tmp/modprobe.conf.mindi.$$"
-		find /etc/modprobe.d -maxdepth 1 -name "*" -xtype f | xargs cat > $infile
+		find /etc/modprobe.d -maxdepth 1 -name "*" -xtype f -print0 | xargs -0 cat > $infile
 	else
 		infile="/etc/modules.conf"
 	fi

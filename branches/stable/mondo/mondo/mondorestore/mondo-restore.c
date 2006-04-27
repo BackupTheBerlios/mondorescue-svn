@@ -504,7 +504,7 @@ extern int copy_from_src_to_dest(FILE * f_orig, FILE * f_archived,
 /**
  * The message to display if we detect that the user is using a Compaq Proliant.
  */
-#define COMPAQ_PROLIANTS_SUCK "Partition and format your disk using Compaq's disaster recovery CD. After you've done that, please reboot with your Mondo CD/floppy in Interactive Mode."
+#define COMPAQ_PROLIANTS_SUCK _("Partition and format your disk using Compaq's disaster recovery CD. After you've done that, please reboot with your Mondo CD/floppy in Interactive Mode.")
 
 
 
@@ -534,7 +534,7 @@ int let_user_edit_the_mountlist(struct s_bkpinfo *bkpinfo,
 	}
 	if (!does_file_exist(g_mountlist_fname)) {
 		log_to_screen(g_mountlist_fname);
-		log_to_screen("does not exist");
+		log_to_screen(_("does not exist"));
 		return (1);
 	}
 
@@ -542,7 +542,7 @@ int let_user_edit_the_mountlist(struct s_bkpinfo *bkpinfo,
 	load_raidtab_into_raidlist(raidlist, RAIDTAB_FNAME);
 	if (retval) {
 		log_to_screen
-			("Warning - load_raidtab_into_raidlist returned an error");
+			(_("Warning - load_raidtab_into_raidlist returned an error"));
 	}
 	res = edit_mountlist(g_mountlist_fname, mountlist, raidlist);
 	if (res) {
@@ -552,7 +552,7 @@ int let_user_edit_the_mountlist(struct s_bkpinfo *bkpinfo,
 	save_mountlist_to_disk(mountlist, g_mountlist_fname);
 	save_raidlist_to_raidtab(raidlist, RAIDTAB_FNAME);
 
-	log_to_screen("I have finished editing the mountlist for you.");
+	log_to_screen(_("I have finished editing the mountlist for you."));
 
 	return (retval);
 }
@@ -601,10 +601,10 @@ void offer_to_abort_because_Compaq_Proliants_suck(void)
 {
 	popup_and_OK(COMPAQ_PROLIANTS_SUCK);
 	if (ask_me_yes_or_no
-		("Would you like to reboot and use your Compaq CD to prep your hard drive?"))
+		(_("Would you like to reboot and use your Compaq CD to prep your hard drive?")))
 	{
 		fatal_error
-			("Aborting. Please reboot and prep your hard drive with your Compaq CD.");
+			(_("Aborting. Please reboot and prep your hard drive with your Compaq CD."));
 	}
 }
 
@@ -641,7 +641,7 @@ catchall_mode(struct s_bkpinfo *bkpinfo,
 	if (c == 'I' || c == 'N' || c == 'C') {
 		interactively_obtain_media_parameters_from_user(bkpinfo, FALSE);
 	} else {
-		popup_and_OK("No restoring or comparing will take place today.");
+		popup_and_OK(_("No restoring or comparing will take place today."));
 		if (is_this_device_mounted("/mnt/cdrom")) {
 			run_program_and_log_output("umount /mnt/cdrom", FALSE);
 		}
@@ -773,7 +773,7 @@ interactive_mode(struct s_bkpinfo *bkpinfo,
 
 	if (g_text_mode) {
 		if (!ask_me_yes_or_no
-			("Interactive Mode + textonly = experimental! Proceed anyway?"))
+			(_("Interactive Mode + textonly = experimental! Proceed anyway?")))
 		{
 			fatal_error("Wise move.");
 		}
@@ -814,15 +814,15 @@ interactive_mode(struct s_bkpinfo *bkpinfo,
 		log_msg(2, "Proceeding...");
 		save_mountlist_to_disk(mountlist, g_mountlist_fname);
 		save_raidlist_to_raidtab(raidlist, RAIDTAB_FNAME);
-		mvaddstr_and_log_it(1, 30, "Restoring Interactively");
+		mvaddstr_and_log_it(1, 30, _("Restoring Interactively"));
 		if (bkpinfo->differential) {
-			log_to_screen("Because this is a differential backup, disk");
+			log_to_screen(_("Because this is a differential backup, disk"));
 			log_to_screen
-				(" partitioning and formatting will not take place.");
+				(_(" partitioning and formatting will not take place."));
 			done = TRUE;
 		} else {
 			if (ask_me_yes_or_no
-				("Do you want to erase and partition your hard drives?")) {
+				(_("Do you want to erase and partition your hard drives?"))) {
 				if (partition_table_contains_Compaq_diagnostic_partition
 					(mountlist)) {
 					offer_to_abort_because_Compaq_Proliants_suck();
@@ -833,15 +833,15 @@ interactive_mode(struct s_bkpinfo *bkpinfo,
 					ptn_errs = partition_everything(mountlist);
 					if (ptn_errs) {
 						log_to_screen
-							("Warning. Errors occurred during disk partitioning.");
+							(_("Warning. Errors occurred during disk partitioning."));
 					}
 
 					fmt_errs = format_everything(mountlist, FALSE);
 					if (!fmt_errs) {
 						log_to_screen
-							("Errors during disk partitioning were handled OK.");
+							(_("Errors during disk partitioning were handled OK."));
 						log_to_screen
-							("Partitions were formatted OK despite those errors.");
+							(_("Partitions were formatted OK despite those errors."));
 						ptn_errs = 0;
 					}
 					if (!ptn_errs && !fmt_errs) {
@@ -851,9 +851,9 @@ interactive_mode(struct s_bkpinfo *bkpinfo,
 				paranoid_fclose(g_fprep);
 			} else {
 				mvaddstr_and_log_it(g_currentY++, 0,
-									"User opted not to partition the devices");
+									_("User opted not to partition the devices"));
 				if (ask_me_yes_or_no
-					("Do you want to format your hard drives?")) {
+					(_("Do you want to format your hard drives?"))) {
 					fmt_errs = format_everything(mountlist, TRUE);
 					if (!fmt_errs) {
 						done = TRUE;
@@ -866,17 +866,17 @@ interactive_mode(struct s_bkpinfo *bkpinfo,
 			if (fmt_errs) {
 				mvaddstr_and_log_it(g_currentY++,
 									0,
-									"Errors occurred. Please repartition and format drives manually.");
+									_("Errors occurred. Please repartition and format drives manually."));
 				done = FALSE;
 			}
 			if (ptn_errs & !fmt_errs) {
 				mvaddstr_and_log_it(g_currentY++,
 									0,
-									"Errors occurred during partitioning. Formatting, however, went OK.");
+									_("Errors occurred during partitioning. Formatting, however, went OK."));
 				done = TRUE;
 			}
 			if (!done) {
-				if (!ask_me_yes_or_no("Re-edit the mountlist?")) {
+				if (!ask_me_yes_or_no(_("Re-edit the mountlist?"))) {
 					retval++;
 					goto end_of_func;
 				}
@@ -892,14 +892,14 @@ interactive_mode(struct s_bkpinfo *bkpinfo,
 	}
 	/* restore */
 	if ((restore_all =
-		 ask_me_yes_or_no("Do you want me to restore all of your data?")))
+		 ask_me_yes_or_no(_("Do you want me to restore all of your data?"))))
 	{
 		log_msg(1, "Restoring all data");
 		retval += restore_everything(bkpinfo, NULL);
 	} else
 		if ((restore_all =
 			 ask_me_yes_or_no
-			 ("Do you want me to restore _some_ of your data?"))) {
+			 (_("Do you want me to restore _some_ of your data?")))) {
 		strcpy(old_restpath, bkpinfo->restore_path);
 		for (done = FALSE; !done;) {
 			unlink("/tmp/filelist.full");
@@ -912,10 +912,10 @@ interactive_mode(struct s_bkpinfo *bkpinfo,
 				strcpy(tmp, old_restpath);
 // (NB: %s is where your filesystem is mounted now, by default)", MNT_RESTORING);
 				if (popup_and_get_string
-					("Restore path", "Restore files to where?", tmp,
+					(_("Restore path"), _("Restore files to where?"), tmp,
 					 MAX_STR_LEN / 4)) {
 					if (!strcmp(tmp, "/")) {
-						if (!ask_me_yes_or_no("Are you sure?")) {
+						if (!ask_me_yes_or_no(_("Are you sure?"))) {
 							goto gotos_suck;
 						}
 						tmp[0] = '\0';	// so we restore to [blank]/file/name :)
@@ -929,7 +929,7 @@ interactive_mode(struct s_bkpinfo *bkpinfo,
 					free_filelist(filelist);
 				}
 				if (!ask_me_yes_or_no
-					("Restore another subset of your backup?")) {
+					(_("Restore another subset of your backup?"))) {
 					done = TRUE;
 				}
 			} else {
@@ -940,20 +940,20 @@ interactive_mode(struct s_bkpinfo *bkpinfo,
 	} else {
 		mvaddstr_and_log_it(g_currentY++,
 							0,
-							"User opted not to restore any data.                                  ");
+							_("User opted not to restore any data.                                  "));
 	}
 	if (retval) {
 		mvaddstr_and_log_it(g_currentY++,
 							0,
-							"Errors occurred during the restore phase.            ");
+							_("Errors occurred during the restore phase.            "));
 	}
 
-	if (ask_me_yes_or_no("Initialize the boot loader?")) {
+	if (ask_me_yes_or_no(_("Initialize the boot loader?"))) {
 		run_boot_loader(TRUE);
 	} else {
 		mvaddstr_and_log_it(g_currentY++,
 							0,
-							"User opted not to initialize the boot loader.");
+							_("User opted not to initialize the boot loader."));
 	}
 
 //  run_program_and_log_output("cp -af /etc/lvm " MNT_RESTORING "/etc/", 1);
@@ -962,9 +962,9 @@ interactive_mode(struct s_bkpinfo *bkpinfo,
 	retval += unmount_all_devices(mountlist);
 	/*  if (restore_some || restore_all || */
 	if (ask_me_yes_or_no
-		("Label your ext2 and ext3 partitions if necessary?")) {
+		(_("Label your ext2 and ext3 partitions if necessary?"))) {
 		mvaddstr_and_log_it(g_currentY, 0,
-							"Using e2label to label your ext2,3 partitions");
+							_("Using e2label to label your ext2,3 partitions"));
 		if (does_file_exist("/tmp/fstab.new")) {
 			strcpy(fstab_fname, "/tmp/fstab.new");
 		} else {
@@ -977,8 +977,8 @@ interactive_mode(struct s_bkpinfo *bkpinfo,
 		res = system(tmp);
 		if (res) {
 			log_to_screen
-				("label-partitions-as-necessary returned an error");
-			mvaddstr_and_log_it(g_currentY++, 74, "Failed.");
+				(_("label-partitions-as-necessary returned an error"));
+			mvaddstr_and_log_it(g_currentY++, 74, _("Failed."));
 		} else {
 			mvaddstr_and_log_it(g_currentY++, 74, "Done.");
 		}
@@ -989,7 +989,7 @@ interactive_mode(struct s_bkpinfo *bkpinfo,
 	if (retval) {
 		mvaddstr_and_log_it(g_currentY++,
 							0,
-							"Warning - errors occurred during the restore phase.");
+							_("Warning - errors occurred during the restore phase."));
 	}
   end_of_func:
 	paranoid_free(tmp);
@@ -1041,7 +1041,7 @@ iso_mode(struct s_bkpinfo *bkpinfo,
 		} else if (c == 'C') {
 			retval += compare_mode(bkpinfo, mountlist, raidlist);
 		} else {
-			log_to_screen("OK, I shan't restore/compare any files.");
+			log_to_screen(_("OK, I shan't restore/compare any files."));
 		}
 	}
 	if (is_this_device_mounted(MNT_CDROM)) {
@@ -1051,7 +1051,7 @@ iso_mode(struct s_bkpinfo *bkpinfo,
 //    {
 	if (system("umount /tmp/isodir 2> /dev/null")) {
 		log_to_screen
-			("WARNING - unable to unmount device where the ISO files are stored.");
+			(_("WARNING - unable to unmount device where the ISO files are stored."));
 	}
 //    }
 	return (retval);
@@ -1112,7 +1112,7 @@ nuke_mode(struct s_bkpinfo *bkpinfo,
 	}
 	if (!evaluate_mountlist(mountlist, tmpA, tmpB, tmpC)) {
 		sprintf(tmp,
-				"Mountlist analyzed. Result: \"%s %s %s\" Switch to Interactive Mode?",
+				_("Mountlist analyzed. Result: \"%s %s %s\" Switch to Interactive Mode?"),
 				tmpA, tmpB, tmpC);
 		if (ask_me_yes_or_no(tmp)) {
 			retval = interactive_mode(bkpinfo, mountlist, raidlist);
@@ -1122,10 +1122,10 @@ nuke_mode(struct s_bkpinfo *bkpinfo,
 		}
 	}
 	save_mountlist_to_disk(mountlist, g_mountlist_fname);
-	mvaddstr_and_log_it(1, 30, "Restoring Automatically");
+	mvaddstr_and_log_it(1, 30, _("Restoring Automatically"));
 	if (bkpinfo->differential) {
-		log_to_screen("Because this is a differential backup, disk");
-		log_to_screen("partitioning and formatting will not take place.");
+		log_to_screen(_("Because this is a differential backup, disk"));
+		log_to_screen(_("partitioning and formatting will not take place."));
 		res = 0;
 	} else {
 		if (partition_table_contains_Compaq_diagnostic_partition
@@ -1151,16 +1151,16 @@ nuke_mode(struct s_bkpinfo *bkpinfo,
 				res = partition_everything(mountlist);
 				if (res) {
 					log_to_screen
-						("Warning. Errors occurred during partitioning.");
+						(_("Warning. Errors occurred during partitioning."));
 					res = 0;
 				}
 			}
 			retval += res;
 			if (!res) {
-				log_to_screen("Preparing to format your disk(s)");
+				log_to_screen(_("Preparing to format your disk(s)"));
 				sleep(1);
 				system("sync");
-				log_to_screen("Please wait. This may take a few minutes.");
+				log_to_screen(_("Please wait. This may take a few minutes."));
 				res += format_everything(mountlist, FALSE);
 			}
 			paranoid_fclose(g_fprep);
@@ -1170,14 +1170,14 @@ nuke_mode(struct s_bkpinfo *bkpinfo,
 	if (res) {
 		mvaddstr_and_log_it(g_currentY++,
 							0,
-							"Failed to partition and/or format your hard drives.");
+							_("Failed to partition and/or format your hard drives."));
 
-		if (ask_me_yes_or_no("Try in interactive mode instead?")) {
+		if (ask_me_yes_or_no(_("Try in interactive mode instead?"))) {
 			retval = interactive_mode(bkpinfo, mountlist, raidlist);
 			goto after_the_nuke;
 		} else
 			if (!ask_me_yes_or_no
-				("Would you like to try to proceed anyway?")) {
+				(_("Would you like to try to proceed anyway?"))) {
 			return (retval);
 		}
 	}
@@ -1185,7 +1185,7 @@ nuke_mode(struct s_bkpinfo *bkpinfo,
 	if (retval) {
 		unmount_all_devices(mountlist);
 		log_to_screen
-			("Unable to mount all partitions. Sorry, I cannot proceed.");
+			(_("Unable to mount all partitions. Sorry, I cannot proceed."));
 		return (retval);
 	}
 	iamhere("Restoring everything");
@@ -1201,37 +1201,37 @@ nuke_mode(struct s_bkpinfo *bkpinfo,
 	retval += unmount_all_devices(mountlist);
 	mvaddstr_and_log_it(g_currentY,
 						0,
-						"Using e2label to label your ext2,3 partitions");
+						_("Using e2label to label your ext2,3 partitions"));
 
 	sprintf(tmp, "label-partitions-as-necessary %s < /tmp/fstab",
 			g_mountlist_fname);
 	res = run_program_and_log_output(tmp, TRUE);
 	if (res) {
-		log_to_screen("label-partitions-as-necessary returned an error");
-		mvaddstr_and_log_it(g_currentY++, 74, "Failed.");
+		log_to_screen(_("label-partitions-as-necessary returned an error"));
+		mvaddstr_and_log_it(g_currentY++, 74, _("Failed."));
 	} else {
-		mvaddstr_and_log_it(g_currentY++, 74, "Done.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 	}
 	retval += res;
 
   after_the_nuke:
 	if (retval) {
-		log_to_screen("Errors occurred during the nuke phase.");
+		log_to_screen(_("Errors occurred during the nuke phase."));
 	} else if (strstr(call_program_and_get_last_line_of_output("cat /proc/cmdline"), "RESTORE"))	// Bruno's thing
 	{
 		log_to_screen
-			("PC was restored successfully. Thank you for using Mondo Rescue.");
+			(_("PC was restored successfully. Thank you for using Mondo Rescue."));
 		log_to_screen
-			("Please visit our website at http://www.mondorescue.org for more information.");
+			(_("Please visit our website at http://www.mondorescue.org for more information."));
 	} else {
-		strcpy(tmp," Mondo has restored your system. Please remove the backup media and reboot.\n\nPlease visit our website at http://www.mondorescue.org for more information.");
+		strcpy(tmp,_(" Mondo has restored your system. Please remove the backup media and reboot.\n\nPlease visit our website at http://www.mondorescue.org for more information."));
 		if (strstr(call_program_and_get_last_line_of_output("cat /proc/cmdline"), "restore") == NULL) {
 			popup_and_OK(tmp);
 		}
 		log_to_screen
-			("Mondo has restored your system. Please remove the backup media and reboot.");
+			(_("Mondo has restored your system. Please remove the backup media and reboot."));
 		log_to_screen
-			("Please visit our website at http://www.mondorescue.org for more information.");
+			(_("Please visit our website at http://www.mondorescue.org for more information."));
 	}
 	g_I_have_just_nuked = TRUE;
 /*
@@ -1280,7 +1280,7 @@ int restore_to_live_filesystem(struct s_bkpinfo *bkpinfo)
 	strcpy(bkpinfo->restore_path, "/");
 	if (!g_restoring_live_from_cd) {
 		popup_and_OK
-			("Please insert tape/CD/boot floppy, then hit 'OK' to continue.");
+			(_("Please insert tape/CD/boot floppy, then hit 'OK' to continue."));
 		sleep(1);
 	}
 	interactively_obtain_media_parameters_from_user(bkpinfo, FALSE);
@@ -1292,7 +1292,7 @@ int restore_to_live_filesystem(struct s_bkpinfo *bkpinfo)
 
 	log_msg(2, "bkpinfo->isodir = %s", bkpinfo->isodir);
 
-	open_evalcall_form("Thinking...");
+	open_evalcall_form(_("Thinking..."));
 
 	get_cfg_file_from_archive_or_bust(bkpinfo);
 	read_cfg_file_into_bkpinfo(g_mondo_cfg_file, bkpinfo);
@@ -1305,8 +1305,8 @@ int restore_to_live_filesystem(struct s_bkpinfo *bkpinfo)
 	if (filelist) {
 		save_filelist(filelist, "/tmp/selected-files.txt");
 		strcpy(old_restpath, bkpinfo->restore_path);
-		if (popup_and_get_string("Restore path",
-								 "Restore files to where? )",
+		if (popup_and_get_string(_("Restore path"),
+								 _("Restore files to where? )"),
 								 bkpinfo->restore_path, MAX_STR_LEN / 4)) {
 			iamhere("Restoring everything");
 			retval += restore_everything(bkpinfo, filelist);
@@ -1402,7 +1402,7 @@ restore_a_biggiefile_from_CD(struct s_bkpinfo *bkpinfo,
 	}
 
 	if (!(fin = fopen(slice_fname(bigfileno, 0, ARCHIVES_PATH, ""), "r"))) {
-		log_to_screen("Cannot even open bigfile's info file");
+		log_to_screen(_("Cannot even open bigfile's info file"));
 		return (1);
 	}
 
@@ -1515,7 +1515,7 @@ restore_a_biggiefile_from_CD(struct s_bkpinfo *bkpinfo,
 
 	log_msg(3, "file_to_openout = %s", file_to_openout);
 	if (!(fout = fopen(file_to_openout, "w"))) {
-		log_to_screen("Cannot openout outfile_fname - hard disk full?");
+		log_to_screen(_("Cannot openout outfile_fname - hard disk full?"));
 		return (1);
 	}
 	log_msg(3, "Opened out to %s", outfile_fname);	// CD/DVD --> mondorestore --> ntfsclone --> hard disk itself
@@ -1538,12 +1538,12 @@ restore_a_biggiefile_from_CD(struct s_bkpinfo *bkpinfo,
 					media_descriptor_string(bkpinfo->backup_media_type),
 					g_current_media_number, sliceno);
 			log_msg(2, tmp);
-			sprintf(tmp, "Restoring from %s #%d",
+			sprintf(tmp, _("Restoring from %s #%d"),
 					media_descriptor_string(bkpinfo->backup_media_type),
 					g_current_media_number);
 			log_to_screen(tmp);
 			insist_on_this_cd_number(bkpinfo, g_current_media_number);
-			log_to_screen("Continuing to restore.");
+			log_to_screen(_("Continuing to restore."));
 		} else {
 			strcpy(tmp,
 				   slice_fname(bigfileno, sliceno, ARCHIVES_PATH, ""));
@@ -1572,7 +1572,7 @@ restore_a_biggiefile_from_CD(struct s_bkpinfo *bkpinfo,
 					strcpy(bzip2_command, "");
 					strcpy(suffix, "");
 				} else {
-					log_to_screen("OK, that's pretty fsck0red...");
+					log_to_screen(_("OK, that's pretty fsck0red..."));
 					return (1);
 				}
 			}
@@ -2030,7 +2030,7 @@ restore_a_tarball_from_CD(char *tarball_fname,
 			sprintf(tmp, "which %s > /dev/null 2> /dev/null", executable);
 			if (run_program_and_log_output(tmp, FALSE)) {
 				log_to_screen
-					("(compare_a_tarball) Compression program not found - oh no!");
+					(_("(compare_a_tarball) Compression program not found - oh no!"));
 				paranoid_MR_finish(1);
 			}
 			strcpy(tmp, executable);
@@ -2088,7 +2088,7 @@ restore_a_tarball_from_CD(char *tarball_fname,
 			res = set_fattr_list(filelist_subset_fname, xattr_fname);
 			if (res) {
 				log_to_screen
-					("Errors occurred while setting extended attributes");
+					(_("Errors occurred while setting extended attributes"));
 			} else {
 				log_msg(1, "I set xattr OK");
 			}
@@ -2099,7 +2099,7 @@ restore_a_tarball_from_CD(char *tarball_fname,
 			res = set_acl_list(filelist_subset_fname, acl_fname);
 			if (res) {
 				log_to_screen
-					("Errors occurred while setting access control lists");
+					(_("Errors occurred while setting access control lists"));
 			} else {
 				log_msg(1, "I set ACL OK");
 			}
@@ -2116,7 +2116,7 @@ restore_a_tarball_from_CD(char *tarball_fname,
 	}
 	if (does_file_exist("/PAUSE")) {
 		popup_and_OK
-			("Press ENTER to go on. Delete /PAUSE to stop these pauses.");
+			(_("Press ENTER to go on. Delete /PAUSE to stop these pauses."));
 	}
 	unlink(filelist_subset_fname);
 	unlink(xattr_fname);
@@ -2313,8 +2313,8 @@ restore_a_tarball_from_stream(struct s_bkpinfo *bkpinfo,
 	}
 
 	if (does_file_exist("/PAUSE") && current_tarball_number >= 50) {
-		log_to_screen("Paused after set %ld", current_tarball_number);
-		popup_and_OK("Pausing. Press ENTER to continue.");
+		log_to_screen(_("Paused after set %ld"), current_tarball_number);
+		popup_and_OK(_("Pausing. Press ENTER to continue."));
 	}
 
 	unlink(filelist_subset_fname);
@@ -2377,7 +2377,7 @@ restore_all_biggiefiles_from_CD(struct s_bkpinfo *bkpinfo,
 
 	read_cfg_var(g_mondo_cfg_file, "total-slices", tmp);
 	total_slices = atol(tmp);
-	sprintf(tmp, "Reassembling large files      ");
+	sprintf(tmp, _("Reassembling large files      "));
 	mvaddstr_and_log_it(g_currentY, 0, tmp);
 	if (length_of_file(BIGGIELIST) < 6) {
 		log_msg(1, "OK, no biggielist; not restoring biggiefiles");
@@ -2393,9 +2393,9 @@ restore_all_biggiefiles_from_CD(struct s_bkpinfo *bkpinfo,
 			noof_biggiefiles);
 	log_msg(2, tmp);
 
-	open_progress_form("Reassembling large files",
-					   "I am now reassembling all the large files.",
-					   "Please wait. This may take some time.",
+	open_progress_form(_("Reassembling large files"),
+					   _("I am now reassembling all the large files."),
+					   _("Please wait. This may take some time."),
 					   "", total_slices);
 	for (bigfileno = 0, finished = FALSE; !finished;) {
 		log_msg(2, "Thinking about restoring bigfile %ld", bigfileno + 1);
@@ -2416,7 +2416,7 @@ restore_all_biggiefiles_from_CD(struct s_bkpinfo *bkpinfo,
 			} else if (does_file_exist(MNT_CDROM "/archives/NOT-THE-LAST")) {
 				insist_on_this_cd_number(bkpinfo,
 										 ++g_current_media_number);
-				sprintf(tmp, "Restoring from %s #%d",
+				sprintf(tmp, _("Restoring from %s #%d"),
 						media_descriptor_string(bkpinfo->
 												backup_media_type),
 						g_current_media_number);
@@ -2430,7 +2430,7 @@ restore_all_biggiefiles_from_CD(struct s_bkpinfo *bkpinfo,
 			}
 		} else {
 			just_changed_cds = FALSE;
-			sprintf(tmp, "Restoring big file %ld", bigfileno + 1);
+			sprintf(tmp, _("Restoring big file %ld"), bigfileno + 1);
 			update_progress_form(tmp);
 			res =
 				restore_a_biggiefile_from_CD(bkpinfo, bigfileno, filelist,
@@ -2459,13 +2459,13 @@ restore_all_biggiefiles_from_CD(struct s_bkpinfo *bkpinfo,
 	}
 	if (does_file_exist("/PAUSE")) {
 		popup_and_OK
-			("Press ENTER to go on. Delete /PAUSE to stop these pauses.");
+			(_("Press ENTER to go on. Delete /PAUSE to stop these pauses."));
 	}
 	close_progress_form();
 	if (retval) {
-		mvaddstr_and_log_it(g_currentY++, 74, "Errors.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Errors."));
 	} else {
-		mvaddstr_and_log_it(g_currentY++, 74, "Done.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 	}
 	paranoid_free(xattr_fname);
 	paranoid_free(acl_fname);
@@ -2513,7 +2513,7 @@ restore_all_tarballs_from_CD(struct s_bkpinfo *bkpinfo,
 
 	assert(bkpinfo != NULL);
 
-	mvaddstr_and_log_it(g_currentY, 0, "Restoring from archives");
+	mvaddstr_and_log_it(g_currentY, 0, _("Restoring from archives"));
 	log_msg(2,
 			"Insisting on 1st CD, so that I can have a look at LAST-FILELIST-NUMBER");
 	if (g_current_media_number != 1) {
@@ -2523,13 +2523,13 @@ restore_all_tarballs_from_CD(struct s_bkpinfo *bkpinfo,
 	insist_on_this_cd_number(bkpinfo, g_current_media_number);
 	read_cfg_var(g_mondo_cfg_file, "last-filelist-number", tmp);
 	max_val = atol(tmp) + 1;
-	sprintf(progress_str, "Restoring from %s #%d",
+	sprintf(progress_str, _("Restoring from %s #%d"),
 			media_descriptor_string(bkpinfo->backup_media_type),
 			g_current_media_number);
 	log_to_screen(progress_str);
-	open_progress_form("Restoring from archives",
-					   "Restoring data from the archives.",
-					   "Please wait. This may take some time.",
+	open_progress_form(_("Restoring from archives"),
+					   _("Restoring data from the archives."),
+					   _("Please wait. This may take some time."),
 					   progress_str, max_val);
 	for (;;) {
 		insist_on_this_cd_number(bkpinfo, g_current_media_number);
@@ -2555,7 +2555,7 @@ restore_all_tarballs_from_CD(struct s_bkpinfo *bkpinfo,
 		if (!does_file_exist(tarball_fname)) {
 			if (current_tarball_number == 0) {
 				log_to_screen
-					("No tarballs. Strange. Maybe you only backed up freakin' big files?");
+					(_("No tarballs. Strange. Maybe you only backed up freakin' big files?"));
 				return (0);
 			}
 			if (!does_file_exist(MNT_CDROM "/archives/NOT-THE-LAST")
@@ -2565,12 +2565,12 @@ restore_all_tarballs_from_CD(struct s_bkpinfo *bkpinfo,
 				break;
 			}
 			g_current_media_number++;
-			sprintf(progress_str, "Restoring from %s #%d",
+			sprintf(progress_str, _("Restoring from %s #%d"),
 					media_descriptor_string(bkpinfo->backup_media_type),
 					g_current_media_number);
 			log_to_screen(progress_str);
 		} else {
-			sprintf(progress_str, "Restoring from fileset #%ld on %s #%d",
+			sprintf(progress_str, _("Restoring from fileset #%ld on %s #%d"),
 					current_tarball_number,
 					media_descriptor_string(bkpinfo->backup_media_type),
 					g_current_media_number);
@@ -2582,18 +2582,18 @@ restore_all_tarballs_from_CD(struct s_bkpinfo *bkpinfo,
 											  current_tarball_number,
 											  filelist);
 			}
-			sprintf(tmp, "%s #%d, fileset #%ld - restore ",
+			sprintf(tmp, _("%s #%d, fileset #%ld - restore "),
 					media_descriptor_string(bkpinfo->backup_media_type),
 					g_current_media_number, current_tarball_number);
 			if (res) {
-				strcat(tmp, "reported errors");
+				strcat(tmp, _("reported errors"));
 			} else if (attempts > 1) {
-				strcat(tmp, "succeeded");
+				strcat(tmp, _("succeeded"));
 			} else {
-				strcat(tmp, "succeeded");
+				strcat(tmp, _("succeeded"));
 			}
 			if (attempts > 1) {
-				sprintf(tmp + strlen(tmp), " (%d attempts) - review logs",
+				sprintf(tmp + strlen(tmp), _(" (%d attempts) - review logs"),
 						attempts);
 			}
 			strcpy(comment, tmp);
@@ -2608,9 +2608,9 @@ restore_all_tarballs_from_CD(struct s_bkpinfo *bkpinfo,
 	}
 	close_progress_form();
 	if (retval) {
-		mvaddstr_and_log_it(g_currentY++, 74, "Errors.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Errors."));
 	} else {
-		mvaddstr_and_log_it(g_currentY++, 74, "Done.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 	}
 	paranoid_free(tmp);
 	paranoid_free(tarball_fname);
@@ -2693,9 +2693,9 @@ restore_all_biggiefiles_from_stream(struct s_bkpinfo *bkpinfo,
 	sprintf(tmp, "OK, there are %ld biggiefiles in the archives",
 			noof_biggiefiles);
 	log_msg(2, tmp);
-	open_progress_form("Reassembling large files",
-					   "I am now reassembling all the large files.",
-					   "Please wait. This may take some time.",
+	open_progress_form(_("Reassembling large files"),
+					   _("I am now reassembling all the large files."),
+					   _("Please wait. This may take some time."),
 					   "", total_slices);
 
 	for (res =
@@ -2715,7 +2715,7 @@ restore_all_biggiefiles_from_stream(struct s_bkpinfo *bkpinfo,
 		} else {
 			p++;
 		}
-		sprintf(tmp, "Restoring big file %ld (%lld K)",
+		sprintf(tmp, _("Restoring big file %ld (%lld K)"),
 				current_bigfile_number + 1, biggie_size / 1024);
 		update_progress_form(tmp);
 		res = restore_a_biggiefile_from_stream(bkpinfo, biggie_fname,
@@ -2766,14 +2766,14 @@ restore_all_biggiefiles_from_stream(struct s_bkpinfo *bkpinfo,
 	}
 	if (does_file_exist("/PAUSE")) {
 		popup_and_OK
-			("Press ENTER to go on. Delete /PAUSE to stop these pauses.");
+			(_("Press ENTER to go on. Delete /PAUSE to stop these pauses."));
 	}
 
 	close_progress_form();
 	if (retval) {
-		mvaddstr_and_log_it(g_currentY++, 74, "Errors.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Errors."));
 	} else {
-		mvaddstr_and_log_it(g_currentY++, 74, "Done.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 	}
 	paranoid_free(biggies_whose_EXATs_we_should_set);
 	paranoid_free(pathname_of_last_biggie_restored);
@@ -2829,7 +2829,7 @@ restore_all_tarballs_from_stream(struct s_bkpinfo *bkpinfo,
 	assert(bkpinfo != NULL);
 	malloc_string(xattr_fname);
 	malloc_string(acl_fname);
-	mvaddstr_and_log_it(g_currentY, 0, "Restoring from archives");
+	mvaddstr_and_log_it(g_currentY, 0, _("Restoring from archives"));
 	read_cfg_var(g_mondo_cfg_file, "last-filelist-number", tmp);
 	max_val = atol(tmp) + 1;
 
@@ -2837,12 +2837,12 @@ restore_all_tarballs_from_stream(struct s_bkpinfo *bkpinfo,
 
 	run_program_and_log_output("pwd", 5);
 
-	sprintf(progress_str, "Restoring from media #%d",
+	sprintf(progress_str, _("Restoring from media #%d"),
 			g_current_media_number);
 	log_to_screen(progress_str);
-	open_progress_form("Restoring from archives",
-					   "Restoring data from the archives.",
-					   "Please wait. This may take some time.",
+	open_progress_form(_("Restoring from archives"),
+					   _("Restoring data from the archives."),
+					   _("Please wait. This may take some time."),
 					   progress_str, max_val);
 
 	log_msg(3, "hey");
@@ -2876,7 +2876,7 @@ restore_all_tarballs_from_stream(struct s_bkpinfo *bkpinfo,
 			wrong_marker(BLK_START_AN_AFIO_OR_SLICE, ctrl_chr);
 		}
 		sprintf(tmp,
-				"Restoring from fileset #%ld (name=%s, size=%ld K)",
+				_("Restoring from fileset #%ld (name=%s, size=%ld K)"),
 				current_afioball_number, tmp_fname, (long) tmp_size >> 10);
 		res =
 			restore_a_tarball_from_stream(bkpinfo, tmp_fname,
@@ -2885,7 +2885,7 @@ restore_all_tarballs_from_stream(struct s_bkpinfo *bkpinfo,
 										  acl_fname);
 		retval += res;
 		if (res) {
-			sprintf(tmp, "Fileset %ld - errors occurred",
+			sprintf(tmp, _("Fileset %ld - errors occurred"),
 					current_afioball_number);
 			log_to_screen(tmp);
 		}
@@ -2897,7 +2897,7 @@ restore_all_tarballs_from_stream(struct s_bkpinfo *bkpinfo,
 
 		current_afioball_number++;
 		g_current_progress++;
-		sprintf(progress_str, "Restoring from fileset #%ld on %s #%d",
+		sprintf(progress_str, _("Restoring from fileset #%ld on %s #%d"),
 				current_afioball_number,
 				media_descriptor_string(bkpinfo->backup_media_type),
 				g_current_media_number);
@@ -2909,9 +2909,9 @@ restore_all_tarballs_from_stream(struct s_bkpinfo *bkpinfo,
 	log_msg(1, "All done with afioballs");
 	close_progress_form();
 	if (retval) {
-		mvaddstr_and_log_it(g_currentY++, 74, "Errors.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Errors."));
 	} else {
-		mvaddstr_and_log_it(g_currentY++, 74, "Done.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 	}
 	paranoid_free(tmp);
 	paranoid_free(progress_str);
@@ -2962,14 +2962,14 @@ int restore_everything(struct s_bkpinfo *bkpinfo, struct s_node *filelist)
 	log_msg(1, "restoring everything");
 	if (!find_home_of_exe("petris") && !g_text_mode) {
 		newtDrawRootText(0, g_noof_rows - 2,
-						 "Press ALT-<left cursor> twice to play Petris :-) ");
+						 _("Press ALT-<left cursor> twice to play Petris :-) "));
 		newtRefresh();
 	}
-	mvaddstr_and_log_it(g_currentY, 0, "Preparing to read your archives");
+	mvaddstr_and_log_it(g_currentY, 0, _("Preparing to read your archives"));
 	if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
 		mount_cdrom(bkpinfo);
 		mvaddstr_and_log_it(g_currentY++, 0,
-							"Restoring OS and data from streaming media");
+							_("Restoring OS and data from streaming media"));
 		if (bkpinfo->backup_media_type == cdstream) {
 			openin_cdstream(bkpinfo);
 		} else {
@@ -2986,14 +2986,14 @@ int restore_everything(struct s_bkpinfo *bkpinfo, struct s_node *filelist)
 		}
 	} else {
 		mvaddstr_and_log_it(g_currentY++, 0,
-							"Restoring OS and data from CD       ");
+							_("Restoring OS and data from CD       "));
 		mount_cdrom(bkpinfo);
 		resA = restore_all_tarballs_from_CD(bkpinfo, filelist);
 		resB = restore_all_biggiefiles_from_CD(bkpinfo, filelist);
 	}
 	chdir(cwd);
 	if (resA + resB) {
-		log_to_screen("Errors occurred while data was being restored.");
+		log_to_screen(_("Errors occurred while data was being restored."));
 	}
 	if (length_of_file("/etc/raidtab") > 0) {
 		log_msg(2, "Copying local raidtab to restored filesystem");
@@ -3104,7 +3104,7 @@ restore_live_from_monitas_server(struct s_bkpinfo *bkpinfo,
 	if (system(command)) {
 		retval++;
 		log_to_screen
-			("Error(s) occurred while processing filelist and wildcard");
+			(_("Error(s) occurred while processing filelist and wildcard"));
 	}
 	iamhere("FIXME");
 	fatal_error("This will fail");
@@ -3199,8 +3199,14 @@ int main(int argc, char *argv[])
    * busy stuff here - it needs some comments -stan                           *
    *                                                                        *
    **************************************************************************/
+
+#ifdef ENABLE_NLS
+	setlocale(LC_ALL, "");
+	(void) textdomain("mondo");
+#endif
+
 	if (getuid() != 0) {
-		fprintf(stderr, "Please run as root.\r\n");
+		fprintf(stderr, _("Please run as root.\n"));
 		exit(127);
 	}
 
@@ -3344,9 +3350,9 @@ int main(int argc, char *argv[])
 		g_current_media_number = 2;
 		strcpy(bkpinfo->restore_path, "/tmp/TESTING");
 		bkpinfo->backup_media_type = dvd;
-		open_progress_form("Reassembling /dev/hda1",
-						   "Shark is a bit of a silly person.",
-						   "Please wait. This may take some time.",
+		open_progress_form(_("Reassembling /dev/hda1"),
+						   _("Shark is a bit of a silly person."),
+						   _("Please wait. This may take some time."),
 						   "", 1999);
 		system("rm -Rf /tmp/*pih*");
 
@@ -3422,7 +3428,7 @@ int main(int argc, char *argv[])
 	if (argc == 2 && strcmp(argv[1], "--live-grub") == 0) {
 		retval = run_grub(FALSE, "/dev/hda");
 		if (retval) {
-			log_to_screen("Failed to write Master Boot Record");
+			log_to_screen(_("Failed to write Master Boot Record"));
 		}
 		paranoid_MR_finish(0);
 	}
@@ -3433,7 +3439,7 @@ int main(int argc, char *argv[])
 	} else if (!bkpinfo->disaster_recovery) {	// live!
 		if (argc != 1) {
 			popup_and_OK
-				("Live mode doesn't support command-line parameters yet.");
+				(_("Live mode doesn't support command-line parameters yet."));
 			paranoid_MR_finish(1);
 //    return(1);
 		}
@@ -3465,7 +3471,7 @@ int main(int argc, char *argv[])
 		log_msg(1, "I must be in disaster recovery mode.");
 		log_msg(2, "FYI, MOUNTLIST_FNAME = %s ", g_mountlist_fname);
 		if (argc == 3 && strcmp(argv[1], "--monitas-memorex") == 0) {
-			log_to_screen("Uh, that hasn't been implemented yet.");
+			log_to_screen(_("Uh, that hasn't been implemented yet."));
 			paranoid_MR_finish(1);
 		}
 
@@ -3494,7 +3500,7 @@ int main(int argc, char *argv[])
 
 		if (retval) {
 			log_to_screen
-				("Warning - load_raidtab_into_raidlist returned an error");
+				(_("Warning - load_raidtab_into_raidlist returned an error"));
 		}
 
 
@@ -3548,13 +3554,13 @@ int main(int argc, char *argv[])
 				retval += unmount_all_devices(mountlist);
 			}
 			if (retval) {
-				log_to_screen("Failed to write Master Boot Record");
+				log_to_screen(_("Failed to write Master Boot Record"));
 			}
 		} else if (argc == 2 && strcmp(argv[1], "--isonuke") == 0) {
 			iamhere("isonuke");
 			retval = iso_mode(bkpinfo, mountlist, raidlist, TRUE);
 		} else if (argc != 1) {
-			log_to_screen("Invalid paremeters");
+			log_to_screen(_("Invalid paremeters"));
 			paranoid_MR_finish(1);
 		} else {
 			iamhere("catchall (no mode specified in command-line call");
@@ -3566,16 +3572,16 @@ int main(int argc, char *argv[])
 	if (retval) {
 		if (does_file_exist("/tmp/changed.files")) {
 			log_to_screen
-				("See /tmp/changed.files for list of files that have changed.");
+				(_("See /tmp/changed.files for list of files that have changed."));
 		}
 		mvaddstr_and_log_it(g_currentY++,
 							0,
-							"Run complete. Errors were reported. Please review the logfile.");
+							_("Run complete. Errors were reported. Please review the logfile."));
 	} else {
 		if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
 			mvaddstr_and_log_it(g_currentY++,
 								0,
-								"Run complete. Please remove floppy/CD/media and reboot.");
+								_("Run complete. Please remove floppy/CD/media and reboot."));
 		} else {
 			run_program_and_log_output("sync", FALSE);
 			if (is_this_device_mounted(MNT_CDROM)) {
@@ -3596,7 +3602,7 @@ int main(int argc, char *argv[])
 			}
 			mvaddstr_and_log_it(g_currentY++,
 								0,
-								"Run complete. Please remove media and reboot.");
+								_("Run complete. Please remove media and reboot."));
 		}
 	}
 
@@ -3606,7 +3612,7 @@ int main(int argc, char *argv[])
 			log_msg(1, "post-nuke found; running...");
 			if (mount_all_devices(mountlist, TRUE)) {
 				log_to_screen
-					("Unable to re-mount partitions for post-nuke stuff");
+					(_("Unable to re-mount partitions for post-nuke stuff"));
 			} else {
 				log_msg(1, "Re-mounted partitions for post-nuke stuff");
 				sprintf(tmp, "post-nuke %s %d", bkpinfo->restore_path,
@@ -3639,9 +3645,9 @@ int main(int argc, char *argv[])
 	sprintf(tmp, "rm -Rf %s", bkpinfo->tmpdir);
 	run_program_and_log_output(tmp, FALSE);
 	log_to_screen
-		("Restore log copied to /tmp/mondo-restore.log on your hard disk");
+		(_("Restore log copied to /tmp/mondo-restore.log on your hard disk"));
 	sprintf(tmp,
-			"Mondo-restore is exiting (retval=%d)                                      ",
+			_("Mondo-restore is exiting (retval=%d)                                      "),
 			retval);
 	log_to_screen(tmp);
 	sprintf(tmp, "umount %s", bkpinfo->isodir);

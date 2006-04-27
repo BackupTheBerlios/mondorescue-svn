@@ -202,6 +202,8 @@
 #include <pthread.h>
 #include <assert.h>
 
+#include "../../config.h"
+
 #if defined(DEBUG) && !__cplusplus
 int count;
 char trace_log[255];			/*buffer for logging */
@@ -364,7 +366,7 @@ extern void _mondo_assert_fail(const char *file, const char *function,
 /**
  * Welcome string displayed at the top of the newt interface.
  */
-#define WELCOME_STRING "W E L C O M E   T O   M O N D O   R E S C U E"
+#define WELCOME_STRING _("W E L C O M E   T O   M O N D O   R E S C U E")
 
 /**
  * The maximum length of a filename in the tape catalog.
@@ -524,5 +526,27 @@ extern void _mondo_assert_fail(const char *file, const char *function,
 #define MNT_FLOPPY "/mnt/floppy"
 
 #define DEFAULT_MR_LOGLEVEL 4
+
+#ifdef ENABLE_NLS  
+# include <libintl.h>  
+# undef _  
+# define _(String) dgettext (PACKAGE, String)
+# ifdef gettext_noop  
+#  define N_(String) gettext_noop (String)  
+# else  
+#  define N_(String) (String)  
+# endif  
+#else  
+# define textdomain(String) (String)  
+# define gettext(String) (String)  
+# define dgettext(Domain,Message) (Message)  
+# define dcgettext(Domain,Message,Type) (Message)  
+# define bindtextdomain(Domain,Directory) (Domain)  
+# define _(String) (String)  
+# define N_(String) (String)  
+
+#endif 
+
+
 
 #endif							/* _MY_STUFF_H_ */

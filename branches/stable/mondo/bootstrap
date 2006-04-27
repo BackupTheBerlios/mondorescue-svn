@@ -26,8 +26,9 @@ if [ "$acvmn" -lt 7 ]; then
 fi
 
 make maintainer-clean >/dev/null 2>&1
+gettextize -c --no-changelog
 libtoolize -f -c --automake
-aclocal
+aclocal -I m4
 autoheader
 automake
 autoconf

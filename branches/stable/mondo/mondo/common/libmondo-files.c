@@ -361,12 +361,12 @@ int figure_out_kernel_path_interactively_if_necessary(char *kernel)
 	log_it("Calling Mindi with kernel path of '%s'", kernel);
 	while (!kernel[0]) {
 		if (!ask_me_yes_or_no
-			("Kernel not found or invalid. Choose another?")) {
+			(_("Kernel not found or invalid. Choose another?"))) {
 			return (1);
 		}
 		if (!popup_and_get_string
-			("Kernel path",
-			 "What is the full path and filename of your kernel, please?",
+			(_("Kernel path"),
+			 _("What is the full path and filename of your kernel, please?"),
 			 kernel, MAX_STR_LEN / 4)) {
 			fatal_error
 				("Kernel not found. Please specify with the '-k' flag.");
@@ -574,7 +574,7 @@ char *last_line_of_file(char *filename)
 	/*@ end vars **************************************************** */
 
 	if (!does_file_exist(filename)) {
-		sprintf(tmp, "Tring to get last line of nonexistent file (%s)",
+		sprintf(tmp, "Trying to get last line of nonexistent file (%s)",
 				filename);
 		log_it(tmp);
 		output[0] = '\0';
@@ -663,7 +663,7 @@ make_checksum_list_file(char *filelist, char *cksumlist, char *comppath)
 	if (fout == NULL) {
 		log_OS_error("Unable to openout cksumlist");
 		paranoid_fclose(fin);
-		log_to_screen("Can't open checksum list");
+		log_to_screen(_("Can't open checksum list"));
 		return (1);
 	}
 	for (fgets(stub_fname, 999, fin); !feof(fin);
@@ -688,7 +688,7 @@ make_checksum_list_file(char *filelist, char *cksumlist, char *comppath)
 				time_remaining =
 					time_taken * 100 / (long) (percentage) - time_taken;
 				sprintf(tmp,
-						"%02d%% done   %02d:%02d taken   %02d:%02d remaining  %-37s\r",
+						_("%02d%% done   %02d:%02d taken   %02d:%02d remaining  %-37s"),
 						percentage, (int) (time_taken / 60),
 						(int) (time_taken % 60),
 						(int) (time_remaining / 60),
@@ -1028,13 +1028,13 @@ int whine_if_not_found(char *fname)
 
 	sprintf(command, "which %s > /dev/null 2> /dev/null", fname);
 	sprintf(errorstr,
-			"Please install '%s'. I cannot find it on your system.",
+			_("Please install '%s'. I cannot find it on your system."),
 			fname);
 	if (system(command)) {
 		log_to_screen(errorstr);
 		log_to_screen
-			("There may be hyperlink at http://www.mondorescue.com which");
-		log_to_screen("will take you to the relevant (missing) package.");
+			(_("There may be hyperlink at http://www.mondorescue.com which"));
+		log_to_screen(_("will take you to the relevant (missing) package."));
 		return (1);
 	} else {
 		return (0);
@@ -1149,6 +1149,11 @@ void copy_mondo_and_mindi_stuff_to_scratchdir(struct s_bkpinfo *bkpinfo)
 	if (run_program_and_log_output(command, 1)) {
 		fatal_error("Failed to copy Mondo's stuff to scratchdir");
 	}
+
+	/* i18n */
+	sprintf(command, CP_BIN " --parents /usr/share/locale/*/LC_MESSAGES/mondo.mo %s",bkpinfo->scratchdir);
+	log_msg(4, "command = %s", command);
+	run_program_and_log_output(command, 1);
 
 	sprintf(tmp, "%s/payload.tgz", g_mondo_home);
 	if (does_file_exist(tmp)) {
@@ -1383,14 +1388,14 @@ estimate_noof_media_required(struct s_bkpinfo *bkpinfo, long noof_sets)
 	}
 	if (scratchLL <= 1) {
 		sprintf(tmp,
-				"Your backup will probably occupy a single %s. Maybe two.",
+				_("Your backup will probably occupy a single %s. Maybe two."),
 				media_descriptor_string(bkpinfo->backup_media_type));
 	} else if (scratchLL > 4) {
 		sprintf(tmp,
-				"Your backup will occupy one meeeeellion media! (maybe %s)",
+				_("Your backup will occupy one meeeeellion media! (maybe %s)"),
 				number_to_text((int) (scratchLL + 1)));
 	} else {
-		sprintf(tmp, "Your backup will occupy approximately %s media.",
+		sprintf(tmp, _("Your backup will occupy approximately %s media."),
 				number_to_text((int) (scratchLL + 1)));
 	}
 	if (!bkpinfo->image_devs[0] && (scratchLL < 50)) {

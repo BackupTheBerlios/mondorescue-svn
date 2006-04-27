@@ -518,12 +518,12 @@ void insist_on_this_tape_number(int tapeno)
 	if (g_current_media_number != tapeno) {
 		//      log_it("g_current_media_number = %d", g_current_media_number);
 		sprintf(tmp,
-				"When the tape drive goes quiet, please insert volume %d in this series.",
+				_("When the tape drive goes quiet, please insert volume %d in this series."),
 				tapeno);
 		popup_and_OK(tmp);
-		open_evalcall_form("Waiting while the tape drive settles");
+		open_evalcall_form(_("Waiting while the tape drive settles"));
 	} else {
-		open_evalcall_form("Waiting while the tape drive rewinds");
+		open_evalcall_form(_("Waiting while the tape drive rewinds"));
 	}
 
 	for (i = 0; i <= 100; i += 2) {
@@ -730,21 +730,21 @@ int openin_tape(struct s_bkpinfo *bkpinfo)
 		 open_device_via_buffer(bkpinfo->media_device, 'r',
 								bkpinfo->internal_tape_block_size))) {
 		log_OS_error(g_tape_fifo);
-		log_to_screen("Cannot openin stream device");
+		log_to_screen(_("Cannot openin stream device"));
 		return (1);
 	}
-	log_to_screen("Reading stream");
+	log_to_screen(_("Reading stream"));
 	log_it("stream device = '%s'", bkpinfo->media_device);
 /* skip data disks */
 	open_evalcall_form("Skipping data disks on stream");
-	log_to_screen("Skipping data disks on stream");
+	log_to_screen(_("Skipping data disks on stream"));
 	if (!(fout = fopen(outfname, "w"))) {
 		log_OS_error(outfname);
-		log_to_screen("Cannot openout datadisk all.tar.gz file");
+		log_to_screen(_("Cannot openout datadisk all.tar.gz file"));
 		return (-1);
 	}
 	if (!(datablock = (char *) malloc(256 * 1024))) {
-		log_to_screen("Unable to malloc 256*1024");
+		log_to_screen(_("Unable to malloc 256*1024"));
 		exit(1);
 	}
 	for (i = 0; i < 32; i++) {
@@ -821,7 +821,7 @@ int openout_cdstream(char *cddev, int speed)
 	if (g_tape_stream) {
 		return (0);
 	} else {
-		log_to_screen("Failed to openout to cdstream (fifo)");
+		log_to_screen(_("Failed to openout to cdstream (fifo)"));
 		return (1);
 	}
 }
@@ -854,7 +854,7 @@ int openout_tape(char *tapedev, long internal_tape_block_size)
 		(g_tape_stream =
 		 open_device_via_buffer(tapedev, 'w', internal_tape_block_size))) {
 		log_OS_error(g_tape_fifo);
-		log_to_screen("Cannot openin stream device");
+		log_to_screen(_("Cannot openin stream device"));
 		return (1);
 	}
 	return (0);
@@ -997,7 +997,7 @@ read_file_from_stream_FULL(struct s_bkpinfo *bkpinfo, char *outfname,
 	}
 	if (!fout) {
 		log_OS_error(outfname);
-		log_to_screen("Cannot openout file");
+		log_to_screen(_("Cannot openout file"));
 		return (1);
 	}
 	total_read_from_tape_for_this_file = 0;
@@ -1055,10 +1055,10 @@ read_file_from_stream_FULL(struct s_bkpinfo *bkpinfo, char *outfname,
 //      fatal_error("Bad marker"); // return(1);
 	}
 	if (strcmp(temp_cksum, actual_cksum)) {
-		sprintf(tmp, "actual cksum=%s; recorded cksum=%s", actual_cksum,
+		sprintf(tmp, _("actual cksum=%s; recorded cksum=%s"), actual_cksum,
 				temp_cksum);
 		log_to_screen(tmp);
-		sprintf(tmp, "%s (%ld K) is corrupt on tape", temp_fname,
+		sprintf(tmp, _("%s (%ld K) is corrupt on tape"), temp_fname,
 				(long) orig_size >> 10);
 		log_to_screen(tmp);
 		retval++;
@@ -1210,7 +1210,7 @@ should_we_write_to_next_tape(long mediasize,
 	if (mediasize > 0 && (g_tape_posK >> 10 >= mediasize)) {
 		log_it("mediasize = %ld", mediasize);
 		we_need_a_new_tape = TRUE;
-		log_to_screen("Should have started a new tape/CD already");
+		log_to_screen(_("Should have started a new tape/CD already"));
 	}
 	if ((g_tape_posK + length_of_incoming_file / 1024) >> 10 >=
 		mediasize - (SLICE_SIZE * 4 / 1024)) {
@@ -1367,7 +1367,7 @@ int start_to_read_from_next_tape(struct s_bkpinfo *bkpinfo)
 		 open_device_via_buffer(bkpinfo->media_device, 'r',
 								bkpinfo->internal_tape_block_size))) {
 		log_OS_error(g_tape_fifo);
-		log_to_screen("Cannot openin stream device");
+		log_to_screen(_("Cannot openin stream device"));
 		return (1);
 	}
 	g_tape_posK = 0;
@@ -1405,7 +1405,7 @@ int start_to_write_to_next_tape(struct s_bkpinfo *bkpinfo)
 	insist_on_this_tape_number(g_current_media_number + 1);	// will increment g_current_media, too
 	if (g_current_media_number > MAX_NOOF_MEDIA) {
 		res++;
-		log_to_screen("Too many tapes. Man, you need to use nfs!");
+		log_to_screen(_("Too many tapes. Man, you need to use nfs!"));
 	}
 	if (bkpinfo->backup_media_type == cdstream) {
 		sprintf(command,
@@ -1417,7 +1417,7 @@ int start_to_write_to_next_tape(struct s_bkpinfo *bkpinfo)
 		log_it("Let's see what happens, shall we?");
 		g_tape_stream = popen(command, "w");
 		if (!g_tape_stream) {
-			log_to_screen("Failed to openout to cdstream (fifo)");
+			log_to_screen(_("Failed to openout to cdstream (fifo)"));
 			return (1);
 		}
 	} else {
@@ -1427,7 +1427,7 @@ int start_to_write_to_next_tape(struct s_bkpinfo *bkpinfo)
 			 open_device_via_buffer(bkpinfo->media_device, 'w',
 									bkpinfo->internal_tape_block_size))) {
 			log_OS_error(g_tape_fifo);
-			log_to_screen("Cannot openin stream device");
+			log_to_screen(_("Cannot openin stream device"));
 			return (1);
 		}
 	}
@@ -1512,11 +1512,11 @@ int write_data_disks_to_stream(char *fname)
 
 	/*@ end vars *************************************************** */
 
-	open_evalcall_form("Writing data disks to tape");
-	log_to_screen("Writing data disks to tape");
+	open_evalcall_form(_("Writing data disks to tape"));
+	log_to_screen(_("Writing data disks to tape"));
 	log_it("Data disks = %s", fname);
 	if (!does_file_exist(fname)) {
-		sprintf(tmp, "Cannot find %s", fname);
+		sprintf(tmp, _("Cannot find %s"), fname);
 		log_to_screen(tmp);
 		return (1);
 	}
@@ -1705,7 +1705,7 @@ write_header_block_to_stream(long long length_of_incoming_file,
 	}
 	if (!g_tape_stream) {
 		log_to_screen
-			("You're not backing up to tape. Why write a tape header?");
+			(_("You're not backing up to tape. Why write a tape header?"));
 		return (1);
 	}
 	for (i = 0; i < (int) TAPE_BLOCK_SIZE; i++) {
@@ -1750,9 +1750,9 @@ void wrong_marker(int should_be, int it_is)
 
 
 	/*@ end vars *************************************************** */
-	sprintf(tmp, "Wrong marker! (Should be %s, ",
+	sprintf(tmp, _("Wrong marker! (Should be %s, "),
 			marker_to_string(should_be));
-	sprintf(tmp + strlen(tmp), "is actually %s)", marker_to_string(it_is));
+	sprintf(tmp + strlen(tmp), _("is actually %s)"), marker_to_string(it_is));
 	log_to_screen(tmp);
 }
 

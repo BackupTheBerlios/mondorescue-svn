@@ -1,0 +1,2971 @@
+# Messages français pour Mondo.
+# Copyright © 2006 Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# rene-marc dolhen <rmd@synerway.com>
+#
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Mondo 2.06\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2006-04-24 18:04+0200\n"
+"PO-Revision-Date: 2006-01-26 12:30+0100\n"
+"Last-Translator: rene-marc dolhen <rmd@synerway.com>\n"
+"Language-Team: French <traduc@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: mondo/common/libmondo-devices.c:354
+msgid "Using /dev/root is stupid of you but I'll forgive you."
+msgstr "Utiliser /dev/root n'est pas une bonne idée."
+
+#: mondo/common/libmondo-devices.c:382
+#, fuzzy
+msgid "none"
+msgstr "Fait."
+
+#: mondo/common/libmondo-devices.c:385
+msgid "iso"
+msgstr "iso"
+
+#: mondo/common/libmondo-devices.c:388
+msgid "cdr"
+msgstr "cdr"
+
+#: mondo/common/libmondo-devices.c:391
+msgid "cdrw"
+msgstr "cdrw"
+
+#: mondo/common/libmondo-devices.c:394
+#, fuzzy
+msgid "cdstream"
+msgstr "cdstream"
+
+#: mondo/common/libmondo-devices.c:397
+msgid "nfs"
+msgstr "nfs"
+
+#: mondo/common/libmondo-devices.c:400
+msgid "tape"
+msgstr "bande"
+
+#: mondo/common/libmondo-devices.c:403
+msgid "udev"
+msgstr "udev"
+
+#: mondo/common/libmondo-devices.c:406
+msgid "default"
+msgstr "defaut"
+
+#: mondo/common/libmondo-devices.c:697
+#, fuzzy
+msgid "CD-ROM device"
+msgstr "Périph"
+
+#: mondo/common/libmondo-devices.c:697
+msgid "Please enter your CD-ROM's /dev device"
+msgstr "Entrez le nom de périphérique de votre cdrom"
+
+#: mondo/common/libmondo-devices.c:705
+#, fuzzy
+msgid "mount failed"
+msgstr "montage echoué"
+
+#: mondo/common/libmondo-devices.c:707
+#, c-format
+msgid "mount succeeded with %s"
+msgstr "montage réussi de %s"
+
+#: mondo/common/libmondo-devices.c:1774
+msgid "WARNING - failed to unmount CD-ROM drive"
+msgstr "ATTENTION - démontage impossible du lecteur de CD"
+
+#: mondo/common/libmondo-devices.c:1782
+msgid "WARNING - failed to eject CD-ROM disk"
+msgstr "ATTENTION - ejection impossible du CD"
+
+#: mondo/common/libmondo-devices.c:1843 mondo/common/libmondo-devices.c:1888
+#: mondo/common/libmondo-devices.c:1906 mondo/common/libmondo-devices.c:1915
+#: mondo/common/libmondo-devices.c:1922 mondo/common/libmondo-devices.c:1949
+#: mondo/common/libmondo-devices.c:1983 mondo/common/libmondo-devices.c:1997
+#: mondo/common/libmondo-devices.c:2037 mondo/common/libmondo-devices.c:2071
+#: mondo/common/libmondo-devices.c:2095 mondo/common/libmondo-devices.c:2101
+#: mondo/common/libmondo-devices.c:2118 mondo/common/libmondo-devices.c:2125
+#: mondo/common/libmondo-devices.c:2134 mondo/common/libmondo-devices.c:2158
+#: mondo/common/libmondo-devices.c:2173 mondo/common/libmondo-devices.c:2186
+#: mondo/common/libmondo-devices.c:2205 mondo/common/libmondo-devices.c:2211
+#: mondo/common/libmondo-devices.c:2218 mondo/common/libmondo-devices.c:2264
+#: mondo/common/libmondo-devices.c:2273 mondo/common/libmondo-devices.c:2309
+#: mondo/common/libmondo-devices.c:2328 mondo/common/libmondo-devices.c:2339
+#: mondo/common/libmondo-devices.c:2358
+msgid "User has chosen not to backup the PC"
+msgstr "L'utilisateur a choisi de ne rien faire"
+
+#: mondo/common/libmondo-devices.c:1847
+msgid "Please remove CD/floppy from drive(s)"
+msgstr "Veuillez enlevez le CD ou la disquette du lecteur"
+
+#: mondo/common/libmondo-devices.c:1882
+msgid ""
+"Is your computer a laptop, or does the CD writer incorporate BurnProof "
+"technology?"
+msgstr ""
+"Votre ordinateur est-il un portable ou votre lecteur de CD a t-il la "
+"technologie BurnProof ?"
+
+#: mondo/common/libmondo-devices.c:1891
+#, c-format
+msgid "What speed is your %s (re)writer?"
+msgstr "Quel est la vitesse de votre graveur %s ?"
+
+#: mondo/common/libmondo-devices.c:1905
+msgid "Speed"
+msgstr "Vitesse"
+
+#: mondo/common/libmondo-devices.c:1912
+#, c-format
+msgid "How much data (in Megabytes) will each %s store?"
+msgstr "Combien de données (En Mo) stocke chaque %s ?"
+
+#: mondo/common/libmondo-devices.c:1943
+#, c-format
+msgid "Please specify your %s drive's /dev entry"
+msgstr "Veuillez indiquer l'entrée dans /dev de votre lecteur de %s"
+
+#: mondo/common/libmondo-devices.c:1947
+#, fuzzy
+msgid "Device?"
+msgstr "Périphérique?"
+
+#: mondo/common/libmondo-devices.c:1962
+#, c-format
+msgid ""
+"I think I've found your %s burner at SCSI node %s; am I right on the money?"
+msgstr "J'ai trouvé votre lecteur %s à l'adresse SCSI %s. C'est bon ?"
+
+#: mondo/common/libmondo-devices.c:1972
+#, fuzzy
+msgid "Device node?"
+msgstr "Chemin du périph?"
+
+#: mondo/common/libmondo-devices.c:1973
+#, fuzzy
+msgid "What is the SCSI node of your CD (re)writer, please?"
+msgstr "Quel est le chemin scsi de votre graveur de CD ?"
+
+#: mondo/common/libmondo-devices.c:1977
+#, fuzzy
+msgid "/dev entry?"
+msgstr "Entrée dans /dev?"
+
+#: mondo/common/libmondo-devices.c:1978
+#, fuzzy
+msgid "What is the /dev entry of your CD (re)writer, please?"
+msgstr "Quelle est l'entrée dans /dev de votre graveur de CD ?"
+
+#: mondo/common/libmondo-devices.c:1996
+msgid "This option is for advanced users only. Are you sure?"
+msgstr "Cette option est pour les utilisateurs expérimentés. Vous êtes sur?"
+
+#: mondo/common/libmondo-devices.c:2003
+msgid "Ok, using vanilla scsi tape."
+msgstr "Ok, utilisation du lecteur de bande SCSI."
+
+#: mondo/common/libmondo-devices.c:2021 mondo/common/libmondo-devices.c:2026
+#, c-format
+msgid "I think I've found your tape streamer at %s; am I right on the money?"
+msgstr "J'ai trouvé votre lecteur de bande à l'adresse %s. C'est bon ?"
+
+#: mondo/common/libmondo-devices.c:2034
+#, fuzzy
+msgid "Device name?"
+msgstr "Nom du périph?"
+
+#: mondo/common/libmondo-devices.c:2035
+#, fuzzy
+msgid "What is the /dev entry of your tape streamer?"
+msgstr "Quelle est l'entrée dans /dev de votre lecteur de bande?"
+
+#: mondo/common/libmondo-devices.c:2043
+msgid "User has not specified a valid /dev entry"
+msgstr "Entrée dans /dev invalide"
+
+#: mondo/common/libmondo-devices.c:2092
+msgid "NFS dir."
+msgstr "répertoire NFS"
+
+#: mondo/common/libmondo-devices.c:2093
+msgid ""
+"Please enter path and directory where archives are stored remotely. (Mondo "
+"has taken a guess at the correct value. If it is incorrect, delete it and "
+"type the correct one.)"
+msgstr ""
+"Veuillez entrer le chemin et répertoire ou les archives sont stockées.(Mondo "
+"a essayé de deviner, modifiez si c'est incorrect)"
+
+#: mondo/common/libmondo-devices.c:2116
+#, c-format
+msgid "How much data (in Megabytes) will each media store?"
+msgstr "Quel volume de données (en Mo) par media ?"
+
+#: mondo/common/libmondo-devices.c:2117
+#: mondo/mondorestore/mondo-rstr-newt.c:159
+msgid "Size"
+msgstr "Taille"
+
+#: mondo/common/libmondo-devices.c:2132
+msgid "NFS share"
+msgstr "Partage NFS"
+
+#: mondo/common/libmondo-devices.c:2132
+msgid "Which remote NFS share should I mount?"
+msgstr "Quel partage NFS distant faut-il monter ?"
+
+#: mondo/common/libmondo-devices.c:2151
+msgid ""
+"Please mount that partition before you try to backup to or restore from it."
+msgstr "Veuillez monter la partition avant de sauvegarder ou restaurer."
+
+#: mondo/common/libmondo-devices.c:2156 mondo/common/libmondo-devices.c:2172
+msgid "Directory"
+msgstr "Répertoire"
+
+#: mondo/common/libmondo-devices.c:2156
+msgid "Which directory within that mountpoint?"
+msgstr "Quel répertoire dans ce point de montage ?"
+
+#: mondo/common/libmondo-devices.c:2169
+#, c-format
+msgid ""
+"Directory '%s' under mountpoint '%s' does not exist or is not writable. You "
+"can fix this or change the directory and retry or cancel the backup."
+msgstr ""
+"Le répertoire '%s' sur le point de montage '%s' n'existe pas ou n'est pas "
+"accessible en écriture. Corrigez ceci avant de ré-essayer la sauvegarde."
+
+#: mondo/common/libmondo-devices.c:2183 mondo/common/libmondo-devices.c:2225
+msgid "Prefix."
+msgstr "Préfixe"
+
+#: mondo/common/libmondo-devices.c:2184 mondo/common/libmondo-devices.c:2226
+msgid ""
+"Please enter the prefix that will be prepended to your ISO filename.  "
+"Example: machine1 to obtain machine1-[1-9]*.iso files"
+msgstr ""
+"Veuillez entrer le préfixe qui sera mis à vos image ISO.Exemple: machine1 "
+"pour avoir les fichiers machine1-[1-9]*.iso"
+
+#: mondo/common/libmondo-devices.c:2202
+msgid "Storage dir."
+msgstr "rép. de stockage"
+
+#: mondo/common/libmondo-devices.c:2203
+msgid ""
+"Please enter the full path that contains your ISO images.  Example: /mnt/"
+"raid0_0"
+msgstr "Veuillez entrer le chemin complet de vos images ISO. Ex: /mnt/ raid0_0"
+
+#: mondo/common/libmondo-devices.c:2215
+#, fuzzy
+msgid "ISO size."
+msgstr "Taille de l'iso."
+
+#: mondo/common/libmondo-devices.c:2216
+msgid ""
+"Please enter how big you want each ISO image to be (in megabytes). This "
+"should be less than or equal to the size of the CD-R[W]'s or DVD's you plan "
+"to backup to."
+msgstr ""
+"Veuillez entrer la taille de chaque image ISO. Cette taille doit être "
+"inférieure ou égale à celle de vos CD ou DVD."
+
+#: mondo/common/libmondo-devices.c:2261 mondo/common/libmondo-devices.c:2270
+#: mondo/mondorestore/mondo-rstr-tools.c:1622
+#: mondo/mondorestore/mondo-rstr-tools.c:1924
+msgid "Boot device"
+msgstr "Périphérique de démarrage"
+
+#: mondo/common/libmondo-devices.c:2262
+msgid "What is your boot device? (e.g. /dev/ad0)"
+msgstr "Quel est votre périphérique de démarrage ? (ex /dev/ad0)"
+
+#: mondo/common/libmondo-devices.c:2271
+msgid "What is your boot device? (e.g. /dev/hda)"
+msgstr "Quel est votre périphérique de démarrage ? (ex /dev/hda)"
+
+#: mondo/common/libmondo-devices.c:2293
+msgid ""
+"Unidentified boot loader. Shall I restore it byte-for-byte at restore time "
+"and hope for the best?"
+msgstr ""
+"bootloader inconnu. Dois-je le restaurer au moment de la restauration ?"
+
+#: mondo/common/libmondo-devices.c:2298
+msgid ""
+"I cannot find your boot loader. Please run mondoarchive with parameters."
+msgstr "Bootloader introuvable. Lancer mondoarchive avec des paramètres."
+
+#: mondo/common/libmondo-devices.c:2306
+#, fuzzy
+msgid "Backup paths"
+msgstr "sauvegarde sur:"
+
+#: mondo/common/libmondo-devices.c:2307
+msgid ""
+"Please enter paths which you want me to backup. The default is '/' (i.e. "
+"everything)."
+msgstr "Veuillez entrer les répertoires à sauvegarder.Defaut / (tout)"
+
+#: mondo/common/libmondo-devices.c:2325
+msgid "NTFS partitions"
+msgstr "partitions NTFS"
+
+#: mondo/common/libmondo-devices.c:2326
+msgid "Please enter/confirm the NTFS partitions you wish to backup as well."
+msgstr "Veuillez entrer les partitions NTFS à sauvegarder"
+
+#: mondo/common/libmondo-devices.c:2336
+msgid "Exclude paths"
+msgstr "Chemins à exclure"
+
+#: mondo/common/libmondo-devices.c:2337
+msgid ""
+"Please enter paths which you do NOT want to backup. Separate them with "
+"spaces. NB: /tmp and /proc are always excluded. :-) Just hit 'Enter' if you "
+"want to do a full system backup."
+msgstr ""
+"Veuillez entrer les chemins que vous ne voulez pas sauvegarder. Séparez "
+"les avec des espaces. (/tmp et /proc sont toujours exclus). Appuyez juste "
+"sur ENTREE pour une sauvegarde totale."
+
+#: mondo/common/libmondo-devices.c:2346
+msgid "Will you want to verify your backups after Mondo has created them?"
+msgstr "Voulez vous vérifier les sauvegardes après création ?"
+
+#: mondo/common/libmondo-devices.c:2350
+msgid ""
+"Are you confident that your kernel is a sane, sensible, standard Linux "
+"kernel? Say 'no' if you are using a Gentoo <1.4 or Debian <3.0, please."
+msgstr ""
+"Etes-vous sur que votre noyau est sain et standard ? Entrez non si vous "
+"utilisez une gentoo <1.4 ou une debian <3.0"
+
+#: mondo/common/libmondo-devices.c:2357
+#, fuzzy
+msgid "Are you sure you want to proceed? Hit 'no' to abort."
+msgstr "Etes vous sur de vouloir continuer? Appuyez sur 'Non' pour arreter"
+
+#: mondo/common/libmondo-filelist.c:205
+msgid "Dividing filelist into sets"
+msgstr "Division de la liste des fichiers en plusieurs groupes"
+
+#: mondo/common/libmondo-filelist.c:207
+msgid "Dividing filelist into sets. Please wait."
+msgstr "Division de la liste des fichiers en plusieurs groupes. Attendez."
+
+#: mondo/common/libmondo-filelist.c:505
+msgid "Freeing memory formerly occupied by filelist"
+msgstr "Libération de la memoire occupée par la liste des fichiers"
+
+#: mondo/common/libmondo-filelist.c:943
+msgid "failed to malloc"
+msgstr "erreur d'allocation mémoire"
+
+#: mondo/common/libmondo-filelist.c:975
+#, c-format
+msgid "%s - failed to malloc"
+msgstr "%s - erreur d'allocation mémoire"
+
+#: mondo/common/libmondo-filelist.c:1028
+msgid "Loading filelist"
+msgstr "Chargement de la liste des fichiers"
+
+#: mondo/common/libmondo-filelist.c:1035
+msgid "Warning - surprisingly short filelist."
+msgstr "Attention - liste des fichiers très courte"
+
+#: mondo/common/libmondo-filelist.c:1052
+msgid "Loading filelist from disk"
+msgstr "Chargement de la liste des fichiers depuis le disque"
+
+#: mondo/common/libmondo-filelist.c:1169
+msgid "Saving filelist"
+msgstr "Sauvegarde de la liste des fichiers"
+
+#: mondo/common/libmondo-filelist.c:1174
+msgid "Saving selection to disk"
+msgstr "Sauvegarde de la sélection"
+
+#: mondo/common/libmondo-filelist.c:1454
+msgid "Making catalog of files to be backed up"
+msgstr "Création de la liste des fichiers à sauvegarder"
+
+#: mondo/common/libmondo-filelist.c:1457
+msgid "Using supplied catalog of files to be backed up"
+msgstr "Utilisation de la liste des fichiers à sauvegarder"
+
+#: mondo/common/libmondo-filelist.c:1478 mondo/common/libmondo-tools.c:1230
+#: mondo/mondorestore/mondo-prep.c:1094 mondo/mondorestore/mondo-prep.c:2018
+#: mondo/mondorestore/mondo-restore.c:982
+#: mondo/mondorestore/mondo-restore.c:1212
+#: mondo/mondorestore/mondo-rstr-tools.c:673
+#: mondo/mondorestore/mondo-rstr-tools.c:1667
+#: mondo/mondorestore/mondo-rstr-tools.c:1854
+#: mondo/mondorestore/mondo-rstr-tools.c:1943
+#: mondo/mondorestore/mondo-rstr-tools.c:2311
+msgid "Failed."
+msgstr "Echec."
+
+#: mondo/common/libmondo-filelist.c:1480 mondo/common/libmondo-tools.c:1232
+#: mondo/mondorestore/mondo-prep.c:1098 mondo/mondorestore/mondo-prep.c:2022
+#: mondo/mondorestore/mondo-restore.c:1214
+#: mondo/mondorestore/mondo-restore.c:2466
+#: mondo/mondorestore/mondo-restore.c:2611
+#: mondo/mondorestore/mondo-restore.c:2774
+#: mondo/mondorestore/mondo-restore.c:2912
+#: mondo/mondorestore/mondo-rstr-tools.c:671
+#: mondo/mondorestore/mondo-rstr-tools.c:679
+#: mondo/mondorestore/mondo-rstr-tools.c:1680
+#: mondo/mondorestore/mondo-rstr-tools.c:1858
+#: mondo/mondorestore/mondo-rstr-tools.c:1947
+#: mondo/mondorestore/mondo-rstr-tools.c:2313
+msgid "Done."
+msgstr "Fait."
+
+#: mondo/common/libmondo-filelist.c:1574
+#, c-format
+msgid "Reading %-68s"
+msgstr "Lecture de %-68s"
+
+#: mondo/common/libmondo-files.c:352
+msgid "Kernel not found or invalid. Choose another?"
+msgstr "Noyau non trouvé ou incorrect. On en choisit un autre ?"
+
+#: mondo/common/libmondo-files.c:356
+msgid "Kernel path"
+msgstr "Chemin du noyau"
+
+#: mondo/common/libmondo-files.c:357
+msgid "What is the full path and filename of your kernel, please?"
+msgstr "Indiquez le chemin complet et le nom du noyau:"
+
+#: mondo/common/libmondo-files.c:654
+msgid "Can't open checksum list"
+msgstr "Impossible d'ouvrir la liste de checksum"
+
+#: mondo/common/libmondo-files.c:679
+#, c-format
+msgid "%02d%% done   %02d:%02d taken   %02d:%02d remaining  %-37s"
+msgstr "%02d%% fait   %02d:%02d en cours %02d:%02d restant  %-37s"
+
+#: mondo/common/libmondo-files.c:1019
+#, c-format
+msgid "Please install '%s'. I cannot find it on your system."
+msgstr "Installez '%s', il est intvouable sur le système."
+
+#: mondo/common/libmondo-files.c:1024
+msgid "There may be hyperlink at http://www.mondorescue.com which"
+msgstr "Un lien sur http://www.mondorescue.com devrait"
+
+#: mondo/common/libmondo-files.c:1025
+msgid "will take you to the relevant (missing) package."
+msgstr "vous indiquer où trouver le bon package"
+
+#: mondo/common/libmondo-files.c:1382
+#, c-format
+msgid "Your backup will probably occupy a single %s. Maybe two."
+msgstr "La sauvegarde ne va certainement occuper q'un seul %s. Peut-être deux."
+
+#: mondo/common/libmondo-files.c:1386
+#, c-format
+msgid "Your backup will occupy one meeeeellion media! (maybe %s)"
+msgstr "La sauvegarde va prendre énormément de media (environ %s)!"
+
+#: mondo/common/libmondo-files.c:1389
+#, c-format
+msgid "Your backup will occupy approximately %s media."
+msgstr "La sauvegarde va prendre environ %s media."
+
+#: mondo/common/libmondo-fork.c:165
+msgid ""
+"Your PC will not retract the CD tray automatically. Please call mondoarchive "
+"with the -m (manual CD tray) flag."
+msgstr ""
+"Votre système ne ferme pas automatiquement le tiroir du CD, lancez "
+"mondoarchive avec l'option -m."
+
+#: mondo/common/libmondo-fork.c:236
+msgid "Please be patient. Do not be alarmed by on-screen inactivity."
+msgstr "Soyez patient, ne vous inquiétez pas de l'inactivité de l'écran."
+
+#: mondo/common/libmondo-fork.c:264
+msgid "Press ENTER to continue."
+msgstr "Appuyez sur ENTREE pour continuer"
+
+#: mondo/common/libmondo-fork.c:266
+msgid "mkisofs and/or cdrecord returned an error. CD was not created"
+msgstr "mkisosfs ou cdrecord ont retourné une erreur, le CD n'a pas été gravé"
+
+#: mondo/common/libmondo-fork.c:450
+#, c-format
+msgid "Failed utterly to call '%s'"
+msgstr "Erreur à l'appel de '%s'"
+
+#: mondo/common/libmondo-fork.c:455
+msgid "Waiting for external binary to start"
+msgstr "En attente de démarrage d'un programme extérieur"
+
+#: mondo/common/libmondo-fork.c:713 mondo/common/libmondo-fork.c:801
+msgid "Verifying..."
+msgstr "Vérification..."
+
+#: mondo/common/libmondo-mountlist.c:953
+msgid "Cannot open mountlist"
+msgstr "Impossible de lire la liste de montage"
+
+#: mondo/common/libmondo-mountlist.c:996
+msgid "Too many lines in mountlist.. ABORTING"
+msgstr "Liste de montage trop longue.. ABANDON"
+
+#: mondo/common/libmondo-raid.c:960 mondo/common/libmondo-string.c:299
+msgid ""
+"That sizespec is more than 1,208,925,819,614,629,174,706,176 bytes. You have "
+"a shocking amount of data. Please send a screenshot to the list :-)"
+msgstr "La taille est supérieure à 1,208,925,819,614,629,174,706,176 octets!"
+
+#: mondo/common/libmondo-raid.c:1115
+msgid "FIXME - create_raidtab_from_mdstat does not allow for spare disks"
+msgstr "FIXME - create_raidtab_from_mdstat ne permet pas des disques libres"
+
+#: mondo/common/libmondo-stream.c:521
+#, c-format
+msgid "When the tape drive goes quiet, please insert volume %d in this series."
+msgstr "Insérez le volume %d quand le lecteur de bande devient silencieux."
+
+#: mondo/common/libmondo-stream.c:524
+msgid "Waiting while the tape drive settles"
+msgstr "En attente du lecteur de bande"
+
+#: mondo/common/libmondo-stream.c:526
+msgid "Waiting while the tape drive rewinds"
+msgstr "En attente de rembobinage du lecteur de bande"
+
+#: mondo/common/libmondo-stream.c:733 mondo/common/libmondo-stream.c:857
+#: mondo/common/libmondo-stream.c:1370 mondo/common/libmondo-stream.c:1430
+msgid "Cannot openin stream device"
+msgstr "Impossible d'ouvrir le périphérique"
+
+#: mondo/common/libmondo-stream.c:736
+msgid "Reading stream"
+msgstr "Lecture"
+
+#: mondo/common/libmondo-stream.c:740
+msgid "Skipping data disks on stream"
+msgstr "Saut de données sur le périphérique"
+
+#: mondo/common/libmondo-stream.c:743
+msgid "Cannot openout datadisk all.tar.gz file"
+msgstr "Impossible d'ouvrir all.tar.gz en écriture"
+
+#: mondo/common/libmondo-stream.c:747
+msgid "Unable to malloc 256*1024"
+msgstr "impossible d'allouer 256x1024"
+
+#: mondo/common/libmondo-stream.c:824 mondo/common/libmondo-stream.c:1420
+msgid "Failed to openout to cdstream (fifo)"
+msgstr "Impossible d'ouvrir le flux CD"
+
+#: mondo/common/libmondo-stream.c:1000
+msgid "Cannot openout file"
+msgstr "Impossible d'ouvrir le fichier en écriture"
+
+#: mondo/common/libmondo-stream.c:1058
+#, c-format
+msgid "actual cksum=%s; recorded cksum=%s"
+msgstr "checksum actuel=%s; checksum enregistré=%s"
+
+#: mondo/common/libmondo-stream.c:1061
+#, c-format
+msgid "%s (%ld K) is corrupt on tape"
+msgstr "%s (%ld K) est corrompu sur la bande"
+
+#: mondo/common/libmondo-stream.c:1213
+msgid "Should have started a new tape/CD already"
+msgstr "On aurait déjà du utiliser une nouvelle bande/CD"
+
+#: mondo/common/libmondo-stream.c:1408
+msgid "Too many tapes. Man, you need to use nfs!"
+msgstr "Trop de bandes. Vous devriez utiliser nfs!"
+
+#: mondo/common/libmondo-stream.c:1515 mondo/common/libmondo-stream.c:1516
+msgid "Writing data disks to tape"
+msgstr "Ecriture des données sur bande"
+
+#: mondo/common/libmondo-stream.c:1519
+#, c-format
+msgid "Cannot find %s"
+msgstr "Impossible de trouver %s"
+
+#: mondo/common/libmondo-stream.c:1708
+msgid "You're not backing up to tape. Why write a tape header?"
+msgstr "Vous ne sauvegardez pas sur bande. Pourquoi écrire un entête ?"
+
+#: mondo/common/libmondo-stream.c:1753
+#, c-format
+msgid "Wrong marker! (Should be %s, "
+msgstr "Mauvais marqueur! (devrait être %s, "
+
+#: mondo/common/libmondo-stream.c:1755
+#, c-format
+msgid "is actually %s)"
+msgstr "est %s)"
+
+#: mondo/common/libmondo-string.c:986
+#, c-format
+msgid ""
+"Changed since backup. Consider running a differential backup in a day or two."
+msgstr ""
+"Changé depuis la sauvegarde. Pensez à faire une sauvegarde différentielle "
+"dans un jour ou deux."
+
+#: mondo/common/libmondo-string.c:990
+#, c-format
+msgid "/var's contents will change regularly, inevitably."
+msgstr "Le contenu de /var change régulièrement."
+
+#: mondo/common/libmondo-string.c:995
+#, c-format
+msgid "It's in your /home partiton. Therefore, it is important."
+msgstr "C'est dans /home, donc c'est important."
+
+#: mondo/common/libmondo-string.c:1000
+#, c-format
+msgid "You may have installed/removed software during the backup."
+msgstr "Vous avez du installer des logiciels pendant la sauvegarde"
+
+#: mondo/common/libmondo-string.c:1005
+#, c-format
+msgid "Do not edit config files while backing up your PC."
+msgstr "N'éditez pas de fichier de configuration pendant la sauvegarde."
+
+#: mondo/common/libmondo-string.c:1010
+#, c-format
+msgid "This file changes all the time. It's OK."
+msgstr "Ce fichier change en permanence, donc pas de problème."
+
+#: mondo/common/libmondo-string.c:1014
+#, c-format
+msgid "Were you compiling/editing something in /root?"
+msgstr "Faisiez vous quelque chose dans /root?"
+
+#: mondo/common/libmondo-string.c:1018
+#, c-format
+msgid "Temp or 'dot' files changed in /root."
+msgstr "Des fichiers ont changé dans /root."
+
+#: mondo/common/libmondo-string.c:1022 mondo/common/libmondo-string.c:1026
+#, c-format
+msgid "Did you add/remove software during backing?"
+msgstr "Avez-vous ajouté/supprimé des logiciels pendant la sauvegarde?"
+
+#: mondo/common/libmondo-string.c:1031
+#, c-format
+msgid ""
+"The 'update' daemon ran during backup. This does not affect the integrity of "
+"your backup."
+msgstr ""
+"Le daemon 'update' tournait pendant la sauvegarde. Ceci n'a pas d'impact sur "
+"celle-ci."
+
+#: mondo/common/libmondo-string.c:1038
+#, c-format
+msgid "Log files change frequently as the computer runs. Fret not."
+msgstr "Les logs sont régulièrement modifiés. Pas de problème."
+
+#: mondo/common/libmondo-string.c:1043
+#, c-format
+msgid ""
+"Background processes or printers were active. This does not affect the "
+"integrity of your backup."
+msgstr "Les imprimantes étaient actives, ca ne pose pas de problème."
+
+#: mondo/common/libmondo-string.c:1047
+#, c-format
+msgid "Mail was sent/received during backup."
+msgstr "Des mails ont été envoyés ou reçus pendant la sauvegarde."
+
+#: mondo/common/libmondo-string.c:1052
+#, c-format
+msgid "Backup copy of another file which was modified recently."
+msgstr "Une copie de sauvegarde d'un fichier modifié récemment."
+
+#: mondo/common/libmondo-string.c:1057
+#, c-format
+msgid "Part of a cache of data. Caches change from time to time. Don't worry."
+msgstr "Cache de données, pas de problème."
+
+#: mondo/common/libmondo-string.c:1134
+#, c-format
+msgid "Volume %d: %s kilobytes archived so far"
+msgstr "Volume %d: %s ko sauvegardés jusqu'ici"
+
+#: mondo/common/libmondo-string.c:1147
+#, c-format
+msgid "Volume %d: ["
+msgstr "Volume %d: ["
+
+#: mondo/common/libmondo-string.c:1163
+#, c-format
+msgid "] %d%% used"
+msgstr "] %d%% utilisé"
+
+#: mondo/common/libmondo-tools.c:273
+#, c-format
+msgid "ASSERTION FAILED: `%s'\n"
+msgstr "ASSERTION FAILED: `%s'\n"
+
+#: mondo/common/libmondo-tools.c:274
+#, c-format
+msgid ""
+"\tat %s:%d in %s\n"
+"\n"
+msgstr ""
+
+#: mondo/common/libmondo-tools.c:275 mondo/common/libmondo-tools.c:302
+#, c-format
+msgid "(I)gnore, ignore (A)ll, (D)ebug, a(B)ort, or (E)xit? "
+msgstr "(I)gnore, (A) ignore tout, (D)ebug, a(B)andon ou sorti(E)?"
+
+#: mondo/common/libmondo-tools.c:306
+#, c-format
+msgid "Invalid choice.\n"
+msgstr "Choix invalide.\n"
+
+#: mondo/common/libmondo-tools.c:1071
+msgid "You must have at least 32MB of RAM to use Mondo."
+msgstr "Vous devez avoir au moins 32Mo de mémoire pour utiliser Mondo."
+
+#: mondo/common/libmondo-tools.c:1075
+msgid "WARNING! You have very little RAM. Please upgrade to 64MB or more."
+msgstr "ATTENTION! Vous avez très peu de mémoire, pensez à en ajouter."
+
+#: mondo/common/libmondo-tools.c:1094
+msgid "Unable to find "
+msgstr "Impossible de trouver "
+
+#: mondo/common/libmondo-tools.c:1094
+msgid " in system path."
+msgstr " dans les chemins systèmes."
+
+#: mondo/common/libmondo-tools.c:1102
+msgid ""
+"Your kernel has no ramdisk support. That's mind-numbingly stupid but I'll "
+"allow it if you're planning to use a failsafe kernel. Are you?"
+msgstr ""
+"Votre noyau ne supporte pas les ramdisk. Ca ne marchera que si vous prévoyez "
+"d'utilisez un noyau failsafe. OK ?"
+
+#: mondo/common/libmondo-tools.c:1106
+msgid "It looks as if your kernel lacks ramdisk and initrd support."
+msgstr "Votre noyau ne supporte ni le ramdisk ni initrd."
+
+#: mondo/common/libmondo-tools.c:1108
+msgid "I'll allow you to proceed but FYI, if I'm right, your kernel is broken."
+msgstr "Je vais continuer mais je vous signale que votre noyau est cassé."
+
+#: mondo/common/libmondo-tools.c:1130
+msgid "I think you have a Windows 9x partition."
+msgstr "Vous semblez avoir une partition Windows 9x."
+
+#: mondo/common/libmondo-tools.c:1136
+msgid "Please install ms-sys just in case."
+msgstr "Merci d'installer ms-sys au cas ou."
+
+#: mondo/common/libmondo-tools.c:1146
+msgid "Your system lacks the 'cmp' binary. I'll create a dummy cmp for you."
+msgstr ""
+"le programme 'cmp' est absent de votre système. Je vais en créer un faux."
+
+#: mondo/common/libmondo-tools.c:1161
+msgid "Your CD-ROM is mounted via autofs. I therefore cannot tell"
+msgstr "Votre CD-ROM est monté par autofs. Je ne peux donc pas savoir"
+
+#: mondo/common/libmondo-tools.c:1163
+msgid "if a CD actually is inserted. If a CD is inserted, please"
+msgstr "si un CD est présent. Dans ce cas, éjectez-le."
+
+#: mondo/common/libmondo-tools.c:1164
+msgid "eject it. Thank you."
+msgstr "Merci."
+
+#: mondo/common/libmondo-tools.c:1190
+msgid "Please find out what happened to /etc/modules.conf"
+msgstr "Merci de trouver ce qui arrive à /etc/modules.conf"
+
+#: mondo/common/libmondo-tools.c:1203
+msgid "Could not ascertain mindi's version number."
+msgstr "Impossible de vérifier le numéro de version de mindi."
+
+#: mondo/common/libmondo-tools.c:1205
+msgid "You have not installed Mondo and/or Mindi properly."
+msgstr "Mondo ou Mindi ne sont pas installé proprement."
+
+#: mondo/common/libmondo-tools.c:1206
+msgid "Please uninstall and reinstall them both."
+msgstr "Desinstallez et ré-installez les."
+
+#: mondo/common/libmondo-tools.c:1212
+msgid "Mindi --makemountlist /tmp/mountlist.txt.test failed for some reason."
+msgstr ""
+"Mindi --makemountlist /tmp/mountlist.txt.test a échoué pour une raison "
+"inconnue."
+
+#: mondo/common/libmondo-tools.c:1214
+msgid "Please run that command by hand and examine /var/log/mindi.log"
+msgstr "Lancez cette commande à la main et ragardez /var/log/mindi.log"
+
+#: mondo/common/libmondo-tools.c:1216
+msgid "for more information. Perhaps your /etc/fstab file is insane."
+msgstr "pour plus d'information. Vérifiez /etc/fstab."
+
+#: mondo/common/libmondo-tools.c:1218
+msgid "Perhaps Mindi's MakeMountlist() subroutine has a bug. We'll see."
+msgstr "Il y a peut-être un bug dans MakeMountlist()."
+
+#: mondo/common/libmondo-tools.c:1225
+msgid ""
+"You have RAID partitions but no /etc/raidtab - creating one from /proc/mdstat"
+msgstr ""
+"Votre système a une partition raid mais pas de /etc/raidtab - création "
+"depuis /proc/mdstat"
+
+#: mondo/common/libmondo-verify.c:760
+#, c-format
+msgid "%s has changed on live filesystem"
+msgstr "%s a changé sur le live filesystem"
+
+#: mondo/common/libmondo-verify.c:813
+msgid "Verifying regular archives on tape"
+msgstr "Vérification des archives sur bande"
+
+#: mondo/common/libmondo-verify.c:815
+msgid "Verifying filesystem"
+msgstr "Vérification des systèmes de fichiers"
+
+#: mondo/common/libmondo-verify.c:816
+msgid "I am verifying archives against your live filesystem now."
+msgstr "Je compare l'archive au système de fichiers actuel maintenant."
+
+#: mondo/common/libmondo-verify.c:817
+msgid "Please wait. This may take a couple of hours."
+msgstr "Veuillez attendre, ce traitement peut prendre quelques heures."
+
+#: mondo/common/libmondo-verify.c:856
+#, c-format
+msgid "Afioball %ld differs from live filesystem"
+msgstr "Afioball %ld est différent du système de fichiers courant"
+
+#: mondo/common/libmondo-verify.c:940
+msgid "Verifying big files"
+msgstr "Vérification des gros fichiers"
+
+#: mondo/common/libmondo-verify.c:941 mondo/mondorestore/mondo-restore.c:2396
+#: mondo/mondorestore/mondo-restore.c:2530
+#: mondo/mondorestore/mondo-restore.c:2696
+#: mondo/mondorestore/mondo-restore.c:2843
+#: mondo/mondorestore/mondo-restore.c:3353
+msgid "Please wait. This may take some time."
+msgstr "Veuillez attendre, ce traitement peut être long."
+
+#: mondo/common/libmondo-verify.c:957
+#, c-format
+msgid "Verifying bigfile #%ld (%ld K)"
+msgstr "Vérification du gros fichier #%ld (%ld K)"
+
+#: mondo/common/libmondo-verify.c:1033
+msgid "Please push CD tray closed."
+msgstr "Veuillez fermer le tiroir du lecteur de CD."
+
+#: mondo/common/libmondo-verify.c:1036
+msgid "failed to mount actual CD"
+msgstr "Impossible de monter le CD"
+
+#: mondo/common/libmondo-verify.c:1046
+#, c-format
+msgid "make_vn of %s failed; unable to verify ISO\n"
+msgstr "échec de make_vn %s; impossible de vérifier l'image ISO\n"
+
+#: mondo/common/libmondo-verify.c:1057
+#, c-format
+msgid "%s failed; unable to mount ISO image\n"
+msgstr "Echec de %s; impossible de monter l'image ISO\n"
+
+#: mondo/common/libmondo-verify.c:1135
+msgid "Verifying backups"
+msgstr "Vérification des sauvegardes"
+
+#: mondo/common/libmondo-verify.c:1160
+msgid "Warning - unable to check logfile to derive list of changed files"
+msgstr ""
+"Attention - impossible d'obtenir la liste des fichiers modifiés depuis le "
+"fichier de log"
+
+#: mondo/common/libmondo-verify.c:1163
+msgid "No differences found. Therefore, no 'changed.files' text file."
+msgstr "Aucune différence trouvée, donc pas de fichier 'changed.files'."
+
+#: mondo/common/libmondo-verify.c:1179
+msgid "See /tmp/changed.files for a list of nonmatching files."
+msgstr "La liste des différences est disponible dans /tmp/changed.files."
+
+#: mondo/common/libmondo-verify.c:1181
+msgid "The files probably changed on filesystem, not on backup media."
+msgstr ""
+"Les fichiers ont certainement changé sur le système de fichiers, pas sur le "
+"media de sauvegarde."
+
+#: mondo/common/my-stuff.h:369
+msgid "W E L C O M E   T O   M O N D O   R E S C U E"
+msgstr "B I E N V E N U E   D A N S   M O N D O   R E S C U E"
+
+#: mondo/common/newt-specific.c:229
+msgid "yesYES"
+msgstr "ouiOUI"
+
+#: mondo/common/newt-specific.c:232
+msgid "NOno"
+msgstr "nonNON"
+
+#: mondo/common/newt-specific.c:238
+#, c-format
+msgid "Please enter either YES or NO (or yes or no, or y or n, or...)\n"
+msgstr "Entrez OUI ou NON\n"
+
+#: mondo/common/newt-specific.c:243
+msgid "Yes"
+msgstr "Oui"
+
+#: mondo/common/newt-specific.c:243
+msgid "No"
+msgstr "Non"
+
+#: mondo/common/newt-specific.c:275
+msgid "okOKOkYESyes"
+msgstr "ouiOUIokOK"
+
+#: mondo/common/newt-specific.c:284
+msgid " Okay "
+msgstr "  OK  "
+
+#: mondo/common/newt-specific.c:284 mondo/common/newt-specific.c:846
+#: mondo/mondorestore/mondo-rstr-newt.c:167
+#: mondo/mondorestore/mondo-rstr-newt.c:273
+#: mondo/mondorestore/mondo-rstr-newt.c:1115
+#: mondo/mondorestore/mondo-rstr-newt.c:1288
+#: mondo/mondorestore/mondo-rstr-newt.c:1522
+#: mondo/mondorestore/mondo-rstr-newt.c:1684
+#: mondo/mondorestore/mondo-rstr-newt.c:1824
+#: mondo/mondorestore/mondo-rstr-newt.c:2038
+#: mondo/mondorestore/mondo-rstr-newt.c:2209
+#: mondo/mondorestore/mondo-rstr-newt.c:2852
+msgid "Cancel"
+msgstr "Annule"
+
+#: mondo/common/newt-specific.c:428
+#, c-format
+msgid "If you require technical support, please contact the mailing list.\n"
+msgstr ""
+"Contactez la liste de discussion mondo rescue si vous avez besoin de "
+"support.\n"
+
+#: mondo/common/newt-specific.c:429
+#, c-format
+msgid "See http://www.mondorescue.org for details.\n"
+msgstr "Plus d'infos sur http://www.mondorescue.org/\n"
+
+#: mondo/common/newt-specific.c:431
+#, c-format
+msgid ""
+"The list's members can help you, if you attach that file to your e-mail.\n"
+msgstr ""
+"Les membres de la liste vous aideront si vous attachez ce fichier a votre "
+"mail.\n"
+
+#: mondo/common/newt-specific.c:432
+#, c-format
+msgid "Log file: %s\n"
+msgstr "Fichier log: %s\n"
+
+#: mondo/common/newt-specific.c:435
+#, c-format
+msgid "FYI, I have gzipped the log and saved it to /tmp/MA.log.gz\n"
+msgstr "Le log compressé est dans /tmp/MA.log.gz\n"
+
+#: mondo/common/newt-specific.c:437
+#, c-format
+msgid "Mondo has aborted.\n"
+msgstr "Interruption de Mondo.\n"
+
+#: mondo/common/newt-specific.c:492
+#, c-format
+msgid "Execution run ended; result=%d\n"
+msgstr "Fin de l'exécution; resultat=%d\n"
+
+#: mondo/common/newt-specific.c:493
+#, c-format
+msgid "Type 'less %s' to see the output log\n"
+msgstr "Tapez 'less %s' pour voir le log\n"
+
+#: mondo/common/newt-specific.c:785
+#, fuzzy
+msgid " OK "
+msgstr " OK "
+
+#: mondo/common/newt-specific.c:845 mondo/mondorestore/mondo-rstr-newt.c:166
+#: mondo/mondorestore/mondo-rstr-newt.c:272
+#: mondo/mondorestore/mondo-rstr-newt.c:1116
+#: mondo/mondorestore/mondo-rstr-newt.c:1287
+#: mondo/mondorestore/mondo-rstr-newt.c:1521
+#: mondo/mondorestore/mondo-rstr-newt.c:1683
+#: mondo/mondorestore/mondo-rstr-newt.c:1823
+#: mondo/mondorestore/mondo-rstr-newt.c:2039
+#: mondo/mondorestore/mondo-rstr-newt.c:2208
+#: mondo/mondorestore/mondo-rstr-newt.c:2851
+msgid "  OK  "
+msgstr "  OK  "
+
+#: mondo/common/newt-specific.c:933
+msgid "Alert"
+msgstr ""
+
+#: mondo/common/newt-specific.c:999
+msgid ""
+"Welcome to Mondo Rescue, by Hugo Rabson and the Internet. All rights "
+"reversed."
+msgstr ""
+"Bienvenue dans Mondo Rescue, par Hugo Rabson et l'Internet. Tous droits "
+"réservés"
+
+#: mondo/common/newt-specific.c:1077
+#, fuzzy, c-format
+msgid "%2ld:%02ld taken            %2ld:%02ld remaining"
+msgstr "%2ld:%02ld fait             %2ld:%02ld restant"
+
+#: mondo/common/newt-specific.c:1081
+#, c-format
+msgid " Working"
+msgstr " Travail en cours"
+
+#: mondo/common/newt-specific.c:1091
+#, c-format
+msgid " %3d%% done              %3d%% to go"
+msgstr " %3d%% fait              %3d%% restant"
+
+#: mondo/common/newt-specific.c:1237
+#, c-format
+msgid "---progress-form---1--- %s%s"
+msgstr "---progression-----1--- %s%s"
+
+#: mondo/common/newt-specific.c:1238
+#, c-format
+msgid "---progress-form---2--- %s%s"
+msgstr "---progression-----3--- %s%s"
+
+#: mondo/common/newt-specific.c:1239
+#, c-format
+msgid "---progress-form---3--- %s%s"
+msgstr "---progression-----3--- %s%s"
+
+#: mondo/common/newt-specific.c:1240
+#, c-format
+msgid "---progress-form---E---\n"
+msgstr "---progression-----E--- \n"
+
+#: mondo/common/newt-specific.c:1249
+#, c-format
+msgid "percentage = %d"
+msgstr "pourcentage = %d"
+
+#: mondo/common/newt-specific.c:1254
+#, c-format
+msgid " done; %2ld:%02ld to go"
+msgstr "fait; reste %2ld:%02ld"
+
+#: mondo/common/newt-specific.c:1256
+#, c-format
+msgid "---progress-form---4--- %s"
+msgstr "---progression-----4--- %s"
+
+#: mondo/common/newt-specific.c:1332
+#, c-format
+msgid "Backup type ("
+msgstr "Sauvegarde ("
+
+#: mondo/common/newt-specific.c:1354
+msgid "Please choose the backup media from which you want to read data."
+msgstr "Choisissez le media à lire."
+
+#: mondo/common/newt-specific.c:1355
+msgid "Read from:"
+msgstr "Lecture depuis:"
+
+#: mondo/common/newt-specific.c:1358
+msgid "Please choose the backup media to which you want to archive data."
+msgstr "Choisissez le media d'écriture"
+
+#: mondo/common/newt-specific.c:1359
+msgid "Backup to:"
+msgstr "Sauvegarde sur:"
+
+#: mondo/common/newt-specific.c:1364
+msgid "CD-R disks "
+msgstr "   CD-R    "
+
+#: mondo/common/newt-specific.c:1365
+msgid "CD-RW disks"
+msgstr "   CD-RW   "
+
+#: mondo/common/newt-specific.c:1366
+msgid "Tape drive "
+msgstr "   Bande   "
+
+#: mondo/common/newt-specific.c:1367
+msgid "CD streamer"
+msgstr ""
+
+#: mondo/common/newt-specific.c:1368
+msgid " DVD disks "
+msgstr "    DVD    "
+
+#: mondo/common/newt-specific.c:1369
+msgid " NFS mount "
+msgstr "montage NFS"
+
+#: mondo/common/newt-specific.c:1370
+msgid " Hard disk "
+msgstr "Disque dur "
+
+#: mondo/common/newt-specific.c:1371
+msgid "    Exit   "
+msgstr "  Sortie   "
+
+#: mondo/common/newt-specific.c:1429
+msgid "   Please specify the level of compression that you want."
+msgstr "   Indiquez le niveau de compression voulu."
+
+#: mondo/common/newt-specific.c:1431
+msgid "How much compression?"
+msgstr "Quelle compression ?"
+
+#: mondo/common/newt-specific.c:1432
+msgid "Maximum"
+msgstr "Maximum"
+
+#: mondo/common/newt-specific.c:1433
+msgid "Average"
+msgstr "Moyenne"
+
+#: mondo/common/newt-specific.c:1434
+msgid "Minimum"
+msgstr "Minimum"
+
+#: mondo/common/newt-specific.c:1435
+msgid " None  "
+msgstr "Aucune "
+
+#: mondo/common/newt-specific.c:1436
+msgid "         Exit        "
+msgstr "       Sortie        "
+
+#: mondo/common/newt-specific.c:1517 mondo/mondorestore/mondo-rstr-newt.c:2028
+msgid "Arbitrary limits suck, man!"
+msgstr "Problème avec la limite arbitraire"
+
+#: mondo/common/newt-specific.c:1659
+#, c-format
+msgid ""
+"  %d files differ. Hit 'Select' to pick a file. Hit 'Close' to quit the list."
+msgstr ""
+"  %d fichiers differents. Appuyez sur 'Choix' pour selectionnez un fichier."
+
+#: mondo/common/newt-specific.c:1662
+msgid " Close  "
+msgstr " Fermer "
+
+#: mondo/common/newt-specific.c:1663
+msgid " Select "
+msgstr " Choix  "
+
+#: mondo/common/newt-specific.c:1664
+msgid "Priority"
+msgstr "Priorité"
+
+#: mondo/common/newt-specific.c:1664
+msgid "Filename"
+msgstr "Fichier "
+
+#: mondo/common/newt-specific.c:1666
+msgid "Non-matching files"
+msgstr "Fichiers non correspondant"
+
+#: mondo/common/newt-specific.c:1680 mondo/mondorestore/mondo-rstr-newt.c:2093
+#: mondo/mondorestore/mondo-rstr-newt.c:2871
+msgid "I don't know what that button does!"
+msgstr "Bouton inconnu!"
+
+#: mondo/mondoarchive/main.c:259 mondo/mondorestore/mondo-restore.c:3207
+#, c-format
+msgid "Please run as root.\n"
+msgstr "Lancez ce programme en tant que root.\n"
+
+#: mondo/mondoarchive/main.c:267
+#, c-format
+msgid ""
+"mondoarchive v%s\n"
+"See man page for help\n"
+msgstr ""
+
+#: mondo/mondoarchive/main.c:281
+#, c-format
+msgid "Initializing...\n"
+msgstr "Initialisation...\n"
+
+#: mondo/mondoarchive/main.c:327 mondo/mondoarchive/main.c:356
+#, c-format
+msgid "Sorry - filelist goes first\n"
+msgstr "Désolé - la liste des fichiers d'abord\n"
+
+#: mondo/mondoarchive/main.c:376
+#, fuzzy, c-format
+msgid "Failed to find CDR-RW drive\n"
+msgstr "Impossible de trouver le graveur de CD\n"
+
+#: mondo/mondoarchive/main.c:378
+#, fuzzy, c-format
+msgid "CD-RW is at %s\n"
+msgstr "CD-RW est %s\n"
+
+#: mondo/mondoarchive/main.c:382
+#, fuzzy, c-format
+msgid "Failed to find CD-ROM drive\n"
+msgstr "Impossible de trouver le lecteur de CD\n"
+
+#: mondo/mondoarchive/main.c:384
+#, c-format
+msgid "CD-ROM is at %s\n"
+msgstr "Le CD-ROM est %s\n"
+
+#: mondo/mondoarchive/main.c:394
+#, fuzzy, c-format
+msgid "Failed to find DVD drive\n"
+msgstr "Impossible de trouver le lecteur de DVD\n"
+
+#: mondo/mondoarchive/main.c:396
+#, c-format
+msgid "DVD is at %s\n"
+msgstr "le DVD est %s\n"
+
+#: mondo/mondoarchive/main.c:407
+#, c-format
+msgid "%s is indeed an NTFS dev\n"
+msgstr "%s est bien de type NTFS\n"
+
+#: mondo/mondoarchive/main.c:409
+#, c-format
+msgid "%s is _not_ an NTFS dev\n"
+msgstr "%s n'est pas de type NTFS\n"
+
+#: mondo/mondoarchive/main.c:432
+#, c-format
+msgid "Errors were detected in the command line you supplied.\n"
+msgstr "Des erreurs ont été trouvées dans la ligne de commande\n"
+
+#: mondo/mondoarchive/main.c:433
+#, c-format
+msgid "Please review the log file - %s \n"
+msgstr "Regardez le fichier log - %s \n"
+
+#: mondo/mondoarchive/main.c:447
+msgid "BusyBox's sources are available from http://www.busybox.net"
+msgstr "Les sources de Busybox sont disponibles sur http://www.busybox.net"
+
+#: mondo/mondoarchive/main.c:463
+msgid "Data archived. Please check the logs, just as a precaution. "
+msgstr "Données archivées. Vérifiez les logs par précaution."
+
+#: mondo/mondoarchive/main.c:465
+msgid "Data archived OK. "
+msgstr "Data archivées."
+
+#: mondo/mondoarchive/main.c:473
+#, c-format
+msgid "%d difference%c found."
+msgstr "%d différence%c trouvées."
+
+#: mondo/mondoarchive/main.c:493
+msgid "Backup and/or verify ran to completion. Everything appears to be fine."
+msgstr "Sauvegarde ou vérification terminée avec succès."
+
+#: mondo/mondoarchive/main.c:496
+msgid "Backup and/or verify ran to completion. However, errors did occur."
+msgstr "Sauvegarde ou vérification terminée avec des erreurs."
+
+#: mondo/mondoarchive/main.c:501
+msgid ""
+"/root/images/mindi/mondorescue.iso, a boot/utility CD, is available if you "
+"want it."
+msgstr ""
+"/root/images/mindi/mondorescue.iso est un CD de boot/utilitaires à votre "
+"disposition"
+
+#: mondo/mondoarchive/main.c:508 mondo/mondoarchive/main.c:511
+#, fuzzy
+msgid ""
+"Type 'less /tmp/changed.files' to see which files don't match the archives"
+msgstr ""
+"la liste des fichiers modifiés est disponible dans /tmp/changed.files ."
+
+#: mondo/mondoarchive/main.c:529
+#, c-format
+msgid "Mondoarchive ran OK.\n"
+msgstr "Mondoarchive s'est exécuté correctement.\n"
+
+#: mondo/mondoarchive/main.c:531
+#, fuzzy, c-format
+msgid "Errors occurred during backup. Please check logfile.\n"
+msgstr "Erreurs intervenues pendant la sauvegarde. Vérifiez les logs"
+
+#: mondo/mondoarchive/main.c:555
+msgid ""
+"Mondo Archive has finished its run. Please press ENTER to return to the "
+"shell prompt."
+msgstr "Mondo archive a terminé. Appuyez sur ENTREE pour retourner au shell."
+
+#: mondo/mondoarchive/main.c:556
+#, c-format
+msgid "See %s for details of backup run."
+msgstr "Voir %s pour les details de la sauvegarde."
+
+#: mondo/mondoarchive/main.c:559
+#, c-format
+msgid "See %s for details of backup run.\n"
+msgstr "Voir %s pour les details de la sauvegarde.\n"
+
+#: mondo/mondorestore/mondo-prep.c:241
+msgid "I am sorry for the inconvenience but I must ask you to reboot."
+msgstr "Il faut redémarrer le système."
+
+#: mondo/mondorestore/mondo-prep.c:243
+#, fuzzy
+msgid "I need to reset the Master Boot Record; in order to be"
+msgstr "Il faut redémarrer le système pour que le kernel"
+
+#: mondo/mondorestore/mondo-prep.c:245
+msgid "sure the kernel notices, I must reboot after doing it."
+msgstr "prenne en compte la réécriture du MBR"
+
+#: mondo/mondorestore/mondo-prep.c:271
+msgid ""
+"I must now reboot. Please leave the boot media in the drive and repeat your "
+"actions - e.g. type 'nuke' - and it should work fine."
+msgstr ""
+"Le système va redémarrer. Laissez le media dans le périphérique et "
+"recommencez la procédure."
+
+#: mondo/mondorestore/mondo-prep.c:617
+msgid "I don't know how to extrapolate the mountlist on FreeBSD. Sorry."
+msgstr "Impossible d'extrapoler la liste de montage sur FreeBSD. Désolé."
+
+#: mondo/mondorestore/mondo-prep.c:626
+msgid "Cannot find /etc/raidtab - cannot extrapolate the fdisk entries"
+msgstr "Impossible de trouver /etc/raidtab"
+
+#: mondo/mondorestore/mondo-prep.c:751
+#, c-format
+msgid "%s is mounted - cannot format it       "
+msgstr "%s est monté, impossible de le formater"
+
+#: mondo/mondorestore/mondo-prep.c:763
+msgid "/tmp/raidconf.txt does not exist. I therefore cannot start Vinum."
+msgstr "/tmp/raidconf.txt n'existe pas, impossible de lancer Vinum."
+
+#: mondo/mondorestore/mondo-prep.c:771
+msgid ""
+"`vinum create /tmp/raidconf.txt' returned errors. Please fix them and re-run "
+"mondorestore."
+msgstr ""
+"la création de /tmp/raidconf a retourné une erreur, corrigez la et relancez "
+"la restauration"
+
+#: mondo/mondorestore/mondo-prep.c:782
+#, c-format
+msgid "Initializing Vinum device %s (this may take a *long* time)"
+msgstr "Initialisation de Vinum sur %s (ca peut prendre longtemps)"
+
+#: mondo/mondorestore/mondo-prep.c:825
+#, fuzzy, c-format
+msgid "Initializing RAID device %s"
+msgstr "Initialisation du RAID %s  "
+
+#: mondo/mondorestore/mondo-prep.c:829
+#, c-format
+msgid "Stopping %s"
+msgstr "Arrêt de %s"
+
+#: mondo/mondorestore/mondo-prep.c:902
+#, fuzzy
+msgid "...failed"
+msgstr "...Echec"
+
+#: mondo/mondorestore/mondo-prep.c:904
+msgid "...OK"
+msgstr ""
+
+#: mondo/mondorestore/mondo-prep.c:953
+msgid "Formatting partitions     "
+msgstr "Formatage des partitions  "
+
+#: mondo/mondorestore/mondo-prep.c:954
+#, fuzzy
+msgid "Formatting partitions"
+msgstr "Formatage des partitions"
+
+#: mondo/mondorestore/mondo-prep.c:955
+#, fuzzy
+msgid "I am now formatting your hard disk partitions."
+msgstr "Je formate votre disque dur."
+
+#: mondo/mondorestore/mondo-prep.c:956
+#, fuzzy
+msgid "This may take up to five minutes."
+msgstr "Ce traitement peut prendre quelques minutes."
+
+#: mondo/mondorestore/mondo-prep.c:1003
+msgid "Configuring LVM"
+msgstr "Configuration de LVM"
+
+#: mondo/mondorestore/mondo-prep.c:1096
+#, fuzzy
+msgid "Errors occurred during the formatting of your hard drives."
+msgstr "Erreurs intervenues durant le formattage du disque dur."
+
+#: mondo/mondorestore/mondo-prep.c:1109
+#, c-format
+msgid ""
+"Partition table locked up %d times. At least one 'mkfs' (format) command"
+msgstr "La table des partitions s'est bloquée %d fois. Au moins un mkfs a "
+
+#: mondo/mondorestore/mondo-prep.c:1112
+msgid ""
+"failed. I think these two events are related. Sometimes, fdisk's ioctl() call"
+msgstr ""
+"échoué. Il doit y avoir un rapport entre les deux événements. Parfois, les "
+
+#: mondo/mondorestore/mondo-prep.c:1114
+#, fuzzy
+msgid ""
+"to refresh its copy of the partition table causes the kernel to lock the "
+msgstr ""
+"ioctl() de fdisk provoquent un blocage de la table des partitions par le "
+
+#: mondo/mondorestore/mondo-prep.c:1116
+msgid "partition table. I believe this has just happened."
+msgstr "noyau. "
+
+#: mondo/mondorestore/mondo-prep.c:1118
+msgid ""
+"Please choose 'yes' to reboot and try again; or 'no' to ignore this warning "
+"and continue."
+msgstr ""
+"Choisissez 'oui' pour rebooter et ré-essayez ou 'non' pour ignorer ce "
+"messageet continuer."
+
+#: mondo/mondorestore/mondo-prep.c:1127
+#, c-format
+msgid ""
+"Partition table locked up %d time%c. However, disk formatting succeeded."
+msgstr "%d blocage%c de la table des partitions. Formattage réussi néanmoins."
+
+#: mondo/mondorestore/mondo-prep.c:1530
+#, c-format
+msgid "Cannot call parted2fdisk to configure %s"
+msgstr "Imposible de lancer parted2fdisk pour configurer %s"
+
+#: mondo/mondorestore/mondo-prep.c:1566
+#, fuzzy
+msgid "Warning! Unable to make the drive bootable."
+msgstr "Attention! Impossible de rendre le lecteur bootable."
+
+#: mondo/mondorestore/mondo-prep.c:1616
+#, c-format
+msgid "Warning - unable to open %s for wiping it's partition table"
+msgstr ""
+"Attention - impossible d'ouvrir %s pour accéder à sa table des partitions"
+
+#: mondo/mondorestore/mondo-prep.c:1623
+#, c-format
+msgid "Warning - unable to write to %s"
+msgstr "Attention - impossible d'écrire sur %s"
+
+#: mondo/mondorestore/mondo-prep.c:1658
+msgid "You must leave at least one partition spare as the Extended partition."
+msgstr ""
+"Vous devez laisser au moins une partition libre pour la partition étendue."
+
+#: mondo/mondorestore/mondo-prep.c:1676
+msgid "Warning! Unable to make the slice bootable."
+msgstr "Attention! Impossible de rendre la partition bootable."
+
+#: mondo/mondorestore/mondo-prep.c:1704
+msgid "A flaw in the Linux kernel has locked the partition table."
+msgstr "Le noyau linux a bloqué la table des partitions."
+
+#: mondo/mondorestore/mondo-prep.c:1777
+#, c-format
+msgid "%s is mounted, and should not be partitioned"
+msgstr "%s est monté et ne doit pas être partitionné."
+
+#: mondo/mondorestore/mondo-prep.c:1814
+msgid "You need to leave at least one partition free, for 'extended/logical'"
+msgstr ""
+"Vous devez laisser au moins une partition libre pour la partition étendue."
+
+#: mondo/mondorestore/mondo-prep.c:2004
+#, fuzzy
+msgid "Partitioning devices"
+msgstr "Partitionnement des périphériques"
+
+#: mondo/mondorestore/mondo-prep.c:2005
+#, fuzzy
+msgid "I am now going to partition all your drives."
+msgstr "Partitionnement des périphériques"
+
+#: mondo/mondorestore/mondo-prep.c:2006
+#, fuzzy
+msgid "This should not take more than five minutes."
+msgstr "Ca ne devrait pas être long."
+
+#: mondo/mondorestore/mondo-prep.c:2020
+#, fuzzy
+msgid "Errors occurred during the partitioning of your hard drives."
+msgstr "Des erreurs se sont produites pendant le partitionnement."
+
+#: mondo/mondorestore/mondo-prep.c:2534
+#, c-format
+msgid "Expanding entries to suit drive %s (%ld MB)"
+msgstr "Extension des entrées du disque %s (%ld Mo)"
+
+#: mondo/mondorestore/mondo-prep.c:2553
+#, c-format
+msgid "Cannot resize %s's entries. Drive not found."
+msgstr "Impossible de redimensionner %s, lecteur non trouvé."
+
+#: mondo/mondorestore/mondo-prep.c:2583
+#, c-format
+msgid "Changing %s from %lld KB to %ld KB"
+msgstr "Changement de %s de %lld KB à %ld KB"
+
+#: mondo/mondorestore/mondo-prep.c:2590
+#, c-format
+msgid "final_size = %ld MB"
+msgstr "Taille finale = %ld Mo"
+
+#: mondo/mondorestore/mondo-prep.c:2631
+msgid "Mountlist adjusted to suit current hard drive(s)"
+msgstr "Liste de montage ajusté au disque."
+
+#: mondo/mondorestore/mondo-restore.c:508
+msgid ""
+"Partition and format your disk using Compaq's disaster recovery CD. After "
+"you've done that, please reboot with your Mondo CD/floppy in Interactive "
+"Mode."
+msgstr ""
+"Partitionnez et formattez votre disque en utilisant le CD Compaq disaster "
+"recovery. Redemarrez ensuite avec votre CD Mondo en mode interactif."
+
+#: mondo/mondorestore/mondo-restore.c:538
+msgid "does not exist"
+msgstr "n'existe pas"
+
+#: mondo/mondorestore/mondo-restore.c:546
+#: mondo/mondorestore/mondo-restore.c:3501
+msgid "Warning - load_raidtab_into_raidlist returned an error"
+msgstr "Attention - load_raidtab_into_raidlist a retourné une erreur"
+
+#: mondo/mondorestore/mondo-restore.c:556
+msgid "I have finished editing the mountlist for you."
+msgstr "J'ai fini d'éditer la liste de montage pour vous."
+
+#: mondo/mondorestore/mondo-restore.c:605
+msgid ""
+"Would you like to reboot and use your Compaq CD to prep your hard drive?"
+msgstr ""
+"Voulez-vous redémarrer et utiliser votre CD Compaq pour préparer votre "
+"disque dur?"
+
+#: mondo/mondorestore/mondo-restore.c:608
+msgid "Aborting. Please reboot and prep your hard drive with your Compaq CD."
+msgstr ""
+"Arrêt brutal. Merci de redémarrer et de préparer votre disque dur avec votre "
+"CD compaq."
+
+#: mondo/mondorestore/mondo-restore.c:645
+msgid "No restoring or comparing will take place today."
+msgstr "Pas de comparaison ou de restauration"
+
+#: mondo/mondorestore/mondo-restore.c:777
+msgid "Interactive Mode + textonly = experimental! Proceed anyway?"
+msgstr "Mode interactif + textonly = experimental! On essaye quand même ?"
+
+#: mondo/mondorestore/mondo-restore.c:818
+msgid "Restoring Interactively"
+msgstr "Restauration interactive"
+
+#: mondo/mondorestore/mondo-restore.c:820
+#: mondo/mondorestore/mondo-restore.c:1128
+msgid "Because this is a differential backup, disk"
+msgstr "C'est une sauvegarde differentielle, donc"
+
+#: mondo/mondorestore/mondo-restore.c:822
+msgid " partitioning and formatting will not take place."
+msgstr "ni partitionnement ni formattage à effectuer"
+
+#: mondo/mondorestore/mondo-restore.c:826
+msgid "Do you want to erase and partition your hard drives?"
+msgstr "Voulez-vous effacer et partitionner vos disques durs?"
+
+#: mondo/mondorestore/mondo-restore.c:837
+msgid "Warning. Errors occurred during disk partitioning."
+msgstr "Attention, le partitionnement du disque a généré des erreurs."
+
+#: mondo/mondorestore/mondo-restore.c:843
+msgid "Errors during disk partitioning were handled OK."
+msgstr "Les erreurs ont ete gérées correctement."
+
+#: mondo/mondorestore/mondo-restore.c:845
+msgid "Partitions were formatted OK despite those errors."
+msgstr "Les partitions ont été formattées correctement malgré les erreurs."
+
+#: mondo/mondorestore/mondo-restore.c:855
+msgid "User opted not to partition the devices"
+msgstr "L'utilisateur a choisi de ne pas partitionner les périphériques"
+
+#: mondo/mondorestore/mondo-restore.c:857
+msgid "Do you want to format your hard drives?"
+msgstr "Voulez-vous formatter votre disque dur ?"
+
+#: mondo/mondorestore/mondo-restore.c:870
+msgid "Errors occurred. Please repartition and format drives manually."
+msgstr ""
+"Des erreurs se sont produites. Repartitionnez et formattez les disques "
+"manuellement."
+
+#: mondo/mondorestore/mondo-restore.c:876
+msgid "Errors occurred during partitioning. Formatting, however, went OK."
+msgstr ""
+"Des erreurs se sont produites pendant le partitionnement, mais le formattage "
+"s'est bien terminé."
+
+#: mondo/mondorestore/mondo-restore.c:880
+msgid "Re-edit the mountlist?"
+msgstr "re-éditer la liste de montage ?"
+
+#: mondo/mondorestore/mondo-restore.c:896
+msgid "Do you want me to restore all of your data?"
+msgstr "Voulez-vous restaurer toutes les données?"
+
+#: mondo/mondorestore/mondo-restore.c:903
+msgid "Do you want me to restore _some_ of your data?"
+msgstr "Voulez-vous restaurer une partie des données?"
+
+#: mondo/mondorestore/mondo-restore.c:916
+#: mondo/mondorestore/mondo-restore.c:1306
+msgid "Restore path"
+msgstr "Chemin de restauration"
+
+#: mondo/mondorestore/mondo-restore.c:916
+msgid "Restore files to where?"
+msgstr "Restaurer les fichiers ou?"
+
+#: mondo/mondorestore/mondo-restore.c:919
+msgid "Are you sure?"
+msgstr "Etes vous sur?"
+
+#: mondo/mondorestore/mondo-restore.c:933
+msgid "Restore another subset of your backup?"
+msgstr "Restaurer une autre partie de votre sauvegarde?"
+
+#: mondo/mondorestore/mondo-restore.c:944
+msgid "User opted not to restore any data.                                  "
+msgstr "L'utilisateur a choisi de ne rien restaurer.                         "
+
+#: mondo/mondorestore/mondo-restore.c:949
+msgid "Errors occurred during the restore phase.            "
+msgstr "Des erreurs se sont produites pendant la restauration"
+
+#: mondo/mondorestore/mondo-restore.c:952
+msgid "Initialize the boot loader?"
+msgstr "Initialiser le boot-loader?"
+
+#: mondo/mondorestore/mondo-restore.c:957
+msgid "User opted not to initialize the boot loader."
+msgstr "L'utilisateur a choisi de ne initialiser le boot loader."
+
+#: mondo/mondorestore/mondo-restore.c:966
+msgid "Label your ext2 and ext3 partitions if necessary?"
+msgstr "Ecrire le label des partitions ext2 et ext3 si besoin est?"
+
+#: mondo/mondorestore/mondo-restore.c:968
+#: mondo/mondorestore/mondo-restore.c:1205
+msgid "Using e2label to label your ext2,3 partitions"
+msgstr "utilisation de e2label pour vos partitions ext2 et ext3."
+
+#: mondo/mondorestore/mondo-restore.c:981
+#: mondo/mondorestore/mondo-restore.c:1211
+msgid "label-partitions-as-necessary returned an error"
+msgstr "label-partitions-as-necessary a retourné une erreur"
+
+#: mondo/mondorestore/mondo-restore.c:993
+msgid "Warning - errors occurred during the restore phase."
+msgstr "Attention - il y a eu des erreurs pendant la restauration."
+
+#: mondo/mondorestore/mondo-restore.c:1045
+msgid "OK, I shan't restore/compare any files."
+msgstr "OK, pas de restauration ou comparaison"
+
+#: mondo/mondorestore/mondo-restore.c:1055
+msgid "WARNING - unable to unmount device where the ISO files are stored."
+msgstr ""
+"ATTENTION - imposssible de démonter le periphérique contenant les fichiers "
+"ISO."
+
+#: mondo/mondorestore/mondo-restore.c:1116
+#, c-format
+msgid "Mountlist analyzed. Result: \"%s %s %s\" Switch to Interactive Mode?"
+msgstr ""
+"Analyse de la liste de montage. Résultat: \"%s %s %s\" Passage en mode "
+"interactif ?"
+
+#: mondo/mondorestore/mondo-restore.c:1126
+msgid "Restoring Automatically"
+msgstr "Restauration automatique"
+
+#: mondo/mondorestore/mondo-restore.c:1129
+msgid "partitioning and formatting will not take place."
+msgstr "Pas de partitionnement ni de formatage."
+
+#: mondo/mondorestore/mondo-restore.c:1155
+msgid "Warning. Errors occurred during partitioning."
+msgstr "Attention, des erreurs sont arrivées pendant le partitionnement."
+
+#: mondo/mondorestore/mondo-restore.c:1161
+msgid "Preparing to format your disk(s)"
+msgstr "Préparation au formatage du(es) disque(s)"
+
+#: mondo/mondorestore/mondo-restore.c:1164
+msgid "Please wait. This may take a few minutes."
+msgstr "Ce traitement peut prendre quelques minutes."
+
+#: mondo/mondorestore/mondo-restore.c:1174
+msgid "Failed to partition and/or format your hard drives."
+msgstr "Impossible de partitionner ou formatter vos disques."
+
+#: mondo/mondorestore/mondo-restore.c:1176
+msgid "Try in interactive mode instead?"
+msgstr "Essayer en mode interactif?"
+
+#: mondo/mondorestore/mondo-restore.c:1181
+msgid "Would you like to try to proceed anyway?"
+msgstr "Vous voulez essayer quand même?"
+
+#: mondo/mondorestore/mondo-restore.c:1189
+msgid "Unable to mount all partitions. Sorry, I cannot proceed."
+msgstr ""
+"Impossible de monter toutes les partitions. Suite du traitement impossible."
+
+#: mondo/mondorestore/mondo-restore.c:1220
+msgid "Errors occurred during the nuke phase."
+msgstr "Erreurs intervenues durant l'étape nuke"
+
+#: mondo/mondorestore/mondo-restore.c:1224
+msgid "PC was restored successfully. Thank you for using Mondo Rescue."
+msgstr "Systeme restauré correctement. Merci d'avoir utilisé Mondo Rescue"
+
+#: mondo/mondorestore/mondo-restore.c:1226
+msgid "Please visit http://www.mondorescue.org and thank the dev team."
+msgstr ""
+"Visitez http://www.mondorescue.org et remerciez l'équipe de developpement."
+
+#: mondo/mondorestore/mondo-restore.c:1231
+msgid "PC was restored successfully!"
+msgstr "Systeme restauré correctement!"
+
+#: mondo/mondorestore/mondo-restore.c:1281
+msgid "Please insert tape/CD/boot floppy, then hit 'OK' to continue."
+msgstr "Insérez le CD/bande/disquette puis appuyez sur 'OK'"
+
+#: mondo/mondorestore/mondo-restore.c:1293
+msgid "Thinking..."
+msgstr "Travail en cours..."
+
+#: mondo/mondorestore/mondo-restore.c:1307
+msgid "Restore files to where? )"
+msgstr "Restauration des fichiers ou ? )"
+
+#: mondo/mondorestore/mondo-restore.c:1403
+msgid "Cannot even open bigfile's info file"
+msgstr "Impossible d'ouvrir le fichier d'info sur le bigfile"
+
+#: mondo/mondorestore/mondo-restore.c:1516
+msgid "Cannot openout outfile_fname - hard disk full?"
+msgstr "Impossible d'ouvrir le fichier. Disque plein ?"
+
+#: mondo/mondorestore/mondo-restore.c:1539
+#: mondo/mondorestore/mondo-restore.c:2417
+#: mondo/mondorestore/mondo-restore.c:2524
+#: mondo/mondorestore/mondo-restore.c:2566
+#, c-format
+msgid "Restoring from %s #%d"
+msgstr "Restauration depuis %s #%d"
+
+#: mondo/mondorestore/mondo-restore.c:1544
+msgid "Continuing to restore."
+msgstr "En train de restaurer."
+
+#: mondo/mondorestore/mondo-restore.c:1573
+msgid "OK, that's pretty fsck0red..."
+msgstr "Hum, y'a un problème à la lecture d'un bigfile"
+
+#: mondo/mondorestore/mondo-restore.c:2031
+msgid "(compare_a_tarball) Compression program not found - oh no!"
+msgstr "(compare_a_tarball) Programme de compression absent"
+
+#: mondo/mondorestore/mondo-restore.c:2089
+msgid "Errors occurred while setting extended attributes"
+msgstr "Erreurs lors du positionnement des attributs étendus"
+
+#: mondo/mondorestore/mondo-restore.c:2100
+msgid "Errors occurred while setting access control lists"
+msgstr "Erreurs lors du positionnement des ACLs"
+
+#: mondo/mondorestore/mondo-restore.c:2117
+#: mondo/mondorestore/mondo-restore.c:2460
+#: mondo/mondorestore/mondo-restore.c:2767
+msgid "Press ENTER to go on. Delete /PAUSE to stop these pauses."
+msgstr ""
+"Appuyez sur ENTREE pour continuer. Supprimer /PAUSE pour éviter ces arrêts."
+
+#: mondo/mondorestore/mondo-restore.c:2314
+#, c-format
+msgid "Paused after set %ld"
+msgstr "Pause après ensemble %ld"
+
+#: mondo/mondorestore/mondo-restore.c:2315
+msgid "Pausing. Press ENTER to continue."
+msgstr "Pause. Appuyez sur ENTREE pour continuer"
+
+#: mondo/mondorestore/mondo-restore.c:2378
+#, c-format
+msgid "Reassembling large files      "
+msgstr "Reconstruction des gros fichiers"
+
+#: mondo/mondorestore/mondo-restore.c:2394
+#: mondo/mondorestore/mondo-restore.c:2694
+msgid "Reassembling large files"
+msgstr "Assemblage des gros fichiers"
+
+#: mondo/mondorestore/mondo-restore.c:2395
+#: mondo/mondorestore/mondo-restore.c:2695
+msgid "I am now reassembling all the large files."
+msgstr "Assemblage des gros fichiers en cours."
+
+#: mondo/mondorestore/mondo-restore.c:2431
+#, c-format
+msgid "Restoring big file %ld"
+msgstr "Restauration du gros fichier %ld"
+
+#: mondo/mondorestore/mondo-restore.c:2464
+#: mondo/mondorestore/mondo-restore.c:2609
+#: mondo/mondorestore/mondo-restore.c:2772
+#: mondo/mondorestore/mondo-restore.c:2910
+msgid "Errors."
+msgstr "Erreurs"
+
+#: mondo/mondorestore/mondo-restore.c:2514
+#: mondo/mondorestore/mondo-restore.c:2528
+#: mondo/mondorestore/mondo-restore.c:2830
+#: mondo/mondorestore/mondo-restore.c:2841
+msgid "Restoring from archives"
+msgstr "Restauration depuis les archives"
+
+#: mondo/mondorestore/mondo-restore.c:2529
+#: mondo/mondorestore/mondo-restore.c:2842
+msgid "Restoring data from the archives."
+msgstr "Restauration des données depuis les archives."
+
+#: mondo/mondorestore/mondo-restore.c:2556
+msgid "No tarballs. Strange. Maybe you only backed up freakin' big files?"
+msgstr "Pas de tarballs, on restaure peut-être que des gros fichiers ?"
+
+#: mondo/mondorestore/mondo-restore.c:2571
+#: mondo/mondorestore/mondo-restore.c:2898
+#, c-format
+msgid "Restoring from fileset #%ld on %s #%d"
+msgstr "Restauration depuis le fileset #%ld sur %s #%d"
+
+#: mondo/mondorestore/mondo-restore.c:2583
+#, c-format
+msgid "%s #%d, fileset #%ld - restore "
+msgstr "%s #%d, ensemble #%ld - restauration "
+
+#: mondo/mondorestore/mondo-restore.c:2587
+msgid "reported errors"
+msgstr "erreurs"
+
+#: mondo/mondorestore/mondo-restore.c:2589
+#: mondo/mondorestore/mondo-restore.c:2591
+msgid "succeeded"
+msgstr "succès"
+
+#: mondo/mondorestore/mondo-restore.c:2594
+#, c-format
+msgid " (%d attempts) - review logs"
+msgstr " (%d essais) - regardez les logs"
+
+#: mondo/mondorestore/mondo-restore.c:2716
+#, c-format
+msgid "Restoring big file %ld (%lld K)"
+msgstr "Restauration du gros fichier %ld (%lld K)"
+
+#: mondo/mondorestore/mondo-restore.c:2838
+#, c-format
+msgid "Restoring from media #%d"
+msgstr "Restauration depuis le media #%d"
+
+#: mondo/mondorestore/mondo-restore.c:2877
+#, c-format
+msgid "Restoring from fileset #%ld (name=%s, size=%ld K)"
+msgstr "Restauration depuis l'ensemble #%ld (nom=%s, size=%ld K)"
+
+#: mondo/mondorestore/mondo-restore.c:2886
+#, c-format
+msgid "Fileset %ld - errors occurred"
+msgstr "Fileset %ld - erreurs survenues"
+
+#: mondo/mondorestore/mondo-restore.c:2963
+msgid "Press ALT-<left cursor> twice to play Petris :-) "
+msgstr " "
+
+#: mondo/mondorestore/mondo-restore.c:2966
+msgid "Preparing to read your archives"
+msgstr "Initialisation de la lecture de vos archives"
+
+#: mondo/mondorestore/mondo-restore.c:2970
+msgid "Restoring OS and data from streaming media"
+msgstr "Restauration de l'OS et des données depuis le media"
+
+#: mondo/mondorestore/mondo-restore.c:2987
+msgid "Restoring OS and data from CD       "
+msgstr "Restauration de l'OS et des données depuis le CD"
+
+#: mondo/mondorestore/mondo-restore.c:2994
+msgid "Errors occurred while data was being restored."
+msgstr "Erreurs survenues pendant la restauration de données"
+
+#: mondo/mondorestore/mondo-restore.c:3105
+msgid "Error(s) occurred while processing filelist and wildcard"
+msgstr ""
+"Erreurs survenues pendant le traitement des listes de fichiers et wildcard"
+
+#: mondo/mondorestore/mondo-restore.c:3351
+msgid "Reassembling /dev/hda1"
+msgstr "Re-assemblage /dev/hda1"
+
+#: mondo/mondorestore/mondo-restore.c:3352
+msgid "Shark is a bit of a silly person."
+msgstr "Re-assemblage /dev/hda1"
+
+#: mondo/mondorestore/mondo-restore.c:3429
+#: mondo/mondorestore/mondo-restore.c:3555
+msgid "Failed to write Master Boot Record"
+msgstr "Impossible de re-écrire le MBR"
+
+#: mondo/mondorestore/mondo-restore.c:3440
+msgid "Live mode doesn't support command-line parameters yet."
+msgstr "Pas de paramètres a la ligne de commande en live mode"
+
+#: mondo/mondorestore/mondo-restore.c:3472
+msgid "Uh, that hasn't been implemented yet."
+msgstr "option non implémentée."
+
+#: mondo/mondorestore/mondo-restore.c:3561
+msgid "Invalid paremeters"
+msgstr "Paramètres invalides"
+
+#: mondo/mondorestore/mondo-restore.c:3573
+msgid "See /tmp/changed.files for list of files that have changed."
+msgstr ""
+"la liste des fichiers modifiés est disponible dans /tmp/changed.files ."
+
+#: mondo/mondorestore/mondo-restore.c:3577
+msgid "Run complete. Errors were reported. Please review the logfile."
+msgstr "Terminé avec des erreurs. Regardez les logs."
+
+#: mondo/mondorestore/mondo-restore.c:3582
+msgid "Run complete. Please remove floppy/CD/media and reboot."
+msgstr "Terminé. Enlevez le media et rebootez."
+
+#: mondo/mondorestore/mondo-restore.c:3603
+msgid "Run complete. Please remove media and reboot."
+msgstr "Terminé. Enlevez le media et rebootez."
+
+#: mondo/mondorestore/mondo-restore.c:3613
+msgid "Unable to re-mount partitions for post-nuke stuff"
+msgstr "Impossible de remonter les partitions pour les post-traitements"
+
+#: mondo/mondorestore/mondo-restore.c:3646
+msgid "Restore log copied to /tmp/mondo-restore.log on your hard disk"
+msgstr "Journal de restauration : /tmp/mondo-restore.log"
+
+#: mondo/mondorestore/mondo-restore.c:3648
+#, c-format
+msgid ""
+"Mondo-restore is exiting (retval=%d)                                      "
+msgstr ""
+"Sortie de mondo-restore  (retval=%d)                                      "
+
+#: mondo/mondorestore/mondo-rstr-newt.c:158
+msgid ""
+"   Add one of the following unallocated RAID partitions to this RAID device."
+msgstr "Ajouter une des partitions RAID suivantes à ce périphérique RAID."
+
+#: mondo/mondorestore/mondo-rstr-newt.c:159
+#: mondo/mondorestore/mondo-rstr-newt.c:1794
+#: mondo/mondorestore/mondo-rstr-newt.c:2040
+#: mondo/mondorestore/mondo-rstr-newt.c:2840
+msgid "Device"
+msgstr "Périph"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:168
+msgid "Unallocated RAID partitions"
+msgstr "partitions RAID non allouées"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:260
+msgid "Add entry"
+msgstr "Ajout entrée"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:261
+msgid "Device:    "
+msgstr "Périph.:   "
+
+#: mondo/mondorestore/mondo-rstr-newt.c:262
+#: mondo/mondorestore/mondo-rstr-newt.c:1272
+msgid "Mountpoint:"
+msgstr "Montage:   "
+
+#: mondo/mondorestore/mondo-rstr-newt.c:263
+#: mondo/mondorestore/mondo-rstr-newt.c:1273
+msgid "Size (MB): "
+msgstr "Taille Mo: "
+
+#: mondo/mondorestore/mondo-rstr-newt.c:264
+#: mondo/mondorestore/mondo-rstr-newt.c:1274
+msgid "Format:    "
+msgstr "Format:    "
+
+#: mondo/mondorestore/mondo-rstr-newt.c:275
+msgid ""
+"To add an entry to the mountlist, please fill in these fields and then hit "
+"'OK'"
+msgstr "Remplissez ces champs et appuyez sur OK pour ajouter une entrée"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:294
+msgid "You left the device nearly blank!"
+msgstr "Le périphérique est presque vide!"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:299
+msgid "Can't add this - you've got one already!"
+msgstr "Ajout impossible - élément déjà présent!"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:348
+msgid "Enter the name of the variable to add"
+msgstr "Nom de la variable à ajouter"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:357
+msgid "No need to add that variable. It is already listed here."
+msgstr "Pas besoin d'ajouter cette variable, elle est déjà présente"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:557
+#, c-format
+msgid "Please enter the RAID level you want. (concat, striped, raid5)"
+msgstr "Entrez le niveau de RAID. (concat, striped, raid5)"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:610
+#, c-format
+msgid "Please enter the RAID level you want. %s"
+msgstr "Entrez le niveau de RAID. %s"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:620
+msgid "Specify RAID level"
+msgstr "Entrez le niveau de RAID"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:643
+msgid ""
+"You have chosen a RAID personality which is not registered with the kernel. "
+"Make another selection?"
+msgstr "Type de raid non disponible dans le kernel. Un autre choix ?"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:722
+#, c-format
+msgid "Delete %s from RAID device %s - are you sure?"
+msgstr "Effacer %s du RAID %s - vous êtes sur ?"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:770
+#, c-format
+msgid "Cannot delete %s: it is in use by RAID device %s"
+msgstr "Effacement impossible de %s: déjà utilisé par %s"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:776
+#: mondo/mondorestore/mondo-rstr-newt.c:898
+#, c-format
+msgid "Delete %s - are you sure?"
+msgstr "Effacer %s - vous etes sur?"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:831
+#, c-format
+msgid "Do you want me to delete %s's partitions, too?"
+msgstr "Effacer aussi la partition %s ?"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:902
+#, c-format
+msgid "%s must not be deleted. It would be bad."
+msgstr "%s ne doit pas etre effacé."
+
+#: mondo/mondorestore/mondo-rstr-newt.c:969
+#, c-format
+msgid ""
+"Too many lines. Displaying first %d entries only. Close a directory to see "
+"more."
+msgstr ""
+"Trop de lignes, affichage des %d premières. Fermez un répertoire pour en "
+"voir plus"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1107
+#: mondo/mondorestore/mondo-rstr-newt.c:1122
+msgid "Editing filelist"
+msgstr "Edition de la liste des fichiers"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1109
+msgid ""
+"   Please edit the filelist to your satisfaction, then click OK or Cancel."
+msgstr "Editez la liste des fichiers puis cliquez sur OK ou Annule"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1111
+msgid " Less "
+msgstr " Moins"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1112
+msgid " More "
+msgstr " Plus "
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1113
+msgid "Toggle"
+msgstr ""
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1114
+msgid "RegEx"
+msgstr ""
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1131
+msgid "Are you happy with your file selection?"
+msgstr "Sélection des fichiers OK ?"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1135
+msgid "I haven't implemented this yet..."
+msgstr "Fonction non implementée..."
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1271
+msgid "Device:"
+msgstr "Périph:"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1293
+msgid ""
+"       Edit this partition's mountpoint, size and format; then click 'OK'."
+msgstr ""
+"modifiez le point de montage, la taille et le format, puis cliquez sur OK."
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1309
+msgid "You can't change /dev/mdX to /dev/mdY."
+msgstr "Impossible de changer /dev/mdX en /dev/mdY."
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1314
+msgid "You can't change a regular device to an image."
+msgstr "Impossible de remplacer un périphérique par une image."
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1337
+msgid ""
+"You cannot edit the RAID settings until you have OK'd your change to the "
+"device node."
+msgstr ""
+"Impossible de modifier la configuration RAID avant d'avoir accepter les "
+"changements sur les périphériques"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1344
+#, c-format
+msgid ""
+"/etc/raidtab does not have an entry for %s; please delete it and add it again"
+msgstr "pas d'entrée %s dans /etc/raidtab. Effacez le et ajoutez le à nouveau"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1348
+msgid "edit_raidlist_entry - calling"
+msgstr ""
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1398
+msgid ""
+"You are renaming a RAID device as another RAID device. I don't like it but "
+"I'll allow it."
+msgstr "Vous renommez un periph RAID. Manoeuvre non approuvée."
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1508
+msgid "Started edit_raidlist_entry"
+msgstr ""
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1511
+#, c-format
+msgid "Plexes on %s"
+msgstr "Plexes sur %s"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1513
+msgid "   Please select a plex to edit"
+msgstr "    Choisissez un plex à éditer"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1519
+msgid "Plex"
+msgstr ""
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1519
+msgid "Level"
+msgstr "Niveau"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1519
+msgid "Stripe Size"
+msgstr "Taille de striping"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1519
+msgid "Subdisks"
+msgstr ""
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1523
+#: mondo/mondorestore/mondo-rstr-newt.c:1825
+#: mondo/mondorestore/mondo-rstr-newt.c:2034
+#: mondo/mondorestore/mondo-rstr-newt.c:2205
+#: mondo/mondorestore/mondo-rstr-newt.c:2849
+msgid " Add "
+msgstr "Ajout"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1524
+#: mondo/mondorestore/mondo-rstr-newt.c:1826
+#: mondo/mondorestore/mondo-rstr-newt.c:2035
+#: mondo/mondorestore/mondo-rstr-newt.c:2206
+msgid " Edit "
+msgstr "Modif."
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1525
+#: mondo/mondorestore/mondo-rstr-newt.c:1827
+#: mondo/mondorestore/mondo-rstr-newt.c:2036
+#: mondo/mondorestore/mondo-rstr-newt.c:2207
+#: mondo/mondorestore/mondo-rstr-newt.c:2850
+msgid "Delete"
+msgstr "Suppr."
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1585
+#, c-format
+msgid "Are you sure you want to delete %s.p%i?"
+msgstr "Confirmer la suppression de %s.p%i?"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1588
+msgid "Deleting RAID plex"
+msgstr "Effacement du plex"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1662
+#: mondo/mondorestore/mondo-rstr-newt.c:1965
+#, c-format
+msgid "Edit %s"
+msgstr "Edition %s"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1668
+#: mondo/mondorestore/mondo-rstr-newt.c:1698
+msgid "data"
+msgstr "données"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1671
+#: mondo/mondorestore/mondo-rstr-newt.c:1701
+msgid "spare"
+msgstr "libre"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1674
+#: mondo/mondorestore/mondo-rstr-newt.c:1704
+msgid "parity"
+msgstr "parité"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1677
+#: mondo/mondorestore/mondo-rstr-newt.c:1707
+msgid "failed"
+msgstr "echoué"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1687
+msgid "Additional settings and information"
+msgstr "Informations supplementaires"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1689
+msgid ""
+"  Edit the RAID device's settings to your heart's content, then hit OK/"
+"Cancel."
+msgstr "Modifiez la configuration RAID puis appuyez sur OK ou Annule"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1788
+msgid "   Please select a subdisk to edit, or edit this plex's parameters"
+msgstr "  Choisissez le disque à modifier ou les paramètres du plex"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1794
+msgid "Subdisk"
+msgstr ""
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1808
+#, c-format
+msgid "unknown (%i)"
+msgstr "inconnu (%i)"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1811
+msgid " RAID level "
+msgstr "Niveau RAID "
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1816
+msgid " Stripe size "
+msgstr " Taille de striping "
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1819
+msgid "Stripe size:"
+msgstr "Taille de striping:"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1913
+msgid "Stripe size"
+msgstr "Taille de striping"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1914
+msgid "Please enter the stripe size in kilobytes."
+msgstr "Entrez la taille de striping en Ko."
+
+#: mondo/mondorestore/mondo-rstr-newt.c:1966
+#, c-format
+msgid "Please set %s's value (currently '%s')"
+msgstr "Positionnez %s (actuellement '%s')"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2032
+msgid ""
+"   Please edit the mountlist to your satisfaction, then click OK or Cancel."
+msgstr "Modifiez la liste de montage puis cliquez sur OK ou Annule."
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2037
+msgid "Reload"
+msgstr "Recharger"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2040
+msgid "Mountpoint"
+msgstr "Point de montage"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2040
+msgid "Format"
+msgstr "Format"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2041
+msgid "Size (MB)"
+msgstr "Taille (MO)"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2049
+msgid "Editing mountlist"
+msgstr "Edition de la liste de montage"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2066
+msgid "Your mountlist might not work. Continue anyway?"
+msgstr ""
+"Votre liste de montage est peut-être invalide. On continue quand meme ?"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2070
+msgid ""
+"Are you sure you want to save your mountlist and continue? (No changes will "
+"be made to your partition table at this time.)"
+msgstr ""
+"Etes-vous sur de vouloir utiliser cette liste de montage et continuer ?"
+"(aucun changement ne sera affectue sur la table des partitions pour "
+"l'instant.)"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2075
+msgid "Reload original mountlist?"
+msgstr "Rechargement de la liste originale?"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2111
+msgid "Please add an entry. Then press ENTER to edit it."
+msgstr "Ajoutez une entrée puis appuyez sur ENTREE pour la modifier"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2121
+msgid "You pushed 'OK'. I shall now continue."
+msgstr "Vous avez appuyé sur OK, je continue."
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2200
+msgid ""
+"  Edit the additional fields to your heart's content, then click OK or "
+"Cancel."
+msgstr "modifiez les champs additionnels puis appuyez sur OK ou Annule"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2201
+msgid "Label                            Value"
+msgstr "Label                            Valeur"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2363
+msgid "ISO Mode - device"
+msgstr "Mode ISO - périphérique"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2363
+msgid "On what device do the ISO files live?"
+msgstr "Sur quels périphériques sont les fichiers ISO ?"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2366
+msgid "ISO Mode - format"
+msgstr "Mode ISO - format"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2367
+msgid "What is the disk format of the device? (Hit ENTER if you don't know.)"
+msgstr "Quel est le format de ce périphérique? (ENTREE si vous ne savez pas.)"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2370
+msgid "ISO Mode - path"
+msgstr "Mode ISO - chemin"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2371
+msgid "At what path on this device can the ISO files be found?"
+msgstr "Chemin des fichiers ISO sur ce périphérique?"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2469
+msgid ""
+"This is where I nuke your hard drives. Mhahahahaha. No-one can stop Mojo "
+"Jojo!"
+msgstr "Ecrasement des disques durs!"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2470
+msgid "Nuking"
+msgstr "Ecrasement"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2471
+msgid "Slowly"
+msgstr "lent"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2472
+msgid "Medium"
+msgstr "moyen"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2473
+msgid "Quickly"
+msgstr "rapide"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2839
+msgid ""
+"   Edit this RAID device's list of partitions. Choose OK or Cancel when done."
+msgstr "Modifiez la table des partitions puis appuyez sur OK ou Annule."
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2840
+msgid "Index"
+msgstr ""
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2841
+#, c-format
+msgid "%s contains..."
+msgstr "%s contient..."
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2875
+msgid "Making list of unallocated RAID slices"
+msgstr "Création des espaces RAID"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2881
+msgid "There are no unallocated partitions marked for RAID."
+msgstr "Pas de partition disponible avec une marque RAID"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2884
+msgid "Done. The user may add one or more of the above to RAID device"
+msgstr "Fait. Ajout d'un ou plusieurs périphérique RAID possible"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2887
+msgid "I have finished adding a disklist entry."
+msgstr "Entrée ajoutée dans la liste des disques."
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2896
+#, c-format
+msgid "%s's index is %d. What should it be?"
+msgstr "l'index de %s est %d. Que devrait-il être ?"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2900
+msgid "Set index"
+msgstr "Positionnement de l'index"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2957
+#, c-format
+msgid ""
+"Which mode - (A)utomatic, (I)nteractive, \n"
+"(C)ompare only, or (E)xit to shell?\n"
+"--> "
+msgstr ""
+"Quel mode ? (A)utomatique, (I)nteractif \n"
+"(C)omparaison, ou sorti(E)?\n"
+"--> "
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2964
+msgid ""
+"   Do you want to 'nuke' your system, restore interactively, or just compare?"
+msgstr ""
+"Voulez-vous restaurer votre systeme automatiquement, interactivement ou "
+"juste comparer ?"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2965
+msgid "How should I restore?"
+msgstr "Comment dois-je restaurer ?"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2966
+msgid "Automatically"
+msgstr "Automatiquement"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2967
+msgid "Interactively"
+msgstr "Interactivement"
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2968
+msgid "Compare only!"
+msgstr "  Comparaison  "
+
+#: mondo/mondorestore/mondo-rstr-newt.c:2969
+msgid "Exit to shell"
+msgstr "Retour au shell"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:243
+#, c-format
+msgid "Should I restore the image of %s ?"
+msgstr "Faut-il restaurer l'image de %s ?"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:357
+msgid "Failed to find config file/archives. Choose another source?"
+msgstr ""
+"Impossible de trouver le fichier de config ou les archives. Choix d'une "
+"autre source ?"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:461
+msgid "WARNING - isodir is already mounted"
+msgstr "ATTENTION - isodir est déjà monté"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:478
+msgid "Cannot mount the device where the ISO files are stored."
+msgstr "Impossible de monter le périphérique contenant les images ISO."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:482
+msgid "I have mounted the device where the ISO files are stored."
+msgstr "Les périphérique contenant les images ISO est monté."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:493
+msgid "Cannot find ISO images in the directory you specified."
+msgstr "Impossible de trouver les images ISO dans le répertoire indiqué."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:619
+msgid "Mounting devices         "
+msgstr "Montage de périphériques "
+
+#: mondo/mondorestore/mondo-rstr-tools.c:620
+msgid "Mounting devices"
+msgstr "Montage de périphériques"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:621
+msgid "I am now mounting all the drives."
+msgstr "Montage de tous les disques."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:622
+msgid "This should not take long."
+msgstr "Ca ne devrait pas être long."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:630
+#, c-format
+msgid "%s is already mounted"
+msgstr "%s est déjà monté"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:659
+msgid ""
+"fdisk's ioctl() call to refresh its copy of the partition table causes the "
+"kernel to"
+msgstr "les appels de fdisk pour rafraichir sa table des partitions a provoqué"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:661
+msgid ""
+"lock up the partition table. You might have to reboot and use Interactive "
+"Mode to"
+msgstr ""
+"le blocage de la table des partitions par le noyau. Vous devriez rebooter et "
+"utilise le mode interactif pour"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:663
+msgid ""
+"format and restore *without* partitioning first. Sorry for the inconvenience."
+msgstr "formater et restaurer *sans* partitionner."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:665
+#, c-format
+msgid "Could not mount devices %s- shall I abort?"
+msgstr "Impossible de monter %s - Abandon ?"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:670
+msgid "Continuing, although some devices failed to be mounted"
+msgstr "Poursuite du traitement sans avoir monter tous les périphériques"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:675
+msgid "Unable to mount some or all of your partitions."
+msgstr "Impossible de monter certaines partitions."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:678
+msgid "All partitions were mounted OK."
+msgstr "Toutes les partitions ont été montées correctement."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1342
+msgid "Do you want to retrieve the mountlist as well?"
+msgstr "Voulez-vous aussi récupérer la table de montage ?"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1380
+msgid "Pre-processing filelist"
+msgstr "Pré-traitement de la liste des fichiers"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1393
+#, c-format
+msgid "Restore which directory? --> "
+msgstr "Restauration de quel répertoire ? -->"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1526
+msgid "Unable to determine type of boot loader. Defaulting to LILO."
+msgstr "Impossible de déterminer le bootliader, on prendra lilo."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1532
+msgid "Your boot loader returned an error"
+msgstr "Le bootloader a retourné une erreur"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1534
+msgid "Your boot loader ran OK"
+msgstr "Votre bootloader s'est exécuté sans problème"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1615
+#: mondo/mondorestore/mondo-rstr-tools.c:1718
+#: mondo/mondorestore/mondo-rstr-tools.c:1793
+#: mondo/mondorestore/mondo-rstr-tools.c:1906
+msgid "Did you change the mountlist?"
+msgstr "Avez-vous changé la liste de montage ?"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1620
+msgid ""
+"Modifying fstab and grub.conf, and running "
+"GRUB...                             "
+msgstr "Modification de fstab et grub.conf; lancement de GRUB"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1623
+#: mondo/mondorestore/mondo-rstr-tools.c:1925
+msgid "Please confirm/enter the boot device. If in doubt, try /dev/hda"
+msgstr "Veuillez indiquez le périphérique de démarrage (par exemple /dev/hda)."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1629
+msgid ""
+"GRUB installation failed. Please install manually using 'grub-install' or "
+"similar command. You are now chroot()'ed to your restored system. Please "
+"type 'exit' when you are done."
+msgstr ""
+"L'installation de GRUB a échoué. Essayez de l'installer manuellementavec "
+"grub-install. Vous êtes maintenant chrooté dans votre système restauré, "
+"tapez 'exit' quand vous avez fini"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1633
+#: mondo/mondorestore/mondo-rstr-tools.c:1663
+msgid "Thank you."
+msgstr "Merci."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1637
+msgid "You will now edit fstab and grub.conf"
+msgstr "Vous allez maintenant éditer fstab et grub.conf"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1654
+msgid "Running GRUB...                                                 "
+msgstr "Lancement de grub...                                            "
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1659
+msgid ""
+"Because of bugs in GRUB's own installer, GRUB was not installed properly. "
+"Please install the boot loader manually now, using this chroot()'ed shell "
+"prompt. Type 'exit' when you have finished."
+msgstr ""
+"A cause de bugs de GRUB, son installation a échoué. Essayez de l'installer "
+"manuellement maintenant, avec ce shell chrooté dans votre système restauré."
+"Tapez 'exit' quand vous avez fini"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1669
+msgid "GRUB ran w/error(s). See /tmp/mondo-restore.log for more info."
+msgstr "GRUB a produit des erreurs. Regardez /tmp/mondo-restore.log."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1724
+msgid "Modifying fstab and elilo.conf...                             "
+msgstr "Modification de fstab et elilo.conf..."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1729
+msgid ""
+"You will now edit fstab and elilo.conf, to make sure they match your new "
+"mountlist."
+msgstr ""
+"Vous allez maintenant éditer fstab et elilo.conf pour être sur "
+"qu'ils correspondent à votre liste de montage."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1743
+#: mondo/mondorestore/mondo-rstr-tools.c:1817
+msgid "Edit them again?"
+msgstr "Editer encore ?"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1749
+msgid "elilo.conf and fstab were modified OK"
+msgstr "elilo.conf et fstab ont été modifié correctement"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1799
+msgid ""
+"Modifying fstab and lilo.conf, and running "
+"LILO...                             "
+msgstr "Modification de fstab et elilo.conf puis lancement de lilo"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1804
+msgid ""
+"You will now edit fstab and lilo.conf, to make sure they match your new "
+"mountlist."
+msgstr ""
+"Vous allez maintenant éditer fstab et lilo.conf pour être sur qu'ils "
+"correspondent à votre liste de montage."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1831
+msgid "LILO failed. Re-edit system files?"
+msgstr "Echec de lilo. Ré-édition des fichiers ?"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1837
+msgid "lilo.conf and fstab were modified OK"
+msgstr "lilo.conf et fstab ont été modifiés correctement"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1844
+msgid "Running LILO...                                                 "
+msgstr "Lancement de LILO...                                            "
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1856
+msgid "Failed to re-jig fstab and/or lilo. Edit/run manually, please."
+msgstr "Echec à la modification de fstab et/ou lilo. Faite le manuellement."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1910
+msgid "Modifying fstab and restoring MBR...                           "
+msgstr "Modification de la fstab et restauration du MBR...             "
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1913
+msgid "You will now edit fstab"
+msgstr "Vous allez maintenant éditer fstab"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1930
+msgid "Modifications failed. Re-try?"
+msgstr "Echec des modifications. On recommence ?"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1939
+msgid "Restoring MBR...                                               "
+msgstr "Restauration du MBR...                                         "
+
+#: mondo/mondorestore/mondo-rstr-tools.c:1945
+msgid ""
+"MBR+fstab processed w/error(s). See /tmp/mondo-restore.log for more info."
+msgstr "MBR+fstab modifiés avec des erreurs. Regardez /tmp/mondo-restore.log."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2098
+msgid ""
+"Have you contributed to the Mondo project financially or in some other way, "
+"yet?"
+msgstr "Avez-vous contribué au projet Mondo ?"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2101
+msgid "Thank you for supporting Mondo. It goes from strength to strength,"
+msgstr "Merci de votre soutien"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2102
+msgid "thanks to the support of users like you."
+msgstr "et de celui des utilisateurs comme vous."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2105
+msgid ""
+"Are you or your company willing to consider contributing to Mondo in some "
+"way?"
+msgstr "Votre société veut-elle contribuer à Mondo ?"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2108
+msgid ""
+"To support the project which has just performed a valuable service for you, "
+"please visit http://www.mondorescue.com; click on 'Download' and then "
+"'PayPal'."
+msgstr ""
+"Pour soutenir le projet, visitez http://www.mondorescue.com, cliquez sur "
+"Download puis sur Paypal."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2111
+msgid ""
+"Free Software, like freedom itself, must be supported or it will be lost."
+msgstr ""
+"Le logiciel libre, comme la liberté, doit être supporté pour ne pas etre perdu"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2113
+msgid ""
+"To your credit, you were honest: you said no, you wouldn't be contributing"
+msgstr " "
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2115
+msgid ""
+"to this project, ever. However, that makes you a freeloader. I bet you're"
+msgstr " "
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2117
+msgid "the sort of person who likes to sneak into movie theatres..."
+msgstr " "
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2119
+#, fuzzy
+msgid ""
+"If you ever change your mind, you may support this product by going to "
+"http://www.mondorescue.com and clicking on 'Download', followed by 'PayPal'."
+msgstr ""
+"Si vous changez d'avis, vous pouvez soutenir ce produit en allant sur http://"
+"www.mondorescue.com, cliquez sur Download puis sur Paypal."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2131
+msgid ""
+"Mondo has restored your system. Please remove the backup media and reboot."
+msgstr "Mondo a restauré votre système. Enlevez le media puis rebootez."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2134
+msgid ""
+"M0nd0 h45 r3570r3d j00r 5y573m. P13453 r3m0v3 7h3 b4ckup m3d14 4nd r3b007."
+msgstr "Mondo a restauré votre système. Enlevez le media puis rebootez."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2158
+msgid "Mondorestore is terminating in response to a signal from the OS"
+msgstr "Mondorestore s'arrête car il a recu un signal de l'OS"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2180
+msgid "CAUTION"
+msgstr "ATTENTION"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2181
+msgid "Be advised: I am about to ERASE your hard disk(s)!"
+msgstr "Je vais effacer vos disques durs!"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2182
+msgid "You may press Ctrl+Alt+Del to abort safely."
+msgstr "Appuyez sur CTRL-ALT-DEL pour interrompre proprement."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2186
+#, c-format
+msgid "You have %d seconds left to abort."
+msgstr "Vous avez %d secondes pour abandonner."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2242
+msgid "Unmounting devices      "
+msgstr "Démontage des périphériques"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2243
+msgid "Unmounting devices"
+msgstr "Démontage des périphériques"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2244
+msgid "Unmounting all devices that were mounted,"
+msgstr "Démontage de tous les périphériques, "
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2245
+msgid "in preparation for the post-restoration reboot."
+msgstr "avant de redémarrer le système."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2278
+#, c-format
+msgid "Unmounting device %s  "
+msgstr "Démontage de %s  "
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2297
+msgid "...not mounted anyway :-) OK"
+msgstr "...il n'était pas monté :-)"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2302
+msgid "...Failed"
+msgstr "...Echec"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2316
+msgid "Unable to unmount some of your partitions."
+msgstr "Impossible de démonter certaines partitions."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2318
+msgid "All partitions were unmounted OK."
+msgstr "Toutes les partitions ont été démontées."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2401
+msgid "I'm thinking..."
+msgstr "Travail en cours..."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2512
+msgid "Cannot find config info on tape/CD/floppy"
+msgstr "Impossible de trouver des infos de configuration sur CD/tape..."
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2593
+msgid "Oh dear. Unable to recover configuration file from boot disk"
+msgstr "Impossible de récupérer des information sur le disque de démarrage"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2597
+msgid "Recovered mondo-restore.cfg"
+msgstr "mondo-restore.cfg récupéré"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2599
+msgid "...but not mountlist.txt - a pity, really..."
+msgstr "... mais pas mountlist.txt"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2669
+#, c-format
+msgid "Sorry, cannot read %s"
+msgstr "Impossible de lire %s"
+
+#: mondo/mondorestore/mondo-rstr-tools.c:2675
+#, c-format
+msgid "Sync'ing /dev/md%d"
+msgstr "Synchro /dev/md%d"
+
+#~ msgid "No flaws detected in mountlist at this time. Hit 'OK' to proceed."
+#~ msgstr ""
+#~ "Pas de problème détectés dans la list de montage jusqu'à maintenant. "
+#~ "Appuyez sur 'OK'."
+
+#~ msgid "Wise move."
+#~ msgstr "Décision sage"
+
+#~ msgid "Mountlist analyzed. Result:"
+#~ msgstr "Liste de montage analysée. Resultat:"
+
+#~ msgid "Switch to Interactive Mode?"
+#~ msgstr "Passage en mode interactif?"
+
+#~ msgid "Restore files to where? "
+#~ msgstr "Restaurer les fichiers ou ?"
+
+#~ msgid "Restoring from"
+#~ msgstr "Restauration depuis"
+
+#~ msgid "Paused after set"
+#~ msgstr "Pause apres set"
+
+#~ msgid "Restoring from fileset"
+#~ msgstr "Restauration depuis le fileset"
+
+#~ msgid "Restoring big file"
+#~ msgstr "Restauration d'un gros fichier"
+
+#~ msgid "Restoring from media"
+#~ msgstr "Restauration depuis le media"

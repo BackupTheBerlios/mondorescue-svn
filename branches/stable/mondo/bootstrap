@@ -27,9 +27,8 @@ fi
 
 make maintainer-clean >/dev/null 2>&1
 libtoolize -f -c --automake
+gettextize -c -f --no-changelog < /dev/null
 aclocal -I m4
-automake m4/Makefile
-gettextize -c --no-changelog
 autoheader
 automake
 autoconf

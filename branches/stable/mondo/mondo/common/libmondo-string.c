@@ -64,9 +64,8 @@
 #include "my-stuff.h"
 #include "mondostructures.h"
 #include "libmondo-string.h"
-#include "lib-common-externs.h"
 #include "libmondo-files-EXT.h"
-#include "libmondo-gui-EXT.h"
+#include "newt-specific-EXT.h"
 #include "libmondo-tools-EXT.h"
 
 /*@unused@*/

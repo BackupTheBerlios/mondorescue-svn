@@ -6,7 +6,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Mondo 2.06\n"
+"Project-Id-Version: Mondo 2.0.7\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2006-04-24 18:04+0200\n"
 "PO-Revision-Date: 2006-01-26 12:30+0100\n"

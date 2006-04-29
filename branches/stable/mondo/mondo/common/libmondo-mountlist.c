@@ -52,12 +52,11 @@
 #include "my-stuff.h"
 #include "mondostructures.h"
 #include "libmondo-mountlist.h"
-#include "lib-common-externs.h"
 #include "libmondo-raid-EXT.h"
 #include "libmondo-devices-EXT.h"
 #include "libmondo-tools-EXT.h"
 #include "libmondo-string-EXT.h"
-#include "libmondo-gui-EXT.h"
+#include "newt-specific-EXT.h"
 
 /*@unused@*/
 //static char cvsid[] = "$Id$";

@@ -173,9 +173,8 @@
 
 #include "my-stuff.h"
 #include "mondostructures.h"
-#include "lib-common-externs.h"
 #include "libmondo-tools.h"
-#include "libmondo-gui-EXT.h"
+#include "newt-specific-EXT.h"
 #include "libmondo-files-EXT.h"
 #include "libmondo-fork-EXT.h"
 #include "libmondo-raid-EXT.h"

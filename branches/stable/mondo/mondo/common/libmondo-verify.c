@@ -102,14 +102,13 @@ Started late Dec, 2001
 #include "my-stuff.h"
 #include "mondostructures.h"
 #include "libmondo-verify.h"
-#include "libmondo-gui-EXT.h"
+#include "newt-specific-EXT.h"
 #include "libmondo-files-EXT.h"
 #include "libmondo-fork-EXT.h"
 #include "libmondo-stream-EXT.h"
 #include "libmondo-string-EXT.h"
 #include "libmondo-devices-EXT.h"
 #include "libmondo-tools-EXT.h"
-#include "lib-common-externs.h"
 
 /*@unused@*/
 //static char cvsid[] = "$Id$";

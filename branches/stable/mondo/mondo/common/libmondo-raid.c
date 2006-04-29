@@ -41,11 +41,10 @@
 
 #include "my-stuff.h"
 #include "mondostructures.h"
-#include "libmondo-gui-EXT.h"
+#include "newt-specific-EXT.h"
 #include "libmondo-files-EXT.h"
 #include "libmondo-tools-EXT.h"
 #include "libmondo-string-EXT.h"
-#include "lib-common-externs.h"
 #include "libmondo-raid.h"
 
 #ifdef __FreeBSD__

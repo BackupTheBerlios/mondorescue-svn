@@ -117,8 +117,7 @@ extern "C" {
 #include "libmondo-devices-EXT.h"
 #include "libmondo-tools-EXT.h"
 #include "libmondo-fork-EXT.h"
-#include "libmondo-gui-EXT.h"
-#include "lib-common-externs.h"
+#include "newt-specific-EXT.h"
 
 /*@unused@*/
 //static char cvsid[] = "$Id$";

@@ -377,11 +377,11 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		flag_set['w'] + flag_set['C'];
 	if (i == 0) {
 		retval++;
-		log_to_screen("You must specify the media type\n");
+		log_to_screen(_("You must specify the media type\n"));
 	}
 	if (i > 1) {
 		retval++;
-		log_to_screen("Please specify only one media type\n");
+		log_to_screen(_("Please specify only one media type\n"));
 	}
 	if (flag_set['K']) {
 		g_loglevel = atoi(flag_val['K']);
@@ -391,15 +391,15 @@ process_switches(struct s_bkpinfo *bkpinfo,
 	}
 	if (flag_set['L'] && flag_set['0']) {
 		retval++;
-		log_to_screen("You cannot have 'no compression' _and_ LZOP.\n");
+		log_to_screen(_("You cannot have 'no compression' _and_ LZOP.\n"));
 	}
 	bkpinfo->backup_data = flag_set['O'];
 	bkpinfo->verify_data = flag_set['V'];
 	if (flag_set['I'] && !bkpinfo->backup_data) {
-		log_to_screen("-I switch is ignored if just verifying");
+		log_to_screen(_("-I switch is ignored if just verifying"));
 	}
 	if (flag_set['E'] && !bkpinfo->backup_data) {
-		log_to_screen("-E switch is ignored if just verifying");
+		log_to_screen(_("-E switch is ignored if just verifying"));
 	}
 
 	if (!find_home_of_exe("afio")) {
@@ -427,7 +427,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		log_to_screen("Warning - you have opted for non-bootable backup");
 		if (flag_set['f'] || flag_set['l']) {
 			log_to_screen
-				("You don't need to specify bootloader or bootdevice");
+				(_("You don't need to specify bootloader or bootdevice"));
 		}
 	}
 	if (flag_set['t'] && flag_set['H']) {
@@ -472,7 +472,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		log_msg(1, "include_paths is now '%s'", bkpinfo->include_paths);
 		if (bkpinfo->include_paths[0] == '-') {
 			retval++;
-			log_to_screen("Please supply a sensible value with '-I'\n");
+			log_to_screen(_("Please supply a sensible value with '-I'\n"));
 		}
 	}
 
@@ -487,7 +487,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		if (flag_set['I']) {
 			retval++;
 			log_to_screen
-				("Please do not use -J in combination with -I. If you want to make a list of files to backup, that's fine, use -J <filename> but please don't muddy the waters by combining -J with -I. Thanks. :-)");
+				(_("Please do not use -J in combination with -I. If you want to make a list of files to backup, that's fine, use -J <filename> but please don't combine -J with -I. Thanks. :-)"));
 		}
 		bkpinfo->make_filelist = FALSE;
 		strcpy(bkpinfo->include_paths, flag_val['J']);
@@ -505,7 +505,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		}
 		if (g_kernel_version >= 2.6 && !strstr(flag_val['d'], "/dev/")) {
 			log_to_screen
-				("Linus says 2.6 has a broken ide-scsi module. Proceed at your own risk...");
+				(_("Linus says 2.6 has a broken ide-scsi module. Proceed at your own risk..."));
 		}
 
 		if (system("which cdrecord > /dev/null 2> /dev/null")
@@ -521,7 +521,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 			}
 			if (!flag_set['L']) {
 				log_to_screen
-					("You must use -L with -C. Therefore I am setting it for you.");
+					(_("You must use -L with -C. Therefore I am setting it for you."));
 				flag_set['L'] = 1;
 				flag_val['L'][0] = '\0';
 			}
@@ -551,7 +551,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		}
 		flag_set['d'] = TRUE;
 		sprintf(tmp,
-				"You didn't specify a tape streamer device. I'm assuming %s",
+				_("You didn't specify a tape streamer device. I'm assuming %s"),
 				flag_val['d']);
 		log_to_screen(tmp);
 		percent = 0;
@@ -566,7 +566,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		if (!flag_set['d']) {
 			if (!find_dvd_device(flag_val['d'], FALSE)) {
 				flag_set['d'] = TRUE;
-				log_to_screen("I guess DVD drive is at %s", flag_val['d']);
+				log_to_screen(_("I guess DVD drive is at %s", flag_val['d']));
 			}
 		}
 		if (!find_home_of_exe("growisofs")) {
@@ -585,7 +585,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 			sprintf(flag_val['s'], "%d", DEFAULT_DVD_DISK_SIZE);	// 4.7 salesman's GB = 4.482 real GB = 4582 MB
 			strcat(flag_val['s'], "m");
 			log_to_screen
-				("You did not specify a size (-s) for DVD. I'm guessing %s.",
+				(_("You did not specify a size (-s) for DVD. I'm guessing %s."),
 				 flag_val['s']);
 			flag_set['s'] = 1;
 		}
@@ -641,7 +641,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 				MAX_STR_LEN / 4);
 		if (strlen(bkpinfo->isodir) < 3) {
 			retval++;
-			log_to_screen("NFS share is not mounted. Please mount it.\n");
+			log_to_screen(_("NFS share is not mounted. Please mount it.\n"));
 		}
 		log_msg(3, "mount = %s", bkpinfo->nfs_mount);
 		log_msg(3, "isodir= %s", bkpinfo->isodir);
@@ -766,7 +766,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 			&& !does_file_exist(bkpinfo->kernel_path)) {
 			retval++;
 			sprintf(tmp,
-					"You specified kernel '%s', which does not exist\n",
+					_("You specified kernel '%s', which does not exist\n"),
 					bkpinfo->kernel_path);
 			log_to_screen(tmp);
 		}
@@ -798,7 +798,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		if (run_program_and_log_output(tmp, FALSE)) {
 			retval++;
 			sprintf(tmp,
-					"Are you sure directory '%s' exists in remote dir '%s'?\nIf so, do you have rights to write to it?\n",
+					_("Are you sure directory '%s' exists in remote dir '%s'?\nIf so, do you have rights to write to it?\n"),
 					bkpinfo->nfs_remote_dir, bkpinfo->nfs_mount);
 			log_to_screen(tmp);
 		}
@@ -808,15 +808,15 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		&& (flag_set['c'] || flag_set['w'] || flag_set['C'])) {
 		if (g_kernel_version >= 2.6) {
 			if (popup_and_get_string
-				("Device", "Please specify the device",
+				(_("Device", "Please specify the device"),
 				 bkpinfo->media_device, MAX_STR_LEN / 4)) {
 				retval++;
-				log_to_screen("User opted to cancel.");
+				log_to_screen(_("User opted to cancel."));
 			}
 		} else if (find_cdrw_device(bkpinfo->media_device)) {
 			retval++;
 			log_to_screen
-				("Tried and failed to find CD-R[W] drive automatically.\n");
+				(_("Tried and failed to find CD-R[W] drive automatically.\n"));
 		} else {
 			flag_set['d'] = TRUE;
 			strncpy(flag_val['d'], bkpinfo->media_device, MAX_STR_LEN / 4);
@@ -825,7 +825,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 
 	if (!flag_set['d'] && !flag_set['n'] && !flag_set['C']) {
 		retval++;
-		log_to_screen("Please specify the backup device/directory.\n");
+		log_to_screen(_("Please specify the backup device/directory.\n"));
 		fatal_error
 			("You didn't use -d to specify the backup device/directory.");
 	}
@@ -846,7 +846,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		if (run_program_and_log_output(tmp, 1)) {
 			retval++;
 			log_to_screen
-				("Please specify a tempdir which I can write to. :)");
+				(_("Please specify a tempdir which I can write to. :)"));
 			fatal_error("I cannot write to the tempdir you specified.");
 		}
 		sprintf(tmp, "ln -sf %s/.foo.dat %s/.bar.dat", flag_val['T'],
@@ -854,7 +854,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		if (run_program_and_log_output(tmp, 1)) {
 			retval++;
 			log_to_screen
-				("Please don't specify a SAMBA or VFAT or NFS tmpdir.");
+				(_("Please don't specify a SAMBA or VFAT or NFS tmpdir."));
 			fatal_error("I cannot write to the tempdir you specified.");
 		}
 	}
@@ -902,7 +902,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 	if (flag_set['Q']) {
 		i = which_boot_loader(tmp);
 		log_msg(3, "boot loader is %c, residing at %s", i, tmp);
-		printf("boot loader is %c, residing at %s\n", i, tmp);
+		printf(_("boot loader is %c, residing at %s\n"), i, tmp);
 		finish(0);
 	}
 	if (flag_set['L']) {
@@ -910,7 +910,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		if (run_program_and_log_output("which lzop", FALSE)) {
 			retval++;
 			log_to_screen
-				("Please install LZOP. You can't use '-L' until you do.\n");
+				(_("Please install LZOP. You can't use '-L' until you do.\n"));
 		}
 	}
 
@@ -920,7 +920,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		("egrep -i suse /etc/issue.net | egrep '9.0' | grep 64", TRUE)) {
 		bkpinfo->make_cd_use_lilo = TRUE;
 		log_to_screen
-			("Forcing you to use LILO. SuSE 9.0 (64-bit) has a broken mkfs.vfat binary.");
+			(_("Forcing you to use LILO. SuSE 9.0 (64-bit) has a broken mkfs.vfat binary."));
 	}
 	if (flag_set['o']) {
 		bkpinfo->make_cd_use_lilo = TRUE;
@@ -930,22 +930,22 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		if (!is_this_a_valid_disk_format("vfat")) {
 			bkpinfo->make_cd_use_lilo = TRUE;
 			log_to_screen
-				("Your kernel appears not to support vfat filesystems. I am therefore");
+				(_("Your kernel appears not to support vfat filesystems. I am therefore"));
 			log_to_screen
-				("using LILO instead of SYSLINUX as the CD/floppy's boot loader.");
+				(_("using LILO instead of SYSLINUX as the CD/floppy's boot loader."));
 		}
 		if (run_program_and_log_output("which mkfs.vfat", FALSE)) {
 			bkpinfo->make_cd_use_lilo = TRUE;
 #ifdef __IA32__
 			log_to_screen
-				("Your filesystem is missing 'mkfs.vfat', so I cannot use SYSLINUX as");
+				(_("Your filesystem is missing 'mkfs.vfat', so I cannot use SYSLINUX as"));
 			log_to_screen
-				("your boot loader. I shall therefore use LILO instead.");
+				(_("your boot loader. I shall therefore use LILO instead."));
 #endif
 #ifdef __IA64__
 			log_to_screen
-				("Your filesystem is missing 'mkfs.vfat', so I cannot prepare the EFI");
-			log_to_screen("environment correctly. Please install it.");
+				(_("Your filesystem is missing 'mkfs.vfat', so I cannot prepare the EFI"));
+			log_to_screen(_("environment correctly. Please install it."));
 			fatal_error("Aborting");
 #endif
 		}
@@ -963,7 +963,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 	i = flag_set['O'] + flag_set['V'];
 	if (i == 0) {
 		retval++;
-		log_to_screen("Specify backup (-O), verify (-V) or both (-OV).\n");
+		log_to_screen(_("Specify backup (-O), verify (-V) or both (-OV).\n"));
 	}
 
 /* and finally... */
@@ -1017,7 +1017,7 @@ retrieve_switches_from_command_line(int argc, char *argv[],
 		} else {
 			if (flag_set[optopt]) {
 				bad_switches = TRUE;
-				sprintf(tmp, "Switch -%c previously defined as %s\n", opt,
+				sprintf(tmp, _("Switch -%c previously defined as %s\n"), opt,
 						flag_val[i]);
 				log_to_screen(tmp);
 			} else {
@@ -1027,14 +1027,14 @@ retrieve_switches_from_command_line(int argc, char *argv[],
 					if (optarg[0] != '/' && optarg[len - 1] == '/') {
 						optarg[--len] = '\0';
 						log_to_screen
-							("Warning - param '%s' should not have trailing slash!",
+							(_("Warning - param '%s' should not have trailing slash!"),
 							 optarg);
 					}
 					if (opt == 'd') {
 						if (strchr(flag_val[opt], '/')
 							&& flag_val[opt][0] != '/') {
 							sprintf(tmp,
-									"-%c flag --- must be absolute path --- '%s' isn't absolute",
+									_("-%c flag --- must be absolute path --- '%s' isn't absolute"),
 									opt, flag_val[opt]);
 							log_to_screen(tmp);
 							bad_switches = TRUE;
@@ -1047,7 +1047,7 @@ retrieve_switches_from_command_line(int argc, char *argv[],
 	}
 	for (i = optind; i < argc; i++) {
 		bad_switches = TRUE;
-		sprintf(tmp, "Invalid arg -- %s\n", argv[i]);
+		sprintf(tmp, _("Invalid arg -- %s\n"), argv[i]);
 		log_to_screen(tmp);
 	}
 	return (bad_switches);
@@ -1080,40 +1080,40 @@ void terminate_daemon(int sig)
 	switch (sig) {
 	case SIGINT:
 		sprintf(tmp, "SIGINT");
-		strcpy(tmp2, "You interrupted me :-)");
+		strcpy(tmp2, _("You interrupted me :-)"));
 		break;
 	case SIGKILL:
 		sprintf(tmp, "SIGKILL");
 		strcpy(tmp2,
-			   "I seriously have no clue how this signal even got to me. Something's wrong with your system.");
+			   _("I seriously have no clue how this signal even got to me. Something's wrong with your system."));
 		break;
 	case SIGTERM:
 		sprintf(tmp, "SIGTERM");
-		strcpy(tmp2, "Got terminate signal");
+		strcpy(tmp2, _("Got terminate signal"));
 		break;
 	case SIGHUP:
 		sprintf(tmp, "SIGHUP");
-		strcpy(tmp2, "Hangup on line");
+		strcpy(tmp2, _("Hangup on line"));
 		break;
 	case SIGSEGV:
 		sprintf(tmp, "SIGSEGV");
 		strcpy(tmp2,
-			   "Internal programming error. Please send a backtrace as well as your log.");
+			   _("Internal programming error. Please send a backtrace as well as your log."));
 		break;
 	case SIGPIPE:
 		sprintf(tmp, "SIGPIPE");
-		strcpy(tmp2, "Pipe was broken");
+		strcpy(tmp2, _("Pipe was broken"));
 		break;
 	case SIGABRT:
 		sprintf(tmp, "SIGABRT");
 		sprintf(tmp2,
-				"Abort - probably failed assertion. I'm sleeping for a few seconds so you can read the message.");
+				_("Abort - probably failed assertion. I'm sleeping for a few seconds so you can read the message."));
 		break;
 	default:
-		sprintf(tmp, "(Unknown)");
+		sprintf(tmp, _("(Unknown)"));
 	}
 
-	strcat(tmp, " signal received from OS");
+	strcat(tmp, _(" signal received from OS"));
 	log_to_screen(tmp);
 	log_to_screen(tmp2);
 	if (sig == SIGABRT) {

@@ -105,10 +105,9 @@
 #include "mondostructures.h"
 #include "libmondo-fork.h"
 #include "libmondo-string-EXT.h"
-#include "libmondo-gui-EXT.h"
+#include "newt-specific-EXT.h"
 #include "libmondo-files-EXT.h"
 #include "libmondo-tools-EXT.h"
-#include "lib-common-externs.h"
 
 /*@unused@*/
 //static char cvsid[] = "$Id$";

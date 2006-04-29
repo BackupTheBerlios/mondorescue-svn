@@ -87,10 +87,8 @@
 #include "mondostructures.h"
 #include "libmondo-files.h"
 
-#include "lib-common-externs.h"
-
 #include "libmondo-tools-EXT.h"
-#include "libmondo-gui-EXT.h"
+#include "newt-specific-EXT.h"
 #include "libmondo-devices-EXT.h"
 #include "libmondo-fork-EXT.h"
 #include "libmondo-string-EXT.h"

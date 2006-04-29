@@ -566,7 +566,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		if (!flag_set['d']) {
 			if (!find_dvd_device(flag_val['d'], FALSE)) {
 				flag_set['d'] = TRUE;
-				log_to_screen(_("I guess DVD drive is at %s", flag_val['d']));
+				log_to_screen(_("I guess DVD drive is at %s"), flag_val['d']);
 			}
 		}
 		if (!find_home_of_exe("growisofs")) {
@@ -808,7 +808,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		&& (flag_set['c'] || flag_set['w'] || flag_set['C'])) {
 		if (g_kernel_version >= 2.6) {
 			if (popup_and_get_string
-				(_("Device", "Please specify the device"),
+				(_("Device"), _("Please specify the device"),
 				 bkpinfo->media_device, MAX_STR_LEN / 4)) {
 				retval++;
 				log_to_screen(_("User opted to cancel."));

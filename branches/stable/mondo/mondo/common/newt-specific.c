@@ -1252,7 +1252,7 @@ extern "C" {
 			sprintf(taskprogress + strlen(taskprogress),
 					_(" done; %2ld:%02ld to go"),
 					time_remaining / 60, time_remaining % 60);
-			printf(_("---progress-form---4--- %s"), taskprogress, "\r\n");
+			printf(_("---progress-form---4--- %s\r\n"), taskprogress);
 		} else {
 			center_string(blurb1, 54);
 			center_string(blurb2, 54);

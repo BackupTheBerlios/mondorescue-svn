@@ -131,7 +131,7 @@ PCMCIA_MODS="pcmcia_core ds yenta_socket"
 USB_MODS="usb-storage usb-ohci usb-uhci usbcore usb_storage hid uhci_hcd ehci_hcd uhci-hcd ehci-hcd usbkbd"
 CDROM_MODS="$TAPE_MODS $FLOPPY_MODS $IDE_MODS af_packet cdrom isocd isofs inflate_fs nls_iso8859-1 nls_cp437 sg sr_mod zlib_inflate $USB_MODS $PCMCIA_MODS"
 NET_MODS="sunrpc nfs nfs_acl lockd loop mii 3c59x e100 bcm5700 e1000 eepro100 ne2k-pci tg3 pcnet32 8139cp 8139too 8390 vmxnet"
-EXTRA_MODS="$CDROM_MODS vfat fat loop linear raid0 raid1 raid5 lvm-mod dm-mod jfs xfs xfs_support pagebuf reiserfs ext2 ext3 minix nfs nfs_acl nfsd lockd sunrpc jbd"
+EXTRA_MODS="$CDROM_MODS vfat fat loop md-mod linear raid0 raid1 xor raid5 lvm-mod dm-mod jfs xfs xfs_support pagebuf reiserfs ext2 ext3 minix nfs nfs_acl nfsd lockd sunrpc jbd"
 LOGFILE=/var/log/mindi.log
 
 BOOT_MEDIA_MESSAGE="\

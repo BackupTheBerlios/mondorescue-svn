@@ -66,15 +66,15 @@ fi
 MY_FSTAB=/etc/fstab
 FLOPPY_MODS="ide-floppy floppy"
 TAPE_MODS="ht st osst ide-tape ide_tape"
-SCSI_MODS="3c59x 3w-xxxx 53c7,8xx a100u2w a320raid aacraid advansys aha152x aha1542 aha1740 aic79xx aic79xx_mod aic7xxx aic7xxx_mod aic7xxx_old AM53C974 atp870u BusLogic cciss cpqfc dmx3191d dpt_i2o dtc eata eata_dma eata_pio fdomain gdth g_NCR5380 ide-scsi ieee1394 imm in2000 initio ips iscsi isp megaraid mptbase mptscsih NCR53c406a ncr53c8xx nsp32 pas16 pci2000 pci2220i pcmcia ppa psi240i qla1280 qlogicfas qlogicfc qlogicisp raw1394 scsi_debug scsi_mod sd_mod seagate sg sim710 sr_mod sym53c416 sym53c8xx sym53c8xx_2 t128 tmscsim u14-34f ultrastor wd7000 vmhgfs"
+SCSI_MODS="3w-xxxx 53c7,8xx a100u2w a320raid aacraid advansys aha152x aha1542 aha1740 aic79xx aic79xx_mod aic7xxx aic7xxx_mod aic7xxx_old AM53C974 atp870u BusLogic cciss cpqfc dmx3191d dpt_i2o dtc eata eata_dma eata_pio fdomain gdth g_NCR5380 ide-scsi ieee1394 imm in2000 initio ips iscsi isp megaraid mptbase mptscsih NCR53c406a ncr53c8xx nsp32 pas16 pci2000 pci2220i pcmcia ppa psi240i qla1280 qlogicfas qlogicfc qlogicisp raw1394 scsi_debug scsi_mod sd_mod seagate sg sim710 sr_mod sym53c416 sym53c8xx sym53c8xx_2 t128 tmscsim u14-34f ultrastor wd7000 vmhgfs"
 
 # ide-probe-mod
 IDE_MODS="ide ide-generic ide-detect ide-mod ide-disk ide-cd ide_cd ide-cs ide-core ide_core libata edd paride ata_piix libata via82cxxx generic"
 PCMCIA_MODS="pcmcia_core ds yenta_socket"
 USB_MODS="usb-storage usb-ohci usb-uhci usbcore usb_storage hid uhci_hcd ehci_hcd uhci-hcd ehci-hcd usbkbd"
 CDROM_MODS="$TAPE_MODS $FLOPPY_MODS $IDE_MODS af_packet cdrom isocd isofs inflate_fs nls_iso8859-1 nls_cp437 sg sr_mod zlib_inflate $USB_MODS $PCMCIA_MODS"
-NET_MODS="sunrpc nfs nfs_acl lockd loop mii e100 bcm5700 e1000 eepro100 tg3 pcnet32 vmxnet"
-EXTRA_MODS="$CDROM_MODS vfat fat loop linear raid0 raid1 raid5 lvm-mod dm-mod jfs xfs xfs_support pagebuf reiserfs ext2 ext3 minix nfs nfs_acl nfsd lockd sunrpc jbd"
+NET_MODS="sunrpc nfs nfs_acl lockd loop mii 3c59x e100 bcm5700 e1000 eepro100 ne2k-pci tg3 pcnet32 8139cp 8139too 8390 vmxnet"
+EXTRA_MODS="$CDROM_MODS vfat fat loop md-mod linear raid0 raid1 xor raid5 lvm-mod dm-mod jfs xfs xfs_support pagebuf reiserfs ext2 ext3 minix nfs nfs_acl nfsd lockd sunrpc jbd"
 LOGFILE=/var/log/mindi.log
 FDDEVICE=/dev/fd0             ; # 1.44MB floppy #0
 CACHE_LOC=/var/cache/mondo-archive
@@ -451,7 +451,7 @@ CreateOneDataDiskImage() {
 	mke2fs -N 12 -F $imagefile > /tmp/mke2fs.$$ 2>> /tmp/mke2fs.$$
 	[ "$?" -ne "0" ] && cat /tmp/mke2fs.$$
 	rm -f /tmp/mke2fs.$$
-	mount -t ext2 -o loop $imagefile $mountpoint || Die "Can't loopmount $mountpoint; does your kernel support loopfs? If not, please recompile your kernel. Your Linux distro is broken."
+	mount -t ext2 -o loop $imagefile $mountpoint || Die "Can't loopmount $imagefile to $mountpoint! The reason may be missing support for loopfs or ext2 (or both) in the running kernel."
 	mv $tarball $mountpoint/
 	if [ "$?" -ne "0" ] ; then
 	umount $mountpoint
@@ -1314,7 +1314,7 @@ absolute_partition old_partition_fmt
 	
 	if [ -d "/proc/lvm" ] || [ -d "/dev/mapper" ]; then
 	echo -en "\rAnalyzing LVM...\r"
-	all_partitions=`$MINDI_SBIN/analyze-my-lvm | fgrep ">>>" | cut -d' ' -f2-32`
+	all_partitions=`$MINDI_LIB/analyze-my-lvm | fgrep ">>>" | cut -d' ' -f2-32`
 	fi
 	all_partitions="$all_partitions `ListAllPartitions 2> /dev/null`"
 #    echo "all partitions = $all_partitions" > /dev/stderr
@@ -1329,25 +1329,58 @@ absolute_partition old_partition_fmt
 		[ "`echo "/dev/scd0 /dev/scd1 /dev/sr0 /dev/sr1 /dev/cdrom /dev/cdrom1" | fgrep "$c_p"`" ] && continue
 	[ "`echo "$c_p" | grep -x "/dev/cdroms.*"`" ] && continue
 	if [ -h "$c_p" ] && [ "`echo "$c_p" | fgrep "/dev/hd"`" = "" ] && [ "`echo "$c_p" | fgrep "/dev/sd"`" = "" ] && [ "`echo "$c_p" | fgrep "/dev/md"`" = "" ] ; then
-		    current_partition=`ResolveSoftlink $c_p`
+		current_partition=`ResolveSoftlink $c_p`
 		[ "`echo "$current_partition" | fgrep "/dev/mapper"`" != "" ] && current_partition="$c_p"
-		    [ "`echo "/dev/scd0 /dev/scd1 /dev/sr0 /dev/sr1 /dev/cdrom /dev/cdrom1" | fgrep "$current_partition"`" ] && continue
+		[ "`echo "/dev/scd0 /dev/scd1 /dev/sr0 /dev/sr1 /dev/cdrom /dev/cdrom1" | fgrep "$current_partition"`" ] && continue
 	else
 		current_partition="$c_p"
 	fi
 	[ "$c_p" = "none" ] && continue
-		absolute_partition=`ResolveSoftlink $c_p`
+	absolute_partition=`ResolveSoftlink $c_p`
 	partition_mountpt=`tr -s '\t' ' ' < $MY_FSTAB | grep -w "$current_partition" | grep -vx " *#.*" | $AWK '{print $2}' | head -n1`
+
+	# This part tries to retrieve the correct device from a LABEL line in /etc/fstab
+	# current_partition contains only first column of /etc/fstab
 	redhat_label=""
-	if [ "`echo "$current_partition" | fgrep -i "LABEL="`" != "" ] ; then
+	if [ "`echo "$current_partition" | /bin/grep -f -i "LABEL="`" != "" ] ; then
 		str_to_find_fmt_with=$current_partition
-		redhat_label=`echo "$current_partition" | cut -d'=' -f2`
-		actual_dev=`mount -l | fgrep " [$redhat_label]" | cut -d' ' -f1`
-#	    partition_mountpt=$redhat_label
-		current_partition=$actual_dev
+		redhat_label=`echo "$current_partition" | /bin/cut -d'=' -f2`
+		actual_dev=""
+
+		# 1st try : blkid, the good way
+		if [ -x "/sbin/blkid" ] ; then
+			actual_dev=`/sbin/blkid | grep "$current_partition" | /bin/cut -d':' -f1`
+		fi
+		# 2nd try, which works on a standard partition (ext2/3), but not on swap
+		if [ $actual_dev="" ] ; then
+			actual_dev=`/bin/mount -l | /bin/grep " [$redhat_label]" | /bin/cut -d' ' -f1`
+		fi
+		# 3rd try, with vol_id (which works with swap)
+		if [ $actual_dev="" -a -x "/sbin/vol_id" ] ; then
+				list_swaps=`cat /proc/swaps | /bin/grep "/dev/" | /bin/awk '{ print $1 }' `
+				for dev_swap in $list_swaps ; do
+					dev_exists=`/sbin/vol_id $dev_swap | /bin/grep -f "$redhat_label"`
+					if [ -n "$dev_exists" ] ; then
+						actual_dev=$dev_swap
+						break;
+					fi
+				done
+		fi
+		# 4th try : pre-formated LABEL. Format is : LABEL=SWAP-mydevice. e.g. : LABEL=SWAP-hda5
+		if [ $actual_dev="" -a  "`echo "$current_partition" | /bin/grep -f -i "LABEL=SWAP"`" != ""] ; then
+				actual_dev="/dev/`echo "$redhat_label" | /bin/cut -d '-' -f2`"
+		fi
+		# Check if one of all those tries has known success
+		if [  $actual_dev != "" ] ; then
+				current_partition=$actual_dev
+		else
+			Die "Your system uses a labelled swap partition, but you lack the tool to su
+pport it.\nPlease replace swap labels with their correct devices in /etc/fstab\n"
+		fi
 	else
 		str_to_find_fmt_with=$current_partition
 	fi
+
 	partition_format=`$AWK '$1 == "'"$str_to_find_fmt_with"'" {print $3}' $MY_FSTAB`
 	if [ -d "/proc/lvm" ] && [ "`lvdisplay $current_partition 2> /dev/null`" ] ; then
 		partition_size="lvm"
@@ -2216,8 +2249,8 @@ PrepareDataDiskImages() {
 	cp -f $TMP_ROOT/mountlist.txt $minidir_root/$noof_disks/tmp/mountlist.txt || Die "Cannot copy mountlist.txt from $TMP_ROOT to data disk"
 	cp -f $TMP_ROOT/mountlist.txt $CACHE_LOC
 	[ "`DidMondoCallMe`" ] && cp -f $minidir_root/$noof_disks/tmp/mountlist.txt $MONDO_TMP/.
-	[ -d "/proc/lvm" ] && $MINDI_SBIN/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
-	[ -d "/dev/mapper" ] && $MINDI_SBIN/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
+	[ -d "/proc/lvm" ] && $MINDI_LIB/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
+	[ -d "/dev/mapper" ] && $MINDI_LIB/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
 	cat $minidir_root/$noof_disks/tmp/mountlist.txt >> $LOGFILE
 	ZipMinidirsIntoTarballs $minidir_root $tardir $noof_disks
 	CreateDataDiskImagesFromTarballs $tardir $imagesdir $noof_disks
@@ -2534,7 +2567,7 @@ TryToFindKernelPath() {
 	else
 	   root="/"
 	fi
-	for fname in `find $root -maxdepth 2 -type f | fgrep lin | fgrep -v /proc/` ; do
+	for fname in `find $root -maxdepth 2 -type f | fgrep lin | egrep -v '^/proc/|^/net/'` ; do
 	[ ! -e "$fname" ] && continue
 		[ "$fname" = "/boot/vmlinuz.shipped" ] && [ -f "/boot/vmlinuz" ] && continue; # ignore SuSE's extra kernel
 	file $fname | grep -q gzip
@@ -2694,7 +2727,7 @@ TurnTgzIntoRdz() {
 	rm -f /tmp/mke2fs.$$
 	echo -en "..."
 	mkdir -p $mountpoint
-	mount -t ext2 -o loop $tempfile $mountpoint || Die "Cannot loopmount $tempfile to $mountpoint"
+	mount -t ext2 -o loop $tempfile $mountpoint || Die "Cannot loopmount $tempfile to $mountpoint! The reason may be missing support for loopfs or ext2 (or both) in the running kernel."
 	echo -en "..."
 	old_pwd=`pwd`
 	cd $mountpoint
@@ -3194,10 +3227,15 @@ if [ "$USE_LILO" = "yes" ] ; then
 		PrepareBootDiskImage_LILO $imagesdir $IA64_BOOT_SIZE $kernelpath $ramdisk_size || Die "Failed to create ia64 floppy disk image."
 	else
 		if ! PrepareBootDiskImage_LILO $imagesdir 1722 $kernelpath $ramdisk_size ; then
-		LogIt "Warning - failed to create 1.72MB boot image. Please reduce your kernel's size\n"
-		LogIt "if you want to make a 1.72MB floppy disk.\n"
+			LogIt "Warning - failed to create 1.72MB boot image. Please reduce your kernel's size\n"
+			LogIt "if you want to make a 1.72MB floppy disk.\n"
 		fi
-		PrepareBootDiskImage_LILO $imagesdir 2880 $kernelpath $ramdisk_size || Die "Failed to create 2.88MB floppy disk image."
+		if ! PrepareBootDiskImage_LILO $imagesdir 2880 $kernelpath $ramdisk_size ;  then
+			LogIt "Warning - failed to create 2.88MB floppy disk image.\n"
+			LogIt "Please reduce your kernel's size\n"
+			LogIt "if you want to make a 2.88MB floppy disk.\n"
+			PrepareBootDiskImage_LILO $imagesdir 5760 $kernelpath $ramdisk_size || Die "Failed to create 2.88MB floppy disk image."
+		fi
 	fi
 else
 	if ! PrepareBootDiskImage_SYSLINUX $imagesdir 1722 $kernelpath $ramdisk_size ; then

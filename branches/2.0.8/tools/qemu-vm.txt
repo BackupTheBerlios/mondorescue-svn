@@ -1,0 +1,80 @@
+Booting CD
+qemu-img create -f qcow image.qemu 3G
+qemu -cdrom /dev/hdc -m 256 -boot d image.qemu
+
+	neon newt-devel slang-devel autoconf automake subversion libtool gcc rpm-build wget vim-X11 gcc-c++ docbook-utils-pdf ImageMagick man docbook-dtd41-sgml groff lynx
+
+Changing CD during install:
+Ctrl-Alt-2
+eject cdrom
+(swap disk)
+change cdrom /dev/cdrom
+
+Boot single user pour change passwd root
+Clavier fr:
+
+loadkeys fr
+perl -pi -e 's/"us"/"fr"/' /etc/sysconfig/keyboard
+perl -pi -e 's/"us"/"fr"/' /etc/X11/XF86Config
+perl -pi -e 's/"us"/"fr"/' /etc/X11/xorg.conf
+
+Conf IP:
+	Ajout machine dans DNS interne (/usr/local/etc/named/etc/db.mondo.*)
+	Reload named
+
+Clé SSH:
+	Ajout clé ssh pour root:
+mkdir /root/.ssh
+chmod 700 /root/.ssh
+scp bruno@10.0.2.2:.ssh/id_dsa.pub /root/.ssh/authorized_keys
+chmod 600 /root/.ssh/authorized_keys
+
+Install packages manquant pour mondo:
+	afio buffer
+
+Créer compte bruno avec répertoires nécéssaires + env necessaire
+useradd bruno
+passwd bruno
+
+su - bruno
+mkdir -p mondo/tmp RPMS/BUILD RPMS/RPMS/i386 RPMS/RPMS/noarch RPMS/SOURCES RPMS/SPECS RPMS/SRPMS RPMS/tmp SRPMS tmp
+cat > ~bruno/.rpmmacros << EOF
+%_topdir    /home/bruno/RPMS
+%_tmppath   %{_topdir}/tmp
+%packager   Bruno Cornec <bruno@HyPer-Linux.org>
+EOF
+cat > ~bruno/.rpmrc << EOF
+buildarchtranslate: i386: i386
+buildarchtranslate: i486: i386
+buildarchtranslate: i586: i386
+buildarchtranslate: i686: i386
+EOF
+mkdir ~/.ssh
+chmod 700 ~/.ssh
+scp -p victoria2.home.musique-ancienne.org:.ssh/id'*' ~/.ssh
+cp ~/.ssh/id_dsa.pub ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+
+cat >> ~/.ssh/known_hosts << EOF
+shell.berlios.de,195.37.77.140 ssh-dss AAAAB3NzaC1kc3MAAACBAKawwrOuxejvOTWc6zFKEs2KKzVDXchPICt0p5A6LuIeIX+Uw9QMM5hji7txwuNt+ErPX/Z9xd1OBKAsormCMe6BZaxi0KMyFHPTnFTJpy168ztBD+782fQwlvop9nNRWkKoY1BGqQvKX50Zj+mQ39VP+RgJsyDMl+sKA3OqtGcVAAAAFQCBx79R1fUfJgOAVKxrCnvCu2vQRQAAAIBq5Li0/Fdf0yL/fSv6q8OZLCUgjMk6agnNbMxSK35Vctx0E4KXQbIJTmpwZIgYdZm+S2LYe0EgEYcWyBgcll1kK5Rti2e71sVuSoRNCo+rD8bsBcIETENtHZYuAeAWBlwrvT5LReGRpJ1YMNQpXXq4mQFbmhuhgJw9nKyt5xv6bgAAAIAro+dquEuGy32MOLcSqHtJm/FA+3FRG0RbLS8VDtxVC3ISe3SlSM0BecIHZ6aP5dL5W2b39/U2clls05X23SRK68DSqxoR/o9YshKdshDkPGEDfqyucOCn5FwUsZkd/WkZIuBZdLHLUtXUK6h85+08t5gmaL8eoXoOvHpsuCnNdA==
+svn.berlios.de,195.37.77.137 ssh-dss AAAAB3NzaC1kc3MAAACBAKouB77l1f4FgdP6DjLOgq5RKuGYm3zMJlM4WHcKzWnPuErZW4Omxk1CO0JojDNj/bjxz/95blWbdonEcAo0v71GcZbECFDsJdgVbZM+yxLHKOF4S5uHkiJ+LMawFcRoCGAochowoP9jUfLVAzyT1q3dbvmL43YO3FDvD+mCKTbZAAAAFQCWs/2nOqvitE/CyOCa81sadnzsPQAAAIBrgWRs2VN6jAtX1eUxPwtkJWX886DkiBwdEgtUwDW8RJJCFU6+zjNwFZ8VcjeA7OCFKmZqoD8ABojMMtB53VoXXRzp5PtWgJEMpCLOhHbAA6nLR+Zu9zV8rFHsrjvR17ZgmA8q1dZRqqvZSyzsoP4KdW7f9nD2SjFEVhjHfIsQmwAAAIEAoDlEoGO/lc8XkvNW7G8/rybzETG0cepONVKThYufP5Z2FdGj9a1TYc2Gaw2DygM20Ohwj1RW8aeRE/jYbEm4unM6IFYeLvCbDeeCCHCiCJmw/Pj2ityB5uPTat4Yn28FCd4eP5LyQq2EHz6bPA0LzpNJKwto4naIMsDpET1GNH0=
+EOF
+cat >> ~/.bash_profile << EOF
+export SVN_SSH="ssh -l bcornec"
+export SVN_M=svn+ssh://bcornec@svn.berlios.de/svnroot/repos/mondorescue/
+export SVN_EDITOR=vim
+EOF
+source ~/.bash_profile
+
+rebuild paquets necessaires mondo:
+wget ftp://ftp.mondorescue.org/src/afio-2.4.7-1.src.rpm 
+wget ftp://ftp.mondorescue.org/src/buffer-1.19-1.src.rpm
+rpm -ivh afio-2.4.7-1.src.rpm buffer-1.19-1.src.rpm
+rpmbuild -ba RPMS/SPECS/afio.spec
+rpmbuild -ba RPMS/SPECS/buffer.spec
+chmod 644 RPMS/RPMS/i386/*
+scp -p RPMS/RPMS/i386/afio-[0-9]* RPMS/RPMS/i386/buffer-[0-9]* ftp.mondorescue.org:/mondo/ftp/rhel/3/
+
+
+root:
+rpm -ivh ~bruno/RPMS/RPMS/i386/afio-[0-9]* ~bruno/RPMS/RPMS/i386/buffer-[0-9]*

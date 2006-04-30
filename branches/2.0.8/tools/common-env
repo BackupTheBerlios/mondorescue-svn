@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+# Creates common environment from SVN repository
+#
+# $Id$
+#
+
+# Adapt to your needs
+export BASE=${HOME}/mondo
+
+# Should not be modified below
+dname=`dirname $0`
+export VER="branches/`cat $dname/../mondo/VERSION`"
+export TMP=${BASE}/tmp
+mkdir -p ${TMP}
+
+export MINDI_VER=`cat ${BASE}/svn/${VER}/mindi/VERSION`
+export MONDO_VER=`cat ${BASE}/svn/${VER}/mondo/VERSION`
+
+# To be safe for SVN commands
+cd $TOOLHOME/..
+export REVISION=`$TOOLHOME/mksvnversion`

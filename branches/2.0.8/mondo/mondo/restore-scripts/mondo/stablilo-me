@@ -1,0 +1,175 @@
+#!/bin/sh
+#
+#
+# 2003/04/09
+# - changed new_* paths from /tmp to /mnt/RESTORING/etc
+#
+#
+# created in mid-2002?
+######################################################################
+
+
+
+QuitIfNotFound() {
+    if [ ! -f "$1" ] ; then
+	LogIt "(stablilo-me) Where's $1? I cannot continue." 1
+	exit 1
+    fi
+}
+
+
+
+
+FindLiloDir() {
+    list=`find / | grep -name lilo.conf`
+}
+
+
+
+LocateOldFstab() {
+    old_fstab=""
+    old_liloconf=""
+    if [ -f "/mnt/RESTORING/etc/fstab" ] ; then
+        LogIt "No need for fstab search." 2
+#        fstab_list=/mnt/RESTORING/etc/fstab
+	old_fstab=/mnt/RESTORING/etc/fstab
+	old_liloconf=/mnt/RESTORING/etc/lilo.conf
+	return 0
+    elif [ -f "/mnt/cdrom/archives/CUCKOO" ] ; then
+        LogIt "Because I'm cuckoo, I'll stop searching." 2
+        return 1
+    else
+        LogIt "Looking for fstab. Please wait." 2
+        fstab_list=`find /mnt/RESTORING -name fstab 2> /dev/null`
+    fi
+    where_they_live=""
+    for curr_fstab in $fstab_list ; do
+	curr_dir=`echo $curr_fstab | gawk '{i=index($0,"/fstab");print substr($0,0,i-1);}'`
+	resA=$?
+	curr_inetd=`find $curr_dir -name inetd.conf | grep -v "linuxconf"`
+	resB=$?
+	if [ "$resA" -eq "0" ] ; then
+	    if [ "$where_they_live" != "" ] ; then
+		LogIt "Two directories found! One is $where_they_live, the other $curr_dir" 1
+		LogIt "I don't know which to choose. I'll abort the search." 1
+		return 1
+	    fi
+	    where_they_live=$curr_dir
+	fi
+    done
+    if [ "$where_they_live" = "" ] ; then
+	LogIt "Cannot find any folder which holds fstab _and_ inetd.conf" 1
+	return 1
+    fi
+    old_liloconf=$where_they_live/lilo.conf
+    old_fstab=$where_they_live/fstab
+    LogIt "LILO and fstab found." 2
+    return 0
+}
+
+
+
+MakeBackups() {
+    LogIt "Backing up original files before modifying them..." 2
+    for i in $old_liloconf $old_fstab ; do
+	LogIt "Backing up $i"
+        [ -f "$i" ] && cp $i $i.prehack -f
+    done
+}
+
+
+RestoreBackups() {
+    LogIt "Restoring original versions of modified files..." 2
+    cp -f $old_liloconf /tmp/lilo.conf.ugly
+    cp -f $old_fstab /tmp/fstab.ugly
+    for i in $old_liloconf $old_fstab ; do
+	LogIt "Restoring $i"
+	[ -f "$i.prehack" ] && cp $i.prehack $i -f
+    done
+}
+
+
+WhatIsFirstDriveCalled() {
+    cut -d' ' -f1 /tmp/mountlist.txt \
+| sed s/[0-9]// | sed s/[0-9]// \
+| sort -u | head -n 1
+}
+
+
+# --------------------------------- main -------------------------------
+
+LogIt "stablilo-me --- starting"
+LocateOldFstab
+old_mountlist=/tmp/mountlist.original
+new_mountlist=/tmp/mountlist.txt
+QuitIfNotFound $old_mountlist
+QuitIfNotFound $new_mountlist
+QuitIfNotFound $old_fstab
+QuitIfNotFound $old_liloconf
+LogIt "OK so far: I've found all the files I need." 2
+
+MakeBackups
+
+new_fstab=/mnt/RESTORING/etc/fstab.NEW
+[ ! -e "$new_fstab" ] && new_fstab=/mnt/RESTORING/etc/fstab
+new_liloconf=/mnt/RESTORING/etc/lilo.conf.NEW
+[ ! -e "$new_liloconf" ] && new_liloconf=/mnt/RESTORING/etc/lilo.conf
+
+LogIt "Modifying fstab..." 2
+outval=0
+hack-fstab $old_mountlist $old_fstab $new_mountlist $new_fstab
+res=$?
+if [ "$res" -ne "0" ] ; then
+    echo "Warning - hack-fstab failed"
+    outval=$(($outval+$res))
+fi
+   
+LogIt "Modifying lilo.conf. Please wait..." 2
+hack-lilo $old_mountlist $old_fstab $old_liloconf $new_mountlist $new_fstab $new_liloconf
+res=$?
+outval=$(($outval+$res))
+if [ "$outval" -ne "0" ] ; then
+    LogIt "Fstab and/or lilo modifications failed" 3
+#    RestoreBackups
+else
+    LogIt "Modifications succeeded." 2
+    LogIt "Copying over $old_fstab" 2
+    cp -f $new_fstab $old_fstab
+    outval=$(($outval+$?))
+    LogIt "Copying over $old_liloconf" 2
+    cp -f $new_liloconf $old_liloconf
+    outval=$(($outval+$?))
+    if [ "$outval" -ne "0" ] ; then
+	LogIt "Modifications (copying) failed. Restoring from backups." 3
+	RestoreBackups
+    else
+	LogIt "Fstab and lilo files modified ok." 2
+    fi
+    cd $where_they_live
+    cd ..
+    LogIt "Running lilo from `pwd`" 2
+    cd /mnt/RESTORING
+    lilo -r `pwd` 2> /tmp/lilo.log.mondo
+    if [ "$?" -ne "0" ] ; then
+	lilo -L -r `pwd` 2> /tmp/lilo.log.mondo
+    fi
+    if [ "$?" -ne "0" ] ; then
+	LogIt "LILO failed." 3
+	cat /tmp/lilo.log.mondo
+        outval=$(($outval+1))
+    else
+        LogIt "LILO ran ok." 2
+    fi
+fi
+
+if [ "$outval" -ne "0" ] ; then
+    LogIt "Error(s) occurred during lilo/fstab processing." 3
+    LogIt "Restoring originals." 3
+    RestoreBackups
+else
+    LogIt "/etc/fstab and /etc/lilo.conf were modified ok. LILO ran ok." 3
+fi
+LogIt "stablilo-me --- leaving"
+exit $outval
+
+

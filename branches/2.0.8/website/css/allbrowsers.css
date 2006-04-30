@@ -1,0 +1,34 @@
+/**** Mondo Rescue website default screen Stylesheet ****/
+/** Standard browser CSS V0.2 **/
+/** Reused from http://www.forzen-bubble.org. Many thanks 
+    to you guys for your kind authorization **/
+
+  #main div.h2-1 {
+    background:url("/images/h2-1.png") top left no-repeat;
+  }
+  #main div.h2-2 {
+    background:url("/images/h2-2.png") top left no-repeat;
+  }
+  #main div.h2-3 {
+    background:url("/images/h2-3.png") top left no-repeat;
+  }
+  #main div.h2-4 {
+    background:url("/images/h2-4.png") top left no-repeat;
+  }
+  #main div.h2-5 {
+    background:url("/images/h2-5.png") top left no-repeat;
+  }
+  #main h2 {
+    width:100%;
+    display: block;
+    margin:3em 2em -1em 0px;
+    padding:7px 0 28px 0px ; /* 1st param = font v align 3rd param = image width / Need to be high enough so all bg image is displayed */ 
+    position:relative;
+    right: -15px;
+    background:url("/images/h2-right.png") top right no-repeat;
+
+    color:  #fff;
+    font-size: 12px; /* Font size in px because we write on a fixed image background */
+    font-weight: bold;
+    text-align: left;
+  }

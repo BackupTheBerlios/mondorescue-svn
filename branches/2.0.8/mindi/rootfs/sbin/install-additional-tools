@@ -1,0 +1,147 @@
+#!/bin/sh
+#
+# 05/04/2003
+# - added missing 'res=0' to line 34
+# - replaced /mnt/groovy-stuff with $GROOVY
+#
+# 07/17/2002
+# - delete dest files before moving src files there
+#
+# 07/11/2002
+# - move softlinks from /mnt/groovy-stuff to / afterward
+#
+# 03/21/2002
+# - added "PLEASE WAIT"	when untarring/softlinking
+#
+# 02/18/2002
+########################################################################
+
+
+Die() {
+    echo "Fatal error! $1" >> /dev/stderr
+    exit 1
+}
+
+
+
+# ------------ main -----------
+
+# if the file '/tmp/CDROM-LIVES-HERE' exists then we should use the CD
+
+LogIt "Starting install-additional-tools"
+mountdir=$GROOVY
+mkdir -p $mountdir
+diskno=1
+res=0
+if [ -e "/tmp/TAPEDEV-HAS-DATA-DISKS" ] ; then
+    LogIt "I am assuming the data disks' contents are already in $mountdir."
+else
+    while [ "$diskno" -lt "20" ] ; do
+	LogIt "PLEASE WAIT. Untarring and softlinking disk #$diskno" 2
+	untar-and-softlink $diskno $mountdir /
+	res=$(($res+$?))
+	[ -e "/LAST-DISK" ] && diskno=999
+	diskno=$(($diskno+1))
+	[ -e "/tmp/CDROM-LIVES-HERE" ] && [ ! -f "/mnt/cdrom/images/$diskno.tar.gz" ] && break
+    done
+fi
+rm -f /LAST-DISK
+
+echo -e -n "Recombining large files..."
+biggienumber=0
+while [ -e "$mountdir/slice-$biggienumber.name" ] ; do
+    stub=$mountdir/slice-$biggienumber
+    biggiefname=`cat $stub.name`
+    biggiefsize=`cat $stub.size`
+    rm -f $stub.name $stub.size
+#    echo -e -n "\rRecombining #$biggienumber ($biggiefname)        \r"
+    > /tmp/out.dat
+    sliceno=0
+    while [ "$sliceno" -le "999" ] ; do
+	slicefile=$stub.
+        [ "$sliceno" -lt "100" ] && slicefile="$slicefile"0
+	[ "$sliceno" -lt "10" ]  && slicefile="$slicefile"0
+	slicefile="$slicefile"$sliceno
+	[ ! -e "$slicefile" ] && break
+#	echo "biggienumber=$biggienumber slicefile=$slicefile" >> /tmp/mondo-restore.log
+	cat $slicefile >> /tmp/out.dat
+	rm -f $slicefile
+	sliceno=$(($sliceno+1))
+    done
+#    echo "$sliceno slices"
+
+    echo "$biggiefname ($biggiefsize KB) restored. $sliceno slices." >> /tmp/mondo-restore.log
+
+#    cat $stub.[0-9]* > /tmp/out.dat
+#    rm -f $stub.*               ; # .[0-9]* for the slices, plus .name & .size
+
+
+    mkdir -p $biggiefname
+    rmdir $biggiefname 2> /dev/null
+    chmod +x /tmp/out.dat
+    cp -f /tmp/out.dat $biggiefname
+    rm -f /tmp/out.dat
+    biggienumber=$(($biggienumber+1))
+    echo -e -n "."
+done
+echo -en "Done.                                                              \r"
+rm -f /slice*
+
+LogIt "Resolving softlinks"
+echo -en "Finalizing softlinks..."
+
+cd $mountdir
+for path in `find | grep -v /etc/fstab` ; do
+    if [ -d "$path" ] ; then
+	mkdir /$path 2> /dev/null
+    else
+# Patch from Andrew Bulhak
+        if [ -h "/$path" ] ; then
+            # echo "removing symlink /$path"
+            rm -f /$path
+        fi
+# end patch
+	mv -f $path /$path
+    fi
+done
+cp -f etc/fstab /tmp/fstab
+cd /
+
+
+# Was disabled in mid-March 2002 (?). Dunno why. Re-enabled July 11th, 2002.
+# BERLIOS: This doesn't work for symlink with new busybox in PXE mode
+#for path in /sbin /bin /usr/bin /usr/sbin /lib /usr/lib /lib/* /usr/lib/* ; do
+    #[ ! -e "$path" ] && mkdir -p "$path"
+    #for i in `ls $mountdir/$path 2> /dev/null` ; do
+	#rm -f $path/$i 2> /dev/null
+        #mv $mountdir/$path/$i $path 2> /dev/null
+    #done   
+#done
+
+cd $mountdir 
+tar cf - sbin bin usr/bin usr/sbin lib usr/lib | (cd / ; tar xf -)
+cd /
+
+
+for i in modprobe lsmod depmod rmmod ; do
+    [ -e "$mountdir/sbin/$i" ] && ln -sf $mountdir/sbin/$i /sbin/$i
+done
+
+sync;sync;sync
+
+echo "Done."
+
+for j in io.sys msdos.sys embleer.B.bz2 embleer.C.bz2 ; do
+    [ -e "$mountdir/$j" ] && ln -sf $mountdir/$j /$j
+done
+[ -e "$mountdir/etc/fstab" ] && ln -sf $mountdir/etc/fstab /tmp/fstab
+[ -e "$mountdir/etc/raidtab" ] && ln -sf $mountdir/etc/raidtab /tmp/raidtab
+
+which gawk 2> /dev/null > /dev/null
+[ "$?" -ne "0" ] && which awk 2> /dev/null > /dev/null && ln -sf `which awk` /usr/bin/gawk
+
+LogIt "Exiting install-additional-tools"
+exit 0
+
+# exit $res
+

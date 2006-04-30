@@ -1,0 +1,119 @@
+#!/bin/sh
+
+
+ListAllFdiskEntries() {
+    for i in hd sd ; do
+        for j in a b c d e f g h i j k l m n o p ; do
+            drive=/dev/$i$j
+            fdisk -l $drive | grep "/dev/hda" | grep -v "$drive: " | grep -v "Extended" | sed s/\*// | sed s/+//
+        done
+    done
+}
+
+
+GetPartitionString() {
+        case "$1" in
+	("1")
+		echo "vfat"
+	;;
+	("4")
+		echo "vfat"
+	;;
+	("6")
+		echo "vfat"
+	;;
+	("b")
+		echo "vfat"
+	;;
+	("c")
+		echo "vfat"
+	;;
+	("d")
+		echo "vfat"
+	;;
+	("e")
+		echo "vfat"
+	;;
+	("f")
+		echo "vfat"
+	;;
+	("82")
+		echo "swap"
+	;;
+	("83")
+		echo "auto" ; # xfs, jfs, ext2, ext3, reiserfs, ...
+	;;
+	esac
+}
+
+
+
+MakeFakeMountlist() {
+    local line dev size type mountpt
+    for line in `ListAllFdiskEntries | tr -s ' ' '|'` ; do
+        dev=`echo "$line" | cut -d'|' -f1`
+        size=`echo "$line" | cut -d'|' -f4`
+        type=`echo "$line" | cut -d'|' -f5`
+        type=`GetPartitionString $type`
+        if [ "$type" = "swap" ] ; then
+            mountpt=swap
+        else
+            mountpt=/cuckoo/`basename $dev`
+        fi
+        echo -e "$dev\t$mountpt\t$type\t$size"
+    done
+}
+
+
+
+
+
+
+
+MountEverything() {
+    local line dev mountpt format
+    for line in `MakeFakeMountlist | tr -s '\t' ' ' | tr -s ' ' '|'` ; do
+        dev=`echo "$line" | cut -d'|' -f1`
+        mountpt=`echo "$line" | cut -d'|' -f2`
+        format=`echo "$line" | cut -d'|' -f3`
+        if [ "$format" = "swap" ] ; then
+            swapon $dev
+        else
+            mkdir -p $mountpt
+            mount $dev -o ro -t $format $mountpt > /dev/null 2> /dev/null
+            [ "$?" -ne "0" ] && echo "Failed to mount $dev"
+        fi
+    done
+}
+
+
+
+
+
+
+UnmountEverything() {
+    local line dev mountpt format
+    for line in `MakeFakeMountlist | tr -s '\t' ' ' | tr -s ' ' '|'` ; do
+        dev=`echo "$line" | cut -d'|' -f1`
+        mountpt=`echo "$line" | cut -d'|' -f2`
+        format=`echo "$line" | cut -d'|' -f3`
+        if [ "$format" = "swap" ] ; then
+            swapoff $dev
+        else
+            umount $dev
+        fi
+    done
+}
+
+
+
+# ------------------------- main -------------------------
+
+
+
+MakeFakeMountlist > /tmp/mountlist.hacked
+MountEverything
+echo -en "Press ENTER." ; read line
+UnmountEverything
+exit 0
+

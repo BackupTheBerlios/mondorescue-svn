@@ -1,0 +1,106 @@
+#!/bin/bash
+#
+# $Id$
+#
+# Delivery of the Web site in a DocumentRoot
+#
+#
+# Please replace with your destination
+#
+
+
+LOCALDIR=/var/www/html/mondo
+LOCALDOC=/var/www/html/mondo-doc
+DESTUSER=apache
+MONDODIR=/mondo/www/html/mondo
+TESTDIR=/mondo/www/html/test
+
+force=0
+nodoc=0
+
+if [ "$1" = "-f" ]; then
+		force=1
+		optsvn=""
+		shift
+elif [ "$1" = "-nodoc" ]; then
+		nodoc=1
+		optsvn="--force"
+		shift
+else
+		optsvn="--force"
+fi
+
+/sbin/ifconfig | egrep -q '10\.3' 2>&1 > /dev/null
+if [ $? = 0 ]; then
+	DESTMACH=mondo.hpintelco.org
+else
+	DESTMACH=www1.mondorescue.org
+fi
+
+dname=`dirname $0`
+prem=`echo $dname |cut -c1`
+if [ ${prem} == "/" ]; then
+        export TOOLHOME=$dname
+else
+        export TOOLHOME=${PWD}/$dname
+fi
+
+. $TOOLHOME/common-env
+
+cd ${BASE}/svn
+
+if [ $force -eq 1 ]; then
+	echo "Purging $LOCALDIR"
+	rm -rf $LOCALDIR
+fi
+
+svn export $optsvn ${VER}/website $LOCALDIR
+
+if [ $force -eq 1 ]; then
+	echo "Purging $LOCALDOC"
+	rm -rf $LOCALDOC
+fi
+
+svn export $optsvn ${VER}/documentation $LOCALDOC
+
+#
+# Version handling
+#
+$TOOLHOME/expandver $LOCALDIR/top.shtml $LOCALDOC/mondorescue-howto.sgml $LOCALDOC/*.8
+
+if [ $nodoc -eq 0 ]; then
+	cd $LOCALDOC
+	make -f Makefile.howto
+	make -f Makefile.man
+	mv $LOCALDOC $LOCALDIR/docs
+	#
+	# Man pages corrections
+	#
+	perl -pi -e 's~/man8/~/docs/~g' $LOCALDIR/docs/*.8.html
+	perl -pi -e 's~<A HREF[=./A-z0-9"]*/man1/[^<]*>([A-z0-9]*)</A>~$1~g' $LOCALDIR/docs/*.8.html
+	perl -pi -e 's~/index.html~/index.shtml~' $LOCALDIR/docs/*.8.html 
+fi
+find $LOCALDIR -type d | xargs chmod 755
+find $LOCALDIR -type f | xargs chmod 644
+
+cd $LOCALDIR
+#
+# Some links for the Web site
+#
+ln -sf /var/www/html/mediawiki .
+ln -sf /var/www/html/admin .
+
+if [ _"$1" == _"" ]; then
+		exit 0
+else
+	if [ _"$1" == _"test" ]; then
+		DESTDIR=$TESTDIR
+	else
+		DESTDIR=$MONDODIR
+	fi
+	echo "Delivering to $DESTDIR on ${DESTMACH}"
+fi
+tar cfz /tmp/mondo-www.tgz .
+scp /tmp/mondo-www.tgz ${DESTUSER}@${DESTMACH}:/tmp
+rm -f /tmp/mondo-www.tgz
+ssh ${DESTUSER}@${DESTMACH} "rm -rf ${DESTDIR} ; mkdir ${DESTDIR} ; cd ${DESTDIR} ; tar xfz /tmp/mondo-www.tgz"

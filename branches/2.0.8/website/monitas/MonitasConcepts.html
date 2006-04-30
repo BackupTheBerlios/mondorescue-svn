@@ -1,0 +1,1505 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with LaTeX2HTML 99.2beta8 (1.43)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Concept paper for Monitas</TITLE>
+<META NAME="description" CONTENT="Concept paper for Monitas">
+<META NAME="keywords" CONTENT="MonitasConcepts">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="LaTeX2HTML v99.2beta8">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="MonitasConcepts.css">
+
+</HEAD>
+
+<BODY >
+
+<P>
+
+<P>
+
+<P>
+
+<P>
+<H1 ALIGN="CENTER">Concept paper for Monitas</H1>
+<P ALIGN="CENTER"><STRONG>from Stefan Hübner
+<BR>
+and the Monitas Team<A NAME="tex2html1"
+  HREF="#foot33"><SUP>1</SUP></A></STRONG></P>
+<P ALIGN="CENTER"><STRONG>$Revision: 1.3 $, 2002-08-17
+</STRONG></P>
+
+<H3>Abstract:</H3>
+<DIV>
+This is a proposal how to design Monitas before actually start the
+coding. Collecting the ideas here will enforce to think about the
+structure before it is realized in code that cannot be modified later.
+With a little bit of luck this allows us to enhance Monitas' functionality
+quite easy in the future. And maybe we get a good user manual as side
+effect for free. 
+
+<P>
+Revision 1.x of this <I>concept</I> paper is not describing the final
+version of the <I>software</I> that will be realized. It is loosely
+based on the existing alpha version&nbsp;0.1 of Monitas and shall be a
+step by step approach towards Monitas version&nbsp;0.99. If improvements
+to Monitas v0.x and this document will be in sync, we will have a
+good documentation of the internal system structure for Monitas&nbsp;v1.0
+(and then this will be called Revision 2.0 of this document). So in
+general the major revision number of the concept paper is 1 higher
+than of the software, the minor revision numbers are both increasing
+but there is no connection between the values.
+</DIV>
+<P>
+<BR>
+
+<H2><A NAME="SECTION00010000000000000000">
+Contents</A>
+</H2>
+<!--Table of Contents-->
+
+<UL>
+<LI><A NAME="tex2html60"
+  HREF="MonitasConcepts.html">Contents</A>
+<LI><A NAME="tex2html61"
+  HREF="MonitasConcepts.html#SECTION00020000000000000000">1 Basics</A>
+<LI><A NAME="tex2html62"
+  HREF="MonitasConcepts.html#SECTION00030000000000000000">2 Requirements for Monitas</A>
+<UL>
+<LI><A NAME="tex2html63"
+  HREF="MonitasConcepts.html#SECTION00031000000000000000">2.1 Start a backup from client</A>
+<LI><A NAME="tex2html64"
+  HREF="MonitasConcepts.html#SECTION00032000000000000000">2.2 Start a backup from the server</A>
+<LI><A NAME="tex2html65"
+  HREF="MonitasConcepts.html#SECTION00033000000000000000">2.3 Restore a backup from client</A>
+<LI><A NAME="tex2html66"
+  HREF="MonitasConcepts.html#SECTION00034000000000000000">2.4 Restore a backup from the server</A>
+<LI><A NAME="tex2html67"
+  HREF="MonitasConcepts.html#SECTION00035000000000000000">2.5 Compare backup from client</A>
+<LI><A NAME="tex2html68"
+  HREF="MonitasConcepts.html#SECTION00036000000000000000">2.6 Compare from the server</A>
+</UL>
+<LI><A NAME="tex2html69"
+  HREF="MonitasConcepts.html#SECTION00040000000000000000">3 System structure</A>
+<LI><A NAME="tex2html70"
+  HREF="MonitasConcepts.html#SECTION00050000000000000000">4 Message Flows</A>
+<UL>
+<LI><A NAME="tex2html71"
+  HREF="MonitasConcepts.html#SECTION00051000000000000000">4.1 Flows between Server and Client (<I>IFcs</I> and <I>IFsc</I>)</A>
+<LI><A NAME="tex2html72"
+  HREF="MonitasConcepts.html#SECTION00052000000000000000">4.2 Message Flows between Client and (Graphical)User-Interface (<I>IFcg</I>)</A>
+<LI><A NAME="tex2html73"
+  HREF="MonitasConcepts.html#SECTION00053000000000000000">4.3 Message Flows between Server and (Graphical)User-Interface (<I>IFsg</I>)</A>
+<LI><A NAME="tex2html74"
+  HREF="MonitasConcepts.html#SECTION00054000000000000000">4.4 Message Flows between Server and its Child (<I>IFss</I> and <I>IFsm</I>)</A>
+</UL>
+<LI><A NAME="tex2html75"
+  HREF="MonitasConcepts.html#SECTION00060000000000000000">5 Interfaces</A>
+<UL>
+<LI><A NAME="tex2html76"
+  HREF="MonitasConcepts.html#SECTION00061000000000000000">5.1 Interface <I>Im</I> to Mondo</A>
+<LI><A NAME="tex2html77"
+  HREF="MonitasConcepts.html#SECTION00062000000000000000">5.2 Interface <I>In</I> between Client and Server</A>
+<LI><A NAME="tex2html78"
+  HREF="MonitasConcepts.html#SECTION00063000000000000000">5.3 Interface <I>Ipc</I>, Client's pipe to the GUI</A>
+<LI><A NAME="tex2html79"
+  HREF="MonitasConcepts.html#SECTION00064000000000000000">5.4 Interface <I>Ips</I>, Server's pipe to the GUI</A>
+<LI><A NAME="tex2html80"
+  HREF="MonitasConcepts.html#SECTION00065000000000000000">5.5 Interface <I>Is</I>, IPC of server instances</A>
+</UL>
+<LI><A NAME="tex2html81"
+  HREF="MonitasConcepts.html#SECTION00070000000000000000">6 Commands at the GUI interfaces</A>
+<UL>
+<LI><A NAME="tex2html82"
+  HREF="MonitasConcepts.html#SECTION00071000000000000000">6.1 Message Structure</A>
+<LI><A NAME="tex2html83"
+  HREF="MonitasConcepts.html#SECTION00072000000000000000">6.2 Implementation Detail</A>
+<LI><A NAME="tex2html84"
+  HREF="MonitasConcepts.html#SECTION00073000000000000000">6.3 Defined Commands</A>
+</UL>
+<LI><A NAME="tex2html85"
+  HREF="MonitasConcepts.html#SECTION00080000000000000000">7 Open Issues</A>
+<UL>
+<LI><A NAME="tex2html86"
+  HREF="MonitasConcepts.html#SECTION00081000000000000000">7.1 Possible Extensions</A>
+</UL>
+<LI><A NAME="tex2html87"
+  HREF="MonitasConcepts.html#SECTION00090000000000000000">About this document ...</A>
+</UL>
+<!--End of Table of Contents-->
+
+<P>
+
+<H1><A NAME="SECTION00020000000000000000">
+1 Basics</A>
+</H1>
+
+<P>
+Monitas is an extension to mondo/mindi to deal with remote backups
+between TCP/IP connected PCs. Monitas consists of two logical parts:
+a <I>&#34;client&#34;</I> that resides on the PC where the
+files (to backup/restore) are and a <I>&#34;server&#34;</I>
+on another (or the same) PC where the backup is stored.
+
+<P>
+The backup may be written to/read from a CD, to a file on a hard-disk
+(or later to a revision controlled database).
+
+<P>
+Both together, server and client, will handle the backup and restore
+process in the background. Each is controlled via a pipe to send commands
+and to get status information back (error messages, progress information).
+Though it is possible to trigger the backup/restore process with these
+interfaces, they are mainly designed for graphical (or text based)
+front-ends which can dock there to control the process and interact
+with the user. These front-ends aren't described here, but the syntax
+and semantics of the interfaces.
+
+<P>
+We use a 1:<I>n</I> relation between the server and several clients
+on different PCs. That means there exists only one central server
+that serves all the clients out there.
+
+<P>
+Even if this document distinguishes between <I>server</I> and <I>client</I>
+and the different roles they play for the backup process, it is possible
+that both parts use the same executable as both parts have much code
+in common. Like <I>gzip</I>, which is compressing when executed as
+<TT>gzip</TT> and decompressing when executed as <TT>gunzip</TT>,
+Monitas will run as server when executed as <TT>monitas_server</TT>
+and will run as client when started as <TT>monitas_client</TT>.
+
+<P>
+
+<H1><A NAME="SECTION00030000000000000000"></A><A NAME="sec:Requirements"></A>
+<BR>
+2 Requirements for Monitas
+</H1>
+
+<P>
+This chapter contains the basic requirements for the client and the
+server part of Monitas. 
+
+<P>
+
+<H2><A NAME="SECTION00031000000000000000">
+2.1 Start a backup from client</A>
+</H2>
+
+<P>
+Necessary input:
+
+<P>
+
+<OL>
+<LI>files to backup
+</LI>
+<LI>type of the backup (CD, ISO-file, ...)
+</LI>
+<LI>name of the backup (if not CD)
+</LI>
+<LI>compression (method, client or server-side)
+</LI>
+</OL>
+
+<P>
+
+<H2><A NAME="SECTION00032000000000000000">
+2.2 Start a backup from the server</A>
+</H2>
+
+<P>
+Necessary input:
+
+<P>
+
+<OL>
+<LI>client to address (IP address or name)
+</LI>
+<LI>files to backup
+</LI>
+<LI>type of the backup (CD, ISO-file, ...)
+</LI>
+<LI>name of the backup (if not CD)
+</LI>
+<LI>compression (method, client or server-side)
+</LI>
+</OL>
+
+<P>
+
+<H2><A NAME="SECTION00033000000000000000">
+2.3 Restore a backup from client</A>
+</H2>
+
+<P>
+Necessary input:
+
+<P>
+
+<OL>
+<LI>files to restore
+</LI>
+<LI>name/location of the backup (CD, ISO-file, ...)
+</LI>
+</OL>
+
+<P>
+
+<H2><A NAME="SECTION00034000000000000000">
+2.4 Restore a backup from the server</A>
+</H2>
+
+<P>
+Necessary input: 
+
+<P>
+
+<OL>
+<LI>client to address (IP address or name)
+</LI>
+<LI>files to restore
+</LI>
+<LI>name/location of the backup (CD, ISO-file, ...)
+</LI>
+</OL>
+
+<P>
+
+<H2><A NAME="SECTION00035000000000000000">
+2.5 Compare backup from client</A>
+</H2>
+
+<P>
+There are 2 reasons for a compares
+
+<P>
+&nbsp;&nbsp;a) to guarantee the correct backup (``<I>verify</I>'')
+
+<P>
+&nbsp;&nbsp;b) to find modifications of files since the last backup (``<I>compare</I>'')
+
+<P>
+In case a) we must do a bit-compare between original files and their
+(decompressed) backup, in case b) it's sufficient to generate hash
+values of every original file and its backuped counterpart and compare
+the hashes (less network traffic).
+
+<P>
+To distinguish the different intentions, we call the comparison a)
+<I>Verify</I> as it's normally started directly after a backup, and
+call the case b) <I>Compare</I> as it is triggered to recognize modifications
+(perhaps to generate an incremental backup).
+
+<P>
+Necessary input: 
+
+<P>
+
+<OL>
+<LI>name of the backup 
+</LI>
+<LI>mode of compare [a) or b)] 
+</LI>
+<LI>files to compare [mode b) only; mode a) will always compare all
+files in the backup]
+</LI>
+</OL>
+
+<P>
+
+<H2><A NAME="SECTION00036000000000000000">
+2.6 Compare from the server</A>
+</H2>
+
+<P>
+Necessary input:
+
+<P>
+
+<OL>
+<LI>client to address (IP address or name)
+</LI>
+<LI>name of the backup
+</LI>
+<LI>mode of compare [a) or b), the modes were described in previous
+sub-chapter]
+</LI>
+<LI>files to compare [mode b) only; mode a) always compares all files
+in the backup] 
+</LI>
+</OL>
+
+<P>
+
+<H1><A NAME="SECTION00040000000000000000"></A><A NAME="sec:SystemStructure"></A>
+<BR>
+3 System structure
+</H1>
+
+<P>
+Figure&nbsp;<A HREF="MonitasConcepts.html#fig:SystemStructure">3.1</A> gives an overview about the general
+structure of Monitas. Monitas' functionality is mainly split into
+2 independent parts: a <I>client</I> component on the PC where files
+are backuped or restored, and a <I>server</I> component to write the
+backup on an external medium or read previous backups from an external
+medium. 
+
+<P>
+Both parts base on mondo/mindi for accessing files, doing (de)compression,
+creating ISO-files, writing them to CD/DVD, ...
+
+<P>
+
+<P></P>
+<DIV ALIGN="CENTER"><A NAME="fig:SystemStructure"></A><A NAME="429"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 3.1:</STRONG>
+System structure</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER"><!-- MATH
+ $\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/systemoverview.eps}}$
+ -->
+<IMG
+ WIDTH="444" HEIGHT="315" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1.png"
+ ALT="\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/systemoverview.eps}}"> </DIV>
+<P>
+<DIV ALIGN="CENTER"></DIV>
+
+<P></TD></TR>
+</TABLE>
+</DIV><P></P>
+
+<P>
+<BR>
+<BR>
+At startup, a client connects to the server process to establish the
+connection: The client uses a predefined (``well known'') port
+where the server is listening. When receiving a message at this port
+the server duplicates itself by using the system call <TT>fork()</TT>
+or <TT>clone()</TT>. The child process will serve the connecting client
+on a new allocated port and the parent process will continue waiting
+for further clients.
+
+<P>
+By that mechanism we need only one predefined port number and only
+on the server PC. Details in the next chapter.
+
+<P>
+
+<H1><A NAME="SECTION00050000000000000000">
+4 Message Flows</A>
+</H1>
+
+<P>
+This chapter describes the information flow between Monitas' structural
+parts. The flows are designed to fulfill the requirements of chapter&nbsp;<A HREF="MonitasConcepts.html#sec:Requirements">2</A>.
+
+<P>
+
+<H2><A NAME="SECTION00051000000000000000">
+4.1 Flows between Server and Client (<I>IFcs</I> and <I>IFsc</I>)</A>
+</H2>
+
+<P>
+
+<H3><A NAME="SECTION00051100000000000000">
+4.1.1 Connection Establishment</A>
+</H3>
+
+<P>
+Before any backup/restore can start, <I>client</I> and <I>server</I>
+must introduce each other. This message flow between (each) client
+process and the server (parent) process only takes place when a client
+process is started. The client calls the server to tell him &#34;Here
+am I&#34; whereupon the server is doubling itself via the <TT>fork()</TT>
+system call. The new created child of the server process will serve
+the new connected client from now on, while the parent process of
+the server continues waiting for other clients to connect. The connecting
+procedure is shown in Figure&nbsp;<A HREF="MonitasConcepts.html#fig:ClientConnect">4.1</A>.
+
+<P>
+
+<P></P>
+<DIV ALIGN="CENTER"><A NAME="fig:ClientConnect"></A><A NAME="432"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 4.1:</STRONG>
+A client connects to the server process</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER"><!-- MATH
+ $\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/connect_client.eps}}$
+ -->
+<IMG
+ WIDTH="437" HEIGHT="480" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2.png"
+ ALT="\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/connect_client.eps}}"> </DIV>
+<P>
+<DIV ALIGN="CENTER"></DIV>
+
+<P></TD></TR>
+</TABLE>
+</DIV><P></P>
+
+<P>
+
+<H3><A NAME="SECTION00051200000000000000">
+4.1.2 Backup and Restore Process</A>
+</H3>
+
+<P>
+The backup and restore procedures are handled between the client and
+its corresponding child of the server process. Both, backup and restore
+may be triggered from server or from client side. The message flow
+between server and client for the backup process is shown in Figure&nbsp;<A HREF="MonitasConcepts.html#fig:BackupClientServer">4.2</A>.
+
+<P>
+
+<P></P>
+<DIV ALIGN="CENTER"><A NAME="fig:BackupClientServer"></A><A NAME="434"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 4.2:</STRONG>
+Message flow for Backup</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER"><!-- MATH
+ $\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/backup_client_server.eps}}$
+ -->
+<IMG
+ WIDTH="434" HEIGHT="608" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3.png"
+ ALT="\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/backup_client_server.eps}}"> </DIV>
+<P>
+<DIV ALIGN="CENTER"></DIV>
+
+<P></TD></TR>
+</TABLE>
+</DIV><P></P>
+
+<P>
+The restore procedure shown in Figure&nbsp;<A HREF="MonitasConcepts.html#fig:RestoreClientServer">4.3</A>
+is very similar. It may be triggered either from server or from client
+side, too.
+
+<P>
+
+<P></P>
+<DIV ALIGN="CENTER"><A NAME="fig:RestoreClientServer"></A><A NAME="436"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 4.3:</STRONG>
+Message flow for Restore</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER"><!-- MATH
+ $\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/restore_client_server.eps}}$
+ -->
+<IMG
+ WIDTH="433" HEIGHT="657" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4.png"
+ ALT="\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/restore_client_server.eps}}"> </DIV>
+<P>
+<DIV ALIGN="CENTER"></DIV>
+
+<P></TD></TR>
+</TABLE>
+</DIV><P></P>
+
+<P>
+
+<H3><A NAME="SECTION00051300000000000000">
+4.1.3 Connection Termination</A>
+</H3>
+
+<P>
+When a client has done its job or some errors occurred (or maybe the
+server wants to stop running or ...) the connection can be shutdown
+in the way that Figure&nbsp;<A HREF="MonitasConcepts.html#fig:DisconnectServerClient">4.4</A> shows.
+
+<P>
+
+<P></P>
+<DIV ALIGN="CENTER"><A NAME="fig:DisconnectServerClient"></A><A NAME="438"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 4.4:</STRONG>
+Terminating the connection between
+server and client</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER"><!-- MATH
+ $\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/disconnect_client_server.eps}}$
+ -->
+<IMG
+ WIDTH="433" HEIGHT="668" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5.png"
+ ALT="\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/disconnect_client_server.eps}}"> </DIV>
+<P>
+<DIV ALIGN="CENTER"></DIV>
+
+<P></TD></TR>
+</TABLE>
+</DIV><P></P>
+
+<P>
+
+<H3><A NAME="SECTION00051400000000000000">
+4.1.4 List backups</A>
+</H3>
+
+<P>
+Before restoring files, a client can inquire the server which backups
+are available. Since there are several locations where the server
+may store a backup (on CD, in local file(s), (in the future: in a
+database,) ...) the client can use the message flow defined
+in Figure&nbsp;<A HREF="MonitasConcepts.html#fig:ListBackupsClientServer">4.5</A> to get a list of all
+(for this client) accessible backups.
+
+<P>
+
+<P></P>
+<DIV ALIGN="CENTER"><A NAME="fig:ListBackupsClientServer"></A><A NAME="440"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 4.5:</STRONG>
+Get list of accessible backups
+from server</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER"><!-- MATH
+ $\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/list_backups_client_server.eps}}$
+ -->
+<IMG
+ WIDTH="434" HEIGHT="246" ALIGN="BOTTOM" BORDER="0"
+ SRC="img6.png"
+ ALT="\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/list_backups_client_server.eps}}"> </DIV>
+<P>
+<DIV ALIGN="CENTER"></DIV>
+
+<P></TD></TR>
+</TABLE>
+</DIV><P></P>
+
+<P>
+
+<H3><A NAME="SECTION00051500000000000000">
+4.1.5 List content of a backup</A>
+</H3>
+
+<P>
+When doing a <I>nuke restore</I> it's sufficient to address a total
+backup. But in all other cases you want to know which files are in
+the backup, what their sizes, modification dates are and what other
+info is available. To inquire the content of a specific backup file,
+the client uses the flows in Figure&nbsp;<A HREF="MonitasConcepts.html#fig:ListBackupcontentClientServer">4.6</A>.
+
+<P>
+
+<P></P>
+<DIV ALIGN="CENTER"><A NAME="fig:ListBackupcontentClientServer"></A><A NAME="442"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 4.6:</STRONG>
+Get content of a specific
+backup from server</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER"><!-- MATH
+ $\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/list_backupcontent_client_server.eps}}$
+ -->
+<IMG
+ WIDTH="434" HEIGHT="246" ALIGN="BOTTOM" BORDER="0"
+ SRC="img7.png"
+ ALT="\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/list_backupcontent_client_server.eps}}"> </DIV>
+<P>
+<DIV ALIGN="CENTER"></DIV>
+
+<P></TD></TR>
+</TABLE>
+</DIV><P></P>
+
+<P>
+
+<H2><A NAME="SECTION00052000000000000000"></A><A NAME="sec:GuiClient"></A>
+<BR>
+4.2 Message Flows between Client and (Graphical)User-Interface (<I>IFcg</I>)
+</H2>
+
+<P>
+To interact with the client process running silently in the background,
+the client sets up a named pipe when it starts. A Graphical User Interface
+(GUI) can dock to that pipe and control the client.
+
+<P>
+The messages sent through the pipe are text based commands, so the
+most primitive user interface will be a console with I/O redirect
+to the pipe.
+
+<P>
+The predefined commands are shown in Chapter&nbsp;<A HREF="MonitasConcepts.html#sec:GuiCommands">6</A>.
+
+<P>
+
+<H3><A NAME="SECTION00052100000000000000"></A><A NAME="sec:GuiClientConnect"></A>
+<BR>
+4.2.1 (Re-)Connect to a server
+</H3>
+
+<P>
+Figure&nbsp;<A HREF="MonitasConcepts.html#fig:GuiClientConnect">4.7</A> shows how the connection between
+a client and the server is established from the Client GUI. If there
+exists a previous connection, that connection is closed before building
+up the new one, as every client can be connected to <I>one</I> server
+only at the same time.
+
+<P>
+
+<P></P>
+<DIV ALIGN="CENTER"><A NAME="fig:GuiClientConnect"></A><A NAME="446"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 4.7:</STRONG>
+Enable Connection from Client GUI</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER"><!-- MATH
+ $\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/connect_GUI_client.eps}}$
+ -->
+<IMG
+ WIDTH="438" HEIGHT="278" ALIGN="BOTTOM" BORDER="0"
+ SRC="img8.png"
+ ALT="\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/connect_GUI_client.eps}}"> </DIV>
+<P>
+<DIV ALIGN="CENTER"></DIV>
+
+<P></TD></TR>
+</TABLE>
+</DIV><P></P>
+
+<P>
+
+<H3><A NAME="SECTION00052200000000000000">
+4.2.2 Start a Backup</A>
+</H3>
+
+<P>
+When starting a backup, the client needs to know which files to backup
+and some information about the backup itself: what type of backup
+(boot-able CD-ROM, ISO-File,...), the name/location (/dev/cdwriter,
+/usr/bkup/file.tgz,...) and the mode of the backup (compress_clientside=gzip,...).
+The message flow is in Figure&nbsp;<A HREF="MonitasConcepts.html#fig:GuiClientBackup">4.8</A>.
+
+<P>
+
+<P></P>
+<DIV ALIGN="CENTER"><A NAME="fig:GuiClientBackup"></A><A NAME="448"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 4.8:</STRONG>
+Start Backup from Client GUI</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER"><!-- MATH
+ $\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/backup_GUI_client.eps}}$
+ -->
+<IMG
+ WIDTH="434" HEIGHT="368" ALIGN="BOTTOM" BORDER="0"
+ SRC="img9.png"
+ ALT="\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/backup_GUI_client.eps}}"> </DIV>
+<P>
+<DIV ALIGN="CENTER"></DIV>
+
+<P></TD></TR>
+</TABLE>
+</DIV><P></P>
+
+<P>
+
+<H3><A NAME="SECTION00052300000000000000">
+4.2.3 Start a Restore</A>
+</H3>
+
+<P>
+If a client knows (by other procedures, see chapter&nbsp;<A HREF="MonitasConcepts.html#sec:GuiClientListBackups">4.2.4</A>
+and <A HREF="MonitasConcepts.html#sec:GuiClientListBackupContent">4.2.5</A>) that a certain backup exists
+on the server (and the client may access it), it can start restoring
+specified files like shown in Figure&nbsp;<A HREF="MonitasConcepts.html#fig:GuiClientRestore">4.9</A>.
+The files can be addressed by their exact path/name (as stored in
+the backup) or as wildcards (path/* or path/name* - may be extended
+in the future).
+
+<P>
+
+<P></P>
+<DIV ALIGN="CENTER"><A NAME="fig:GuiClientRestore"></A><A NAME="450"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 4.9:</STRONG>
+Start Restore from Client GUI</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER"><!-- MATH
+ $\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/restore_GUI_client.eps}}$
+ -->
+<IMG
+ WIDTH="430" HEIGHT="440" ALIGN="BOTTOM" BORDER="0"
+ SRC="img10.png"
+ ALT="\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/restore_GUI_client.eps}}"> </DIV>
+<P>
+<DIV ALIGN="CENTER"></DIV>
+
+<P></TD></TR>
+</TABLE>
+</DIV><P></P>
+
+<P>
+
+<H3><A NAME="SECTION00052400000000000000"></A><A NAME="sec:GuiClientListBackups"></A>
+<BR>
+4.2.4 Get list of previous, accessible Backups
+</H3>
+
+<P>
+To get a list of available backups the client must ask the server
+which are available (maybe specific to the requesting client/user).
+The message flow is in Figure&nbsp;<A HREF="MonitasConcepts.html#fig:GuiClientListBackups">4.10</A>.
+
+<P>
+
+<P></P>
+<DIV ALIGN="CENTER"><A NAME="fig:GuiClientListBackups"></A><A NAME="453"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 4.10:</STRONG>
+Ask Server for available backups</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER"><!-- MATH
+ $\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/list_backups_GUI_client.eps}}$
+ -->
+<IMG
+ WIDTH="433" HEIGHT="187" ALIGN="BOTTOM" BORDER="0"
+ SRC="img11.png"
+ ALT="\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/list_backups_GUI_client.eps}}"> </DIV>
+<P>
+<DIV ALIGN="CENTER"></DIV>
+
+<P></TD></TR>
+</TABLE>
+</DIV><P></P>
+
+<P>
+
+<H3><A NAME="SECTION00052500000000000000"></A><A NAME="sec:GuiClientListBackupContent"></A>
+<BR>
+4.2.5 Get content (files) of a specified Backup
+</H3>
+
+<P>
+The client knows (maybe via the flow in Chapter&nbsp;<A HREF="MonitasConcepts.html#sec:GuiClientListBackups">4.2.4</A>)
+which backup(s) are available at the server. To view the content (the
+file names, -sizes,...) of a specific backup the client can
+ask the server to deliver this information. The message flow is shown
+in Figure&nbsp;<A HREF="MonitasConcepts.html#fig:GuiClientListBackupContent">4.11</A>.
+
+<P>
+
+<P></P>
+<DIV ALIGN="CENTER"><A NAME="fig:GuiClientListBackupContent"></A><A NAME="456"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 4.11:</STRONG>
+Ask Server for the content
+of a backup</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER"><!-- MATH
+ $\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/list_backupcontent_GUI_client.eps}}$
+ -->
+<IMG
+ WIDTH="433" HEIGHT="187" ALIGN="BOTTOM" BORDER="0"
+ SRC="img12.png"
+ ALT="\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/list_backupcontent_GUI_client.eps}}"> </DIV>
+<P>
+<DIV ALIGN="CENTER"></DIV>
+
+<P></TD></TR>
+</TABLE>
+</DIV><P></P>
+
+<P>
+
+<H3><A NAME="SECTION00052600000000000000">
+4.2.6 Start a Verify</A>
+</H3>
+
+<P>
+&lt;to be defined&gt;
+
+<P>
+
+<H3><A NAME="SECTION00052700000000000000">
+4.2.7 Start a Compare</A>
+</H3>
+
+<P>
+&lt;to be defined&gt;
+
+<P>
+
+<H3><A NAME="SECTION00052800000000000000">
+4.2.8 Terminate Client</A>
+</H3>
+
+<P>
+It doesn't make sense to close the client-server connection without
+terminating the client. Either the client must be connected to another
+server (procedure see chapter&nbsp;<A HREF="MonitasConcepts.html#sec:GuiClientConnect">4.2.1</A>) if it
+shall do other backups/restores or the client just keeps connected
+to the same server (so no changes are necessary :-). Nevertheless
+if the client has done its job, it must be shutdown but that concerns
+both, the connection and the client . This procedure is shown in Figure&nbsp;<A HREF="MonitasConcepts.html#fig:GuiClientTerminate">4.12</A>.
+
+<P>
+Of course you can simply close the GUI of the client. But this won't
+have any influence to the running client...
+
+<P>
+
+<P></P>
+<DIV ALIGN="CENTER"><A NAME="fig:GuiClientTerminate"></A><A NAME="458"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 4.12:</STRONG>
+Terminate the client</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER"><!-- MATH
+ $\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/terminate_GUI_client.eps}}$
+ -->
+<IMG
+ WIDTH="434" HEIGHT="257" ALIGN="BOTTOM" BORDER="0"
+ SRC="img13.png"
+ ALT="\resizebox*{0.8\columnwidth}{!}{\includegraphics{diagrams/terminate_GUI_client.eps}}"> </DIV>
+<P>
+<DIV ALIGN="CENTER"></DIV>
+
+<P></TD></TR>
+</TABLE>
+</DIV><P></P>
+
+<P>
+
+<H2><A NAME="SECTION00053000000000000000">
+4.3 Message Flows between Server and (Graphical)User-Interface (<I>IFsg</I>)</A>
+</H2>
+
+<P>
+&lt;to be defined&gt; Ideas:
+
+<P>
+<DL>
+<DT><STRONG>N.N.</STRONG></DT>
+<DD>All backup/verify/compare/restore procedures that can be triggered
+from client side, too.
+</DD>
+<DT><STRONG>Status</STRONG></DT>
+<DD>Show all current connections and its current status (activity).
+</DD>
+<DT><STRONG>Monitor</STRONG></DT>
+<DD>Request server to generate (continuous) progress messages
+to a specified connection.
+</DD>
+<DT><STRONG>Info</STRONG></DT>
+<DD>Server notifies the user about internal processes.
+</DD>
+<DT><STRONG>Verbose</STRONG></DT>
+<DD>Modify the level of server's verbosity.
+</DD>
+</DL>
+
+<P>
+
+<H2><A NAME="SECTION00054000000000000000">
+4.4 Message Flows between Server and its Child (<I>IFss</I> and <I>IFsm</I>)</A>
+</H2>
+
+<P>
+&lt;to be defined&gt; Ideas:
+
+<P>
+<DL>
+<DT><STRONG>GetClientInfo</STRONG></DT>
+<DD>Server asks server child for info about the connection
+to a client (IP:port, current activity).
+</DD>
+<DT><STRONG>TerminateConnection</STRONG></DT>
+<DD>Server asks server child to terminate the connection.
+</DD>
+<DT><STRONG>TerminateNotification</STRONG></DT>
+<DD>Server child notifies the parent server that
+it will terminate now.
+</DD>
+<DT><STRONG>N.N.</STRONG></DT>
+<DD>All backup/verify/compare/restore procedures that are requested
+to the server, but must be executed from a server's child.
+</DD>
+</DL>
+
+<P>
+
+<H1><A NAME="SECTION00060000000000000000">
+5 Interfaces</A>
+</H1>
+
+<P>
+Figure&nbsp;<A HREF="MonitasConcepts.html#fig:SystemStructure">3.1</A> in Section&nbsp;<A HREF="MonitasConcepts.html#sec:SystemStructure">3</A>
+(System Structure) names the defined interfaces in respect of their
+location. E.g. the interface between the server and the client is
+called <I>IFcs</I> if you see it as part of the client, and it's called
+<I>IFsc</I> if it is described as part of the server. This naming
+is continued in the software, but of course the 2 parts must fit together
+to transmit the information.
+
+<P>
+To describe this common part (e.g. the format of the data structures)
+we introduce a second naming scheme here that denominates the matter
+inbetween. These names are used in the sources, too. So pay attention
+to understand the difference: The common parts of the interfaces are
+named <I>Ixx</I>, their realization at the two ends are named <I>IFxy</I>. 
+
+<P>
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="462"></A>
+<TABLE>
+<CAPTION><STRONG>Table 5.1:</STRONG>
+Interfaces</CAPTION>
+<TR><TD><TABLE CELLPADDING=3 BORDER="1">
+<TR><TH ALIGN="LEFT" VALIGN="TOP" WIDTH=175><B>Interface</B></TH>
+<TH ALIGN="LEFT" VALIGN="TOP" WIDTH=325><B>is connecting</B></TH>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175><I>Im</I> (&#34;Mondo&#34;)</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>server/client internally with mondo</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175><I>In</I> (&#34;Network&#34;)</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>client and server, <I>IFcs &lt;-&gt;</I>  <I>IFsc</I></TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175><I>Ipc</I> (&#34;Pipe in Client&#34;)</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>client to GUI, <I>IFcg &lt;-&gt;</I> external</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175><I>Ips</I> (&#34;Pipe in Server&#34;)</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>server to GUI, <I>IFsg</I> &lt;-&gt; external</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=175><I>Is</I> (&#34;Server interprocess&#34;)</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=325>Server's parent instance with the child instances, <I>IFss</I> &lt;-&gt;
+<I>IFsm</I></TD>
+</TR>
+</TABLE>
+
+<P>
+</TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+
+<P>
+
+<H2><A NAME="SECTION00061000000000000000">
+5.1 Interface <I>Im</I> to Mondo</A>
+</H2>
+
+<P>
+&lt;to be defined&gt;
+
+<P>
+
+<H3><A NAME="SECTION00061100000000000000">
+5.1.1 <I>Im</I> in Server</A>
+</H3>
+
+<P>
+
+<H3><A NAME="SECTION00061200000000000000">
+5.1.2 <I>Im</I> in Client</A>
+</H3>
+
+<P>
+
+<H2><A NAME="SECTION00062000000000000000">
+5.2 Interface <I>In</I> between Client and Server</A>
+</H2>
+
+<P>
+&lt;to be defined&gt;
+
+<P>
+
+<H2><A NAME="SECTION00063000000000000000">
+5.3 Interface <I>Ipc</I>, Client's pipe to the GUI</A>
+</H2>
+
+<P>
+&lt;to be defined&gt;
+
+<P>
+
+<H2><A NAME="SECTION00064000000000000000">
+5.4 Interface <I>Ips</I>, Server's pipe to the GUI</A>
+</H2>
+
+<P>
+&lt;to be defined&gt;
+
+<P>
+
+<H2><A NAME="SECTION00065000000000000000">
+5.5 Interface <I>Is</I>, IPC of server instances</A>
+</H2>
+
+<P>
+&lt;to be defined&gt;
+
+<P>
+
+<H1><A NAME="SECTION00070000000000000000"></A><A NAME="sec:GuiCommands"></A>
+<BR>
+6 Commands at the GUI interfaces
+</H1>
+
+<P>
+To interact from a Graphical User Interface (GUI) to the server or
+client process running locally, silently in the background, every
+client and the server (parent process) sets up a named pipe when it
+starts. A Graphical User Interface (GUI) can dock to that pipe and
+control the client/server. 
+
+<P>
+If not otherwise specified, the server's pipe is <TT>/var/run/monitas/server</TT>
+and a client's pipe is <TT>/var/run/monitas/client_<I>nnn</I></TT>
+with <TT><I>nnn</I></TT> depends upon the current connection.
+
+<P>
+(For IPv4 we could use the server's IP:port, e.g. <TT>client_192168001001-22345</TT>
+i.e. 12-digits IP address, dash, 5-digits port of the server's child
+for that connection). 
+
+<P>
+This allows us to run more than one client on a PC (maybe more than
+1 user is logged in) that can be connected to the same server (IP
+address) with different ports (server's child's port number) or to
+different servers (different IP addresses). Only one server per PC
+is allowed, but it can handle several connections in parallel (by
+several child processes). In most cases, the backup medium is a very
+limiting resource (only 1, 2... CD-Writer, Tape-Streamer, Database,
+...) that can be managed much easier by one central instance.
+Otherwise we had to expand the resource management (that is already
+necessary between parent server and child processes) with more danger
+to run into dead-locks, race-conditions and other difficult-to-debug
+stuff. 
+
+<P>
+If not denoted otherwise, the description in this chapter is valid
+for the messages at the client GUI <I>and</I> the messages at the
+server GUI. 
+
+<P>
+
+<H2><A NAME="SECTION00071000000000000000">
+6.1 Message Structure</A>
+</H2>
+
+<P>
+The messages sent through the pipe are text based commands, so the
+most primitive user interface will be a console with I/O redirect
+to the pipe.
+
+<P>
+The used semantic is:
+
+<P>
+<TT>COMMAND [ARG [...]]&#92;n</TT>
+
+<P>
+where
+
+<P>
+
+<UL>
+<LI>COMMAND is a predefined (case insensitive) command, valid chars: [a-zA-Z]
+</LI>
+<LI>ARG is zero or more arguments for COMMAND, each COMMAND has a predefined
+number of mandatory arguments (some command additional might have
+optional arguments)
+</LI>
+<LI>COMMAND and ARG is separated by one space (&nbsp;)
+</LI>
+<LI>ARGs are separated by one space (&nbsp;)
+</LI>
+<LI>ARGs contain of at least one printable character and/or whitespace
+([ &#92;t&#92;n])
+</LI>
+<LI>an ARG that contains spaces must be surrounded by '...' or ``...''
+</LI>
+<LI>inside '...' following characters must be escaped by a backslash
+(&#92;) for their literal meaning:
+
+<P>
+
+<UL>
+<LI>[&#92;']for literal single quote (')
+</LI>
+<LI>[&#92;&#92;]for the backslash (&#92;)
+itself
+</LI>
+</UL>to use &lt;c:&#92;stefan's ``quote''> as one argument
+use <TT>'c:&#92;&#92;stefan&#92;'s&nbsp;``quote'''</TT>
+
+<P>
+</LI>
+<LI>inside ``...'' you must not use the double quote character
+(``)!
+<BR>
+There is no escape sequence defined for a literal meaning! Surprised?
+But this kind of definition allows us to use the ARG &lt;c:&#92;hugo&nbsp;rabson's&nbsp;dir&#92;file.c&gt;
+without further modification by simply surrounding it with double
+quotes: <TT>``c:&#92;hugo&nbsp;rabson's&nbsp;dir&#92;file.c''</TT>
+</LI>
+<LI>if the ARG itself shall begin with a double quote (``) or single
+quote (') then quote the whole argument with '...' (and escape
+the ' at the beginning).
+</LI>
+<LI>if the ARG doesn't contain spaces but contains any quote character(s),
+you needn't do anything
+</LI>
+<LI>COMMAND line is terminated by a newline character('&#92;n'),
+an optional ASCII-Null ('&#92;0') can follow
+</LI>
+</UL>
+Possible, future extension:
+
+<P>
+
+<UL>
+<LI>Using '&#92;0' instead of '&nbsp;' to separate ARGs (and COMMAND)
+will dispense with the nasty space quoting. The end of the command
+line is then marked by two '&#92;0' instead of '&#92;n'.
+To distinguish between old and new syntax, the client can look at
+the first character behind the COMMAND: if it's a '&#92;0'
+the GUI uses the new syntax and all responses to the COMMAND use the
+new syntax, too. If the character is a space '&nbsp;' or newline '&#92;n'
+we answer in old (above described) syntax and must pay attention to
+the quoting
+</LI>
+</UL>
+
+<P>
+
+<H2><A NAME="SECTION00072000000000000000">
+6.2 Implementation Detail</A>
+</H2>
+
+<P>
+There is much work that is common to all the pipe interfaces that
+use text based messages: extract the command, calculate the number
+of mandatory parameters, split the arguments, parse for escape sequences,
+check if an arguments fits the requested type (e.g. filename, IP address,
+port number,... ), translate the textual argument into its machine
+readable format, ... And equivalent steps are necessary when
+we want to create and send a message. And different commands use the
+same argument types that always must be parsed and checked in the
+same way.
+
+<P>
+At the moment the extent of the complete command set cannot be given,
+so it would be the best to keep yet unknown extensions in mind and
+implement the pipe interface as a generic one:
+
+<P>
+
+<UL>
+<LI>use tables for valid commands (different tables for server- and client-pipes
+[or flags in a common table to ease common syntax for equivalent
+server/client commands?])
+</LI>
+<LI>each ``command'' entry contains the number of mandatory and optional
+arguments
+</LI>
+<LI>each argument refers to a predefined type (not only <I>int</I>, <I>string</I>
+but of finer granularity like <I>filename</I>, <I>dirname</I>, <I>devicename</I>,
+<I>backupname</I>, <I>portnumber</I>, ...) that can be generated
+and checked for validity by generic routines.
+</LI>
+</UL>
+The tables can easily be extended and new commands can introduced
+with less effort by reusing existing subroutines for the argument
+handling. (B.t.w. the table contains all information that is necessary
+for an generic help function to each defined message.) Of course this
+only concerns the interface handling, not the new functionality. But
+why reinvent the wheel twice?
+
+<P>
+
+<H2><A NAME="SECTION00073000000000000000">
+6.3 Defined Commands</A>
+</H2>
+
+<P>
+Table&nbsp;<A HREF="#tab:GuiCommands">6.1</A> shows the defined commands to the GUI.
+
+<P>
+Currently there are only the messages from Figure&nbsp;<A HREF="MonitasConcepts.html#fig:GuiClientConnect">4.7</A>
+and <A HREF="MonitasConcepts.html#fig:GuiClientBackup">4.8</A> entered in this table. But we recognize
+that the messages <TT>notconnected</TT>, <TT>abort</TT> and <TT>backupdone</TT>
+serve the same purpose. We should think about, if we want a streamline
+small interface (replace the 3 messages by one) or accept the redundancy.
+Perhaps that depends on the connected GUI. A simple command line interface
+(that transfers the messages transparently to the user) benefits from
+the different message names, a graphical user interface on the other
+side must join the different messages to the same ``Not Done! Error''
+requestor.
+
+<P>
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="476"></A>
+<TABLE>
+<CAPTION><STRONG>Table 6.1:</STRONG>
+Commands at the GUI Interfaces</CAPTION>
+<TR><TD><TABLE CELLPADDING=3 BORDER="1">
+<TR><TD ALIGN="CENTER" COLSPAN=1>If (from/to GUI)</TD>
+<TD ALIGN="CENTER" COLSPAN=1>&nbsp; Command</TD>
+<TD ALIGN="CENTER" COLSPAN=1>No of args (mnd/opt)</TD>
+<TD ALIGN="CENTER" COLSPAN=1>type of arg 1</TD>
+<TD ALIGN="CENTER" COLSPAN=1>type of arg 2</TD>
+<TD ALIGN="CENTER" COLSPAN=1>type of arg 3</TD>
+<TD ALIGN="CENTER" COLSPAN=1>type of arg 4</TD>
+<TD ALIGN="CENTER" COLSPAN=1>type of arg 5</TD>
+</TR>
+<TR><TD ALIGN="CENTER">C/-</TD>
+<TD ALIGN="CENTER"><TT>connect</TT></TD>
+<TD ALIGN="CENTER">1/1</TD>
+<TD ALIGN="CENTER">ServerIP</TD>
+<TD ALIGN="CENTER">Port</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="CENTER">-/C</TD>
+<TD ALIGN="CENTER"><TT>disconnected</TT></TD>
+<TD ALIGN="CENTER">2/0</TD>
+<TD ALIGN="CENTER">ServerIP</TD>
+<TD ALIGN="CENTER">Port</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="CENTER">-/C</TD>
+<TD ALIGN="CENTER"><TT>connected</TT></TD>
+<TD ALIGN="CENTER">0</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="CENTER">-/C</TD>
+<TD ALIGN="CENTER"><TT>notconnected</TT></TD>
+<TD ALIGN="CENTER">1/1</TD>
+<TD ALIGN="CENTER">ErrNo</TD>
+<TD ALIGN="CENTER">ErrorMsg</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="CENTER">C/-</TD>
+<TD ALIGN="CENTER"><TT>backup</TT></TD>
+<TD ALIGN="CENTER">4/*</TD>
+<TD ALIGN="CENTER">Bkup type</TD>
+<TD ALIGN="CENTER">name</TD>
+<TD ALIGN="CENTER">mode</TD>
+<TD ALIGN="CENTER">filepattern</TD>
+<TD ALIGN="CENTER">...</TD>
+</TR>
+<TR><TD ALIGN="CENTER">-/CS</TD>
+<TD ALIGN="CENTER"><TT>progress</TT></TD>
+<TD ALIGN="CENTER">1/0</TD>
+<TD ALIGN="CENTER">percent</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="CENTER">-/CS</TD>
+<TD ALIGN="CENTER"><TT>abort</TT></TD>
+<TD ALIGN="CENTER">1/1</TD>
+<TD ALIGN="CENTER">ErrNo</TD>
+<TD ALIGN="CENTER">ErrorMsg</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="CENTER">-/C</TD>
+<TD ALIGN="CENTER"><TT>backupdone</TT></TD>
+<TD ALIGN="CENTER">1/1</TD>
+<TD ALIGN="CENTER">ErrNo</TD>
+<TD ALIGN="CENTER">ErrorMsg</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="CENTER">...</TD>
+<TD ALIGN="CENTER">Table</TD>
+<TD ALIGN="CENTER">is not</TD>
+<TD ALIGN="CENTER">complete</TD>
+<TD ALIGN="CENTER">...</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+</TR>
+</TABLE>
+
+<P>
+</TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+
+<P>
+
+<H1><A NAME="SECTION00080000000000000000">
+7 Open Issues</A>
+</H1>
+
+<P>
+Here I collect all the ideas that need further analysis. Some solutions
+may be written here if they might have side effects to the system,
+I must think about. Or if I hadn't have the time to insert them at
+the correct place ;-)
+
+<P>
+
+<UL>
+<LI>How to realize the daemon for client and server side?
+
+<P>
+It should dock to the pipe between the GUI and the process, so it
+can monitor if there is something going on, and if not it can do its
+job.
+
+<P>
+If a daemon triggered backup is running, no user interaction is possible,
+so no mix up between two backups can happen.
+
+<P>
+</LI>
+<LI>Security
+
+<P>
+What should the user be allowed? Start backups? If yes, what files?
+Only files, he has access to, to prevent snooping system information.
+
+<P>
+Show contents of other backups?
+
+<P>
+Restore files? From which backups? To which destinations?
+
+<P>
+Backup to CD? Necessary rights to write there? Maybe handled by mondo.
+
+<P>
+Shall the client always run as root (to access all, if triggered from
+outside)? If yes, how assure that no unprivileged user will abuse
+this?
+
+<P>
+Shall server run as root? Server child with lower privilege? Same
+as user on client side - but then how to realize - user id's from
+client mustn't exist on server.
+
+<P>
+</LI>
+<LI>Use a secure tunnel as connection? How to establish/address tunnel?
+</LI>
+</UL>
+
+<P>
+
+<H2><A NAME="SECTION00081000000000000000">
+7.1 Possible Extensions</A>
+</H2>
+
+<P>
+
+<UL>
+<LI>Wildcards for specifying which files to backup/restore
+
+<P>
+
+<UL>
+<LI>Step 1: Standard UNIX Expressions `*' `?' for filenames not only
+at the end of the name
+</LI>
+<LI>Step 2: also for directories (Q: does `/*/readme' match e.g. 
+<BR>`/usr/local/share/packet/readme'?)
+</LI>
+<LI>Step 3: Regular Expressions (User has circumvent above question)
+</LI>
+</UL>
+</LI>
+<LI>Distinguish between restore (files are written to their old places)
+and extract (new destination for file(s) possible).
+</LI>
+</UL>
+
+<P>
+
+<H1><A NAME="SECTION00090000000000000000">
+About this document ...</A>
+</H1>
+ <STRONG>Concept paper for Monitas</STRONG><P>
+This document was generated using the
+<A HREF="http://www-dsed.llnl.gov/files/programs/unix/latex2html/manual/"><STRONG>LaTeX</STRONG>2<tt>HTML</tt></A> translator Version 99.2beta8 (1.43)
+<P>
+Copyright &#169; 1993, 1994, 1995, 1996,
+<A HREF="http://cbl.leeds.ac.uk/nikos/personal.html">Nikos Drakos</A>, 
+Computer Based Learning Unit, University of Leeds.
+<BR>
+Copyright &#169; 1997, 1998, 1999,
+<A HREF="http://www.maths.mq.edu.au/~ross/">Ross Moore</A>, 
+Mathematics Department, Macquarie University, Sydney.
+<P>
+The command line arguments were: <BR>
+ <STRONG>latex2html</STRONG> <TT>-no_subdir -split 0 -show_section_numbers /tmp/lyx_tmpdir2332Jk28dP/lyx_tmpbuf2332o2v6vO/MonitasConcepts.tex</TT>
+<P>
+The translation was initiated by Stefan  on 2002-08-17
+<BR><HR><H4>Footnotes</H4>
+<DL>
+<DT><A NAME="foot33">... Team</A><A NAME="foot33"
+ HREF="MonitasConcepts.html#tex2html1"><SUP>1</SUP></A>
+<DD>Editor of this document is Stefan Hübner &lt;shuebner.mondo@gmx.de&gt;.
+Please send comments, extensions and proposals to him. 
+
+
+</DL><HR>
+
+<ADDRESS>
+Stefan 
+2002-08-17
+</ADDRESS>
+</BODY>
+</HTML>

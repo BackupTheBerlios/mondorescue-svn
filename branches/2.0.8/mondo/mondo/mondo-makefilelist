@@ -1,0 +1,197 @@
+#!/bin/sh
+#
+# $Id$
+
+#
+# mondo-makefilelist
+# ...an off-shoot of mondo-archive
+#
+# 12/09/2003
+# - changed 'find -newer' to 'find -cnewer' for differential backup
+#
+# 01/02/2003
+# - only add _existant_ dirs&files to EXCLUDE_THESE_PLEASE
+#
+# 12/20/2002
+# - exclude /media/cdrom,cdrecorder,floppy
+#
+# 11/18/2002
+# - exclude tmp.mondo.* and mondo.scratch.* using
+#   sensible wildcards (finally!)
+#
+# 11/07/2002
+# - changed gawk to awk for Debian users *sigh*
+#
+# 10/29/2002
+# - replaced convoluted grep with wc (KP)
+#
+# 04/01 - 07/31
+# - exclude /root/images/mindi
+# - backup differential datestamp, just in case
+# - changed $i to $j (Karsten)
+# - exclude pagefile.sys (WinXP virtual memory file) from backup
+#
+# 03/01 - 03/31
+# - added -E patch to exclude files and/or dirs properly (Andy Glass)
+# - remove ' from either side of line 46's find() command
+# - patch from Andy Glass to make Mondo more SUN-friendly when
+#   handling /etc/fstab and "-" entries
+#
+# 02/01 - 02/28
+# - added a patch from KirkJT to support pathnames containing spaces
+# - do not allow user to exclude /dev/* from filelist, just mountlist
+# - exclude .autofsck from each partition's root dir
+# - fixed -D (differential) bug
+#
+# 01/29/2002
+# - separated from mondo-archive, which was then ported to C
+######################################################################
+
+
+
+
+DATEFILE=/var/cache/mondo-archive/last-backup
+
+FatalError() {
+    echo "$1" >> $LOGFILE
+    echo "$1" >> /dev/stderr
+    exit 1
+}
+
+
+
+
+MakeFilelist() {
+    local excluded i exlist call bkpaths output paths_to_exclude j
+    bkpaths=$1
+    output=$2
+    paths_to_exclude=$3
+    mkdir -p /var/cache/mondo-archive
+# Mikael Hultgren - 03/07/2002
+    call="find $bkpaths"
+# end patch
+    for i in $paths_to_exclude ; do
+        j=`echo /"$i/" | awk -F "/" '{ for(i=1;i<NF;i++) { if (length($i)>=1) {printf "/%s",$i;};}; print ""; }'`
+        j=$(echo $j | sed 's/\\_/ /g')
+	call="$call -path '$j' -prune -o"
+    done
+# Conor Daly - 12/09/2003
+# change '-newer' to '-cnewer'
+    [ "$USE_DIFFERENTIAL" = "yes" ] && call="$call -cnewer $DATEFILE -a"
+    call="$call -print"
+    echo "call to find = $call" >> $LOGFILE
+    eval $call > $TMP/filelist 2> $TMP/find.log
+#    cp $TMP/filelist /tmp/filelist
+    res=`grep -v "Permission denied" $TMP/find.log`
+    if [ "$res" != "" ] ; then
+	cat $TMP/find.log | tee -a $LOGFILE
+    fi
+# include various directory _paths_ (not contents of dirs: that comes later)
+    for i in $paths_to_exclude ; do
+	echo "$i" >> $TMP/filelist        ; # backup the dirpath, NOT contents
+    done
+    for i in $paths_to_exclude $bkpaths ; do
+        echo "$i" | cut -d'/' -f1                >> $TMP/filelist
+        echo "$i" | cut -d'/' -f1,2              >> $TMP/filelist
+	echo "$i" | cut -d'/' -f1,2,3            >> $TMP/filelist
+	echo "$i" | cut -d'/' -f1,2,3,4          >> $TMP/filelist
+	echo "$i" | cut -d'/' -f1,2,3,4,5        >> $TMP/filelist
+	echo "$i" | cut -d'/' -f1,2,3,4,5,6      >> $TMP/filelist
+        echo "$i" | cut -d'/' -f1,2,3,4,5,6,7    >> $TMP/filelist
+    done
+# exclude lost+found folders, Win9x hibernation file and Win9x swap file
+    sort $TMP/filelist -u | \
+grep -v "/win386\.swp" | grep -v "/vmmhiber\.w9x" | \
+grep -v "/hiberfil\.sys" | grep -v "/win386.swp" | grep -v "/pagefile\.sys" | \
+grep -v "/tmp\.mondo\.[0-9]+*" | grep -v "/mondo\.scratch\.[0-9]+*" > $output
+
+# Patch from Andy Glass - 03/03/2002
+    for i in `tr -s '\t' ' ' < /etc/fstab | cut -d' ' -f2 | grep -v '-'` ; do
+# End patch
+        grep -vx "$i/lost+found" $output | grep -vx $i"lost+found" > $output.MID
+        sync
+        mv -f $output.MID $output
+    done
+# exclude .journal files (ext3)
+    for i in `tr -s '\t' ' ' < /etc/fstab | grep "ext3" | cut -d' ' -f2` ; do
+	grep -vx "$i/\.journal" $output | grep -vx "$i\.journal" | grep -vx "$i\.autofsck" > $output.MID
+        sync
+	mv -f $output.MID $output
+    done
+# exclude /var/log/pacct and Mondo's temp files
+    grep -vx "" $output | grep -v "/var/log/pacct" | grep -v "tmp\.mondo\.$$" | grep -vx "/var/log/mondo-archive\.log" | grep -v "mondo\.scratch\.$$" > $output.MID
+    mv -f $output.MID $output
+    cp -f $output $TMP/filelist
+# exclude /var/run/*.pid (lockfiles)
+#    grep -vx "/var/run/[^\.]*\.pid" $output > $output.MID
+#    mv -f $output.MID $output
+}
+
+
+
+
+
+
+
+############################ main ############################
+
+if [ "$#" -ne "6" ] ; then
+    echo "mondo-makefilelist <logfile> <tmpdir> <scratchdir> <archivepath> <exclude_paths> <differential>" >> /dev/stderr
+    exit 1
+fi
+
+LOGFILE=$1
+TMP=$2
+scratchdir=$3
+archivepath="$4"
+EXCLUDE_PATHS="$5"
+USE_DIFFERENTIAL="$6"
+
+mkdir -p $DATEFILE &> /dev/null
+rmdir $DATEFILE &> /dev/null
+# If previous aborted backup then restore the old datestamp first :)
+[ -e "$DATEFILE.aborted" ] && mv -f $DATEFILE.aborted $DATEFILE
+# Now, take a backup of current datestamp. If backup is not aborted
+# then main() will delete backup datestamp. Cool. However, if it _is_
+# aborted then it won't, which means I'll find the backup datestamp
+# next time, recover it, and so on.
+cp -f $DATEFILE $DATEFILE.aborted 2> /dev/null
+
+if [ "$USE_DIFFERENTIAL" ] ; then 
+    echo "Differential backup" >> $LOGFILE
+    if [ ! -e "$DATEFILE" ] ; then
+        echo "No datestamp. Reverting to full backup." >> $LOGFILE
+        USE_DIFFERENTIAL=""
+        rm -f $DATEFILE; echo "`date +%s`" > $DATEFILE
+    fi
+else
+    echo "Full backup. Updating datestamp." >> $LOGFILE
+    echo "`date +%s`" > $DATEFILE || FatalError "Unable to write to $DATEFILE"
+fi
+
+mkdir -p $scratchdir/archives
+exclude_these_please=""
+for i in $LOGFILE $scratchdir $TMP /mnt/cdrom /mnt/floppy /media/cdrom /media/cdrecorder /media/floppy /proc $EXCLUDE_PATHS /tmp /root/images/mondo /root/images/mindi ; do
+    [ "`echo "$i" | grep -x "/dev/.*"`" = "" ] && [ -e "$i" ] && exclude_these_please="$exclude_these_please $i"
+done
+MakeFilelist "$archivepath" $TMP/filelist.full "$exclude_these_please"
+> $TMP/cklist.full
+mv -f $TMP/filelist.full $TMP/filelist.blah
+## See if EXCLUDE_PATHS includes a file of two
+for X in $EXCLUDE_PATHS  ; do
+    if [ ! -d $X ] ; then
+	grep -v $X $TMP/filelist.blah > $TMP/filelist.full
+	mv -f $TMP/filelist.full $TMP/filelist.blah
+    fi
+done
+grep -v "mojo-jojo-123" $TMP/filelist.blah > $TMP/filelist.full
+[ ! -e "$TMP/filelist.full" ] && FatalError "Serious error when removing mojo jojo from fielist"
+cp $TMP/filelist.full /tmp
+cp -f $TMP/filelist.full "$scratchdir"/archives/
+cp -f $TMP/filelist.full /var/cache/mondo-archive/
+[ ! -e "$TMP/filelist.full" ] && FatalError "Who let the dogs out? (Who!? Who!?)"
+#total_files_to_backup=`grep -n "" $TMP/filelist.full | tail -n1 | cut -d':' -f1`
+total_files_to_backup=`cat $TMP/filelist.full | wc -l`
+echo "Backing up $total_files_to_backup files" >> $LOGFILE
+exit 0
+

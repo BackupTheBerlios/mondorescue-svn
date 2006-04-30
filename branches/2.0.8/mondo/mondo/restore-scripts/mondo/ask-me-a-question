@@ -1,0 +1,47 @@
+#!/bin/sh
+
+# ask-me-a-question <string> <choices> (<default>)
+# ..returns N integer, Nth position in choices
+
+IsItValid() {
+    local incoming validvalues res i callstr
+    validvalues=$1
+    incoming=$2
+
+    res=`echo "$validvalues" | gawk '{for(i=1;i<=length($0);i++) {print substr($0,i,1);};}' | grep -n "" | grep -i "$incoming" | cut -d':' -f1`
+    if [ "$incoming" = "" ] ; then
+	return -1
+    elif [ "$res" = "" ] ; then
+	return 0
+    else	
+	return $res
+    fi
+
+}
+
+
+# ----------- main -----------
+
+if [ "$#" -ne "2" ] && [ "$#" -ne "3" ] ; then
+    echo "ask-me-a-question <string> <responses> (<default>)"
+    echo "e.g. ask-me-a-question \"Compression level (0-9)?\" \"0123456789\""
+    echo "... only works for integers, or 'y' or 'n'"
+    exit 1
+fi
+
+LogIt "ask-me-a-question '$1'"
+
+res=0
+while [ "$res" -eq "0" ] ; do
+    echo -e -n "$1"
+    read line
+    IsItValid "$2" $line
+    res=$?
+    if [ "$res" = "-1" ] && [ "$#" -eq "3" ] ; then
+	IsItValid "$2" "$3"
+	res=$?
+    fi
+done
+
+LogIt "result of question = $res"
+exit $res

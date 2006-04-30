@@ -1,0 +1,32 @@
+GENERIC README                                                      09/27/2003
+""""""""""""""
+
+To install Mondo, please insert this CD and type:-
+# mount /mnt/cdrom
+# cd /mnt/cdrom
+# ./setup
+# cd /
+# umount /mnt/cdrom
+
+This CD works well with:-
+- Red Hat 7.x, 8.0, 9
+- Mandrake Linux 8.x, 9.x
+- SME/e-Smith 5.6
+- SuSE Linux 8.2
+- Trustix 2.0
+- TurboLinux Server 6.5
+- TurboLinux Workstation 7.0
+
+This CD has not been tested with:-
+- Caldera OpenLinux Workstation 3.1
+- Caldera OpenLinux Server 3.1
+- Mandrake Linux 8.0
+
+This CD does not work with:-
+- Slackware 8.0
+- Debian 3.0
+- TurboLinux Server 6.0.5
+
+In time, this CD will support most or all of the above distros.
+
+                                             Hugo Rabson <hugorabson@msn.com>

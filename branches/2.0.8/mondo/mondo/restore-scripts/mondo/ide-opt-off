@@ -1,0 +1,7 @@
+#!/bin/sh
+
+    for dev in hda hdb hdc hdd hde hdf hdg hdh ; do
+	hdparm -u 0 -d 0 /dev/$dev &> /tmp/oid1.log
+    done
+
+exit 0

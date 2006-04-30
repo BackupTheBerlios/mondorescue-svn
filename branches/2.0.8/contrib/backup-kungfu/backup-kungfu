@@ -1,0 +1,206 @@
+#!/bin/bash
+#######################################################################
+# This is a script to execute daily/weekly backups over NFS           #
+# with mondorescue set of tools made by Hugo Rabson                   #
+# http://www.mondorescue.com <-- Visit and contribute !               #
+# This script made by Phazeman with a great help of                   #
+# crash3m @ #mandrake, twkm, Lurch and  Speuler @ #bash on            #
+# irc.freenode.net. It has been written to make it easy to use on     #
+# several machines at the same time.                                  #
+# This product is distributed under the GPL license and is issued     #
+# without warrant of anytime against damages, loss of property, or    #
+# loss of profita.                                                    #
+#######################################################################
+
+# Set the debug level to 1 if you want to print all the params and exit
+# Otherwise set to 0
+
+debug="0"
+
+# Get the date
+date=`date +"%d-%m-%Y"`
+
+function check_conf {
+if [ -f "/etc/backup-kungfu.conf" ]
+then
+        echo -e "\nConfiguration file found. Proceeding...\n"
+        source /etc/backup-kungfu.conf
+else
+	echo -e "\n\033[40m\033[1;31mERROR: No configuration file found ! \nExiting now...\033[0m\n"
+        exit 1
+fi
+}
+
+function check_mondo {
+if [ -x $mondo_path/$mondo_exe ]
+then
+        echo -e "mondoarchive executable found. Proceeding..."
+else
+	echo -e "\033[40m\033[1;31mERROR: mondo_exe variable is set wrong.\nPlease edit the config file and rerun the script.\nExiting now...\033[0m\n"
+        exit 1
+fi
+}
+
+function check_backup_dir {
+	if [ -f $backup_dir ]
+	then
+		echo -e "\033[40m\033[1;31mERROR: backup_dir variable is set wrong.\nPlease edit the config file and rerun the script.\nExiting now...\033[0m\n"
+		exit 1
+	else
+		echo -e "The backup dir found. Proceeding...\n"
+	fi
+}
+
+function check_path {
+	if [ -x $mondo_path/$mondo_exec ]
+	then
+		if [ "$PATH" == "" ]
+		then
+			echo -e "Running as cron job. Exporting path...\n"
+			export PATH=$mondo_path
+		fi
+	else
+		echo -e "\033[40m\033[1;31mERROR: No mondoarchive executable found in $mondo_path/.\nPlease edit the config file and then run again.\nExiting now...\033[0m\n"
+		exit 1
+	fi
+}
+
+function remove_garbage {
+	echo -e "Removing the files left from previous mondoarchive run...\n"
+	rm -rf /root/images
+	rm -rf ${backup_dir}/mondo*
+	rm -rf ${backup_dir}/tmp*
+}
+
+function check_root {
+	if [ "$UID" != "0" ] 
+	then
+		echo -e "\n\033[40m\033[1;31mERROR: Root check FAILED (you MUST be root to use this script)! Exiting...\033[0m\n"
+		exit 1
+	fi
+}
+
+function delete_old_backup {
+	answer = "x"
+	while "$(answer)" != ["y" | "Y" | "n" | "N"] 
+	do
+		echo -n "Do you want to delete all the previous \
+			backups stored in $(backup_dir)/$(comp_name) ? (y/n) "
+		read answer
+		case "$(answer)" in
+			["y" | "Y"] ) 
+				echo -e "Removing the old backup files now...\n"
+				rm -rf ${backup_dir}/${comp_name}*
+				;;
+			*) 
+				;;
+		esac
+	done
+}
+
+function move_all {
+	# Remove all the previous backups
+	# echo -e "Removing the old backup files now...\n"
+	# rm -rf ${backup_dir}/${comp_name}*
+	
+	# Create the new folder and move all the iso and floppy images to it
+	echo -e "Creating the new backup directory and moving the files there...\n"
+	mkdir -p ${backup_dir}/${comp_name}_${date}/images
+	cp /root/images/mindi/* ${backup_dir}/${comp_name}_${date}/images/
+	
+	# If you want just move the iso files without renaming them just uncomment the next line
+	# and comment the next for loop
+	mv $backup_dir/*.iso ${backup_dir}/${comp_name}_${date}/
+
+	#for i in `ls $(backup_dir)/*.iso`
+	#do
+	#	mv  $(backup_dir)/$(i) ${backup_dir}/${comp_name}_${date}/$(comp_name)_backup_$(date)_$i
+	#done
+}
+
+function print_params {
+	echo -e "Debug = $debug\n\
+Mondo executable = $mondo_exe\n\
+Mondo path = $mondo_path\n\
+Backup Dir = $backup_dir\n\
+Excludes = $excludes\n\
+Comp Name = $comp_name\n\
+Mondo Params = $params\n\
+Boot Loader = $bootloader\n\
+Launch from dir = $from_dir\n\
+Date = $date\n\
+Mondo execution = '$archiveit'\n"
+}
+
+function cd_from_dir {
+	if [ -d $from_dir ]
+	then
+		cd $from_dir
+		echo -e "Entering the \"From\" directory...\n"
+	else
+		echo -e "\033[40m\033[1;31mERROR: The from_dir variable is set wrong.\nPlease edit the config file and rerun the script.\nExiting now...\033[0m\n"
+		exit 1
+	fi
+}
+
+function set_exec {
+	archiveit="$mondo_path/${mondo_exe} ${params} -d ${backup_dir} -l ${bootloader} -E '${excludes}' &> /dev/null"
+}
+
+function do_cleanup { 
+	remove_garbage; 
+	exit 1; 
+} 
+trap do_cleanup INT
+
+function main {
+if [ $debug == "0" ]
+then    # Execute the real backup
+	#Verify if root
+	check_root;
+		
+	# Check if mondo_exec set correct
+	check_mondo;
+	
+	# Check if the conf file created in /etc 
+	check_conf;
+
+	# Check if the backup_dir set correct
+	check_backup_dir;
+
+	# Check mondo_path
+	check_path;
+	
+	# Set the execution command
+	set_exec;
+	
+	# Remove the garbage from the last run
+	remove_garbage;
+	
+	# Enter the big directory to launch the backup
+	cd_from_dir;
+	
+	#execute the backup
+	echo -e "Executing the backup now. Please hold on, it can take few howrs.\nLook in /var/log/mondoarchive.log for current status of the backup.\n"
+	eval $archiveit
+
+	# Delete old backups from the dir
+	#delete_old_backup;
+	
+	# Copy the mindi images to the backup folder and clean up the mess
+	move_all;
+
+	# Remove all the garbage left afer mondoarchive run
+	remove_garbage;
+else    # Print all the params for debug
+	check_root;
+	check_conf;
+	check_path;
+	set_exec;
+	print_params;
+fi
+}
+
+# Execute the main function
+main;
+

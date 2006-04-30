@@ -1,0 +1,32 @@
+README              MINDI LINUX / MONDO RESCUE            February 7th, 2002
+
+For a really groovy boot disk, use Mindi in combination with Mondo Rescue,
+which may be found at <http://www.mondorescue.org>.
+
+This CD (or, this set of floppy disks) contains the tools required to do
+basic system maintenance, e.g. formatting, moving files, mounting partitions.
+
+If you used Mondo to make this CD (or set of floppies) then oh boy, are you in
+for some fun. To do a basic restore, type:-
+# mondo-restore
+
+To edit the mountlist, type:-
+# edit-mountlist
+
+The archives can be accessed manually using the afio command, like so:-
+# afio -i -P bzip2 -Z /mnt/cdrom/archives/N.afio.bz2
+OR
+# afio -i -P lzop -Z /mnt/cdrom/archives/N.afio.lzo
+
+Tape archives cannot be accessed directly.
+
+NFS mounts should be made available automatically. If they aren't, use mount
+accordingly.
+
+Before you e-mail me, please read the FAQ, the manual, the log and preferably
+the mailing list.
+
+                                           - Hugo Rabson <hugo@firstlinux.net>
+
+
+

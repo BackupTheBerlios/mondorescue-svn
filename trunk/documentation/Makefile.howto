@@ -33,7 +33,7 @@ $(TARGET)/index.html: $(SRC) $(DSL) $(IMAGES)
 	@echo "-------------------------"
 	@rm -fr $(TARGET)
 	@docbook2html -d $(TARGET).dsl'#html' -o $(TARGET) $(TARGET).sgml
-	@ln -sf $(IMAGESDIR) $(TARGET)
+	@(cd $(TARGET) ; ln -sf ../$(IMAGESDIR) .)
 
 $(TARGET).html: $(SRC) $(DSL) $(IMAGES)
 	@echo ""

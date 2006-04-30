@@ -459,14 +459,14 @@ struct s_bkpinfo {
    * In the former case, multiple directories should be separated by spaces.
    * If you do nothing, "/" will be used.
    */
-	char include_paths[MAX_STR_LEN];
+	char include_paths[MAX_STR_LEN*4];
 
   /**
    * Directories to NOT back up. Ignored if make_filelist == FALSE.
    * Multiple directories should be separated by spaces. /tmp, /proc,
    * the scratchdir, and the tempdir are automatically excluded.
    */
-	char exclude_paths[MAX_STR_LEN];
+	char exclude_paths[MAX_STR_LEN*4];
 
   /**
    * The path to restore files relative to during a restore.

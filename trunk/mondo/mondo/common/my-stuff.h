@@ -224,12 +224,12 @@ extern void _mondo_assert_fail(const char *file, const char *function,
 
 /**
  * @c growisofs command to generate a bootable DVD using LILO, except for the directory to image.
-		   	   	 */// -b images/mindi-boot.2880.img
+	 */// -b images/mindi-boot.2880.img
 #define MONDO_GROWISOFS_REGULAR_ELILO     "growisofs -use-the-force-luke -no-emul-boot -b images/mindi-boot.2880.img -c boot.cat -J -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL -V _CD#_ -v"
 
 /**
  * @c growisofs command to generate a bootable DVD using LILO, except for the directory to image.
-		   	   	 */// -b images/mindi-boot.2880.img
+	 */// -b images/mindi-boot.2880.img
 #define MONDO_GROWISOFS_REGULAR_LILO     "growisofs -no-emul-boot -b isolinux.bin -c boot.cat -J -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL -V _CD#_ -v"
 
 /**

@@ -131,7 +131,7 @@ PCMCIA_MODS="pcmcia_core ds yenta_socket"
 USB_MODS="usb-storage usb-ohci usb-uhci usbcore usb_storage hid uhci_hcd ehci_hcd uhci-hcd ehci-hcd usbkbd"
 CDROM_MODS="$TAPE_MODS $FLOPPY_MODS $IDE_MODS af_packet cdrom isocd isofs inflate_fs nls_iso8859-1 nls_cp437 sg sr_mod zlib_inflate $USB_MODS $PCMCIA_MODS"
 NET_MODS="sunrpc nfs nfs_acl lockd loop mii 3c59x e100 bcm5700 e1000 eepro100 ne2k-pci tg3 pcnet32 8139cp 8139too 8390 vmxnet"
-EXTRA_MODS="$CDROM_MODS vfat fat loop linear raid0 raid1 raid5 lvm-mod dm-mod jfs xfs xfs_support pagebuf reiserfs ext2 ext3 minix nfs nfs_acl nfsd lockd sunrpc jbd"
+EXTRA_MODS="$CDROM_MODS vfat fat loop md-mod linear raid0 raid1 xor raid5 lvm-mod dm-mod jfs xfs xfs_support pagebuf reiserfs ext2 ext3 minix nfs nfs_acl nfsd lockd sunrpc jbd"
 LOGFILE=/var/log/mindi.log
 
 BOOT_MEDIA_MESSAGE="\
@@ -1381,29 +1381,58 @@ absolute_partition old_partition_fmt
 		[ "`echo "/dev/scd0 /dev/scd1 /dev/sr0 /dev/sr1 /dev/cdrom /dev/cdrom1" | fgrep "$c_p"`" ] && continue
 	[ "`echo "$c_p" | grep -x "/dev/cdroms.*"`" ] && continue
 	if [ -h "$c_p" ] && [ "`echo "$c_p" | fgrep "/dev/hd"`" = "" ] && [ "`echo "$c_p" | fgrep "/dev/sd"`" = "" ] && [ "`echo "$c_p" | fgrep "/dev/md"`" = "" ] ; then
-		    current_partition=`ResolveSoftlink $c_p`
+		current_partition=`ResolveSoftlink $c_p`
 		[ "`echo "$current_partition" | fgrep "/dev/mapper"`" != "" ] && current_partition="$c_p"
-		    [ "`echo "/dev/scd0 /dev/scd1 /dev/sr0 /dev/sr1 /dev/cdrom /dev/cdrom1" | fgrep "$current_partition"`" ] && continue
+		[ "`echo "/dev/scd0 /dev/scd1 /dev/sr0 /dev/sr1 /dev/cdrom /dev/cdrom1" | fgrep "$current_partition"`" ] && continue
 	else
 		current_partition="$c_p"
 	fi
 	[ "$c_p" = "none" ] && continue
-		absolute_partition=`ResolveSoftlink $c_p`
+	absolute_partition=`ResolveSoftlink $c_p`
 	partition_mountpt=`tr -s '\t' ' ' < $MY_FSTAB | grep -w "$current_partition" | grep -vx " *#.*" | $AWK '{print $2}' | head -n1`
+
+	# This part tries to retrieve the correct device from a LABEL line in /etc/fstab
+	# current_partition contains only first column of /etc/fstab
 	redhat_label=""
-	if [ "`echo "$current_partition" | fgrep -i "LABEL=SWAP"`" != "" ] ; then
-			redhat_label=`echo "$current_partition" | cut -d'=' -f2`
-			actual_dev="/dev/`echo "$redhat_label" | cut -d '-' -f2`"
-			current_partition=$actual_dev
-	elif [ "`echo "$current_partition" | fgrep -i "LABEL="`" != "" ] ; then
+	if [ "`echo "$current_partition" | /bin/grep -f -i "LABEL="`" != "" ] ; then
 		str_to_find_fmt_with=$current_partition
-		redhat_label=`echo "$current_partition" | cut -d'=' -f2`
-		actual_dev=`mount -l | fgrep " [$redhat_label]" | cut -d' ' -f1`
-#	    partition_mountpt=$redhat_label
-		current_partition=$actual_dev
+		redhat_label=`echo "$current_partition" | /bin/cut -d'=' -f2`
+		actual_dev=""
+
+		# 1st try : blkid, the good way
+		if [ -x "/sbin/blkid" ] ; then
+			actual_dev=`/sbin/blkid | grep "$current_partition" | /bin/cut -d':' -f1`
+		fi
+		# 2nd try, which works on a standard partition (ext2/3), but not on swap
+		if [ $actual_dev="" ] ; then
+			actual_dev=`/bin/mount -l | /bin/grep " [$redhat_label]" | /bin/cut -d' ' -f1`
+		fi
+		# 3rd try, with vol_id (which works with swap)
+		if [ $actual_dev="" -a -x "/sbin/vol_id" ] ; then
+				list_swaps=`cat /proc/swaps | /bin/grep "/dev/" | /bin/awk '{ print $1 }' `
+				for dev_swap in $list_swaps ; do
+					dev_exists=`/sbin/vol_id $dev_swap | /bin/grep -f "$redhat_label"`
+					if [ -n "$dev_exists" ] ; then
+						actual_dev=$dev_swap
+						break;
+					fi
+				done
+		fi
+		# 4th try : pre-formated LABEL. Format is : LABEL=SWAP-mydevice. e.g. : LABEL=SWAP-hda5
+		if [ $actual_dev="" -a  "`echo "$current_partition" | /bin/grep -f -i "LABEL=SWAP"`" != ""] ; then
+				actual_dev="/dev/`echo "$redhat_label" | /bin/cut -d '-' -f2`"
+		fi
+		# Check if one of all those tries has known success
+		if [  $actual_dev != "" ] ; then
+				current_partition=$actual_dev
+		else
+			Die "Your system uses a labelled swap partition, but you lack the tool to su
+pport it.\nPlease replace swap labels with their correct devices in /etc/fstab\n"
+		fi
 	else
 		str_to_find_fmt_with=$current_partition
 	fi
+
 	partition_format=`$AWK '$1 == "'"$str_to_find_fmt_with"'" {print $3}' $MY_FSTAB`
 	if [ -d "/proc/lvm" ] && [ "`lvdisplay $current_partition 2> /dev/null`" ] ; then
 		partition_size="lvm"

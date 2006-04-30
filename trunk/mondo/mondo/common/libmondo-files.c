@@ -12,10 +12,8 @@
 #include "mondostructures.h"
 #include "libmondo-files.h"
 
-#include "lib-common-externs.h"
-
 #include "libmondo-tools-EXT.h"
-#include "libmondo-gui-EXT.h"
+#include "newt-specific-EXT.h"
 #include "libmondo-devices-EXT.h"
 #include "libmondo-fork-EXT.h"
 #include "libmondo-string-EXT.h"
@@ -293,12 +291,12 @@ int figure_out_kernel_path_interactively_if_necessary(char *kernel)
 	log_it("Calling Mindi with kernel path of '%s'", kernel);
 	while (!kernel[0]) {
 		if (!ask_me_yes_or_no
-			("Kernel not found or invalid. Choose another?")) {
+			(_("Kernel not found or invalid. Choose another?"))) {
 			return (1);
 		}
 		if (!popup_and_get_string
-			("Kernel path",
-			 "What is the full path and filename of your kernel, please?",
+			(_("Kernel path"),
+			 _("What is the full path and filename of your kernel, please?"),
 			 kernel, MAX_STR_LEN / 4)) {
 			fatal_error
 				("Kernel not found. Please specify with the '-k' flag.");
@@ -488,7 +486,7 @@ char *last_line_of_file(char *filename)
 	/*@ end vars **************************************************** */
 
 	if (!does_file_exist(filename)) {
-		asprintf(&tmp, "Tring to get last line of nonexistent file (%s)",
+		asprintf(&tmp, _("Tring to get last line of nonexistent file (%s)"),
 				filename);
 		log_it(tmp);
 		paranoid_free(tmp);
@@ -883,13 +881,13 @@ int whine_if_not_found(char *fname)
 
 	if (res) {
 		asprintf(&errorstr,
-			"Please install '%s'. I cannot find it on your system.",
+			_("Please install '%s'. I cannot find it on your system."),
 			fname);
 		log_to_screen(errorstr);
 		paranoid_free(errorstr);
 		log_to_screen
-			("There may be an hyperlink at http://www.mondorescue.org which");
-		log_to_screen("will take you to the relevant (missing) package.");
+			(_("There may be an hyperlink at http://www.mondorescue.org which"));
+		log_to_screen(_("will take you to the relevant (missing) package."));
 		return (1);
 	} else {
 		return (0);
@@ -997,6 +995,13 @@ void copy_mondo_and_mindi_stuff_to_scratchdir(struct s_bkpinfo *bkpinfo)
 	paranoid_free(command);
 
 	asprintf(&tmp, "%s/payload.tgz", g_mondo_home);
+
+	/* i18n */
+	asprintf(&command, CP_BIN " --parents /usr/share/locale/*/LC_MESSAGES/mondo.mo %s",bkpinfo->scratchdir);
+	log_msg(4, "command = %s", command);
+	run_program_and_log_output(command, 1);
+	paranoid_free(command);
+
 	if (does_file_exist(tmp)) {
 		log_it("Untarring payload %s to scratchdir %s", tmp,
 			   bkpinfo->scratchdir);
@@ -1270,10 +1275,10 @@ estimate_noof_media_required(struct s_bkpinfo *bkpinfo, long noof_sets)
 	}
 	if (scratchLL <= 1) {
 		asprintf(&tmp,
-				"Your backup will probably occupy a single %s. Maybe two.",
+				_("Your backup will probably occupy a single %s. Maybe two."),
 				media_descriptor_string(bkpinfo->backup_media_type));
 	} else {
-		asprintf(&tmp, "Your backup will occupy approximately %s media.",
+		asprintf(&tmp, _("Your backup will occupy approximately %s media."),
 				number_to_text((int) (scratchLL + 1)));
 	}
 	if (!bkpinfo->image_devs[0] && (scratchLL < 50)) {

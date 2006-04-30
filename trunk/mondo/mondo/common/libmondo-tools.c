@@ -9,9 +9,8 @@ misc tools
 
 #include "my-stuff.h"
 #include "mondostructures.h"
-#include "lib-common-externs.h"
 #include "libmondo-tools.h"
-#include "libmondo-gui-EXT.h"
+#include "newt-specific-EXT.h"
 #include "libmondo-files-EXT.h"
 #include "libmondo-fork-EXT.h"
 #include "libmondo-raid-EXT.h"
@@ -108,9 +107,9 @@ void _mondo_assert_fail(const char *file,
 	if (!g_text_mode)
 		newtSuspend();
 #endif
-	printf("ASSERTION FAILED: `%s'\n", exp);
-	printf("\tat %s:%d in %s\n\n", file, line, function);
-	printf("(I)gnore, ignore (A)ll, (D)ebug, a(B)ort, or (E)xit? ");
+	printf(_("ASSERTION FAILED: `%s'\n"), exp);
+	printf(_("\tat %s:%d in %s\n\n"), file, line, function);
+	printf(_("(I)gnore, ignore (A)ll, (D)ebug, a(B)ort, or (E)xit? "));
 	do {
 		is_valid = TRUE;
 		switch (toupper(getchar())) {
@@ -137,11 +136,11 @@ void _mondo_assert_fail(const char *file,
 			 */
 		case '\n':
 			printf
-				("(I)gnore, ignore (A)ll, (D)ebug, a(B)ort, or (E)xit? ");
+				(_("(I)gnore, ignore (A)ll, (D)ebug, a(B)ort, or (E)xit? "));
 			break;
 		default:
 			is_valid = FALSE;
-			printf("Invalid choice.\n");
+			printf(_("Invalid choice.\n"));
 			break;
 		}
 	} while (!is_valid);
@@ -839,11 +838,11 @@ int some_basic_system_sanity_checks()
 			 ("free | grep Mem | head -n1 | tr -s ' ' '\t' | cut -f2"));
 	if (atol(tmp) < 35000) {
 		retval++;
-		log_to_screen("You must have at least 32MB of RAM to use Mondo.");
+		log_to_screen(_("You must have at least 32MB of RAM to use Mondo."));
 	}
 	if (atol(tmp) < 66000) {
 		log_to_screen
-			("WARNING! You have very little RAM. Please upgrade to 64MB or more.");
+			(_("WARNING! You have very little RAM. Please upgrade to 64MB or more."));
 	}
 	paranoid_free(tmp);
 #endif
@@ -871,13 +870,13 @@ int some_basic_system_sanity_checks()
 	if (run_program_and_log_output
 		("grep ramdisk /proc/devices", FALSE)) {
 		if (!ask_me_yes_or_no
-			("Your kernel has no ramdisk support. That's mind-numbingly stupid but I'll allow it if you're planning to use a failsafe kernel. Are you?"))
+			(_("Your kernel has no ramdisk support. That's mind-numbingly stupid but I'll allow it if you're planning to use a failsafe kernel. Are you?")))
 		{
 			//          retval++;
 			log_to_screen
-				("It looks as if your kernel lacks ramdisk and initrd support.");
+				(_("It looks as if your kernel lacks ramdisk and initrd support."));
 			log_to_screen
-				("I'll allow you to proceed but FYI, if I'm right, your kernel is broken.");
+				(_("I'll allow you to proceed but FYI, if I'm right, your kernel is broken."));
 		}
 	}
 #endif
@@ -899,13 +898,13 @@ int some_basic_system_sanity_checks()
 		||
 		!run_program_and_log_output
 		("mount | grep -w dos | grep -v /dev/fd | grep -v nexdisk", 0)) {
-		log_to_screen("I think you have a Windows 9x partition.");
+		log_to_screen(_("I think you have a Windows 9x partition."));
 		retval += whine_if_not_found("parted");
 #ifndef __IA64__
 		/* IA64 always has one vfat partition for EFI even without Windows */
 		// retval += 
 		if (!find_home_of_exe("ms-sys")) {
-			log_to_screen("Please install ms-sys just in case.");
+			log_to_screen(_("Please install ms-sys just in case."));
 		}
 #endif
 	}
@@ -915,7 +914,7 @@ int some_basic_system_sanity_checks()
 			whine_if_not_found("cmp");
 		} else {
 			log_to_screen
-				("Your system lacks the 'cmp' binary. I'll create a dummy cmp for you.");
+				(_("Your system lacks the 'cmp' binary. I'll create a dummy cmp for you."));
 			if (run_program_and_log_output
 				("cp -f `which true` /usr/bin/cmp", 0)) {
 				fatal_error("Failed to create dummy 'cmp' file.");
@@ -930,10 +929,10 @@ int some_basic_system_sanity_checks()
 	if (strcmp("", tmp)) {
 		if (strstr(tmp, "autofs")) {
 			log_to_screen
-				("Your CD-ROM is mounted via autofs. I therefore cannot tell");
+				(_("Your CD-ROM is mounted via autofs. I therefore cannot tell"));
 			log_to_screen
-				("if a CD actually is inserted. If a CD is inserted, please");
-			log_to_screen("eject it. Thank you.");
+				(_("if a CD actually is inserted. If a CD is inserted, please"));
+			log_to_screen(_("eject it. Thank you."));
 			log_it
 				("Ignoring autofs CD-ROM 'mount' since we hope nothing's in it.");
 		} else
@@ -960,7 +959,7 @@ int some_basic_system_sanity_checks()
 		} else {
 			retval++;
 			log_to_screen
-				("Please find out what happened to /etc/modules.conf");
+				(_("Please find out what happened to /etc/modules.conf"));
 		}
 	}
 #endif
@@ -973,36 +972,36 @@ int some_basic_system_sanity_checks()
 #endif
 
 	if (run_program_and_log_output("mindi -V", 1)) {
-		log_to_screen("Could not ascertain mindi's version number.");
+		log_to_screen(_("Could not ascertain mindi's version number."));
 		log_to_screen
-			("You have not installed Mondo and/or Mindi properly.");
-		log_to_screen("Please uninstall and reinstall them both.");
+			(_("You have not installed Mondo and/or Mindi properly."));
+		log_to_screen(_("Please uninstall and reinstall them both."));
 		fatal_error("Please reinstall Mondo and Mindi.");
 	}
 	if (run_program_and_log_output
 		("mindi --makemountlist /tmp/mountlist.txt.test", 5)) {
 		log_to_screen
-			("Mindi --makemountlist /tmp/mountlist.txt.test failed for some reason.");
+			(_("Mindi --makemountlist /tmp/mountlist.txt.test failed for some reason."));
 		log_to_screen
-			("Please run that command by hand and examine /var/log/mindi.log");
+			(_("Please run that command by hand and examine /var/log/mindi.log"));
 		log_to_screen
-			("for more information. Perhaps your /etc/fstab file is insane.");
+			(_("for more information. Perhaps your /etc/fstab file is insane."));
 		log_to_screen
-			("Perhaps Mindi's MakeMountlist() subroutine has a bug. We'll see.");
+			(_("Perhaps Mindi's MakeMountlist() subroutine has a bug. We'll see."));
 		retval++;
 	}
 
 	if (!run_program_and_log_output("parted2fdisk -l | grep -i raid", 1)
 		&& !does_file_exist("/etc/raidtab")) {
 		log_to_screen
-			("You have RAID partitions but no /etc/raidtab - creating one from /proc/mdstat");
+			(_("You have RAID partitions but no /etc/raidtab - creating one from /proc/mdstat"));
 		create_raidtab_from_mdstat("/etc/raidtab", "/proc/mdstat");
 	}
 
 	if (retval) {
-		mvaddstr_and_log_it(g_currentY++, 74, "Failed.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Failed."));
 	} else {
-		mvaddstr_and_log_it(g_currentY++, 74, "Done.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 	}
 	return (retval);
 }

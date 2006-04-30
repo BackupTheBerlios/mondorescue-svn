@@ -8,14 +8,13 @@
 #include "my-stuff.h"
 #include "mondostructures.h"
 #include "libmondo-verify.h"
-#include "libmondo-gui-EXT.h"
+#include "newt-specific-EXT.h"
 #include "libmondo-files-EXT.h"
 #include "libmondo-fork-EXT.h"
 #include "libmondo-stream-EXT.h"
 #include "libmondo-string-EXT.h"
 #include "libmondo-devices-EXT.h"
 #include "libmondo-tools-EXT.h"
-#include "lib-common-externs.h"
 
 /*@unused@*/
 //static char cvsid[] = "$Id$";
@@ -668,7 +667,7 @@ verify_a_biggiefile_from_stream(struct s_bkpinfo *bkpinfo,
 			log_msg(2, tmp);
 			paranoid_free(tmp);
 
-			asprintf(&tmp, "%s has changed on live filesystem",
+			asprintf(&tmp, _("%s has changed on live filesystem"),
 					 biggie_fname);
 			log_to_screen(tmp);
 			paranoid_free(tmp);
@@ -718,11 +717,11 @@ int verify_afioballs_from_stream(struct s_bkpinfo *bkpinfo)
 			 bkpinfo->tmpdir);
 	asprintf(&curr_acl_list_fname, ACL_BIGGLST_FNAME_RAW_SZ,
 			 bkpinfo->tmpdir);
-	log_to_screen("Verifying regular archives on tape");
+	log_to_screen(_("Verifying regular archives on tape"));
 	total_afioballs = get_last_filelist_number(bkpinfo) + 1;
-	open_progress_form("Verifying filesystem",
-					   "I am verifying archives against your live filesystem now.",
-					   "Please wait. This may take a couple of hours.", "",
+	open_progress_form(_("Verifying filesystem"),
+					   _("I am verifying archives against your live filesystem now."),
+					   _("Please wait. This may take a couple of hours."), "",
 					   total_afioballs);
 	res = read_header_block_from_stream(&size, NULL, &ctrl_chr);
 	if (ctrl_chr != BLK_START_AFIOBALLS) {
@@ -770,7 +769,7 @@ int verify_afioballs_from_stream(struct s_bkpinfo *bkpinfo)
 
 		res = verify_an_afioball_from_stream(bkpinfo, fname, size);
 		if (res) {
-			asprintf(&tmp, "Afioball %ld differs from live filesystem",
+			asprintf(&tmp, _("Afioball %ld differs from live filesystem"),
 					 current_afioball_number);
 			log_to_screen(tmp);
 			paranoid_free(tmp);
@@ -856,8 +855,8 @@ int verify_biggiefiles_from_stream(struct s_bkpinfo *bkpinfo)
 	}
 	noof_biggiefiles = (long) size;
 	log_msg(1, "noof_biggiefiles = %ld", noof_biggiefiles);
-	open_progress_form("Verifying big files", comment,
-					   "Please wait. This may take some time.", "",
+	open_progress_form(_("Verifying big files"), comment,
+					   _("Please wait. This may take some time."), "",
 					   noof_biggiefiles);
 	paranoid_free(comment);
 
@@ -875,7 +874,7 @@ int verify_biggiefiles_from_stream(struct s_bkpinfo *bkpinfo)
 		} else {
 			p++;
 		}
-		asprintf(&comment, "Verifying bigfile #%ld (%ld K)",
+		asprintf(&comment, _("Verifying bigfile #%ld (%ld K)"),
 				 current_biggiefile_number, (long) size >> 10);
 		update_progress_form(comment);
 		paranoid_free(comment);
@@ -948,10 +947,10 @@ int verify_cd_image(struct s_bkpinfo *bkpinfo)
 		paranoid_free(tmp);
 
 		if (bkpinfo->manual_cd_tray) {
-			popup_and_OK("Please push CD tray closed.");
+			popup_and_OK(_("Please push CD tray closed."));
 		}
 		if (find_and_mount_actual_cd(bkpinfo, mountpoint)) {
-			log_to_screen("failed to mount actual CD");
+			log_to_screen(_("failed to mount actual CD"));
 			return (1);
 		}
 	} else {
@@ -963,7 +962,7 @@ int verify_cd_image(struct s_bkpinfo *bkpinfo)
 		vndev = 2;
 		mddevice = make_vn(fname);
 		if (ret) {
-			asprintf(&tmp, "make_vn of %s failed; unable to verify ISO\n",
+			asprintf(&tmp, _("make_vn of %s failed; unable to verify ISO\n"),
 					 fname);
 			log_to_screen(tmp);
 			paranoid_free(tmp);
@@ -975,7 +974,7 @@ int verify_cd_image(struct s_bkpinfo *bkpinfo)
 				 mountpoint);
 #endif
 		if (run_program_and_log_output(command, FALSE)) {
-			asprintf(&tmp, "%s failed; unable to mount ISO image\n",
+			asprintf(&tmp, _("%s failed; unable to mount ISO image\n"),
 					 command);
 			log_to_screen(tmp);
 			paranoid_free(tmp);
@@ -1064,7 +1063,7 @@ int verify_tape_backups(struct s_bkpinfo *bkpinfo)
 	assert(bkpinfo != NULL);
 
 	log_msg(3, "verify_tape_backups --- starting");
-	log_to_screen("Verifying backups");
+	log_to_screen(_("Verifying backups"));
 	openin_tape(bkpinfo);
 
 	/* verify archives themselves */
@@ -1092,10 +1091,10 @@ int verify_tape_backups(struct s_bkpinfo *bkpinfo)
 		if (does_file_exist(changed_files_fname)
 			&& length_of_file(changed_files_fname) > 2) {
 			log_to_screen
-				("Warning - unable to check logfile to derive list of changed files");
+				(_("Warning - unable to check logfile to derive list of changed files"));
 		} else {
 			log_to_screen
-				("No differences found. Therefore, no 'changed.files' text file.");
+				(_("No differences found. Therefore, no 'changed.files' text file."));
 		}
 	}
 	paranoid_free(tmp);
@@ -1118,9 +1117,9 @@ int verify_tape_backups(struct s_bkpinfo *bkpinfo)
 		paranoid_free(tmp);
 
 		log_to_screen
-			("See /tmp/changed.files for a list of nonmatching files.");
+			(_("See /tmp/changed.files for a list of nonmatching files."));
 		log_to_screen
-			("The files probably changed on filesystem, not on backup media.");
+			(_("The files probably changed on filesystem, not on backup media."));
 		//      retval++;
 	}
 	paranoid_free(changed_files_fname);

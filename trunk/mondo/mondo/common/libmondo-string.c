@@ -11,9 +11,8 @@
 #include "my-stuff.h"
 #include "mondostructures.h"
 #include "libmondo-string.h"
-#include "lib-common-externs.h"
 #include "libmondo-files-EXT.h"
-#include "libmondo-gui-EXT.h"
+#include "newt-specific-EXT.h"
 #include "libmondo-tools-EXT.h"
 
 /*@unused@*/
@@ -245,7 +244,7 @@ long friendly_sizestr_to_sizelong(char *incoming)
 		log_it
 			("Oh my gosh. You actually think a YOTTABYTE will get you anywhere? What're you going to do with 1,208,925,819,614,629,174,706,176 bytes of data?!?!");
 		popup_and_OK
-			("That sizespec is more than 1,208,925,819,614,629,174,706,176 bytes. You have a shocking amount of data. Please send a screenshot to the list :-)");
+			(_("That sizespec is more than 1,208,925,819,614,629,174,706,176 bytes. You have a shocking amount of data. Please send a screenshot to the list :-)"));
 		fatal_error("Integer overflow.");
 	} else if (ch != 'm' && ch != 'M') {
 		asprintf(&tmp, "Re: parameter '%s' - bad multiplier ('%c')",
@@ -900,75 +899,75 @@ int severity_of_difference(char *fn, char *out_reason)
 	if (!strncmp(filename, "/var/", 5)) {
 		sev = 2;
 		asprintf(&reason,
-				 "/var's contents will change regularly, inevitably.");
+				 _("/var's contents will change regularly, inevitably."));
 	}
 	if (!strncmp(filename, "/home", 5)) {
 		sev = 2;
 		asprintf(&reason,
-				 "It's in your /home partiton. Therefore, it is important.");
+				 _("It's in your /home partiton. Therefore, it is important."));
 	}
 	if (!strncmp(filename, "/usr/", 5)) {
 		sev = 3;
 		asprintf(&reason,
-				 "You may have installed/removed software during the backup.");
+				 _("You may have installed/removed software during the backup."));
 	}
 	if (!strncmp(filename, "/etc/", 5)) {
 		sev = 3;
 		asprintf(&reason,
-				 "Do not edit config files while backing up your PC.");
+				 _("Do not edit config files while backing up your PC."));
 	}
 	if (!strcmp(filename, "/etc/adjtime")
 		|| !strcmp(filename, "/etc/mtab")) {
 		sev = 1;
-		asprintf(&reason, "This file changes all the time. It's OK.");
+		asprintf(&reason, _("This file changes all the time. It's OK."));
 	}
 	if (!strncmp(filename, "/root/", 6)) {
 		sev = 3;
 		asprintf(&reason,
-				 "Were you compiling/editing something in /root?");
+				 _("Were you compiling/editing something in /root?"));
 	}
 	if (!strncmp(filename, "/root/.", 7)) {
 		sev = 2;
-		asprintf(&reason, "Temp or 'dot' files changed in /root.");
+		asprintf(&reason, _("Temp or 'dot' files changed in /root."));
 	}
 	if (!strncmp(filename, "/var/lib/", 9)) {
 		sev = 2;
-		asprintf(&reason, "Did you add/remove software during backing?");
+		asprintf(&reason, _("Did you add/remove software during backing?"));
 	}
 	if (!strncmp(filename, "/var/lib/rpm", 12)) {
 		sev = 3;
-		asprintf(&reason, "Did you add/remove software during backing?");
+		asprintf(&reason, _("Did you add/remove software during backing?"));
 	}
 	if (!strncmp(filename, "/var/lib/slocate", 16)) {
 		sev = 1;
 		asprintf(&reason,
-				 "The 'update' daemon ran during backup. This does not affect the integrity of your backup.");
+				 _("The 'update' daemon ran during backup. This does not affect the integrity of your backup."));
 	}
 	if (!strncmp(filename, "/var/log/", 9)
 		|| strstr(filename, "/.xsession")
 		|| !strcmp(filename + strlen(filename) - 4, ".log")) {
 		sev = 1;
 		asprintf(&reason,
-				 "Log files change frequently as the computer runs. Fret not.");
+				 _("Log files change frequently as the computer runs. Fret not."));
 	}
 	if (!strncmp(filename, "/var/spool", 10)) {
 		sev = 1;
 		asprintf(&reason,
-				 "Background processes or printers were active. This does not affect the integrity of your backup.");
+				 _("Background processes or printers were active. This does not affect the integrity of your backup."));
 	}
 	if (!strncmp(filename, "/var/spool/mail", 10)) {
 		sev = 2;
-		asprintf(&reason, "Mail was sent/received during backup.");
+		asprintf(&reason, _("Mail was sent/received during backup."));
 	}
 	if (filename[strlen(filename) - 1] == '~') {
 		sev = 1;
 		asprintf(&reason,
-				 "Backup copy of another file which was modified recently.");
+				 _("Backup copy of another file which was modified recently."));
 	}
 	if (strstr(filename, "cache")) {
 		sev = 1;
 		asprintf(&reason,
-				 "Part of a cache of data. Caches change from time to time. Don't worry.");
+				 _("Part of a cache of data. Caches change from time to time. Don't worry."));
 	}
 	if (!strncmp(filename, "/var/run/", 9)
 		|| !strncmp(filename, "/var/lock", 8)
@@ -983,7 +982,7 @@ int severity_of_difference(char *fn, char *out_reason)
 	if (sev == 0) {
 		sev = 3;
 		asprintf(&reason,
-				 "Changed since backup. Consider running a differential backup in a day or two.");
+				 _("Changed since backup. Consider running a differential backup in a day or two."));
 	}
 
 	out_reason = reason;
@@ -1042,9 +1041,10 @@ char *percent_media_full_comment(struct s_bkpinfo *bkpinfo)
 
 	if (bkpinfo->media_size[g_current_media_number] <= 0) {
 		asprintf(&tmp, "%lld", g_tape_posK);
-		asprintf(&outstr, "Volume %d: %s kilobytes archived so far",
+		asprintf(&outstr, _("Volume %d: %s kilobytes archived so far"),
 				 g_current_media_number, commarize(tmp));
 		paranoid_free(tmp);
+
 		return (outstr);
 	}
 
@@ -1053,7 +1053,7 @@ char *percent_media_full_comment(struct s_bkpinfo *bkpinfo)
 		percentage =
 			(int) (g_tape_posK / 10 /
 				   bkpinfo->media_size[g_current_media_number]);
-		asprintf(&prepstr, "Volume %d: [", g_current_media_number);
+		asprintf(&prepstr, _("Volume %d: ["), g_current_media_number);
 	} else {
 		percentage =
 			(int) (space_occupied_by_cd(bkpinfo->scratchdir) * 100 / 1024 /
@@ -1085,7 +1085,7 @@ char *percent_media_full_comment(struct s_bkpinfo *bkpinfo)
 	   log_it("percentage: %d", percentage);
 	   asprintf(&outstr, "%s%s%s] %3d%% used", prepstr, tmp1, tmp2, percentage);
 	 */
-	asprintf(&outstr, "%s%s%s] %3d percent used", prepstr, tmp1, tmp2,
+	asprintf(&outstr, _("%s%s%s] %3d percent used"), prepstr, tmp1, tmp2,
 			 percentage);
 	paranoid_free(prepstr);
 	paranoid_free(tmp1);

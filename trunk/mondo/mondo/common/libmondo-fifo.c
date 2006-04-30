@@ -95,14 +95,14 @@ FILE *open_device_via_buffer(char *device, char direction,
 	}
 	if (!res) {
 		bufsize++;
-		asprintf(&tmp, "Negotiated max buffer of %d MB ", bufsize);
+		asprintf(&tmp, _("Negotiated max buffer of %d MB ", bufsize));
 		log_to_screen(tmp);
 		paranoid_free(tmp);
 	} else {
 		bufsize = 0;
 		res = 0;
 		log_to_screen
-			("Cannot negotiate a buffer of ANY size. Using dd instead.");
+			(_("Cannot negotiate a buffer of ANY size. Using dd instead."));
 	}
 	if (direction == 'r') {
 		keych = 'i';
@@ -142,9 +142,9 @@ FILE *open_device_via_buffer(char *device, char direction,
 	asprintf(&tmp, "ps wwax | grep buffer | grep -v grep");
 	if (run_program_and_log_output(tmp, 1)) {
 		fres = NULL;
-		log_to_screen("Failed to open tape streamer. Buffer error.");
+		log_to_screen(_("Failed to open tape streamer. Buffer error."));
 	} else {
-		log_to_screen("Buffer successfully started.");
+		log_to_screen(_("Buffer successfully started."));
 	}
 	paranoid_free(tmp);
 	return (fres);

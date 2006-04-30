@@ -105,10 +105,9 @@
 #include "mondostructures.h"
 #include "libmondo-fork.h"
 #include "libmondo-string-EXT.h"
-#include "libmondo-gui-EXT.h"
+#include "newt-specific-EXT.h"
 #include "libmondo-files-EXT.h"
 #include "libmondo-tools-EXT.h"
-#include "lib-common-externs.h"
 
 /*@unused@*/
 //static char cvsid[] = "$Id$";
@@ -158,7 +157,7 @@ char *call_program_and_get_last_line_of_output(char *call)
 	return (result);
 }
 
-#define MONDO_POPMSG  "Your PC will not retract the CD tray automatically. Please call mondoarchive with the -m (manual CD tray) flag."
+#define MONDO_POPMSG  _("Your PC will not retract the CD tray automatically. Please call mondoarchive with the -m (manual CD tray) flag.")
 
 /**
  * Call mkisofs to create an ISO image.
@@ -222,7 +221,7 @@ eval_call_to_make_ISO(struct s_bkpinfo *bkpinfo,
 	asprintf(&command, "%s >> %s", ultimate_call, MONDO_LOGFILE);
 
 	log_to_screen
-		("Please be patient. Do not be alarmed by on-screen inactivity.");
+		(_("Please be patient. Do not be alarmed by on-screen inactivity."));
 	log_msg(4, "Calling open_evalcall_form() with what_i_am_doing='%s'",
 			what_i_am_doing);
 	strcpy(tmp, command);
@@ -251,9 +250,9 @@ eval_call_to_make_ISO(struct s_bkpinfo *bkpinfo,
 		}
 		if (retval) {
 			log_msg(2, "Basic call '%s' returned an error.", basic_call);
-			popup_and_OK("Press ENTER to continue.");
+			popup_and_OK(_("Press ENTER to continue."));
 			popup_and_OK
-				("mkisofs and/or cdrecord returned an error. CD was not created");
+				(_("mkisofs and/or cdrecord returned an error. CD was not created"));
 		}
 	}
 	/* if text mode then do the above & RETURN; if not text mode, do this... */
@@ -425,7 +424,7 @@ int run_program_and_log_to_screen(char *basic_call, char *what_i_am_doing)
 
 	if (!(fin = popen(command, "r"))) {
 		log_OS_error("Unable to popen-in command");
-		asprintf(&tmp, "Failed utterly to call '%s'", command);
+		asprintf(&tmp, _("Failed utterly to call '%s'", command));
 		log_to_screen(tmp);
 		paranoid_free(tmp);
 		paranoid_free(lockfile);
@@ -435,7 +434,7 @@ int run_program_and_log_to_screen(char *basic_call, char *what_i_am_doing)
 	paranoid_free(command);
 
 	if (!does_file_exist(lockfile)) {
-		log_to_screen("Waiting for external binary to start");
+		log_to_screen(_("Waiting for external binary to start"));
 		for (i = 0; i < 60 && !does_file_exist(lockfile); sleep(1), i++) {
 			log_msg(3, "Waiting for lockfile %s to exist", lockfile);
 		}
@@ -686,7 +685,7 @@ int run_external_binary_with_percentage_indicator_OLD(char *tt, char *cmd)
 		percentage = pcno * 100 / maxpc;
 		if (pcno <= 5 && last_pcno > 40) {
 			close_evalcall_form();
-			open_evalcall_form("Verifying...");
+			open_evalcall_form("_(Verifying..."));
 		}
 		last_pcno = pcno;
 		update_evalcall_form(percentage);
@@ -763,7 +762,7 @@ int run_external_binary_with_percentage_indicator_NEW(char *tt, char *cmd)
 		percentage = pcno * 100 / maxpc;
 		if (pcno <= 5 && last_pcno >= 40) {
 			close_evalcall_form();
-			open_evalcall_form("Verifying...");
+			open_evalcall_form(_("Verifying..."));
 		}
 		if (counter++ >= 5) {
 			counter = 0;

@@ -136,7 +136,7 @@ int compare_a_biggiefile(struct s_bkpinfo *bkpinfo, long bigfileno)
 	}
 	if (!(fin = fopen(slice_fname(bigfileno, 0, ARCHIVES_PATH, ""), "r"))) {
 		sprintf(tmp_ptr,
-				"Cannot open bigfile %ld (%s)'s info file",
+				_("Cannot open bigfile %ld (%s)'s info file"),
 				bigfileno + 1, bigfile_fname_ptr);
 		log_to_screen(tmp_ptr);
 		return (1);
@@ -150,7 +150,7 @@ int compare_a_biggiefile(struct s_bkpinfo *bkpinfo, long bigfileno)
 	log_msg(2, "biggiestruct.filename = %s", biggiestruct.filename);
 	log_msg(2, "biggiestruct.checksum = %s", biggiestruct.checksum);
 
-	sprintf(tmp_ptr, "Comparing %s", bigfile_fname_ptr);
+	sprintf(tmp_ptr, _("Comparing %s"), bigfile_fname_ptr);
 
 	if (!g_text_mode) {
 		newtDrawRootText(0, 22, tmp_ptr);
@@ -254,9 +254,9 @@ int compare_all_biggiefiles(struct s_bkpinfo *bkpinfo)
 	}
 	mvaddstr_and_log_it(g_currentY, 0,
 						"Comparing large files                                                  ");
-	open_progress_form("Comparing large files",
-					   "I am now comparing the large files",
-					   "against the filesystem. Please wait.", "",
+	open_progress_form(_("Comparing large files"),
+					   _("I am now comparing the large files"),
+					   _("against the filesystem. Please wait."), "",
 					   noof_biggiefiles);
 	for (bigfileno = 0; bigfileno < noof_biggiefiles; bigfileno++) {
 		sprintf(tmp, "Comparing big file #%ld", bigfileno + 1);
@@ -433,13 +433,13 @@ int compare_all_tarballs(struct s_bkpinfo *bkpinfo)
 	read_cfg_var(g_mondo_cfg_file, "last-filelist-number", tmp);
 
 	max_val = atol(tmp);
-	sprintf(progress_str, "Comparing with %s #%d ",
+	sprintf(progress_str, _("Comparing with %s #%d "),
 			media_descriptor_string(bkpinfo->backup_media_type),
 			g_current_media_number);
 
-	open_progress_form("Comparing files",
-					   "Comparing tarballs against filesystem.",
-					   "Please wait. This may take some time.",
+	open_progress_form(_("Comparing files"),
+					   _("Comparing tarballs against filesystem."),
+					   _("Please wait. This may take some time."),
 					   progress_str, max_val);
 
 	log_to_screen(progress_str);
@@ -476,7 +476,7 @@ int compare_all_tarballs(struct s_bkpinfo *bkpinfo)
 			}
 			log_msg(2, "OK, I think it's time for another CD...");
 			g_current_media_number++;
-			sprintf(progress_str, "Comparing with %s #%d ",
+			sprintf(progress_str, _("Comparing with %s #%d "),
 					media_descriptor_string(bkpinfo->backup_media_type),
 					g_current_media_number);
 			log_to_screen(progress_str);
@@ -542,14 +542,14 @@ int compare_to_CD(struct s_bkpinfo *bkpinfo)
 	chdir(cwd);
 	noof_changed_files = count_lines_in_file("/tmp/changed.txt");
 	if (noof_changed_files) {
-		sprintf(tmp, "%ld files do not match the backup            ",
+		sprintf(tmp, _("%ld files do not match the backup            "),
 				noof_changed_files);
 		//      mvaddstr_and_log_it( g_currentY++, 0, tmp );
 		log_to_screen(tmp);
 		sprintf(command, "cat /tmp/changed.txt >> %s", MONDO_LOGFILE);
 		paranoid_system(command);
 	} else {
-		sprintf(tmp, "All files match the backup                     ");
+		sprintf(tmp, _("All files match the backup                     "));
 		mvaddstr_and_log_it(g_currentY++, 0, tmp);
 		log_to_screen(tmp);
 	}
@@ -599,7 +599,7 @@ compare_mode(struct s_bkpinfo *bkpinfo,
 
 	while (get_cfg_file_from_archive(bkpinfo)) {
 		if (!ask_me_yes_or_no
-			("Failed to find config file/archives. Choose another source?"))
+			(_("Failed to find config file/archives. Choose another source?")))
 		{
 			fatal_error("Unable to find config file/archives. Aborting.");
 		}
@@ -640,16 +640,16 @@ compare_mode(struct s_bkpinfo *bkpinfo,
 			mvaddstr_and_log_it(g_currentY++, 0,
 								"...but they were logfiles and temporary files. Your archives are fine.");
 			log_to_screen
-				("The differences were logfiles and temporary files. Your archives are fine.");
+				(_("The differences were logfiles and temporary files. Your archives are fine."));
 		} else {
 			q = count_lines_in_file("/tmp/changed.files");
-			sprintf(tmp, "%ld significant difference%s found.", q,
+			sprintf(tmp, _("%ld significant difference%s found."), q,
 					(q != 1) ? "s" : "");
 			mvaddstr_and_log_it(g_currentY++, 0, tmp);
 			log_to_screen(tmp);
 
 			strcpy(tmp,
-				   "Type 'less /tmp/changed.files' for a list of non-matching files");
+				   _("Type 'less /tmp/changed.files' for a list of non-matching files"));
 			mvaddstr_and_log_it(g_currentY++, 0, tmp);
 			log_to_screen(tmp);
 
@@ -659,7 +659,7 @@ compare_mode(struct s_bkpinfo *bkpinfo,
 		}
 	} else {
 		log_to_screen
-			("No significant differences were found. Your backup is perfect.");
+			(_("No significant differences were found. Your backup is perfect."));
 	}
 	kill_petris();
 	paranoid_free(tmp);

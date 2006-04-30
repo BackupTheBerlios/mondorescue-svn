@@ -29,6 +29,8 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 
+AM_GNU_GETTEXT([external])
+ALL_LINGUAS="fr"
 
 dnl --with/--enable stuff
 do_static_mr=

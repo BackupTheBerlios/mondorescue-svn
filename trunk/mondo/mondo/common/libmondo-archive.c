@@ -15,14 +15,13 @@ subroutines to handle the archiving of files
 #include "libmondo-stream-EXT.h"
 #include "libmondo-devices-EXT.h"
 #include "libmondo-tools-EXT.h"
-#include "libmondo-gui-EXT.h"
+#include "newt-specific-EXT.h"
 #include "libmondo-fork-EXT.h"
 #include "libmondo-files-EXT.h"
 #include "libmondo-filelist-EXT.h"
 #include "libmondo-tools-EXT.h"
 #include "libmondo-verify-EXT.h"
 #include "libmondo-archive.h"
-#include "lib-common-externs.h"
 #include <sys/sem.h>
 #include <sys/types.h>
 #include <sys/ipc.h>
@@ -1456,10 +1455,10 @@ int make_afioballs_and_images(struct s_bkpinfo *bkpinfo)
 	*p_next_set_to_archive = 0;
 	log_to_screen("Archiving regular files");
 	log_msg(5, "Go, Shorty. It's your birthday.");
-	open_progress_form("Backing up filesystem",
-					   "I am backing up your live filesystem now.",
-					   "Please wait. This may take a couple of hours.",
-					   "Working...",
+	open_progress_form(_("Backing up filesystem"),
+					   _("I am backing up your live filesystem now."),
+					   _("Please wait. This may take a couple of hours."),
+					   _("Working..."),
 					   get_last_filelist_number(bkpinfo) + 1);
 
 	log_msg(5, "We're gonna party like it's your birthday.");
@@ -1664,7 +1663,7 @@ int make_iso_fs(struct s_bkpinfo *bkpinfo, char *destfile)
 	paranoid_free(tmp);
 
 	if (bkpinfo->backup_media_type == iso && bkpinfo->manual_cd_tray) {
-		popup_and_OK("Please insert new media and press Enter.");
+		popup_and_OK(_("Please insert new media and press Enter."));
 	}
 
 	log_msg(2, "make_iso_fs --- scratchdir=%s --- destfile=%s",
@@ -2147,10 +2146,10 @@ int make_afioballs_and_images_OLD(struct s_bkpinfo *bkpinfo)
 
 	log_to_screen("Archiving regular files");
 
-	open_progress_form("Backing up filesystem",
-					   "I am backing up your live filesystem now.",
-					   "Please wait. This may take a couple of hours.",
-					   "Working...",
+	open_progress_form(_("Backing up filesystem"),
+					   _("I am backing up your live filesystem now."),
+					   _("Please wait. This may take a couple of hours."),
+					   _("Working..."),
 					   get_last_filelist_number(bkpinfo) + 1);
 
 	asprintf(&curr_filelist_fname, FILELIST_FNAME_RAW_SZ, bkpinfo->tmpdir,

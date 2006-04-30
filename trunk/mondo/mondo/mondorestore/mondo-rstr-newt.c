@@ -81,8 +81,8 @@ add_disklist_entry(struct list_of_disks *disklist, char *raid_device,
 	assert(unallocated_raid_partitions != NULL);
 
 	newtPushHelpLine
-		("   Add one of the following unallocated RAID partitions to this RAID device.");
-	asprintf(&tmp, "%-26s %s", "Device", "Size");
+		(_("   Add one of the following unallocated RAID partitions to this RAID device."));
+	asprintf(&tmp, "%-26s %s", _("Device"), _("Size"));
 	headerMsg = newtLabel(1, 1, tmp);
 	paranoid_free(tmp);
 
@@ -91,9 +91,9 @@ add_disklist_entry(struct list_of_disks *disklist, char *raid_device,
 	redraw_unallocpartnslist(unallocated_raid_partitions, keylist,
 							 partitionsListbox);
 	i = 7;
-	bOK = newtCompactButton(i, 9, "  OK  ");
-	bCancel = newtCompactButton(i += 9, 9, "Cancel");
-	newtOpenWindow(22, 6, 36, 10, "Unallocated RAID partitions");
+	bOK = newtCompactButton(i, 9, _("  OK  "));
+	bCancel = newtCompactButton(i += 9, 9, _("Cancel"));
+	newtOpenWindow(22, 6, 36, 10, _("Unallocated RAID partitions"));
 	myForm = newtForm(NULL, NULL, 0);
 	newtFormAddComponents(myForm, headerMsg, partitionsListbox, bOK,
 						  bCancel, NULL);
@@ -181,11 +181,11 @@ add_mountlist_entry(struct mountlist_itself *mountlist,
 #else
 	asprintf(&format_str, "ext2");
 #endif
-	newtOpenWindow(20, 5, 48, 10, "Add entry");
-	label0 = newtLabel(2, 1, "Device:    ");
-	label1 = newtLabel(2, 2, "Mountpoint:");
-	label2 = newtLabel(2, 3, "Size (MB): ");
-	label3 = newtLabel(2, 4, "Format:    ");
+	newtOpenWindow(20, 5, 48, 10, _("Add entry"));
+	label0 = newtLabel(2, 1, _("Device:    "));
+	label1 = newtLabel(2, 2, _("Mountpoint:"));
+	label2 = newtLabel(2, 3, _("Size (MB): "));
+	label3 = newtLabel(2, 4, _("Format:    "));
 	deviceComp =
 		newtEntry(14, 1, device_str, 30, (void *) &device_here, 0);
 	mountpointComp =
@@ -194,10 +194,10 @@ add_mountlist_entry(struct mountlist_itself *mountlist,
 	formatComp =
 		newtEntry(14, 4, format_str, 15, (void *) &format_here, 0);
 	sizeComp = newtEntry(14, 3, size_str, 10, (void *) &size_here, 0);
-	bOK = newtButton(5, 6, "  OK  ");
-	bCancel = newtButton(17, 6, "Cancel");
+	bOK = newtButton(5, 6, _("  OK  "));
+	bCancel = newtButton(17, 6, _("Cancel"));
 	newtPushHelpLine
-		("To add an entry to the mountlist, please fill in these fields and then hit 'OK'");
+		(_("To add an entry to the mountlist, please fill in these fields and then hit 'OK'"));
 	myForm = newtForm(NULL, NULL, 0);
 	newtFormAddComponents(myForm, deviceComp, mountpointComp, sizeComp,
 						  formatComp, label0, label1, label2, label3, bOK,
@@ -223,12 +223,12 @@ add_mountlist_entry(struct mountlist_itself *mountlist,
 
 		if (b_res == bOK) {
 			if (device_str[strlen(device_str) - 1] == '/') {
-				popup_and_OK("You left the device nearly blank!");
+				popup_and_OK(_("You left the device nearly blank!"));
 				b_res = NULL;
 			}
 			if (size_of_specific_device_in_mountlist(mountlist, device_str)
 				>= 0) {
-				popup_and_OK("Can't add this - you've got one already!");
+				popup_and_OK(_("Can't add this - you've got one already!"));
 				b_res = NULL;
 			}
 		}
@@ -285,7 +285,7 @@ void add_varslist_entry(struct raid_device_record *raidrec)
 	assert(raidrec != NULL);
 
 	if (popup_and_get_string
-		("Add variable", "Enter the name of the variable to add", sz_out,
+		("Add variable", _("Enter the name of the variable to add"), sz_out,
 		 MAX_STR_LEN)) {
 		strip_spaces(sz_out);
 		items = raidrec->additional_vars.entries;
@@ -294,7 +294,7 @@ void add_varslist_entry(struct raid_device_record *raidrec)
 			 && strcmp(raidrec->additional_vars.el[i].label, sz_out); i++);
 		if (i < items) {
 			popup_and_OK
-				("No need to add that variable. It is already listed here.");
+				(_("No need to add that variable. It is already listed here."));
 		} else {
 			strcpy(raidrec->additional_vars.el[items].label, sz_out);
 			edit_varslist_entry(raidrec, items);
@@ -499,7 +499,7 @@ choose_raid_level(struct OSSWAP (raid_device_record, vinum_plex) * raidrec)
 	char *sz;
 
 	asprintf(&prompt,
-			"Please enter the RAID level you want. (concat, striped, raid5)");
+			_("Please enter the RAID level you want. (concat, striped, raid5)"));
 	if (raidrec->raidlevel == -1) {
 		asprintf(&tmp, "concat");
 	} else if (raidrec->raidlevel == 0) {
@@ -555,7 +555,7 @@ choose_raid_level(struct OSSWAP (raid_device_record, vinum_plex) * raidrec)
 		("grep Pers /proc/mdstat > /tmp/raid-personalities.txt 2> /dev/null");
 	strcpy(personalities,
 		   last_line_of_file("/tmp/raid-personalities.txt"));
-	asprintf(&prompt, "Please enter the RAID level you want. %s",
+	asprintf(&prompt, _("Please enter the RAID level you want. %s"),
 			personalities);
 	if (raidrec->raid_level == -1) {
 		asprintf(&tmp, "linear");
@@ -565,7 +565,7 @@ choose_raid_level(struct OSSWAP (raid_device_record, vinum_plex) * raidrec)
 	for (out = 999;
 		 out != -1 && out != 0 && out != 1 && out != 4 && out != 5
 		 && out != 10;) {
-		res = popup_and_get_string("Specify RAID level", prompt, tmp, 10);
+		res = popup_and_get_string(_("Specify RAID level"), prompt, tmp, 10);
 		if (!res) {
 			return;
 		}
@@ -590,7 +590,7 @@ choose_raid_level(struct OSSWAP (raid_device_record, vinum_plex) * raidrec)
 				("Groovy. You've picked a RAID personality which is registered.");
 		} else {
 			if (ask_me_yes_or_no
-				("You have chosen a RAID personality which is not registered with the kernel. Make another selection?"))
+				(_("You have chosen a RAID personality which is not registered with the kernel. Make another selection?")))
 			{
 				out = 999;
 			}
@@ -669,7 +669,7 @@ delete_disklist_entry(struct list_of_disks *disklist, char *raid_device,
 	assert(disklist != NULL);
 	assert_string_is_neither_NULL_nor_zerolength(raid_device);
 
-	asprintf(&tmp, "Delete %s from RAID device %s - are you sure?",
+	asprintf(&tmp, _("Delete %s from RAID device %s - are you sure?"),
 			disklist->el[currline].device, raid_device);
 	if (!ask_me_yes_or_no(tmp)) {
 		paranoid_free(tmp);
@@ -717,14 +717,14 @@ delete_mountlist_entry(struct mountlist_itself *mountlist,
 												  mountlist->el[currline].
 												  device);
 	if (pos >= 0) {
-		asprintf(&tmp, "Cannot delete %s: it is in use by RAID device %s",
+		asprintf(&tmp, _("Cannot delete %s: it is in use by RAID device %s"),
 				mountlist->el[currline].device,
 				raidlist->el[pos].OSSWAP(raid_device, volname));
 		popup_and_OK(tmp);
 		paranoid_free(tmp);
 		return;
 	}
-	asprintf(&tmp, "Delete %s - are you sure?",
+	asprintf(&tmp, _("Delete %s - are you sure?"),
 			mountlist->el[currline].device);
 	if (!ask_me_yes_or_no(tmp)) {
 		paranoid_free(tmp);
@@ -784,7 +784,7 @@ delete_raidlist_entry(struct mountlist_itself *mountlist,
 	if (i < 0) {
 		return;
 	}
-	asprintf(&tmp, "Do you want me to delete %s's partitions, too?", device);
+	asprintf(&tmp, _("Do you want me to delete %s's partitions, too?", device));
 	delete_partitions_too = ask_me_yes_or_no(tmp);
 	if (delete_partitions_too) {
 #ifdef __FreeBSD__
@@ -853,12 +853,12 @@ void delete_varslist_entry(struct raid_device_record *raidrec, int lino)
 	assert(raidrec != NULL);
 
 	av = &raidrec->additional_vars;
-	asprintf(&tmp, "Delete %s - are you sure?", av->el[lino].label);
+	asprintf(&tmp, _("Delete %s - are you sure?", av->el[lino].label));
 	if (ask_me_yes_or_no(tmp)) {
 		if (!strcmp(av->el[lino].label, "persistent-superblock")
 			|| !strcmp(av->el[lino].label, "chunk-size")) {
 			paranoid_free(tmp);
-			asprintf(&tmp, "%s must not be deleted. It would be bad.",
+			asprintf(&tmp, _("%s must not be deleted. It would be bad."),
 					av->el[lino].label);
 			popup_and_OK(tmp);
 		} else {
@@ -926,7 +926,7 @@ redraw_filelist(struct s_node *filelist, void *keylist[ARBITRARY_MAXIMUM],
 				if (!warned_already) {
 					warned_already = TRUE;
 					asprintf(&tmp,
-							"Too many lines. Displaying first %d entries only. Close a directory to see more.",
+							_("Too many lines. Displaying first %d entries only. Close a directory to see more."),
 							ARBITRARY_MAXIMUM);
 					popup_and_OK(tmp);
 					paranoid_free(tmp);
@@ -1071,22 +1071,22 @@ int edit_filelist(struct s_node *filelist)
 
 	assert(filelist != NULL);
 
-	log_to_screen("Editing filelist");
+	log_to_screen(_("Editing filelist"));
 	newtPushHelpLine
-		("   Please edit the filelist to your satisfaction, then click OK or Cancel.");
+		(_("   Please edit the filelist to your satisfaction, then click OK or Cancel."));
 	j = 4;
-	bLess = newtCompactButton(j, 17, " Less ");
-	bMore = newtCompactButton(j += 12, 17, " More ");
-	bToggle = newtCompactButton(j += 12, 17, "Toggle");
-	bRegex = newtCompactButton(j += 12, 17, "RegEx");
-	bCancel = newtCompactButton(j += 12, 17, "Cancel");
-	bOK = newtCompactButton(j += 12, 17, "  OK  ");
+	bLess = newtCompactButton(j, 17, _(" Less "));
+	bMore = newtCompactButton(j += 12, 17, _(" More "));
+	bToggle = newtCompactButton(j += 12, 17, _("Toggle"));
+	bRegex = newtCompactButton(j += 12, 17, _("RegEx"));
+	bCancel = newtCompactButton(j += 12, 17, _("Cancel"));
+	bOK = newtCompactButton(j += 12, 17, _("  OK  "));
 	filelistListbox =
 		newtListbox(2, 1, 15, NEWT_FLAG_SCROLL | NEWT_FLAG_RETURNEXIT);
 	toggle_all_root_dirs_on(filelist);
 	lines_in_flist_window =
 		redraw_filelist(filelist, keylist, filelistListbox);
-	newtOpenWindow(1, 3, 77, 18, "Editing filelist");
+	newtOpenWindow(1, 3, 77, 18, _("Editing filelist"));
 	myForm = newtForm(NULL, NULL, 0);
 	newtFormAddComponents(myForm, filelistListbox, bLess, bMore, bToggle,
 						  bRegex, bCancel, bOK, NULL);
@@ -1095,11 +1095,11 @@ int edit_filelist(struct s_node *filelist)
 		if (b_res == bOK) {
 			finished =
 				ask_me_yes_or_no
-				("Are you happy with your file selection?");
+				(_("Are you happy with your file selection?"));
 		} else if (b_res == bCancel) {
 			finished = TRUE;
 		} else if (b_res == bRegex) {
-			popup_and_OK("I haven't implemented this yet...");
+			popup_and_OK(_("I haven't implemented this yet..."));
 		} else {
 			curr_choice = newtListboxGetCurrent(filelistListbox);
 			for (indexno = 0;
@@ -1235,10 +1235,10 @@ edit_mountlist_entry(struct mountlist_itself *mountlist,
 	strcpy(format_str, mountlist->el[currline].format);
 	sprintf(size_str, "%lld", mountlist->el[currline].size / 1024);
 	newtOpenWindow(20, 5, 48, 10, "Edit entry");
-	label0 = newtLabel(2, 1, "Device:");
-	label1 = newtLabel(2, 2, "Mountpoint:");
-	label2 = newtLabel(2, 3, "Size (MB): ");
-	label3 = newtLabel(2, 4, "Format:    ");
+	label0 = newtLabel(2, 1, _("Device:"));
+	label1 = newtLabel(2, 2, _("Mountpoint:"));
+	label2 = newtLabel(2, 3, _("Size (MB): "));
+	label3 = newtLabel(2, 4, _("Format:    "));
 	deviceComp =
 		newtEntry(14, 1, device_str, 30, (void *) &device_here, 0);
 	mountpointComp =
@@ -1251,13 +1251,13 @@ edit_mountlist_entry(struct mountlist_itself *mountlist,
 	} else {
 		sizeComp = newtEntry(14, 3, size_str, 10, (void *) &size_here, 0);
 	}
-	bOK = newtButton(2, 6, "  OK  ");
-	bCancel = newtButton(14, 6, "Cancel");
+	bOK = newtButton(2, 6, _("  OK  "));
+	bCancel = newtButton(14, 6, _("Cancel"));
 	if (strstr(mountlist->el[currline].device, RAID_DEVICE_STUB)) {
 		b_raid = newtButton(26, 6, "RAID..");
 	}
 	newtPushHelpLine
-		("       Edit this partition's mountpoint, size and format; then click 'OK'.");
+		(_("       Edit this partition's mountpoint, size and format; then click 'OK'."));
 	myForm = newtForm(NULL, NULL, 0);
 	newtFormAddComponents(myForm, deviceComp, mountpointComp, sizeComp,
 						  formatComp, label0, label1, label2, label3, bOK,
@@ -1273,12 +1273,12 @@ edit_mountlist_entry(struct mountlist_itself *mountlist,
 		if (b_res == bOK && strstr(device_str, RAID_DEVICE_STUB)
 			&& strstr(device_used_to_be, RAID_DEVICE_STUB)
 			&& strcmp(device_str, device_used_to_be)) {
-			popup_and_OK("You can't change /dev/mdX to /dev/mdY.");
+			popup_and_OK(_("You can't change /dev/mdX to /dev/mdY."));
 			b_res = NULL;
 			continue;
 		} else if (b_res == bOK && !strcmp(mountpoint_str, "image")
 				   && strcmp(mountpt_used_to_be, "image")) {
-			popup_and_OK("You can't change a regular device to an image.");
+			popup_and_OK(_("You can't change a regular device to an image."));
 			b_res = NULL;
 			continue;
 		}
@@ -1301,18 +1301,18 @@ edit_mountlist_entry(struct mountlist_itself *mountlist,
 				   when you try to map the changes over to the raidtab list, trust me
 				 */
 				popup_and_OK
-					("You cannot edit the RAID settings until you have OK'd your change to the device node.");
+					(_("You cannot edit the RAID settings until you have OK'd your change to the device node."));
 			} else {
 				j = find_raid_device_in_raidlist(raidlist,
 												 mountlist->el[currline].
 												 device);
 				if (j < 0) {
 					sprintf(tmp,
-							"/etc/raidtab does not have an entry for %s; please delete it and add it again",
+							_("/etc/raidtab does not have an entry for %s; please delete it and add it again"),
 							mountlist->el[currline].device);
 					popup_and_OK(tmp);
 				} else {
-					log_it("edit_raidlist_entry - calling");
+					log_it(_("edit_raidlist_entry - calling"));
 					edit_raidlist_entry(mountlist, raidlist,
 										&raidlist->el[j], currline);
 				}
@@ -1362,7 +1362,7 @@ edit_mountlist_entry(struct mountlist_itself *mountlist,
 #ifndef __FreeBSD__				/* It works fine under FBSD. */
 	else if (strcmp(device_used_to_be, device_str)) {
 		popup_and_OK
-			("You are renaming a RAID device as another RAID device. I don't like it but I'll allow it.");
+			(_("You are renaming a RAID device as another RAID device. I don't like it but I'll allow it."));
 	}
 #endif
 	redraw_mountlist(mountlist, keylist, listbox);
@@ -1472,24 +1472,24 @@ edit_raidlist_entry(struct mountlist_itself *mountlist,
 
 	int currline2 = 0;
 
-	log_it("Started edit_raidlist_entry");
+	log_it(_("Started edit_raidlist_entry"));
 	memcpy((void *) &bkp_raidrec, (void *) raidrec,
 		   sizeof(struct vinum_volume));
-	sprintf(title_of_editraidForm_window, "Plexes on %s",
+	sprintf(title_of_editraidForm_window, _("Plexes on %s"),
 			raidrec->volname);
-	newtPushHelpLine("   Please select a plex to edit");
+	newtPushHelpLine(_("   Please select a plex to edit"));
 	newtOpenWindow(13, 5, 54, 15, title_of_editraidForm_window);
 	for (;;) {
 		int i;
 		char headerstr[MAX_STR_LEN];
 		snprintf(headerstr, MAX_STR_LEN, "%-14s %-8s  %11s  %8s",
-				 "Plex", "Level", "Stripe Size", "Subdisks");
+				 _("Plex"), _("Level",) _("Stripe Size"), _("Subdisks"));
 
-		bOK = newtCompactButton(2, 13, "  OK  ");
-		bCancel = newtCompactButton(12, 13, "Cancel");
-		bAdd = newtCompactButton(22, 13, " Add ");
-		bEdit = newtCompactButton(32, 13, " Edit ");
-		bDelete = newtCompactButton(42, 13, "Delete");
+		bOK = newtCompactButton(2, 13, _("  OK  "));
+		bCancel = newtCompactButton(12, 13, _("Cancel"));
+		bAdd = newtCompactButton(22, 13, _(" Add "));
+		bEdit = newtCompactButton(32, 13, _(" Edit "));
+		bDelete = newtCompactButton(42, 13, _("Delete"));
 
 		plexesListbox =
 			newtListbox(2, 3, 9, NEWT_FLAG_SCROLL | NEWT_FLAG_RETURNEXIT);
@@ -1549,10 +1549,10 @@ edit_raidlist_entry(struct mountlist_itself *mountlist,
 
 		if (b_res == bDelete) {
 			char msg[MAX_STR_LEN];
-			sprintf(msg, "Are you sure you want to delete %s.p%i?",
+			sprintf(msg, _("Are you sure you want to delete %s.p%i?"),
 					raidrec->volname, currline2);
 			if (ask_me_yes_or_no(msg)) {
-				log_it("Deleting RAID plex");
+				log_it(_("Deleting RAID plex"));
 				memcpy((void *) &raidrec->plex[currline2],
 					   (void *) &raidrec->plex[raidrec->plexes - 1],
 					   sizeof(struct vinum_plex));
@@ -1626,34 +1626,34 @@ edit_raidlist_entry(struct mountlist_itself *mountlist,
 	newtOpenWindow(20, 5, 40, 14, title_of_editraidForm_window);
 	for (;;) {
 		log_msg(2, "Main loop");
-		sprintf(title_of_editraidForm_window, "Edit %s",
+		sprintf(title_of_editraidForm_window, _("Edit %s"),
 				raidrec->raid_device);
 		strcpy(sz_raid_level,
 			   turn_raid_level_number_to_string(raidrec->raid_level));
 		strcpy(sz_data_disks,
 			   number_of_disks_as_string(raidrec->data_disks.entries,
-										 "data"));
+										 _("data")));
 		strcpy(sz_spare_disks,
 			   number_of_disks_as_string(raidrec->spare_disks.entries,
-										 "spare"));
+										 _("spare")));
 		strcpy(sz_parity_disks,
 			   number_of_disks_as_string(raidrec->parity_disks.entries,
-										 "parity"));
+										 _("parity")));
 		strcpy(sz_failed_disks,
 			   number_of_disks_as_string(raidrec->failed_disks.entries,
-										 "failed"));
+										 _("failed")));
 		bSelectData = newtButton(1, 1, sz_data_disks);
 		bSelectSpare = newtButton(20, 1, sz_spare_disks);
 		bSelectParity = newtButton(1, 5, sz_parity_disks);
 		bSelectFailed = newtButton(20, 5, sz_failed_disks);
 		bChangeRaid = newtButton(1, 9, sz_raid_level);
-		bOK = newtButton(16 + (raidrec->raid_level == -1), 9, "  OK  ");
-		bCancel = newtButton(28, 9, "Cancel");
+		bOK = newtButton(16 + (raidrec->raid_level == -1), 9, _("  OK  "));
+		bCancel = newtButton(28, 9, _("Cancel"));
 		bAdditional =
 			newtCompactButton(1, 13,
-							  "Additional settings and information");
+							  _("Additional settings and information"));
 		newtPushHelpLine
-			("  Edit the RAID device's settings to your heart's content, then hit OK/Cancel.");
+			(_("  Edit the RAID device's settings to your heart's content, then hit OK/Cancel."));
 		editraidForm = newtForm(NULL, NULL, 0);
 		newtFormAddComponents(editraidForm, bSelectData, bSelectParity,
 							  bChangeRaid, bSelectSpare, bSelectFailed,
@@ -1662,16 +1662,16 @@ edit_raidlist_entry(struct mountlist_itself *mountlist,
 		if (b_res == bChangeRaid) {
 			choose_raid_level(raidrec);
 		} else if (b_res == bSelectData) {
-			select_raid_disks(mountlist, raidlist, raidrec, "data",
+			select_raid_disks(mountlist, raidlist, raidrec, _("data"),
 							  &raidrec->data_disks);
 		} else if (b_res == bSelectSpare) {
-			select_raid_disks(mountlist, raidlist, raidrec, "spare",
+			select_raid_disks(mountlist, raidlist, raidrec, _("spare"),
 							  &raidrec->spare_disks);
 		} else if (b_res == bSelectParity) {
-			select_raid_disks(mountlist, raidlist, raidrec, "parity",
+			select_raid_disks(mountlist, raidlist, raidrec, _("parity"),
 							  &raidrec->parity_disks);
 		} else if (b_res == bSelectFailed) {
-			select_raid_disks(mountlist, raidlist, raidrec, "failed",
+			select_raid_disks(mountlist, raidlist, raidrec, _("failed"),
 							  &raidrec->failed_disks);
 		} else if (b_res == bAdditional) {
 			edit_raidrec_additional_vars(raidrec);
@@ -1752,13 +1752,13 @@ edit_raidlist_plex(struct mountlist_itself *mountlist,
 	sprintf(title_of_editraidForm_window, "%s.p%i",
 			raidlist->el[currline].volname, currline2);
 	newtPushHelpLine
-		("   Please select a subdisk to edit, or edit this plex's parameters");
+		(_("   Please select a subdisk to edit, or edit this plex's parameters"));
 	newtOpenWindow(13, 3, 54, 18, title_of_editraidForm_window);
 	for (;;) {
 		int i;
 		char headerstr[MAX_STR_LEN];
 		char tmp[64];
-		snprintf(headerstr, MAX_STR_LEN, "%-24s %s", "Subdisk", "Device");
+		snprintf(headerstr, MAX_STR_LEN, "%-24s %s", _("Subdisk"), _("Device"));
 
 
 		switch (raidrec->raidlevel) {
@@ -1772,26 +1772,26 @@ edit_raidlist_plex(struct mountlist_itself *mountlist,
 			strcpy(tmp, "raid5");
 			break;
 		default:
-			sprintf(tmp, "unknown (%i)", raidrec->raidlevel);
+			sprintf(tmp, _("unknown (%i)"), raidrec->raidlevel);
 			break;
 		}
-		bLevel = newtCompactButton(2, 2, " RAID level ");
+		bLevel = newtCompactButton(2, 2, _(" RAID level "));
 		sLevel = newtLabel(19, 2, tmp);
 
 		if (raidrec->raidlevel >= 0) {
 			sprintf(tmp, "%ik", raidrec->stripesize);
-			bStripeSize = newtCompactButton(2, 4, " Stripe size ");
+			bStripeSize = newtCompactButton(2, 4, _(" Stripe size "));
 		} else {
 			strcpy(tmp, "N/A");
-			bStripeSize = newtLabel(2, 4, "Stripe size:");
+			bStripeSize = newtLabel(2, 4, _("Stripe size:"));
 		}
 		sStripeSize = newtLabel(19, 4, tmp);
 
-		bOK = newtCompactButton(2, 16, "  OK  ");
-		bCancel = newtCompactButton(12, 16, "Cancel");
-		bAdd = newtCompactButton(22, 16, " Add ");
-		bEdit = newtCompactButton(32, 16, " Edit ");
-		bDelete = newtCompactButton(42, 16, "Delete");
+		bOK = newtCompactButton(2, 16, _("  OK  "));
+		bCancel = newtCompactButton(12, 16, _("Cancel"));
+		bAdd = newtCompactButton(22, 16, _(" Add "));
+		bEdit = newtCompactButton(32, 16, _(" Edit "));
+		bDelete = newtCompactButton(42, 16, _("Delete"));
 
 
 		//  plexesListbox = newtListbox (2, 7, 9, NEWT_FLAG_SCROLL | NEWT_FLAG_RETURNEXIT);
@@ -1877,8 +1877,8 @@ edit_raidlist_plex(struct mountlist_itself *mountlist,
 			char tmp[64];
 			sprintf(tmp, "%i", raidrec->stripesize);
 			if (popup_and_get_string
-				("Stripe size",
-				 "Please enter the stripe size in kilobytes.", tmp, 20)) {
+				(_("Stripe size"),
+				 _("Please enter the stripe size in kilobytes."), tmp, 20)) {
 				raidrec->stripesize = atoi(tmp);
 			}
 		} else if ((b_res == bAlloc) || (b_res == unallocListbox)) {
@@ -1929,8 +1929,8 @@ void edit_varslist_entry(struct raid_device_record *raidrec, int lino)
 	assert(lino >= 0);
 
 	strcpy(sz_out, raidrec->additional_vars.el[lino].value);
-	sprintf(header, "Edit %s", raidrec->additional_vars.el[lino].label);
-	sprintf(comment, "Please set %s's value (currently '%s')",
+	sprintf(header, _("Edit %s"), raidrec->additional_vars.el[lino].label);
+	sprintf(comment, _("Please set %s's value (currently '%s')"),
 			raidrec->additional_vars.el[lino].label, sz_out);
 	if (popup_and_get_string(header, comment, sz_out, MAX_STR_LEN)) {
 		strip_spaces(sz_out);
@@ -1992,20 +1992,20 @@ edit_mountlist_in_newt(char *mountlist_fname,
 	strcpy(flaws_str_B, "xxxxxxxxx");
 	strcpy(flaws_str_C, "xxxxxxxxx");
 	if (mountlist->entries > ARBITRARY_MAXIMUM) {
-		log_to_screen("Arbitrary limits suck, man!");
+		log_to_screen(_("Arbitrary limits suck, man!"));
 		finish(1);
 	}
 	newtPushHelpLine
-		("   Please edit the mountlist to your satisfaction, then click OK or Cancel.");
+		(_("   Please edit the mountlist to your satisfaction, then click OK or Cancel."));
 	i = 4;
-	bAdd = newtCompactButton(i, 17, " Add ");
-	bEdit = newtCompactButton(i += 11, 17, " Edit ");
-	bDelete = newtCompactButton(i += 12, 17, "Delete");
-	bReload = newtCompactButton(i += 12, 17, "Reload");
-	bCancel = newtCompactButton(i += 12, 17, "Cancel");
-	bOK = newtCompactButton(i += 12, 17, "  OK  ");
-	sprintf(tmp, "%-24s %-24s %-8s  %s", "Device", "Mountpoint", "Format",
-			"Size (MB)");
+	bAdd = newtCompactButton(i, 17, _(" Add "));
+	bEdit = newtCompactButton(i += 11, 17, _(" Edit "));
+	bDelete = newtCompactButton(i += 12, 17, _("Delete"));
+	bReload = newtCompactButton(i += 12, 17, _("Reload"));
+	bCancel = newtCompactButton(i += 12, 17, _("Cancel"));
+	bOK = newtCompactButton(i += 12, 17, _("  OK  "));
+	sprintf(tmp, "%-24s %-24s %-8s  %s", _("Device"), _("Mountpoint"), _("Format"),
+			_("Size (MB)"));
 	headerMsg = newtLabel(2, 1, tmp);
 	flawsLabelA = newtLabel(2, 13, flaws_str_A);
 	flawsLabelB = newtLabel(2, 14, flaws_str_B);
@@ -2013,7 +2013,7 @@ edit_mountlist_in_newt(char *mountlist_fname,
 	partitionsListbox =
 		newtListbox(2, 2, 10, NEWT_FLAG_SCROLL | NEWT_FLAG_RETURNEXIT);
 	redraw_mountlist(mountlist, keylist, partitionsListbox);
-	newtOpenWindow(1, 3, 77, 18, "Editing mountlist");
+	newtOpenWindow(1, 3, 77, 18, _("Editing mountlist"));
 	myForm = newtForm(NULL, NULL, 0);
 	newtFormAddComponents(myForm, headerMsg, partitionsListbox,
 						  flawsLabelA, flawsLabelB, flawsLabelC, bAdd,
@@ -2030,16 +2030,16 @@ edit_mountlist_in_newt(char *mountlist_fname,
 				(mountlist, flaws_str_A, flaws_str_B, flaws_str_C)) {
 				finished =
 					ask_me_yes_or_no
-					("Your mountlist might not work. Continue anyway?");
+					(_("Your mountlist might not work. Continue anyway?"));
 			} else {
 				finished =
 					ask_me_yes_or_no
-					("Are you sure you want to save your mountlist and continue? (No changes will be made to your partition table at this time.)");
+					(_("Are you sure you want to save your mountlist and continue? (No changes will be made to your partition table at this time.)"));
 			}
 		} else if (b_res == bCancel) {
 			finished = TRUE;
 		} else if (b_res == bReload) {
-			if (ask_me_yes_or_no("Reload original mountlist?")) {
+			if (ask_me_yes_or_no(_("Reload original mountlist?"))) {
 /*
 This would be really dumb. RAIDTAB_FNAME is #define'd.   --- Hugo, 2003/04/24
 	      if (!RAIDTAB_FNAME[0])
@@ -2057,7 +2057,7 @@ This would be really dumb. RAIDTAB_FNAME is #define'd.   --- Hugo, 2003/04/24
 			for (i = 0;
 				 i < mountlist->entries && keylist[i] != curr_choice; i++);
 			if (i == mountlist->entries && mountlist->entries > 0) {
-				log_to_screen("I don't know what that button does!");
+				log_to_screen(_("I don't know what that button does!"));
 			} else {
 				currline = i;
 				if (b_res == bAdd) {
@@ -2075,7 +2075,7 @@ This would be really dumb. RAIDTAB_FNAME is #define'd.   --- Hugo, 2003/04/24
 											 keylist);
 					} else {
 						popup_and_OK
-							("Please add an entry. Then press ENTER to edit it.");
+							(_("Please add an entry. Then press ENTER to edit it."));
 					}
 				}
 			}
@@ -2085,7 +2085,7 @@ This would be really dumb. RAIDTAB_FNAME is #define'd.   --- Hugo, 2003/04/24
 	newtPopWindow();
 	newtPopHelpLine();
 	if (b_res == bOK) {
-		log_it("You pushed 'OK'. I shall now continue.");
+		log_it(_("You pushed 'OK'. I shall now continue."));
 		return (0);
 	} else {
 		/* popup_and_OK("You pushed 'cancel'. I shall now abort."); */
@@ -2164,16 +2164,16 @@ void edit_raidrec_additional_vars(struct raid_device_record *raidrec)
 		   sizeof(struct raid_device_record));
 	sprintf(title_of_window, "Additional variables");
 	newtPushHelpLine
-		("  Edit the additional fields to your heart's content, then click OK or Cancel.");
-	headerMsg = newtLabel(1, 1, "Label                            Value");
+		(_("  Edit the additional fields to your heart's content, then click OK or Cancel."));
+	headerMsg = newtLabel(1, 1, _("Label                            Value"));
 	varsListbox =
 		newtListbox(1, 2, 6, NEWT_FLAG_SCROLL | NEWT_FLAG_RETURNEXIT);
 	i = 1;
-	bAdd = newtCompactButton(i, 9, " Add ");
-	bEdit = newtCompactButton(i += 8, 9, " Edit ");
-	bDelete = newtCompactButton(i += 9, 9, "Delete");
-	bOK = newtCompactButton(i += 9, 9, "  OK  ");
-	bCancel = newtCompactButton(i += 9, 9, "Cancel");
+	bAdd = newtCompactButton(i, 9, _(" Add "));
+	bEdit = newtCompactButton(i += 8, 9, _(" Edit "));
+	bDelete = newtCompactButton(i += 9, 9, _("Delete"));
+	bOK = newtCompactButton(i += 9, 9, _("  OK  "));
+	bCancel = newtCompactButton(i += 9, 9, _("Cancel"));
 	newtOpenWindow(17, 7, 46, 10, title_of_window);
 	myForm = newtForm(NULL, NULL, 0);
 	newtFormAddComponents(myForm, headerMsg, varsListbox, bAdd, bEdit,
@@ -2326,15 +2326,15 @@ get_isodir_info(char *isodir_device, char *isodir_format,
 	}
 
 	if (popup_and_get_string
-		("ISO Mode - device", "On what device do the ISO files live?",
+		(_("ISO Mode - device"), _("On what device do the ISO files live?"),
 		 isodir_device, MAX_STR_LEN / 4)) {
 		if (popup_and_get_string
-			("ISO Mode - format",
-			 "What is the disk format of the device? (Hit ENTER if you don't know.)",
+			(_("ISO Mode - format"),
+			 _("What is the disk format of the device? (Hit ENTER if you don't know.)"),
 			 isodir_format, 16)) {
 			if (popup_and_get_string
-				("ISO Mode - path",
-				 "At what path on this device can the ISO files be found?",
+				(_("ISO Mode - path"),
+				 _("At what path on this device can the ISO files be found?"),
 				 isodir_path, MAX_STR_LEN / 4)) {
 				strip_spaces(isodir_device);
 				strip_spaces(isodir_format);
@@ -2432,11 +2432,11 @@ void nuke_mode_dummy()
 
 
 	newtPushHelpLine
-		("This is where I nuke your hard drives. Mhahahahaha. No-one can stop Mojo Jojo!");
-	newtOpenWindow(24, 3, 32, 13, "Nuking");
-	b1 = newtButton(7, 1, "Slowly");
-	b2 = newtButton(7, 5, "Medium");
-	b3 = newtButton(7, 9, "Quickly");
+		(_("This is where I nuke your hard drives. Mhahahahaha. No-one can stop Mojo Jojo!"));
+	newtOpenWindow(24, 3, 32, 13, _("Nuking"));
+	b1 = newtButton(7, 1, _("Slowly"));
+	b2 = newtButton(7, 5, _("Medium"));
+	b3 = newtButton(7, 9, _("Quickly"));
 	myForm = newtForm(NULL, NULL, 0);
 	newtFormAddComponents(myForm, b1, b2, b3, NULL);
 	b_res = newtRunForm(myForm);
@@ -2801,9 +2801,9 @@ select_raid_disks(struct mountlist_itself *mountlist_dontedit,
 
 	iamhere("Post-malloc");
 	strcpy(help_text,
-		   "   Edit this RAID device's list of partitions. Choose OK or Cancel when done.");
-	sprintf(header_text, "%-24s    %s", "Device", "Index");
-	sprintf(title_of_window, "%s contains...", raidrec->raid_device);
+		   _("   Edit this RAID device's list of partitions. Choose OK or Cancel when done."));
+	sprintf(header_text, "%-24s    %s", _("Device"), _("Index"));
+	sprintf(title_of_window, _("%s contains..."), raidrec->raid_device);
 	newtPushHelpLine(help_text);
 	for (b_res = (newtComponent) 12345; b_res != bOK && b_res != bCancel;) {
 		headerMsg = newtLabel(1, 1, header_text);
@@ -2811,10 +2811,10 @@ select_raid_disks(struct mountlist_itself *mountlist_dontedit,
 			newtListbox(1, 2, 6, NEWT_FLAG_SCROLL | NEWT_FLAG_RETURNEXIT);
 		redraw_disklist(disklist, keylist, partitionsListbox);
 		i = 1;
-		bAdd = newtCompactButton(i, 9, " Add ");
-		bDelete = newtCompactButton(i += 8, 9, "Delete");
-		bOK = newtCompactButton(i += 9, 9, "  OK  ");
-		bCancel = newtCompactButton(i += 9, 9, "Cancel");
+		bAdd = newtCompactButton(i, 9, _(" Add "));
+		bDelete = newtCompactButton(i += 8, 9, _("Delete"));
+		bOK = newtCompactButton(i += 9, 9, _("  OK  "));
+		bCancel = newtCompactButton(i += 9, 9, _("Cancel"));
 		newtOpenWindow(21, 7, 38, 10, title_of_window);
 		myForm = newtForm(NULL, NULL, 0);
 		if (disklist->entries == 0) {
@@ -2833,23 +2833,23 @@ select_raid_disks(struct mountlist_itself *mountlist_dontedit,
 			for (i = 0; i < disklist->entries && keylist[i] != curr_choice;
 				 i++);
 			if (i == disklist->entries && disklist->entries > 0) {
-				log_to_screen("I don't know what that button does!");
+				log_to_screen(_("I don't know what that button does!"));
 			} else {
 				currline = i;
 				if (b_res == bAdd) {
-					log_it("Making list of unallocated RAID slices");
+					log_it(_("Making list of unallocated RAID slices"));
 					make_list_of_unallocated_raid_partitions
 						(unallocated_raid_partitions, mountlist_dontedit,
 						 raidlist);
 					if (unallocated_raid_partitions->entries <= 0) {
 						popup_and_OK
-							("There are no unallocated partitions marked for RAID.");
+							(_("There are no unallocated partitions marked for RAID."));
 					} else {
 						log_it
-							("Done. The user may add one or more of the above to RAID device");
+							(_("Done. The user may add one or more of the above to RAID device"));
 						add_disklist_entry(disklist, raidrec->raid_device,
 										   unallocated_raid_partitions);
-						log_it("I have finished adding a disklist entry.");
+						log_it(_("I have finished adding a disklist entry."));
 						redraw_disklist(disklist, keylist,
 										partitionsListbox);
 					}
@@ -2858,11 +2858,11 @@ select_raid_disks(struct mountlist_itself *mountlist_dontedit,
 										  currline);
 					redraw_disklist(disklist, keylist, partitionsListbox);
 				} else {
-					sprintf(tmp, "%s's index is %d. What should it be?",
+					sprintf(tmp, _("%s's index is %d. What should it be?"),
 							raidrec->raid_device,
 							disklist->el[currline].index);
 					sprintf(sz_res, "%d", disklist->el[currline].index);
-					if (popup_and_get_string("Set index", tmp, sz_res, 10)) {
+					if (popup_and_get_string(_("Set index"), tmp, sz_res, 10)) {
 						disklist->el[currline].index = atoi(sz_res);
 					}
 					redraw_disklist(disklist, keylist, partitionsListbox);
@@ -2919,19 +2919,19 @@ char which_restore_mode()
 	if (g_text_mode) {
 		for (output = 'z'; !strchr("AICE", output); output = tmp[0]) {
 			printf
-				("Which mode - (A)utomatic, (I)nteractive, \n(C)ompare only, or (E)xit to shell?\n--> ");
+				(_("Which mode - (A)utomatic, (I)nteractive, \n(C)ompare only, or (E)xit to shell?\n--> "));
 			fgets(tmp, MAX_STR_LEN - 1, stdin);
 		}
 		return (output);
 	}
 
 	newtPushHelpLine
-		("   Do you want to 'nuke' your system, restore interactively, or just compare?");
-	newtOpenWindow(24, 3, 32, 17, "How should I restore?");
-	b1 = newtButton(7, 1, "Automatically");
-	b2 = newtButton(7, 5, "Interactively");
-	b3 = newtButton(7, 9, "Compare only!");
-	b4 = newtButton(7, 13, "Exit to shell");
+		(_("   Do you want to 'nuke' your system, restore interactively, or just compare?"));
+	newtOpenWindow(24, 3, 32, 17, _("How should I restore?"));
+	b1 = newtButton(7, 1, _("Automatically"));
+	b2 = newtButton(7, 5, _("Interactively"));
+	b3 = newtButton(7, 9, _("Compare only!"));
+	b4 = newtButton(7, 13, _("Exit to shell"));
 	myForm = newtForm(NULL, NULL, 0);
 	newtFormAddComponents(myForm, b1, b2, b3, b4, NULL);
 	b_res = newtRunForm(myForm);

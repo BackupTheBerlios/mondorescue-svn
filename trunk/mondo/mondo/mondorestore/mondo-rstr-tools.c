@@ -224,7 +224,7 @@ void ask_about_these_imagedevs(char *infname, char *outfname)
 		}
 
 		asprintf(&question,
-				"Should I restore the image of %s ?", incoming);
+				_("Should I restore the image of %s ?", incoming));
 
 		if (ask_me_yes_or_no(question)) {
 			fprintf(fout, "%s\n", incoming);
@@ -336,7 +336,7 @@ void get_cfg_file_from_archive_or_bust(struct s_bkpinfo *bkpinfo)
 {
 	while (get_cfg_file_from_archive(bkpinfo)) {
 		if (!ask_me_yes_or_no
-			("Failed to find config file/archives. Choose another source?"))
+			(_("Failed to find config file/archives. Choose another source?")))
 		{
 			fatal_error("Could not find config file/archives. Aborting.");
 		}
@@ -440,7 +440,7 @@ int iso_fiddly_bits(struct s_bkpinfo *bkpinfo, bool nuke_me_please)
 	paranoid_system("umount " MNT_CDROM " 2> /dev/null");	/* just in case */
 
 	if (is_this_device_mounted(g_isodir_device)) {
-		log_to_screen("WARNING - isodir is already mounted");
+		log_to_screen(_("WARNING - isodir is already mounted"));
 		already_mounted = TRUE;
 	} else {
 		sprintf(mount_isodir_command, "mount %s", g_isodir_device);
@@ -457,11 +457,11 @@ int iso_fiddly_bits(struct s_bkpinfo *bkpinfo, bool nuke_me_please)
 		log_msg(1, tmp);
 		if (run_program_and_log_output(mount_isodir_command, FALSE)) {
 			popup_and_OK
-				("Cannot mount the device where the ISO files are stored.");
+				(_("Cannot mount the device where the ISO files are stored."));
 			return (1);
 		}
 		log_to_screen
-			("I have mounted the device where the ISO files are stored.");
+			(_("I have mounted the device where the ISO files are stored."));
 	}
 	if (!IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
 		mount_cdrom(bkpinfo);
@@ -472,7 +472,7 @@ int iso_fiddly_bits(struct s_bkpinfo *bkpinfo, bool nuke_me_please)
 	log_msg(1, tmp);
 	if (i < 0) {
 		popup_and_OK
-			("Cannot find ISO images in the directory you specified.");
+			(_("Cannot find ISO images in the directory you specified."));
 		retval = 1;
 	}
 	log_msg(2, "%ld: bkpinfo->isodir is now %s", __LINE__,
@@ -598,10 +598,10 @@ int mount_all_devices(struct mountlist_itself
   /** menset **/
 	these_failed[0] = '\0';
 
-	mvaddstr_and_log_it(g_currentY, 0, "Mounting devices         ");
-	open_progress_form("Mounting devices",
-					   "I am now mounting all the drives.",
-					   "This should not take long.",
+	mvaddstr_and_log_it(g_currentY, 0, _("Mounting devices         "));
+	open_progress_form(_("Mounting devices"),
+					   _("I am now mounting all the drives."),
+					   _("This should not take long."),
 					   "", mountlist->entries);
 
 	for (lino = 0; lino < mountlist->entries; lino++) {
@@ -609,7 +609,7 @@ int mount_all_devices(struct mountlist_itself
 			log_msg(1,
 					"Again with the /proc - why is this in your mountlist?");
 		} else if (is_this_device_mounted(mountlist->el[lino].device)) {
-			sprintf(tmp, "%s is already mounted",
+			sprintf(tmp, _("%s is already mounted"),
 					mountlist->el[lino].device);
 			log_to_screen(tmp);
 		} else if (strcmp(mountlist->el[lino].mountpoint, "none")
@@ -638,27 +638,27 @@ int mount_all_devices(struct mountlist_itself
 	if (retval) {
 		if (g_partition_table_locked_up > 0) {
 			log_to_screen
-				("fdisk's ictol() call to refresh its copy of the partition table causes the kernel to");
+				(_("fdisk's ioctl() call to refresh its copy of the partition table causes the kernel to"));
 			log_to_screen
-				("lock up the partition table. You might have to reboot and use Interactive Mode to");
+				(_("lock up the partition table. You might have to reboot and use Interactive Mode to"));
 			log_to_screen
-				("format and restore *without* partitioning first. Sorry for the inconvenience.");
+				(_("format and restore *without* partitioning first. Sorry for the inconvenience."));
 		}
-		sprintf(tmp, "Could not mount devices %s- shall I abort?",
+		sprintf(tmp, _("Could not mount devices %s- shall I abort?"),
 				these_failed);
 		if (!ask_me_yes_or_no(tmp)) {
 			retval = 0;
 			log_to_screen
-				("Continuing, although some devices failed to be mounted");
-			mvaddstr_and_log_it(g_currentY++, 74, "Done.");
+				(_("Continuing, although some devices failed to be mounted"));
+			mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 		} else {
-			mvaddstr_and_log_it(g_currentY++, 74, "Failed.");
+			mvaddstr_and_log_it(g_currentY++, 74, _("Failed."));
 			log_to_screen
-				("Unable to mount some or all of your partitions.");
+				(_("Unable to mount some or all of your partitions."));
 		}
 	} else {
-		log_to_screen("All partitions were mounted OK.");
-		mvaddstr_and_log_it(g_currentY++, 74, "Done.");
+		log_to_screen(_("All partitions were mounted OK."));
+		mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 	}
 	run_program_and_log_output("df -P -m", 3);
 	paranoid_free(mountlist);
@@ -1321,7 +1321,7 @@ s_node *process_filelist_and_biggielist(struct s_bkpinfo *bkpinfo)
 
 	if (am_I_in_disaster_recovery_mode()
 		&&
-		ask_me_yes_or_no("Do you want to retrieve the mountlist as well?"))
+		ask_me_yes_or_no(_("Do you want to retrieve the mountlist as well?")))
 	{
 //      sprintf(command, "cp -f tmp/mountlist.txt /tmp");
 		sprintf(command, "ln -sf %s/%s /tmp", MOUNTLIST_FNAME_STUB,
@@ -1347,7 +1347,7 @@ s_node *process_filelist_and_biggielist(struct s_bkpinfo *bkpinfo)
 		break;
 
 	case 0:
-		log_to_screen("Pre-processing filelist");
+		log_to_screen(("Pre-processing filelist"));
 		if (!does_file_exist(g_biggielist_txt)) {
 			sprintf(command, "> %s", g_biggielist_txt);
 			paranoid_system(command);
@@ -1359,7 +1359,7 @@ s_node *process_filelist_and_biggielist(struct s_bkpinfo *bkpinfo)
 		break;
 
 	default:
-		open_evalcall_form("Pre-processing filelist");
+		open_evalcall_form(_("Pre-processing filelist"));
 		while (!waitpid(pid, (int *) 0, WNOHANG)) {
 			usleep(100000);
 			update_evalcall_form(0);
@@ -1372,7 +1372,7 @@ s_node *process_filelist_and_biggielist(struct s_bkpinfo *bkpinfo)
 	log_msg(3, "deleting original filelist");
 	unlink(g_filelist_full);
 	if (g_text_mode) {
-		printf("Restore which directory? --> ");
+		printf(_("Restore which directory? --> "));
 		fgets(tmp, sizeof(tmp), stdin);
 		toggle_path_selection(filelist, tmp, TRUE);
 		if (strlen(tmp) == 0) {
@@ -1505,15 +1505,15 @@ int run_boot_loader(bool offer_to_hack_scripts)
 #else
 	else {
 		log_to_screen
-			("Unable to determine type of boot loader. Defaulting to LILO.");
+			(_("Unable to determine type of boot loader. Defaulting to LILO."));
 		res = run_lilo(offer_to_hack_scripts);
 	}
 #endif
 	retval += res;
 	if (res) {
-		log_to_screen("Your boot loader returned an error");
+		log_to_screen(_("Your boot loader returned an error"));
 	} else {
-		log_to_screen("Your boot loader ran OK");
+		log_to_screen(_("Your boot loader ran OK"));
 	}
 	paranoid_free(device);
 	paranoid_free(tmp);
@@ -1594,29 +1594,29 @@ int run_grub(bool offer_to_run_stabgrub, char *bd)
 		log_msg(1, "WARNING - grub-MR not found; using grub-install");
 	}
 	if (offer_to_run_stabgrub
-		&& ask_me_yes_or_no("Did you change the mountlist?"))
+		&& ask_me_yes_or_no(_("Did you change the mountlist?")))
 		/* interactive mode */
 	{
 		mvaddstr_and_log_it(g_currentY,
 							0,
-							"Modifying fstab and grub.conf, and running GRUB...                             ");
+							_("Modifying fstab and grub.conf, and running GRUB...                             "));
 		for (done = FALSE; !done;) {
-			popup_and_get_string("Boot device",
-								 "Please confirm/enter the boot device. If in doubt, try /dev/hda",
+			popup_and_get_string(_("Boot device"),
+								 _("Please confirm/enter the boot device. If in doubt, try /dev/hda"),
 								 boot_device, MAX_STR_LEN / 4);
 			sprintf(command, "stabgrub-me %s", boot_device);
 			res = run_program_and_log_output(command, 1);
 			if (res) {
 				popup_and_OK
-					("GRUB installation failed. Please install manually using 'grub-install' or similar command. You are now chroot()'ed to your restored system. Please type 'exit' when you are done.");
+					(_("GRUB installation failed. Please install manually using 'grub-install' or similar command. You are now chroot()'ed to your restored system. Please type 'exit' when you are done."));
 				newtSuspend();
 				system("chroot " MNT_RESTORING);
 				newtResume();
-				popup_and_OK("Thank you.");
+				popup_and_OK(_("Thank you."));
 			} else {
 				done = TRUE;
 			}
-			popup_and_OK("You will now edit fstab and grub.conf");
+			popup_and_OK(_("You will now edit fstab and grub.conf"));
 			if (!g_text_mode) {
 				newtSuspend();
 			}
@@ -1633,22 +1633,22 @@ int run_grub(bool offer_to_run_stabgrub, char *bd)
 	{
 		mvaddstr_and_log_it(g_currentY,
 							0,
-							"Running GRUB...                                                 ");
+							_("Running GRUB...                                                 "));
 		iamhere(command);
 		res = run_program_and_log_output(command, 1);
 		if (res) {
 			popup_and_OK
-				("Because of bugs in GRUB's own installer, GRUB was not installed properly. Please install the boot loader manually now, using this chroot()'ed shell prompt. Type 'exit' when you have finished.");
+				(_("Because of bugs in GRUB's own installer, GRUB was not installed properly. Please install the boot loader manually now, using this chroot()'ed shell prompt. Type 'exit' when you have finished."));
 			newtSuspend();
 			system("chroot " MNT_RESTORING);
 			newtResume();
-			popup_and_OK("Thank you.");
+			popup_and_OK(_("Thank you."));
 		}
 	}
 	if (res) {
-		mvaddstr_and_log_it(g_currentY++, 74, "Failed.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Failed."));
 		log_to_screen
-			("GRUB ran w/error(s). See /tmp/mondo-restore.log for more info.");
+			(_("GRUB ran w/error(s). See /tmp/mondo-restore.log for more info."));
 		log_msg(1, "Type:-");
 		log_msg(1, "    mount-me");
 		log_msg(1, "    chroot " MNT_RESTORING);
@@ -1659,7 +1659,7 @@ int run_grub(bool offer_to_run_stabgrub, char *bd)
 		log_msg(1,
 				"If you're really stuck, please e-mail the mailing list.");
 	} else {
-		mvaddstr_and_log_it(g_currentY++, 74, "Done.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 	}
 	paranoid_free(rootdev);
 	paranoid_free(rootdrive);
@@ -1697,18 +1697,18 @@ int run_elilo(bool offer_to_run_stabelilo)
 	malloc_string(editor);
 	strcpy(editor, find_my_editor());
 	if (offer_to_run_stabelilo
-		&& ask_me_yes_or_no("Did you change the mountlist?"))
+		&& ask_me_yes_or_no(_("Did you change the mountlist?")))
 
 		/* interactive mode */
 	{
 		mvaddstr_and_log_it(g_currentY,
 							0,
-							"Modifying fstab and elilo.conf...                             ");
+							_("Modifying fstab and elilo.conf...                             "));
 		sprintf(command, "stabelilo-me");
 		res = run_program_and_log_output(command, 3);
 		if (res) {
 			popup_and_OK
-				("You will now edit fstab and elilo.conf, to make sure they match your new mountlist.");
+				(_("You will now edit fstab and elilo.conf, to make sure they match your new mountlist."));
 			for (done = FALSE; !done;) {
 				if (!g_text_mode) {
 					newtSuspend();
@@ -1722,13 +1722,13 @@ int run_elilo(bool offer_to_run_stabelilo)
 					newtResume();
 				}
 //              newtCls();
-				if (ask_me_yes_or_no("Edit them again?")) {
+				if (ask_me_yes_or_no(_("Edit them again?"))) {
 					continue;
 				}
 				done = TRUE;
 			}
 		} else {
-			log_to_screen("elilo.conf and fstab were modified OK");
+			log_to_screen(_("elilo.conf and fstab were modified OK"));
 		}
 	} else
 		/* nuke mode */
@@ -1772,18 +1772,18 @@ int run_lilo(bool offer_to_run_stablilo)
 
 	strcpy(editor, find_my_editor());
 	if (offer_to_run_stablilo
-		&& ask_me_yes_or_no("Did you change the mountlist?"))
+		&& ask_me_yes_or_no(_("Did you change the mountlist?")))
 
 		/* interactive mode */
 	{
 		mvaddstr_and_log_it(g_currentY,
 							0,
-							"Modifying fstab and lilo.conf, and running LILO...                             ");
+							_("Modifying fstab and lilo.conf, and running LILO...                             "));
 		sprintf(command, "stablilo-me");
 		res = run_program_and_log_output(command, 3);
 		if (res) {
 			popup_and_OK
-				("You will now edit fstab and lilo.conf, to make sure they match your new mountlist.");
+				(_("You will now edit fstab and lilo.conf, to make sure they match your new mountlist."));
 			for (done = FALSE; !done;) {
 				if (!g_text_mode) {
 					newtSuspend();
@@ -1796,7 +1796,7 @@ int run_lilo(bool offer_to_run_stablilo)
 					newtResume();
 				}
 //              newtCls();
-				if (ask_me_yes_or_no("Edit them again?")) {
+				if (ask_me_yes_or_no(_("Edit them again?"))) {
 					continue;
 				}
 				res =
@@ -1810,20 +1810,20 @@ int run_lilo(bool offer_to_run_stablilo)
 				if (res) {
 					done =
 						ask_me_yes_or_no
-						("LILO failed. Re-edit system files?");
+						(_("LILO failed. Re-edit system files?"));
 				} else {
 					done = TRUE;
 				}
 			}
 		} else {
-			log_to_screen("lilo.conf and fstab were modified OK");
+			log_to_screen(_("lilo.conf and fstab were modified OK"));
 		}
 	} else
 		/* nuke mode */
 	{
 		mvaddstr_and_log_it(g_currentY,
 							0,
-							"Running LILO...                                                 ");
+							_("Running LILO...                                                 "));
 		res =
 			run_program_and_log_output("chroot " MNT_RESTORING " lilo -L",
 									   3);
@@ -1833,11 +1833,11 @@ int run_lilo(bool offer_to_run_stablilo)
 										   3);
 		}
 		if (res) {
-			mvaddstr_and_log_it(g_currentY++, 74, "Failed.");
+			mvaddstr_and_log_it(g_currentY++, 74, _("Failed."));
 			log_to_screen
-				("Failed to re-jig fstab and/or lilo. Edit/run manually, please.");
+				(_("Failed to re-jig fstab and/or lilo. Edit/run manually, please."));
 		} else {
-			mvaddstr_and_log_it(g_currentY++, 74, "Done.");
+			mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 		}
 	}
 	if (run_lilo_M) {
@@ -1885,14 +1885,14 @@ int run_raw_mbr(bool offer_to_hack_scripts, char *bd)
 	log_msg(2, "run_raw_mbr() --- command='%s'", command);
 
 	if (offer_to_hack_scripts
-		&& ask_me_yes_or_no("Did you change the mountlist?"))
+		&& ask_me_yes_or_no(_("Did you change the mountlist?")))
 		/* interactive mode */
 	{
 		mvaddstr_and_log_it(g_currentY, 0,
-							"Modifying fstab and restoring MBR...                           ");
+							_("Modifying fstab and restoring MBR...                           "));
 		for (done = FALSE; !done;) {
 			if (!run_program_and_log_output("which vi", FALSE)) {
-				popup_and_OK("You will now edit fstab");
+				popup_and_OK(_("You will now edit fstab"));
 				if (!g_text_mode) {
 					newtSuspend();
 				}
@@ -1903,13 +1903,13 @@ int run_raw_mbr(bool offer_to_hack_scripts, char *bd)
 				}
 //              newtCls();
 			}
-			popup_and_get_string("Boot device",
-								 "Please confirm/enter the boot device. If in doubt, try /dev/hda",
+			popup_and_get_string(_("Boot device"),
+								 _("Please confirm/enter the boot device. If in doubt, try /dev/hda"),
 								 boot_device, MAX_STR_LEN / 4);
 			sprintf(command, "stabraw-me %s", boot_device);
 			res = run_program_and_log_output(command, 3);
 			if (res) {
-				done = ask_me_yes_or_no("Modifications failed. Re-try?");
+				done = ask_me_yes_or_no(_("Modifications failed. Re-try?"));
 			} else {
 				done = TRUE;
 			}
@@ -1918,15 +1918,15 @@ int run_raw_mbr(bool offer_to_hack_scripts, char *bd)
 		/* nuke mode */
 	{
 		mvaddstr_and_log_it(g_currentY, 0,
-							"Restoring MBR...                                               ");
+							_("Restoring MBR...                                               "));
 		res = run_program_and_log_output(command, 3);
 	}
 	if (res) {
-		mvaddstr_and_log_it(g_currentY++, 74, "Failed.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Failed."));
 		log_to_screen
-			("MBR+fstab processed w/error(s). See /tmp/mondo-restore.log for more info.");
+			(_("MBR+fstab processed w/error(s). See /tmp/mondo-restore.log for more info."));
 	} else {
-		mvaddstr_and_log_it(g_currentY++, 74, "Done.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 	}
 	paranoid_free(command);
 	paranoid_free(boot_device);
@@ -2066,7 +2066,7 @@ void streamline_changes_file(char *output_file, char *input_file)
 void terminate_daemon(int sig)
 {
 	log_to_screen
-		("Mondorestore is terminating in response to a signal from the OS");
+		(_("Mondorestore is terminating in response to a signal from the OS"));
 	paranoid_MR_finish(254);
 }
 
@@ -2088,13 +2088,13 @@ void twenty_seconds_til_yikes()
 	if (does_file_exist("/tmp/NOPAUSE")) {
 		return;
 	}
-	open_progress_form("CAUTION",
-					   "Be advised: I am about to ERASE your hard disk(s)!",
-					   "You may press Ctrl+Alt+Del to abort safely.",
+	open_progress_form(_("CAUTION"),
+					   _("Be advised: I am about to ERASE your hard disk(s)!"),
+					   _("You may press Ctrl+Alt+Del to abort safely."),
 					   "", 20);
 	for (i = 0; i < 20; i++) {
 		g_current_progress = i;
-		sprintf(tmp, "You have %d seconds left to abort.", 20 - i);
+		sprintf(tmp, _("You have %d seconds left to abort."), 20 - i);
 		update_progress_form(tmp);
 		sleep(1);
 	}
@@ -2150,10 +2150,10 @@ int unmount_all_devices(struct mountlist_itself
 	sort_mountlist_by_mountpoint(mountlist, 0);
 
 	run_program_and_log_output("df -P -m", 3);
-	mvaddstr_and_log_it(g_currentY, 0, "Unmounting devices      ");
-	open_progress_form("Unmounting devices",
-					   "Unmounting all devices that were mounted,",
-					   "in preparation for the post-restoration reboot.",
+	mvaddstr_and_log_it(g_currentY, 0, _("Unmounting devices      "));
+	open_progress_form(_("Unmounting devices"),
+					   _("Unmounting all devices that were mounted,"),
+					   _("in preparation for the post-restoration reboot."),
 					   "", mountlist->entries);
 	chdir("/");
 	for (i = 0;
@@ -2186,7 +2186,7 @@ int unmount_all_devices(struct mountlist_itself
 		if (!strcmp(mountlist->el[lino].mountpoint, "lvm")) {
 			continue;
 		}
-		sprintf(tmp, "Unmounting device %s  ", mountlist->el[lino].device);
+		sprintf(tmp, _("Unmounting device %s  "), mountlist->el[lino].device);
 
 		update_progress_form(tmp);
 		if (is_this_device_mounted(mountlist->el[lino].device)) {
@@ -2205,12 +2205,12 @@ int unmount_all_devices(struct mountlist_itself
 			log_msg(10, "The 'umount' command is '%s'", command);
 			res = run_program_and_log_output(command, 3);
 		} else {
-			strcat(tmp, "...not mounted anyway :-) OK");
+			strcat(tmp, _("...not mounted anyway :-) OK"));
 			res = 0;
 		}
 		g_current_progress++;
 		if (res) {
-			strcat(tmp, "...Failed");
+			strcat(tmp, _("...Failed"));
 			retval++;
 			log_to_screen(tmp);
 		} else {
@@ -2219,14 +2219,14 @@ int unmount_all_devices(struct mountlist_itself
 	}
 	close_progress_form();
 	if (retval) {
-		mvaddstr_and_log_it(g_currentY++, 74, "Failed.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Failed."));
 	} else {
-		mvaddstr_and_log_it(g_currentY++, 74, "Done.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 	}
 	if (retval) {
-		log_to_screen("Unable to unmount some of your partitions.");
+		log_to_screen(_("Unable to unmount some of your partitions."));
 	} else {
-		log_to_screen("All partitions were unmounted OK.");
+		log_to_screen(_("All partitions were unmounted OK."));
 	}
 	free(mountlist);
 	paranoid_free(command);
@@ -2310,7 +2310,7 @@ int get_cfg_file_from_archive(struct s_bkpinfo *bkpinfo)
 	malloc_string(command);
 	malloc_string(tmp);
 	log_msg(2, "gcffa --- starting");
-	log_to_screen("I'm thinking...");
+	log_to_screen(_("I'm thinking..."));
 	sprintf(mountpt, "%s/mount.bootdisk", bkpinfo->tmpdir);
 	device[0] = '\0';
 	chdir(bkpinfo->tmpdir);
@@ -2422,7 +2422,7 @@ int get_cfg_file_from_archive(struct s_bkpinfo *bkpinfo)
 			paranoid_free(sav);
 
 			if (!does_file_exist("tmp/mondo-restore.cfg")) {
-				log_to_screen("Cannot find config info on tape/CD/floppy");
+				log_to_screen(_("Cannot find config info on tape/CD/floppy"));
 				return (1);
 			}
 		} else {
@@ -2503,13 +2503,13 @@ int get_cfg_file_from_archive(struct s_bkpinfo *bkpinfo)
 		iamhere(cfg_file);
 		log_msg(1, "%s not found", cfg_file);
 		log_to_screen
-			("Oh dear. Unable to recover configuration file from boot disk");
+			(_("Oh dear. Unable to recover configuration file from boot disk"));
 		return (1);
 	}
 
-	log_to_screen("Recovered mondo-restore.cfg");
+	log_to_screen(_("Recovered mondo-restore.cfg"));
 	if (!does_file_exist(MOUNTLIST_FNAME_STUB)) {
-		log_to_screen("...but not mountlist.txt - a pity, really...");
+		log_to_screen(_("...but not mountlist.txt - a pity, really..."));
 	}
 /* start SAH */
 	else {
@@ -2579,13 +2579,13 @@ void wait_until_software_raids_are_prepped(char *mdstat_file,
 	iamhere("Help, my boat is sync'ing. (Get it? Urp! Urp!)");
 	while (unfinished_mdstat_devices > 0) {
 		if (read_mdstat(mdstat, mdstat_file)) {
-			log_to_screen("Sorry, cannot read %s", mdstat_file);
+			log_to_screen(_("Sorry, cannot read %s"), mdstat_file);
 			return;
 		}
 		for (unfinished_mdstat_devices = i = 0; i < mdstat->entries; i++) {
 			if (mdstat->el[i].progress < wait_for_percentage) {
 				unfinished_mdstat_devices++;
-				sprintf(screen_message, "Sync'ing /dev/md%d",
+				sprintf(screen_message, _("Sync'ing /dev/md%d"),
 						mdstat->el[i].md);
 				open_evalcall_form(screen_message);
 				if (mdstat->el[i].progress == -1)	// delayed while another partition inits

@@ -8,7 +8,20 @@ trunk:
   verifications. Optimisations on memory consumption (allocate only size
   needed + remove memory leaks)
 
-v2.07 ()
+v2.2.0 (2006-05-01) 
+=======
+
+- Internationalization (A huge thank to rene-marc dolhen
+<rmd_at_mecreant.org> who achieved that big task)
+- Fixed verify for NFS (Andree Leidenfrost)
+- Fix for Bug #6975 (Bruno Cornec)
+- Fix a bug when restoring interactively and having file names with blank
+  (Bruno Cornec)
+- Fix options -I and -E of mondoarchive which were not working 
+  (Bruno Cornec)
+- Removed 'ax' options from ps call in busybox (Andree Leidenfrost)
+
+v2.0.7 (2006-02-23)
 - useless cat, sort|uniq commands removed 
   (Bruno Cornec/Sébastien Aperghis-Tramoni)
 - Doc cleanup (Andree Leidenfrost)

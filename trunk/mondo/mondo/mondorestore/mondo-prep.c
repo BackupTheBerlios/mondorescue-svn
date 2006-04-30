@@ -238,11 +238,11 @@ void wipe_MBRs_and_reboot_if_necessary(struct mountlist_itself *mountlist)
 		if (lino == drivelist->entries) {
 // zero & reboot
 			log_to_screen
-				("I am sorry for the inconvenience but I must ask you to reboot.");
+				(_("I am sorry for the inconvenience but I must ask you to reboot."));
 			log_to_screen
-				("I need to reset the Master Boot Record; in order to be");
+				(_("I need to reset the Master Boot Record; in order to be"));
 			log_to_screen
-				("sure the kernel notices, I must reboot after doing it.");
+				(_("sure the kernel notices, I must reboot after doing it."));
 			log_to_screen("Please hit 'Enter' to reboot.");
 			for (lino = 0; lino < drivelist->entries; lino++) {
 				for (i = 0; i < blocksize; i++) {
@@ -268,7 +268,7 @@ void wipe_MBRs_and_reboot_if_necessary(struct mountlist_itself *mountlist)
 			system("sync");
 			system("sync");
 			popup_and_OK
-				("I must now reboot. Please leave the boot media in the drive and repeat your actions - e.g. type 'nuke' - and it should work fine.");
+				(_("I must now reboot. Please leave the boot media in the drive and repeat your actions - e.g. type 'nuke' - and it should work fine."));
 			system("reboot");
 		}
 	}
@@ -614,7 +614,7 @@ int extrapolate_mountlist_to_include_raid_partitions(struct mountlist_itself
 
 #ifdef __FreeBSD__
 	log_to_screen
-		("I don't know how to extrapolate the mountlist on FreeBSD. Sorry.");
+		(_("I don't know how to extrapolate the mountlist on FreeBSD. Sorry."));
 	return (1);
 #endif
 
@@ -623,7 +623,7 @@ int extrapolate_mountlist_to_include_raid_partitions(struct mountlist_itself
 		{
 			if (!does_file_exist("/etc/raidtab")) {
 				log_to_screen
-					("Cannot find /etc/raidtab - cannot extrapolate the fdisk entries");
+					(_("Cannot find /etc/raidtab - cannot extrapolate the fdisk entries"));
 				finish(1);
 			}
 			if (!(fin = fopen("/etc/raidtab", "r"))) {
@@ -748,7 +748,7 @@ int format_device(char *device, char *format)
 		return (0);
 	}
 	if (is_this_device_mounted(device)) {
-		sprintf(tmp, "%s is mounted - cannot format it       ", device);
+		sprintf(tmp, _("%s is mounted - cannot format it       "), device);
 		log_to_screen(tmp);
 		paranoid_free(program);
 		paranoid_free(tmp);
@@ -760,7 +760,7 @@ int format_device(char *device, char *format)
 		if (!vinum_started_yet) {
 			if (!does_file_exist("/tmp/raidconf.txt")) {
 				log_to_screen
-					("/tmp/raidconf.txt does not exist. I therefore cannot start Vinum.");
+					(_("/tmp/raidconf.txt does not exist. I therefore cannot start Vinum."));
 			} else {
 				int res;
 				res =
@@ -768,7 +768,7 @@ int format_device(char *device, char *format)
 					("vinum create /tmp/raidconf.txt", TRUE);
 				if (res) {
 					log_to_screen
-						("`vinum create /tmp/raidconf.txt' returned errors. Please fix them and re-run mondorestore.");
+						(_("`vinum create /tmp/raidconf.txt' returned errors. Please fix them and re-run mondorestore."));
 					finish(1);
 				}
 				vinum_started_yet = TRUE;
@@ -779,7 +779,7 @@ int format_device(char *device, char *format)
 			FILE *fin;
 			char line[MAX_STR_LEN];
 			sprintf(tmp,
-					"Initializing Vinum device %s (this may take a *long* time)",
+					_("Initializing Vinum device %s (this may take a *long* time)"),
 					device);
 			log_to_screen(tmp);
 			/* format raid partition */
@@ -822,11 +822,11 @@ int format_device(char *device, char *format)
 			/* retval+=res; */
 		}
 #else
-		sprintf(tmp, "Initializing RAID device %s", device);
+		sprintf(tmp, _("Initializing RAID device %s"), device);
 		log_to_screen(tmp);
 
 // Shouldn't be necessary.
-		log_to_screen("Stopping %s", device);
+		log_to_screen(_("Stopping %s"), device);
 		stop_raid_device(device);
 		system("sync");
 		sleep(1);
@@ -899,9 +899,9 @@ int format_device(char *device, char *format)
 	}
 	retval += res;
 	if (retval) {
-		strcat(tmp, "...failed");
+		strcat(tmp, _("...failed"));
 	} else {
-		strcat(tmp, "...OK");
+		strcat(tmp, _("...OK"));
 	}
 
 	log_to_screen(tmp);
@@ -950,10 +950,10 @@ int format_everything(struct mountlist_itself *mountlist,
 	sprintf(tmp, "format_everything (mountlist, interactively = %s",
 			(interactively) ? "true" : "false");
 	log_it(tmp);
-	mvaddstr_and_log_it(g_currentY, 0, "Formatting partitions     ");
-	open_progress_form("Formatting partitions",
-					   "I am now formatting your hard disk partitions.",
-					   "This may take up to five minutes.", "",
+	mvaddstr_and_log_it(g_currentY, 0, _("Formatting partitions     "));
+	open_progress_form(_("Formatting partitions"),
+					   _("I am now formatting your hard disk partitions."),
+					   _("This may take up to five minutes."), "",
 					   mountlist->entries + 1);
 
 	progress_step =
@@ -1000,7 +1000,7 @@ int format_everything(struct mountlist_itself *mountlist,
 	log_msg(1, "Creating LVMs");
 	if (does_file_exist("/tmp/i-want-my-lvm")) {
 		wait_until_software_raids_are_prepped("/proc/mdstat", 10);
-		log_to_screen("Configuring LVM");
+		log_to_screen(_("Configuring LVM"));
 		if (!g_text_mode) {
 			newtSuspend();
 		}
@@ -1091,11 +1091,11 @@ int format_everything(struct mountlist_itself *mountlist,
 	close_progress_form();
 
 	if (retval) {
-		mvaddstr_and_log_it(g_currentY++, 74, "Failed.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Failed."));
 		log_to_screen
-			("Errors occurred during the formatting of your hard drives.");
+			(_("Errors occurred during the formatting of your hard drives."));
 	} else {
-		mvaddstr_and_log_it(g_currentY++, 74, "Done.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 	}
 
 	sprintf(tmp, "format_everything () - %s",
@@ -1106,16 +1106,16 @@ int format_everything(struct mountlist_itself *mountlist,
 		if (retval > 0 && !interactively) {
 //123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 
 			log_to_screen
-				("Partition table locked up %d times. At least one 'mkfs' (format) command",
+				(_("Partition table locked up %d times. At least one 'mkfs' (format) command"),
 				 g_partition_table_locked_up);
 			log_to_screen
-				("failed. I think these two events are related. Sometimes, fdisk's ioctl() call");
+				(_("failed. I think these two events are related. Sometimes, fdisk's ioctl() call"));
 			log_to_screen
-				("to refresh its copy of the partition table causes the kernel to lock the ");
+				(_("to refresh its copy of the partition table causes the kernel to lock the "));
 			log_to_screen
-				("partition table. I believe this has just happened.");
+				(_("partition table. I believe this has just happened."));
 			if (ask_me_yes_or_no
-				("Please choose 'yes' to reboot and try again; or 'no' to ignore this warning and continue."))
+				(_("Please choose 'yes' to reboot and try again; or 'no' to ignore this warning and continue.")))
 			{
 				system("sync");
 				system("sync");
@@ -1124,7 +1124,7 @@ int format_everything(struct mountlist_itself *mountlist,
 			}
 		} else {
 			log_to_screen
-				("Partition table locked up %d time%c. However, disk formatting succeeded.",
+				(_("Partition table locked up %d time%c. However, disk formatting succeeded."),
 				 g_partition_table_locked_up,
 				 (g_partition_table_locked_up == 1) ? '.' : 's');
 		}
@@ -1527,7 +1527,7 @@ int partition_drive(struct mountlist_itself *mountlist, char *drivename)
 	sprintf(tmp, "parted2fdisk %s >> %s 2>> %s", drivename, FDISK_LOG, FDISK_LOG);
 	pout_to_fdisk = popen(tmp, "w");
 	if (!pout_to_fdisk) {
-		log_to_screen("Cannot call parted2fdisk to configure %s", drivename);
+		log_to_screen(_("Cannot call parted2fdisk to configure %s"), drivename);
 		paranoid_free(device_str);
 		paranoid_free(format);
 		paranoid_free(tmp);
@@ -1563,7 +1563,7 @@ int partition_drive(struct mountlist_itself *mountlist, char *drivename)
 							basename(drivename));
 					if (system(command)) {
 						log_to_screen
-							("Warning! Unable to make the drive bootable.");
+							(_("Warning! Unable to make the drive bootable."));
 					}
 					paranoid_free(device_str);
 					paranoid_free(format);
@@ -1613,14 +1613,14 @@ int partition_drive(struct mountlist_itself *mountlist, char *drivename)
 			file = open(drivename, O_WRONLY);
 			if (!file) {
 				sprintf(tmp,
-						"Warning - unable to open %s for wiping it's partition table",
+						_("Warning - unable to open %s for wiping it's partition table"),
 						drivename);
 				log_to_screen(tmp);
 			}
 
 			for (i = 0; i < 512; i++) {
 				if (!write(file, "\0", 1)) {
-					sprintf(tmp, "Warning - unable to write to %s",
+					sprintf(tmp, _("Warning - unable to write to %s"),
 							drivename);
 					log_to_screen(tmp);
 				}
@@ -1654,7 +1654,7 @@ int partition_drive(struct mountlist_itself *mountlist, char *drivename)
 
 		if (current_devno == 5 && previous_devno == 4) {
 			log_to_screen
-				("You must leave at least one partition spare as the Extended partition.");
+				(_("You must leave at least one partition spare as the Extended partition."));
 			paranoid_free(device_str);
 			paranoid_free(format);
 			paranoid_free(tmp);
@@ -1671,7 +1671,7 @@ int partition_drive(struct mountlist_itself *mountlist, char *drivename)
 			retval += label_drive_or_slice(mountlist, device_str, 0);
 			if (system(tmp)) {
 				log_to_screen
-					("Warning! Unable to make the slice bootable.");
+					(_("Warning! Unable to make the slice bootable."));
 			}
 		}
 #endif
@@ -1699,7 +1699,7 @@ int partition_drive(struct mountlist_itself *mountlist, char *drivename)
 		if (!run_program_and_log_output(tmp, 5)) {
 			g_partition_table_locked_up++;
 			log_to_screen
-				("A flaw in the Linux kernel has locked the partition table.");
+				(_("A flaw in the Linux kernel has locked the partition table."));
 		}
 	}
 	paranoid_free(device_str);
@@ -1772,7 +1772,7 @@ int partition_device(FILE * pout_to_fdisk, const char *drive, int partno,
 	log_it(tmp);
 
 	if (is_this_device_mounted(partition_name)) {
-		sprintf(tmp, "%s is mounted, and should not be partitioned",
+		sprintf(tmp, _("%s is mounted, and should not be partitioned"),
 				partition_name);
 		log_to_screen(tmp);
 		paranoid_free(program);
@@ -1809,7 +1809,7 @@ int partition_device(FILE * pout_to_fdisk, const char *drive, int partno,
 			if (partno == 5) {
 				if (prev_partno >= 4) {
 					log_to_screen
-						("You need to leave at least one partition free, for 'extended/logical'");
+						(_("You need to leave at least one partition free, for 'extended/logical'"));
 					paranoid_free(program);
 					paranoid_free(partition_name);
 					paranoid_free(tmp);
@@ -2000,9 +2000,9 @@ int partition_everything(struct mountlist_itself *mountlist)
 	  }
 */
 
-	open_progress_form("Partitioning devices",
-					   "I am now going to partition all your drives.",
-					   "This should not take more than five minutes.", "",
+	open_progress_form(_("Partitioning devices"),
+					   _("I am now going to partition all your drives."),
+					   _("This should not take more than five minutes."), "",
 					   mountlist->entries);
 
 	make_list_of_drives_in_mountlist(mountlist, drivelist);
@@ -2014,11 +2014,11 @@ int partition_everything(struct mountlist_itself *mountlist)
 	}
 	close_progress_form();
 	if (retval) {
-		mvaddstr_and_log_it(g_currentY++, 74, "Failed.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Failed."));
 		log_to_screen
-			("Errors occurred during the partitioning of your hard drives.");
+			(_("Errors occurred during the partitioning of your hard drives."));
 	} else {
-		mvaddstr_and_log_it(g_currentY++, 74, "Done.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 		paranoid_system("rm -f /tmp/fdisk*.log 2> /dev/null");
 	}
 	newtSuspend();
@@ -2530,7 +2530,7 @@ void resize_drive_proportionately_to_suit_new_drives(struct mountlist_itself
 		paranoid_free(tmp);
 		return;
 	}
-	sprintf(tmp, "Expanding entries to suit drive %s (%ld MB)", drive_name,
+	sprintf(tmp, _("Expanding entries to suit drive %s (%ld MB)"), drive_name,
 			current_size_of_drive);
 	log_to_screen(tmp);
 
@@ -2549,7 +2549,7 @@ void resize_drive_proportionately_to_suit_new_drives(struct mountlist_itself
 	original_size_of_drive = original_size_of_drive / 1024;
 
 	if (original_size_of_drive <= 0) {
-		sprintf(tmp, "Cannot resize %s's entries. Drive not found.",
+		sprintf(tmp, _("Cannot resize %s's entries. Drive not found."),
 				drive_name);
 		log_to_screen(tmp);
 		paranoid_free(tmp);
@@ -2579,14 +2579,14 @@ void resize_drive_proportionately_to_suit_new_drives(struct mountlist_itself
 		} else {
 			newsizL = (long) new_size;
 		}
-		sprintf(tmp, "Changing %s from %lld KB to %ld KB",
+		sprintf(tmp, _("Changing %s from %lld KB to %ld KB"),
 				drivemntlist->el[partno]->device,
 				drivemntlist->el[partno]->size, newsizL);
 		log_to_screen(tmp);
 		drivemntlist->el[partno]->size = newsizL;
 	}
 	final_size = get_phys_size_of_drive(drive_name);
-	sprintf(tmp, "final_size = %ld MB", final_size);
+	sprintf(tmp, _("final_size = %ld MB"), final_size);
 	log_to_screen(tmp);
 	paranoid_free(tmp);
 }
@@ -2627,7 +2627,7 @@ void resize_mountlist_proportionately_to_suit_new_drives(struct mountlist_itself
 														el[driveno].
 														device);
 	}
-	log_to_screen("Mountlist adjusted to suit current hard drive(s)");
+	log_to_screen(_("Mountlist adjusted to suit current hard drive(s)"));
 	paranoid_free(drivelist);
 }
 

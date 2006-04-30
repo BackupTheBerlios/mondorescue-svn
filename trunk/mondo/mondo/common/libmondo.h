@@ -8,7 +8,7 @@
 #include "libmondo-filelist-EXT.h"
 #include "libmondo-files-EXT.h"
 #include "libmondo-fork-EXT.h"
-#include "libmondo-gui-EXT.h"
+#include "newt-specific-EXT.h"
 #include "libmondo-mountlist-EXT.h"
 #include "libmondo-raid-EXT.h"
 #include "libmondo-stream-EXT.h"

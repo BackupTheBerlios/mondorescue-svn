@@ -10,10 +10,9 @@
 #include "mondostructures.h"
 #include "libmondo-files-EXT.h"
 #include "libmondo-devices.h"
-#include "lib-common-externs.h"
 #include "libmondo-string-EXT.h"
 #include "libmondo-tools-EXT.h"
-#include "libmondo-gui-EXT.h"
+#include "newt-specific-EXT.h"
 #include "libmondo-fork-EXT.h"
 #include "libmondo-stream-EXT.h"
 
@@ -138,7 +137,7 @@ bool am_I_in_disaster_recovery_mode(void)
 		if (!does_file_exist("/THIS-IS-A-RAMDISK")
 			&& !does_file_exist("/tmp/mountlist.txt.sample")) {
 			log_to_screen
-				("Using /dev/root is stupid of you but I'll forgive you.");
+				(_("Using /dev/root is stupid of you but I'll forgive you."));
 			is_this_a_ramdisk = FALSE;
 		}
 	}
@@ -164,31 +163,31 @@ char *bkptype_to_string(t_bkptype bt)
 
 	switch (bt) {
 	case none:
-		asprintf(&output, "none");
+		asprintf(&output, _("none"));
 		break;
 	case iso:
-		asprintf(&output, "iso");
+		asprintf(&output, _("iso"));
 		break;
 	case cdr:
-		asprintf(&output, "cdr");
+		asprintf(&output, _("cdr"));
 		break;
 	case cdrw:
-		asprintf(&output, "cdrw");
+		asprintf(&output, _("cdrw"));
 		break;
 	case cdstream:
-		asprintf(&output, "cdstream");
+		asprintf(&output, _("cdstream"));
 		break;
 	case nfs:
-		asprintf(&output, "nfs");
+		asprintf(&output, _("nfs"));
 		break;
 	case tape:
-		asprintf(&output, "tape");
+		asprintf(&output, _("tape"));
 		break;
 	case udev:
-		asprintf(&output, "udev");
+		asprintf(&output, _("udev"));
 		break;
 	default:
-		asprintf(&output, "default");
+		asprintf(&output, _("default"));
 	}
 	return (output);
 }
@@ -469,7 +468,7 @@ bool find_and_mount_actual_cd(struct s_bkpinfo *bkpinfo, char *mountpoint)
 
 	if ((dev == NULL) || (! mount_CDROM_here(dev, mountpoint))) {
 		if (!popup_and_get_string
-			("CD-ROM device", "Please enter your CD-ROM's /dev device",
+			(_("CD-ROM device"), _("Please enter your CD-ROM's /dev device"),
 			 dev, MAX_STR_LEN / 4)) {
 			res = FALSE;
 		} else {
@@ -477,9 +476,9 @@ bool find_and_mount_actual_cd(struct s_bkpinfo *bkpinfo, char *mountpoint)
 		}
 	}
 	if (res) {
-		log_msg(1, "mount failed");
+		log_msg(1, _("mount failed"));
 	} else {
-		log_msg(1, "mount succeeded with %s", dev);
+		log_msg(1, _("mount succeeded with %s"), dev);
 	}
 	paranoid_free(dev);
 	return(res);
@@ -1369,7 +1368,7 @@ insist_on_this_cd_number(struct s_bkpinfo *bkpinfo, int cd_number_i_want)
 				res = 0;
 			}
 			if (res) {
-				log_to_screen("WARNING - failed to unmount CD-ROM drive");
+				log_to_screen(_("WARNING - failed to unmount CD-ROM drive"));
 			}
 			if (!bkpinfo->please_dont_eject) {
 				res = eject_device(bkpinfo->media_device);
@@ -1377,7 +1376,7 @@ insist_on_this_cd_number(struct s_bkpinfo *bkpinfo, int cd_number_i_want)
 				res = 0;
 			}
 			if (res) {
-				log_to_screen("WARNING - failed to eject CD-ROM disk");
+				log_to_screen(_("WARNING - failed to eject CD-ROM disk"));
 			}
 			popup_and_OK(request);
 			if (!bkpinfo->please_dont_eject) {
@@ -1427,11 +1426,11 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 		(g_restoring_live_from_cd) ? cdr :
 		which_backup_media_type(bkpinfo->restore_data);
 	if (bkpinfo->backup_media_type == none) {
-		log_to_screen("User has chosen not to backup the PC");
+		log_to_screen(_("User has chosen not to backup the PC"));
 		finish(1);
 	}
 	if (bkpinfo->backup_media_type == tape && bkpinfo->restore_data) {
-		popup_and_OK("Please remove CD/floppy from drive(s)");
+		popup_and_OK(_("Please remove CD/floppy from drive(s)"));
 	}
 	log_msg(3, "media type = %s",
 			bkptype_to_string(bkpinfo->backup_media_type));
@@ -1466,16 +1465,16 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 	case dvd:
 		if (archiving_to_media) {
 			if (ask_me_yes_or_no
-				("Is your computer a laptop, or does the CD writer incorporate BurnProof technology?"))
+				(_("Is your computer a laptop, or does the CD writer incorporate BurnProof technology?")))
 			{
 				bkpinfo->manual_cd_tray = TRUE;
 			}
 			if ((bkpinfo->compression_level =
 				 which_compression_level()) == -1) {
-				log_to_screen("User has chosen not to backup the PC");
+				log_to_screen(_("User has chosen not to backup the PC"));
 				finish(1);
 			}
-			asprintf(&comment, "What speed is your %s (re)writer?",
+			asprintf(&comment, _("What speed is your %s (re)writer?"),
 					media_descriptor_string(bkpinfo->backup_media_type));
 			if (bkpinfo->backup_media_type == dvd) {
 				paranoid_free(bkpinfo->media_device);
@@ -1490,8 +1489,8 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 				log_msg(1, "Setting to CD defaults");
 			}
 			if (bkpinfo->backup_media_type != dvd) {
-				if (!popup_and_get_string("Speed", comment, tmp, 4)) {
-					log_to_screen("User has chosen not to backup the PC");
+				if (!popup_and_get_string(_("Speed"), comment, tmp, 4)) {
+					log_to_screen(_("User has chosen not to backup the PC"));
 					finish(1);
 				}
 			}
@@ -1501,11 +1500,11 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 			paranoid_free(tmp);
 
 			asprintf(&comment,
-					"How much data (in Megabytes) will each %s store?",
+					_("How much data (in Megabytes) will each %s store?"),
 					media_descriptor_string(bkpinfo->backup_media_type));
 
 			if (!popup_and_get_string("Size", comment, sz_size, 5)) {
-				log_to_screen("User has chosen not to backup the PC");
+				log_to_screen(_("User has chosen not to backup the PC"));
 				finish(1);
 			}
 			paranoid_free(comment);
@@ -1514,7 +1513,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 				bkpinfo->media_size[i] = atoi(sz_size);
 			}
 			if (bkpinfo->media_size[0] <= 0) {
-				log_to_screen("User has chosen not to backup the PC");
+				log_to_screen(_("User has chosen not to backup the PC"));
 				finish(1);
 			}
 			paranoid_free(sz_size);
@@ -1538,13 +1537,13 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 				log_msg(1, "bkpinfo->media_device = %s",
 						bkpinfo->media_device);
 				asprintf(&comment,
-						"Please specify your %s drive's /dev entry",
+						_("Please specify your %s drive's /dev entry"),
 						media_descriptor_string(bkpinfo->
 												backup_media_type));
 				if (!popup_and_get_string
-					("Device?", comment, bkpinfo->media_device,
+					(_("Device?"), comment, bkpinfo->media_device,
 					 MAX_STR_LEN / 4)) {
-					log_to_screen("User has chosen not to backup the PC");
+					log_to_screen(_("User has chosen not to backup the PC"));
 					finish(1);
 				}
 				paranoid_free(comment);
@@ -1557,7 +1556,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 			bkpinfo->media_device = find_cdrw_device();
 			if (bkpinfo->media_device != NULL) {
 				asprintf(&tmp,
-						"I think I've found your %s burner at SCSI node %s; am I right on the money?",
+						_("I think I've found your %s burner at SCSI node %s; am I right on the money?"),
 						media_descriptor_string(bkpinfo->
 												backup_media_type),
 						bkpinfo->media_device);
@@ -1567,18 +1566,18 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 				paranoid_free(tmp);
 			} else {
 				if (g_kernel_version < 2.6) {
-					i = popup_and_get_string("Device node?",
-											 "What is the SCSI node of your CD (re)writer, please?",
+					i = popup_and_get_string(_("Device node?"),
+											 _("What is the SCSI node of your CD (re)writer, please?"),
 											 bkpinfo->media_device,
 											 MAX_STR_LEN / 4);
 				} else {
-					i = popup_and_get_string("/dev entry?",
-											 "What is the /dev entry of your CD (re)writer, please?",
+					i = popup_and_get_string(_("/dev entry?"),
+											 _("What is the /dev entry of your CD (re)writer, please?"),
 											 bkpinfo->media_device,
 											 MAX_STR_LEN / 4);
 				}
 				if (!i) {
-					log_to_screen("User has chosen not to backup the PC");
+					log_to_screen(_("User has chosen not to backup the PC"));
 					finish(1);
 				}
 			}
@@ -1591,15 +1590,15 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 		break;
 	case udev:
 		if (!ask_me_yes_or_no
-			("This option is for advanced users only. Are you sure?")) {
-			log_to_screen("User has chosen not to backup the PC");
+			(_("This option is for advanced users only. Are you sure?"))) {
+			log_to_screen(_("User has chosen not to backup the PC"));
 			finish(1);
 		}
 	case tape:
 
 		paranoid_free(bkpinfo->media_device);
 		if (find_tape_device_and_size(bkpinfo->media_device, sz_size)) {
-			log_msg(3, "Ok, using vanilla scsi tape.");
+			log_msg(3, _("Ok, using vanilla scsi tape."));
 			paranoid_alloc(bkpinfo->media_device,VANILLA_SCSI_TAPE );
 			if ((fin = fopen(bkpinfo->media_device, "r"))) {
 				paranoid_fclose(fin);
@@ -1617,7 +1616,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 				}
 			}
 			asprintf(&tmp,
-					"I think I've found your tape streamer at %s; am I right on the money?",
+					_("I think I've found your tape streamer at %s; am I right on the money?"),
 					bkpinfo->media_device);
 			if (!ask_me_yes_or_no(tmp)) {
 				paranoid_free(bkpinfo->media_device);
@@ -1626,16 +1625,16 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 		}
 		if (bkpinfo->media_device == NULL) {
 			if (!popup_and_get_string
-				("Device name?",
-				 "What is the /dev entry of your tape streamer?",
+				(_("Device name?"),
+				 _("What is the /dev entry of your tape streamer?"),
 				 bkpinfo->media_device, MAX_STR_LEN / 4)) {
-				log_to_screen("User has chosen not to backup the PC");
+				log_to_screen(_("User has chosen not to backup the PC"));
 				finish(1);
 			}
 		}
 		asprintf(&tmp, "ls -l %s", bkpinfo->media_device);
 		if (run_program_and_log_output(tmp, FALSE)) {
-			log_to_screen("User has not specified a valid /dev entry");
+			log_to_screen(_("User has not specified a valid /dev entry"));
 			finish(1);
 		}
 		paranoid_free(tmp);
@@ -1652,7 +1651,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 		if (archiving_to_media) {
 			if ((bkpinfo->compression_level =
 				 which_compression_level()) == -1) {
-				log_to_screen("User has chosen not to backup the PC");
+				log_to_screen(_("User has chosen not to backup the PC"));
 				finish(1);
 			}
 		}
@@ -1673,16 +1672,16 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 #endif
 		{
 			if (!popup_and_get_string
-				("NFS dir.",
-				 "Please enter path and directory where archives are stored remotely. (Mondo has taken a guess at the correct value. If it is incorrect, delete it and type the correct one.)",
+				(_("NFS dir."),
+				 _("Please enter path and directory where archives are stored remotely. (Mondo has taken a guess at the correct value. If it is incorrect, delete it and type the correct one.)"),
 				 bkpinfo->nfs_mount, MAX_STR_LEN / 4)) {
-				log_to_screen("User has chosen not to backup the PC");
+				log_to_screen(_("User has chosen not to backup the PC"));
 				finish(1);
 			}
 			if (!bkpinfo->restore_data) {
 				if ((bkpinfo->compression_level =
 					 which_compression_level()) == -1) {
-					log_to_screen("User has chosen not to backup the PC");
+					log_to_screen(_("User has chosen not to backup the PC"));
 					finish(1);
 				}
 			}
@@ -1698,16 +1697,16 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 			paranoid_free(command);
 
 			asprintf(&comment,
-					"How much data (in Megabytes) will each media store?");
-			if (!popup_and_get_string("Size", comment, sz_size, 5)) {
-				log_to_screen("User has chosen not to backup the PC");
+					_("How much data (in Megabytes) will each media store?"));
+			if (!popup_and_get_string(_("Size"), comment, sz_size, 5)) {
+				log_to_screen(_("User has chosen not to backup the PC"));
 				finish(1);
 			}
 			for (i = 0; i <= MAX_NOOF_MEDIA; i++) {
 				bkpinfo->media_size[i] = atoi(sz_size);
 			}
 			if (bkpinfo->media_size[0] <= 0) {
-				log_to_screen("User has chosen not to backup the PC");
+				log_to_screen(_("User has chosen not to backup the PC"));
 				finish(1);
 			}
 			paranoid_free(comment);
@@ -1715,9 +1714,9 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 		if (bkpinfo->disaster_recovery) {
 			system("umount /tmp/isodir 2> /dev/null");
 			if (!popup_and_get_string
-				("NFS share", "Which remote NFS share should I mount?",
+				(_("NFS share"), _("Which remote NFS share should I mount?"),
 				 bkpinfo->nfs_mount, MAX_STR_LEN)) {
-				log_to_screen("User has chosen not to backup the PC");
+				log_to_screen(_("User has chosen not to backup the PC"));
 				finish(1);
 			}
 		}
@@ -1737,14 +1736,14 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 		}
 		if (!is_this_device_mounted(bkpinfo->nfs_mount)) {
 			popup_and_OK
-				("Please mount that partition before you try to backup to or restore from it.");
+				(_("Please mount that partition before you try to backup to or restore from it."));
 			finish(1);
 		}
 		asprintf(&tmp, bkpinfo->nfs_remote_dir);
 		if (!popup_and_get_string
-			("Directory", "Which directory within that mountpoint?", tmp,
+			(_("Directory"), _("Which directory within that mountpoint?"), tmp,
 			 MAX_STR_LEN)) {
-			log_to_screen("User has chosen not to backup the PC");
+			log_to_screen(_("User has chosen not to backup the PC"));
 			finish(1);
 		}
 		strcpy(bkpinfo->nfs_remote_dir, tmp);
@@ -1759,11 +1758,11 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 			paranoid_free(prompt);
 			asprintf(&tmp, bkpinfo->nfs_remote_dir);
 			asprintf(&prompt,
-					 "Directory '%s' under mountpoint '%s' does not exist or is not writable. You can fix this or change the directory and retry or cancel the backup.",
+					 _("Directory '%s' under mountpoint '%s' does not exist or is not writable. You can fix this or change the directory and retry or cancel the backup."),
 					 bkpinfo->nfs_remote_dir, bkpinfo->isodir);
 			if (!popup_and_get_string
-				("Directory", prompt, tmp, MAX_STR_LEN)) {
-				log_to_screen("User has chosen not to backup the PC");
+				(_("Directory"), prompt, tmp, MAX_STR_LEN)) {
+				log_to_screen(_("User has chosen not to backup the PC"));
 				finish(1);
 			}
 			strcpy(bkpinfo->nfs_remote_dir, tmp);
@@ -1777,10 +1776,10 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 		paranoid_free(prompt);
 
 		if (!popup_and_get_string
-			("Prefix.",
-			 "Please enter the prefix that will be prepended to your ISO filename.  Example: machine1 to obtain machine1-[1-9]*.iso files",
+			(_("Prefix."),
+			 _("Please enter the prefix that will be prepended to your ISO filename.  Example: machine1 to obtain machine1-[1-9]*.iso files"),
 			bkpinfo->prefix, MAX_STR_LEN / 4)) {
-			log_to_screen("User has chosen not to backup the PC");
+			log_to_screen(_("User has chosen not to backup the PC"));
 			finish(1);
 		}
 		log_msg(3, "prefix set to %s", bkpinfo->prefix);
@@ -1796,23 +1795,23 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 	case iso:
 		if (!bkpinfo->disaster_recovery) {
 			if (!popup_and_get_string
-				("Storage dir.",
-				 "Please enter the full path that contains your ISO images.  Example: /mnt/raid0_0",
+				(_("Storage dir."),
+				 _("Please enter the full path that contains your ISO images.  Example: /mnt/raid0_0"),
 				 bkpinfo->isodir, MAX_STR_LEN / 4)) {
-				log_to_screen("User has chosen not to backup the PC");
+				log_to_screen(_("User has chosen not to backup the PC"));
 				finish(1);
 			}
 			if (archiving_to_media) {
 				if ((bkpinfo->compression_level =
 					 which_compression_level()) == -1) {
-					log_to_screen("User has chosen not to backup the PC");
+					log_to_screen(_("User has chosen not to backup the PC"));
 					finish(1);
 				}
 				if (!popup_and_get_string
-					("ISO size.",
-					 "Please enter how big you want each ISO image to be (in megabytes). This should be less than or equal to the size of the CD-R[W]'s or DVD's you plan to backup to.",
+					(_("ISO size."),
+					 _("Please enter how big you want each ISO image to be (in megabytes). This should be less than or equal to the size of the CD-R[W]'s or DVD's you plan to backup to."),
 					 sz_size, 16)) {
-					log_to_screen("User has chosen not to backup the PC");
+					log_to_screen(_("User has chosen not to backup the PC"));
 					finish(1);
 				}
 				for (i = 0; i <= MAX_NOOF_MEDIA; i++) {
@@ -1821,8 +1820,8 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 				paranoid_free(sz_size);
 
 				if (!popup_and_get_string
-					("Prefix.",
-					 "Please enter the prefix that will be prepended to your ISO filename.  Example: machine1 to obtain machine1-[1-9]*.iso files",
+					(_("Prefix."),
+					 _("Please enter the prefix that will be prepended to your ISO filename.  Example: machine1 to obtain machine1-[1-9]*.iso files"),
 					 bkpinfo->prefix, MAX_STR_LEN / 4)) {
 					log_to_screen("User has chosen not to backup the PC");
 					finish(1);
@@ -1856,19 +1855,19 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 
 #ifdef __FreeBSD__
 			if (!popup_and_get_string
-				("Boot device",
-				 "What is your boot device? (e.g. /dev/ad0)",
+				(_("Boot device"),
+				 _("What is your boot device? (e.g. /dev/ad0)"),
 				 bkpinfo->boot_device, MAX_STR_LEN / 4)) {
-				log_to_screen("User has chosen not to backup the PC");
+				log_to_screen(_("User has chosen not to backup the PC"));
 				finish(1);
 			}
 			i = which_boot_loader(bkpinfo->boot_device);
 #else
 			if (!popup_and_get_string
-				("Boot device",
-				 "What is your boot device? (e.g. /dev/hda)",
+				(_("Boot device"),
+				 _("What is your boot device? (e.g. /dev/hda)"),
 				 bkpinfo->boot_device, MAX_STR_LEN / 4)) {
-				log_to_screen("User has chosen not to backup the PC");
+				log_to_screen(_("User has chosen not to backup the PC"));
 				finish(1);
 			}
 			if (does_string_exist_in_boot_block
@@ -1888,12 +1887,12 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 #endif
 			if (i == 'U') {
 				if (ask_me_yes_or_no
-					("Unidentified boot loader. Shall I restore it byte-for-byte at restore time and hope for the best?"))
+					(_("Unidentified boot loader. Shall I restore it byte-for-byte at restore time and hope for the best?")))
 				{
 					i = 'R';	// raw
 				} else {
 					log_to_screen
-						("I cannot find your boot loader. Please run mondoarchive with parameters.");
+						(_("I cannot find your boot loader. Please run mondoarchive with parameters."));
 					finish(1);
 				}
 			}
@@ -1901,10 +1900,10 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 		bkpinfo->boot_loader = i;
 		strcpy(bkpinfo->include_paths, "/");
 		if (!popup_and_get_string
-			("Backup paths",
-			 "Please enter paths which you want me to backup. The default is '/' (i.e. everything).",
+			(_("Backup paths"),
+			 _("Please enter paths which you want me to backup. The default is '/' (i.e. everything)."),
 			 bkpinfo->include_paths, MAX_STR_LEN)) {
-			log_to_screen("User has chosen not to backup the PC");
+			log_to_screen(_("User has chosen not to backup the PC"));
 			finish(1);
 		}
 		tmp = list_of_NFS_mounts_only();
@@ -1921,10 +1920,10 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 			   ("parted2fdisk -l | grep -i ntfs | awk '{ print $1};' | tr -s '\\n' ' ' | awk '{ print $0};'"));
 		if (strlen(tmp) > 2) {
 			if (!popup_and_get_string
-				("NTFS partitions",
-				 "Please enter/confirm the NTFS partitions you wish to backup as well.",
+				(_("NTFS partitions"),
+				 _("Please enter/confirm the NTFS partitions you wish to backup as well."),
 				 tmp, MAX_STR_LEN / 4)) {
-				log_to_screen("User has chosen not to backup the PC");
+				log_to_screen(_("User has chosen not to backup the PC"));
 				finish(1);
 			}
 			strncpy(bkpinfo->image_devs, tmp, MAX_STR_LEN / 4);
@@ -1932,28 +1931,28 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 		paranoid_free(tmp);
 
 		if (!popup_and_get_string
-			("Exclude paths",
-			 "Please enter paths which you do NOT want to backup. Separate them with spaces. NB: /tmp and /proc are always excluded. :-) Just hit 'Enter' if you want to do a full system backup.",
+			(_("Exclude paths"),
+			 _("Please enter paths which you do NOT want to backup. Separate them with spaces. NB: /tmp and /proc are always excluded. :-) Just hit 'Enter' if you want to do a full system backup."),
 			 bkpinfo->exclude_paths, MAX_STR_LEN)) {
-			log_to_screen("User has chosen not to backup the PC");
+			log_to_screen(_("User has chosen not to backup the PC"));
 			finish(1);
 		}
 		bkpinfo->make_cd_use_lilo = FALSE;
 		bkpinfo->backup_data = TRUE;
 		bkpinfo->verify_data =
 			ask_me_yes_or_no
-			("Will you want to verify your backups after Mondo has created them?");
+			(_("Will you want to verify your backups after Mondo has created them?"));
 
 #ifndef __FreeBSD__
 		if (!ask_me_yes_or_no
-			("Are you confident that your kernel is a sane, sensible, standard Linux kernel? Say 'no' if you are using a Gentoo <1.4 or Debian <3.0, please.")) {
+			(_("Are you confident that your kernel is a sane, sensible, standard Linux kernel? Say 'no' if you are using a Gentoo <1.4 or Debian <3.0, please."))){
 			paranoid_alloc(bkpinfo->kernel_path, "FAILSAFE");
 		}
 #endif
 
 		if (!ask_me_yes_or_no
-			("Are you sure you want to proceed? Hit 'no' to abort.")) {
-			log_to_screen("User has chosen not to backup the PC");
+			(_("Are you sure you want to proceed? Hit 'no' to abort."))) {
+			log_to_screen(_("User has chosen not to backup the PC"));
 			finish(1);
 		}
 	} else {

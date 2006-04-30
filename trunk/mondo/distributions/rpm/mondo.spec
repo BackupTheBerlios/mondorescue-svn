@@ -89,6 +89,7 @@ con cintas y NFS, tambien.
 %attr(755,root,root) %{_datadir}/%{name}/restore-scripts/%{name}/*
 %attr(755,root,root) %{_datadir}/%{name}/autorun
 %attr(755,root,root) %{_datadir}/%{name}/post-nuke.sample/usr/bin/post-nuke
+%{_datadir}/locale/*/LC_MESSAGES/mondo.mo
 %{_datadir}/%{name}/*
 %{_mandir}/man8/*
 

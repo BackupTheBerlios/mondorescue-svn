@@ -468,7 +468,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 
 		strncpy(bkpinfo->include_paths + strlen(bkpinfo->include_paths),
 				flag_val['I'],
-				MAX_STR_LEN - strlen(bkpinfo->include_paths));
+				4*MAX_STR_LEN - strlen(bkpinfo->include_paths));
 		log_msg(1, "include_paths is now '%s'", bkpinfo->include_paths);
 		if (bkpinfo->include_paths[0] == '-') {
 			retval++;
@@ -703,7 +703,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 
 		strncpy(bkpinfo->exclude_paths + strlen(bkpinfo->exclude_paths),
 				flag_val['E'],
-				MAX_STR_LEN - strlen(bkpinfo->exclude_paths));
+				4*MAX_STR_LEN - strlen(bkpinfo->exclude_paths));
 	}
 	if (flag_set['e']) {
 		bkpinfo->please_dont_eject = TRUE;

@@ -251,7 +251,7 @@ int compare_all_biggiefiles(struct s_bkpinfo *bkpinfo)
 		return (0);
 	}
 	mvaddstr_and_log_it(g_currentY, 0,
-						"Comparing large files                                                  ");
+						_("Comparing large files                                                  "));
 	open_progress_form(_("Comparing large files"),
 					   _("I am now comparing the large files"),
 					   _("against the filesystem. Please wait."), "",
@@ -267,9 +267,9 @@ int compare_all_biggiefiles(struct s_bkpinfo *bkpinfo)
 	close_progress_form();
 	return (0);
 	if (retval) {
-		mvaddstr_and_log_it(g_currentY++, 74, "Errors.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Errors."));
 	} else {
-		mvaddstr_and_log_it(g_currentY++, 74, "Done.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 	}
 	return (retval);
 }
@@ -427,7 +427,7 @@ int compare_all_tarballs(struct s_bkpinfo *bkpinfo)
 	malloc_string(tmp);
 
 	assert(bkpinfo != NULL);
-	mvaddstr_and_log_it(g_currentY, 0, "Comparing archives");
+	mvaddstr_and_log_it(g_currentY, 0, _("Comparing archives"));
 	read_cfg_var(g_mondo_cfg_file, "last-filelist-number", tmp);
 
 	max_val = atol(tmp);
@@ -487,9 +487,9 @@ int compare_all_tarballs(struct s_bkpinfo *bkpinfo)
 	}
 	close_progress_form();
 	if (retval) {
-		mvaddstr_and_log_it(g_currentY++, 74, "Errors.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Errors."));
 	} else {
-		mvaddstr_and_log_it(g_currentY++, 74, "Done.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 	}
 	paranoid_free(tarball_fname);
 	paranoid_free(progress_str);
@@ -606,7 +606,7 @@ compare_mode(struct s_bkpinfo *bkpinfo,
 
 	read_cfg_file_into_bkpinfo(g_mondo_cfg_file, bkpinfo);
 	g_current_media_number = 1;
-	mvaddstr_and_log_it(1, 30, "Comparing Automatically");
+	mvaddstr_and_log_it(1, 30, _("Comparing Automatically"));
 	iamhere("Pre-MAD");
 	retval = mount_all_devices(mountlist, FALSE);
 	iamhere("Post-MAD");
@@ -625,18 +625,18 @@ compare_mode(struct s_bkpinfo *bkpinfo,
 	if (retval) {
 		mvaddstr_and_log_it(g_currentY++,
 							0,
-							"Warning - differences found during the compare phase");
+							_("Warning - differences found during the compare phase"));
 	}
 
 	retval += unmount_all_devices(mountlist);
 
 	if (count_lines_in_file("/tmp/changed.txt") > 0) {
 		mvaddstr_and_log_it(g_currentY++, 0,
-							"Differences found while files were being compared.");
+							_("Differences found while files were being compared."));
 		streamline_changes_file("/tmp/changed.files", "/tmp/changed.txt");
 		if (count_lines_in_file("/tmp/changed.files") <= 0) {
 			mvaddstr_and_log_it(g_currentY++, 0,
-								"...but they were logfiles and temporary files. Your archives are fine.");
+								_("...but they were logfiles and temporary files. Your archives are fine."));
 			log_to_screen
 				(_("The differences were logfiles and temporary files. Your archives are fine."));
 		} else {
@@ -693,7 +693,7 @@ int compare_to_cdstream(struct s_bkpinfo *bkpinfo)
 			bkpinfo->restore_path);
 	run_program_and_log_output(command, FALSE);
 	mvaddstr_and_log_it(g_currentY,
-						0, "Verifying archives against filesystem");
+						0, _("Verifying archives against filesystem"));
 
 	if (bkpinfo->disaster_recovery
 		&& does_file_exist("/tmp/CDROM-LIVES-HERE")) {
@@ -713,7 +713,7 @@ int compare_to_cdstream(struct s_bkpinfo *bkpinfo)
 		log_msg(2, "Returned from popup_changelist_from_file()");
 	}
 
-	mvaddstr_and_log_it(g_currentY++, 74, "Done.");
+	mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 	paranoid_free(dir);
 	paranoid_free(command);
 	return (res);
@@ -750,13 +750,13 @@ int compare_to_tape(struct s_bkpinfo *bkpinfo)
 			bkpinfo->restore_path);
 	run_program_and_log_output(command, FALSE);
 	mvaddstr_and_log_it(g_currentY,
-						0, "Verifying archives against filesystem");
+						0, _("Verifying archives against filesystem"));
 	res = verify_tape_backups(bkpinfo);
 	chdir(dir);
 	if (res) {
-		mvaddstr_and_log_it(g_currentY++, 74, "Failed.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Failed."));
 	} else {
-		mvaddstr_and_log_it(g_currentY++, 74, "Done.");
+		mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 	}
 	paranoid_free(dir);
 	paranoid_free(command);

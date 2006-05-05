@@ -1404,16 +1404,16 @@ absolute_partition old_partition_fmt
 		fi
 
 		# 2nd try, which works on a standard partition (ext2/3), but not on swap
-		if [ -n $actual_dev ] ; then
+		if [ "x$actual_dev" = "x" ] ; then
 			actual_dev=`/bin/mount -l | /bin/grep " [$redhat_label]" | /bin/cut -d' ' -f1`
 		fi
 
 		# 3rd try, with vol_id (which works with swap)
-		if [ -n $actual_dev -a -x "/sbin/vol_id" ] ; then
+		if [ "x$actual_dev" = "x" -a -x "/sbin/vol_id" ] ; then
 				list_swaps=`cat /proc/swaps | /bin/grep "/dev/" | /bin/awk '{ print $1 }' `
 				for dev_swap in $list_swaps ; do
 					dev_exists=`/sbin/vol_id $dev_swap | /bin/grep "$redhat_label"`
-					if [ -n "$dev_exists" ] ; then
+					if [ "x$dev_exists" != "x" ] ; then
 						actual_dev=$dev_swap
 						break;
 					fi
@@ -1421,16 +1421,16 @@ absolute_partition old_partition_fmt
 		fi
 
 		# 4th try : pre-formated LABEL. Format is : LABEL=SWAP-mydevice. e.g. : LABEL=SWAP-hda5
-		if [ -n $actual_dev -a  "`echo "$current_partition" | /bin/grep -i "LABEL=SWAP"`" != ""] ; then
+		if [ "x$actual_dev" = "x" -a  "`echo "$current_partition" | /bin/grep -i "LABEL=SWAP"`" != ""] ; then
 				try_dev="`echo "$redhat_label" | /bin/cut -d '-' -f2`"
 				present_dev="`/bin/cat /proc/swaps | /bin/grep -w /dev/$try_dev`"
-				if [ -n "$present_dev" ] ; then
+				if [ "x$present_dev" != "x" ] ; then
 					actual_dev="/dev/$try_dev"
 				fi
 		fi
 
 		# Check if one of all those tries has known success
-		if [ ! -n $actual_dev ] ; then
+		if [ "x$actual_dev" != "x" ] ; then
 				current_partition=$actual_dev
 		else
 			Die "Your system uses a labelled swap partition, but you lack the tool to support it.\nPlease replace swap labels with their correct devices in /etc/fstab\n"

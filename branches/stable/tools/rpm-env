@@ -8,7 +8,7 @@
 dname=`dirname $0`
 prem=`echo $dname |cut -c1`
 if [ ${prem} == "/" ]; then
-        export TOOLHOME=$dname
+	export TOOLHOME=$dname
 else
 	export TOOLHOME=${PWD}/$dname
 fi

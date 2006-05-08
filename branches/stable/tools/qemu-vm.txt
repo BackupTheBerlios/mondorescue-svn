@@ -2,7 +2,12 @@ Booting CD
 qemu-img create -f qcow image.qemu 3G
 qemu -cdrom /dev/hdc -m 256 -boot d image.qemu
 
+# RPM based : urpmi, yum install, yast2
 	neon newt-devel slang-devel autoconf automake subversion libtool gcc rpm-build wget vim-X11 gcc-c++ docbook-utils-pdf ImageMagick man docbook-dtd41-sgml groff lynx
+
+# gentoo
+Cf: http://wiki.xensource.com/xenwiki/QEMUGentoo
+emerge neon newt slang autoconf automake subversion libtool gcc wget vim man groff lynx grub afio buffer mindi mondo-rescue
 
 Changing CD during install:
 Ctrl-Alt-2
@@ -17,6 +22,7 @@ loadkeys fr
 perl -pi -e 's/"us"/"fr"/' /etc/sysconfig/keyboard
 perl -pi -e 's/"us"/"fr"/' /etc/X11/XF86Config
 perl -pi -e 's/"us"/"fr"/' /etc/X11/xorg.conf
+Slack: put loadkeys fr in /etc/rc.d/rc.keymap
 
 Conf IP:
 	Ajout machine dans DNS interne (/usr/local/etc/named/etc/db.mondo.*)

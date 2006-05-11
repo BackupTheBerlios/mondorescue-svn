@@ -59,34 +59,16 @@ fi
 
 cd ${TOPDIR}/SPECS
 status=0
-if [ "`echo $c | grep kernel`" != "" ]; then
-	echo "Generating mindi-kernel RPMS"
-	log=/tmp/mindi-kernel-rpm.log
-	rpmbuild -ba mindi-kernel.spec 2> $log 1> $log
-	if [ $? != 0 ]; then 
-		cat $log
-		status=-1
-	fi
-fi
-if [ "`echo $c | grep -v kernel | grep mindi`" != "" ]; then
-	echo "Generating mindi RPMS"
-	log=/tmp/mindi-rpm.log
-	rpmbuild -ba mindi.spec 2> $log 1> $log
-	if [ $? != 0 ]; then
-		cat $log
-		status=-1
-	fi
-fi
-if [ "`echo $c | grep mondo`" != "" ]; then
-	echo "Generating mondo RPMS"
-	log=/tmp/mondo-rpm.log
-	rpmbuild -ba mondo.spec 2> $log 1> $log
+for p in "$c"; do
+	echo "Generating $p deb"
+	log=/tmp/$p-deb.log
+	#rpmbuild -ba $p.spec 2> $log 1> $log
 	if [ $? != 0 ]; then 
 		cat $log
 		status=-1
 	fi
 fi
 if [ $status = 0 ]; then
-	echo "Installing RPMS as root ($pkg)"
+	echo "Installing deb as root ($pkg)"
 	su - -c "$opt rpm -Uvh --force $pkg"
 fi

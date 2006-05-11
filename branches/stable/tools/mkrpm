@@ -85,7 +85,7 @@ for p in $c; do
 		cat $log
 		status=-1
 	fi
-fi
+done
 if [ $status = 0 ]; then
 	echo "Installing RPMS as root ($pkg)"
 	su - -c "$opt rpm -Uvh --force $pkg"

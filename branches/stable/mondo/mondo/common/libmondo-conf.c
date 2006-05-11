@@ -47,7 +47,6 @@
 
 /*setting flags*/
 #define MRCONF_FLAG_VERBOSE         0x1
-#define MRCONF_FLAG_ERROR_EXIT      0x2
 
 /*All strings of the library are here*/
 #define MRCONF_STR_ERROR          _("MRCONF: Error:")
@@ -390,14 +389,4 @@ static void mrconf_error_msg(int error_code, const char *add_line) {
 			break;
 		}
 	}
-
-	/* if the flag is set to ERROR_EXIT then any error leads to halt */
-	if (mrconf_flags & MRCONF_FLAG_ERROR_EXIT) {
-		if (mrconf_check_int_flag(MRCONF_INTFLAG_OPEN))
-			mrconf_close();
-		log_msg(4, "%s\n", MRCONF_STR_HALT);
-		exit(error_code);
-	}
 }
-
-

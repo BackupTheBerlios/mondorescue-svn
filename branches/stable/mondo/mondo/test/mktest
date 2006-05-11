@@ -1,0 +1,1 @@
+gcc -O2 -I../common test-conf.c ../common/libmondo-conf.c ../common/libmondo-msg.c

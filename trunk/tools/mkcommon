@@ -1,20 +1,25 @@
 #!/bin/bash
 #
 # Prepare build env common for all packages build process from SVN repository
+# Also prepare the documentation which is common
 #
 # $Id$
 #
 
 umask 022
 
-echo "Generating SVN log file ..."
 cd $TOOLHOME/..
+echo "Generating SVN log file ..."
 svn log -v > /tmp/mondorescue-svn.log
 
 if [ "$1" = "" ]; then
-	c="mindi mondo"
+		c="mondo-doc mindi mondo"
 else
-	c=$1
+	if [ "$1" = "all" ]; then
+			c="mindi-kernel mondo-doc mindi mondo"
+	else
+		c=$1
+	fi
 fi
 if [ "`echo $c | grep mindi-kernel`" != "" ]; then
 	cd ${BASE}/svn
@@ -27,19 +32,40 @@ if [ "`echo $c | grep mindi-kernel`" != "" ]; then
 	tar cvfhz ${TOPDIR}/SOURCES/mindi-kernel-${MINDI_VER}.tgz mindi-kernel-${MINDI_VER}
 	tar cvfhj ${TOPDIR}/SOURCES/mindi-kernel-${MINDI_VER}.tar.bz2 mindi-kernel-${MINDI_VER}
 fi
+
+#
+# Should be done before mindi
+#
+if [ "`echo $c | grep mondo-doc`" != "" ]; then
+	cd ${BASE}/svn
+	echo "Management of mondo-doc ${MONDO_VER}-$REVISION"
+	rm -rf mondo-doc-${MONDO_VER}
+	svn export ${VER}/documentation mondo-doc-${MONDO_VER}
+	svn log -v ${VER}/documentation > mondo-doc-${MONDO_VER}/svn.log
+	echo "$REVISION" > mondo-doc-${MONDO_VER}/REVISION
+	cd mondo-doc-${MONDO_VER}
+	$TOOLHOME/expandver mondorescue-howto.sgml *8
+	make -f Makefile.howto install INSTALLDIR=../mondo-docgen-${MONDO_VER}/docs/en
+	if [ $? != 0 ]; then
+		exit -1
+	fi
+	make -f Makefile.man install-mondo INSTALLDIR=../mondo-docgen-${MONDO_VER}/docs/man
+	if [ $? != 0 ]; then
+		exit -1
+	fi
+	cd ..
+
+	echo "Creating mondo-doc tar files"
+	tar cfhz ${TOPDIR}/SOURCES/mondo-doc-${MONDO_VER}.tgz mondo-doc-${MONDO_VER}
+	tar cfhj ${TOPDIR}/SOURCES/mondo-doc-${MONDO_VER}.tar.bz2 mondo-doc-${MONDO_VER}
+fi
 if [ "`echo $c | grep -v kernel | grep mindi`" != "" ]; then
 	cd ${BASE}/svn
 	echo "Management of mindi ${MINDI_VER}-$REVISION"
 	rm -fr mindi-${MINDI_VER}
 	svn export ${VER}/mindi mindi-${MINDI_VER}
 	cp -a /tmp/mondorescue-svn.log mindi-${MINDI_VER}/svn.log
-	cp -a ${VER}/documentation/mindi.8 mindi-${MINDI_VER}
-	rm -rf documentation-${MONDO_VER}
-	svn export ${VER}/documentation documentation-${MONDO_VER}
-	cd documentation-${MONDO_VER}
-	$TOOLHOME/expandver mindi*8
-	make -f Makefile.man install-mindi INSTALLDIR=../mindi-${MINDI_VER}
-	cd ..
+	(cd mondo-doc-${MONDO_VER} ; make -f Makefile.man install-mindi INSTALLDIR=../mindi-${MINDI_VER})
 	echo "$REVISION" > mindi-${MINDI_VER}/REVISION
 	rm -f mindi-${MINDI_VER}/rootfs/sbin/parted2fdisk-ia64 
 
@@ -48,29 +74,15 @@ if [ "`echo $c | grep -v kernel | grep mindi`" != "" ]; then
 	tar cfhj ${TOPDIR}/SOURCES/mindi-${MINDI_VER}.tar.bz2 mindi-${MINDI_VER}
 	rm -f ${TMP}/mindi-*-root
 fi
-if [ "`echo $c | grep  mondo`" != "" ]; then
+if [ "`echo $c | grep -v doc | grep  mondo`" != "" ]; then
 	cd ${BASE}/svn
 	echo "Management of mondo ${MONDO_VER}-$REVISION"
 	rm -rf mondo-${MONDO_VER}
 	svn export ${VER}/mondo mondo-${MONDO_VER}
 	cp -a /tmp/mondorescue-svn.log mondo-${MONDO_VER}/svn.log
 	echo "$REVISION" > mondo-${MONDO_VER}/REVISION
-	rm -rf documentation-${MONDO_VER}
-	svn export ${VER}/documentation documentation-${MONDO_VER}
-	cd documentation-${MONDO_VER}
-	$TOOLHOME/expandver mondorescue-howto.sgml mondo*8
-	make -f Makefile.howto install INSTALLDIR=../mondo-${MONDO_VER}/docs/en
-	if [ $? != 0 ]; then
-		exit -1
-	fi
-	make -f Makefile.man install-mondo INSTALLDIR=../mondo-${MONDO_VER}/docs/man
-	if [ $? != 0 ]; then
-		exit -1
-	fi
-	cd ../mondo-${MONDO_VER}
-	echo "Bootstraping mondo ... "
-	./bootstrap
-	cd ..
+	(cd mondo-doc-${MONDO_VER} ; make -f Makefile.howto install INSTALLDIR=../mondo-${MONDO_VER}/docs/en ; make -f Makefile.man install-mondo INSTALLDIR=../mondo-${MONDO_VER}/docs/man)
+	(cd mondo-${MONDO_VER} ; echo "Bootstraping mondo ... " ; ./bootstrap)
 
 	echo "Creating mondo tar files"
 	tar cfhz ${TOPDIR}/SOURCES/mondo-${MONDO_VER}.tgz mondo-${MONDO_VER}

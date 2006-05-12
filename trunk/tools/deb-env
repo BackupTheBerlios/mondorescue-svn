@@ -18,11 +18,16 @@ fi
 # Should not be modified below
 dname=`dirname $0`
 
+
 # TBD
 export TOPDIR=${BASE}/debs
 mkdir -p ${TOPDIR}
+export opt=""
+export pkg=""
+export ARCH=""
 
 if [ -e /etc/debian-release ]; then
+	export dfam="debian"
 	export ddir="debian"
 	export dver=`awk '{print $4}' /etc/debian-release`
 	export suf=".`echo $dver | sed 's/\.//'`mdk"

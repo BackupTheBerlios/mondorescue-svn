@@ -22,9 +22,9 @@ Version:	%{version}
 Release:	%{rel}
 License:	GPL
 Group:		%{grp}
-Url:		http://mondorescue.berlios.de
+Url:		http://www.mondorescue.org
 Source:		%{src}
-BuildRoot:	%{_tmppath}/%{name}-%{version}
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(id -u -n)
 BuildRequires:	newt-devel >= 0.50, slang-devel >= 1.4.1, gcc
 Epoch:		%(echo EEE | cut -d- -f1 | sed "s~M~~")
 OBS

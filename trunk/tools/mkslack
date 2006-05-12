@@ -17,13 +17,9 @@ fi
 . $TOOLHOME/rpm-env
 
 if [ "$1" = "" ]; then
-	c="mondo-doc mindi mondo"
+	c="mindi mondo"
 else
-	if [ "$1" = "all" ]; then
-		c="mindi-kernel mondo-doc mindi mondo"
-	else
-		c=$1
-	fi
+	c=$1
 fi
 
 $TOOLHOME/mkcommon "$c"
@@ -51,18 +47,7 @@ if [ "`echo $c | grep -v kernel | grep mindi`" != "" ]; then
 	# ATTENTION: This could be dangerous for your setup
 	opt="rm -rf /usr/lib/mindi ;"
 fi
-if [ "`echo $c | grep mondo-doc`" != "" ]; then
-	cd ${BASE}/svn
-	$TOOLHOME/mkspec ${MONDO_VER} mondo-${MONDO_VER}/distributions/rpm/mondo-doc.spec > ${TOPDIR}/SPECS/mondo-doc.spec
-	cat mondo-${MONDO_VER}/distributions/$dfam/changelog >> ${TOPDIR}/SPECS/mondo-doc.spec
-	chmod 644 ${TOPDIR}/SPECS/mondo-doc.spec
-
-	pkg1="${TOPDIR}/RPMS/${ARCH}/mondo-doc-${MONDO_VER}-${REVISION}${suf}.${ARCH}.rpm"
-	pkg="$pkg $pkg1"
-	rm -f $pkg1
-fi
-
-if [ "`echo $c | grep -v doc | grep mondo`" != "" ]; then
+if [ "`echo $c | grep  mondo`" != "" ]; then
 	cd ${BASE}/svn
 	$TOOLHOME/mkspec ${MONDO_VER} mondo-${MONDO_VER}/distributions/rpm/mondo.spec > ${TOPDIR}/SPECS/mondo.spec
 	cat mondo-${MONDO_VER}/distributions/$dfam/changelog >> ${TOPDIR}/SPECS/mondo.spec
@@ -76,16 +61,33 @@ fi
 
 cd ${TOPDIR}/SPECS
 status=0
-
-for p in $c; do
-	echo "Generating $p RPMS"
-	log=/tmp/$p-rpm.log
-	rpmbuild -ba $p.spec 2> $log 1> $log
+if [ "`echo $c | grep kernel`" != "" ]; then
+	echo "Generating mindi-kernel RPMS"
+	log=/tmp/mindi-kernel-rpm.log
+	rpmbuild -ba mindi-kernel.spec 2> $log 1> $log
 	if [ $? != 0 ]; then 
 		cat $log
 		status=-1
 	fi
-done
+fi
+if [ "`echo $c | grep -v kernel | grep mindi`" != "" ]; then
+	echo "Generating mindi RPMS"
+	log=/tmp/mindi-rpm.log
+	rpmbuild -ba mindi.spec 2> $log 1> $log
+	if [ $? != 0 ]; then
+		cat $log
+		status=-1
+	fi
+fi
+if [ "`echo $c | grep mondo`" != "" ]; then
+	echo "Generating mondo RPMS"
+	log=/tmp/mondo-rpm.log
+	rpmbuild -ba mondo.spec 2> $log 1> $log
+	if [ $? != 0 ]; then 
+		cat $log
+		status=-1
+	fi
+fi
 if [ $status = 0 ]; then
 	echo "Installing RPMS as root ($pkg)"
 	su - -c "$opt rpm -Uvh --force $pkg"

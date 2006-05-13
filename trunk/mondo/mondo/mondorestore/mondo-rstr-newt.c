@@ -2293,7 +2293,7 @@ find_raid_device_in_raidlist(struct raidlist_itself *raidlist,
  * Get information about the location of ISO images from the user.
  * @param isodir_device Where to put the device (e.g. /dev/hda4) the user enters.
  * @param isodir_format Where to put the format (e.g. ext2) the user enters.
- * @param isodir_path Where to put the path (e.g. /root/images/mondo) the user enters.
+ * @param isodir_path Where to put the path (e.g. /var/cache/mondo) the user enters.
  * @param nuke_me_please Whether we're planning on nuking or not.
  * @return TRUE if OK was pressed, FALSE otherwise.
  */

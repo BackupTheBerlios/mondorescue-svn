@@ -1,6 +1,15 @@
-/* $Id$ */
+/*
+ * Common defines across the project
+ *
+ *  $Id$
+ */
 
+#ifndef _MY_STUFF_H_
+#define _MY_STUFF_H_
+
+/* BERLIOS
 #define HAVE_MALLOC 1
+*/
 
 // Extra info for ACLs and SELINUX users
 #define STAR_ACL_SZ "-xfflags -acl"
@@ -25,7 +34,7 @@
 /**
  * Create the illusion of a Boolean type.
  */
-#define bool int
+#define bool unsigned char
 #define TRUE 1
 #define FALSE 0
 #endif
@@ -33,6 +42,9 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+/* BERLIOS
+ * Useful ?
+*/
 
 #ifndef __FreeBSD__
 #include <getopt.h>
@@ -46,12 +58,14 @@
 #include <sys/param.h>
 
 #include <stdlib.h>
+/* BERLIOS
 #ifndef  __USE_FILE_OFFSET64
 #define  __USE_FILE_OFFSET64
 #endif
 #ifndef  __USE_LARGEFILE64
 #define  __USE_LARGEFILE64
 #endif
+*/
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -63,25 +77,22 @@
 #ifndef S_SPLINT_S
 #include <signal.h>
 #endif
-//#include <curses.h>
 #include <newt.h>
 #include <ctype.h>
 #include <string.h>
 #ifndef S_SPLINT_S
 #include <pthread.h>
-#endif
 #include <assert.h>
 
-#include "../../config.h"
-
+/*
 #if defined(DEBUG) && !__cplusplus
 int count;
-char trace_log[255];			/*buffer for logging */
+char trace_log[255];
 char *trace_log_ptr;
-#endif							/* DEBUG */
+#endif
+*/
 
-#define IA64_BOOT_SIZE "8192"	/* Should be coherent with mindi */
-#define STD_PREFIX "mondorescue"	/* Should be coherent with mindi */
+#define STD_PREFIX "mondorescue"
 
 /**
  * The biggielist stub (appended to the directory where all.tar.gz was unpacked).
@@ -128,9 +139,6 @@ extern void _mondo_assert_fail(const char *file, const char *function,
 
 #define CRC_M16	0xA001			///< Mask for crc16.
 #define	CRC_MTT	0x1021			///< Mask for crc-ccitt.
-
-#define FALSE 0					///< The ubiquitous FALSE macro.
-#define TRUE 1					///< The even more ubiquitous TRUE macro.
 
 #define SCREEN_LENGTH 25		///< The default size of the screen.
 #define NOOF_ERR_LINES 6		///< The number of lines of log output to keep at the bottom of the screen.

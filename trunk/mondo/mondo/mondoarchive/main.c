@@ -132,6 +132,7 @@ void distro_specific_kludges_at_end_of_mondoarchive()
 int main(int argc, char *argv[])
 {
 	struct s_bkpinfo *bkpinfo;
+	struct s_mrconf *mrconf;
 	char *tmp;
 	int res = 0;
 	int retval = 0;
@@ -159,6 +160,11 @@ int main(int argc, char *argv[])
 
 	malloc_libmondo_global_strings();
 
+	/* Initialize Configuration Structure */
+	mrarchive_init_conf(mrconf);
+
+	res = 0;
+	retval = 0;
 	diffs = 0;
 	printf(_("Initializing...\n"));
 	if (!(bkpinfo = malloc(sizeof(struct s_bkpinfo)))) {
@@ -326,7 +332,7 @@ int main(int argc, char *argv[])
 
 	/* If we're meant to backup then backup */
 	if (bkpinfo->backup_data) {
-		res = backup_data(bkpinfo);
+		res = backup_data(bkpinfo, mrconf);
 		retval += res;
 		if (res) {
 			asprintf(&say_at_end,
@@ -362,9 +368,9 @@ int main(int argc, char *argv[])
 							_("Backup and/or verify ran to completion. However, errors did occur."));
 	}
 
-	if (does_file_exist("/root/images/mindi/mondorescue.iso")) {
+	if (does_file_exist("/var/cache/mindi/mondorescue.iso")) {
 		log_to_screen
-			(_("/root/images/mindi/mondorescue.iso, a boot/utility CD, is available if you want it."));
+			(_("/var/cache/mindi/mondorescue.iso, a boot/utility CD, is available if you want it."));
 	}
 
 

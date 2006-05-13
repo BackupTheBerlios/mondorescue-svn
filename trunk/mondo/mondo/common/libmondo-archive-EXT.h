@@ -14,7 +14,7 @@ extern int make_those_slices_phase(struct s_bkpinfo *bkpinfo);
 extern int make_those_afios_phase(struct s_bkpinfo *bkpinfo);
 extern int make_slices_and_images(struct s_bkpinfo *bkpinfo,
 								  char *biggielist_fname);
-extern int make_iso_fs(struct s_bkpinfo *bkpinfo, char *destfile);
+extern int make_iso_fs(struct s_bkpinfo *bkpinfo, struct s_mrconf *mrconf, char *destfile);
 extern int make_afioballs_and_images(struct s_bkpinfo *bkpinfo);
 extern int (*move_files_to_cd) (struct s_bkpinfo *, char *, ...);
 extern int _move_files_to_cd(struct s_bkpinfo *bkpinfo, char *, ...);

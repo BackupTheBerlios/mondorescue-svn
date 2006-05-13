@@ -1535,7 +1535,7 @@ int mondo_makefilelist(char *logfile, char *tmpdir, char *scratchdir,
 					   char *include_paths, char *excp, int differential,
 					   char *userdef_filelist)
 {
-	char sz_datefile_wildcard[] = "/var/cache/mondo-archive/difflevel.%d";
+	char sz_datefile_wildcard[] = "/var/cache/mondo/difflevel.%d";
 	char *p, *q;
 	char *sz_datefile;
 	char *sz_filelist, *exclude_paths;
@@ -1604,7 +1604,7 @@ int mondo_makefilelist(char *logfile, char *tmpdir, char *scratchdir,
 		log_msg(1, "Calculating filelist");
 		asprintf(&exclude_paths, " %s %s %s %s %s %s . .. \
 " MNT_CDROM " " MNT_FLOPPY " /media/cdrom /media/cdrecorder \
-/proc /sys /root/images/mondo /root/images/mindi ", excp, call_program_and_get_last_line_of_output("locate /win386.swp 2> /dev/null"), call_program_and_get_last_line_of_output("locate /hiberfil.sys 2> /dev/null"), call_program_and_get_last_line_of_output("locate /pagefile.sys 2> /dev/null"), (tmpdir[0] == '/' && tmpdir[1] == '/') ? (tmpdir + 1) : tmpdir, (scratchdir[0] == '/' && scratchdir[1] == '/') ? (scratchdir + 1) : scratchdir);
+/proc /sys /tmp /var/cache/mondo /var/cache/mindi", excp, call_program_and_get_last_line_of_output("locate /win386.swp 2> /dev/null"), call_program_and_get_last_line_of_output("locate /hiberfil.sys 2> /dev/null"), call_program_and_get_last_line_of_output("locate /pagefile.sys 2> /dev/null"), (tmpdir[0] == '/' && tmpdir[1] == '/') ? (tmpdir + 1) : tmpdir, (scratchdir[0] == '/' && scratchdir[1] == '/') ? (scratchdir + 1) : scratchdir);
 
 		log_msg(2, "Excluding paths = '%s'", exclude_paths);
 		log_msg(2,

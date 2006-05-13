@@ -19,13 +19,6 @@ fi
 
 rel=`svnversion $TOOLHOME/..`
 
-cat > $TOOLHOME/../mondo/REVISION << EOF
-${rel}
-EOF
-cat > $TOOLHOME/../mindi/REVISION << EOF
-${rel}
-EOF
-
 #
 # return the release
 #

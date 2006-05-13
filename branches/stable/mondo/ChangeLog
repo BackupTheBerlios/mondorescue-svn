@@ -2,7 +2,7 @@
 
 MONDO CHANGES
 
-v2.07 (2006-02-23)
+2.0.7 (2006-03-10)
 - useless cat, sort|uniq commands removed 
   (Bruno Cornec/Sébastien Aperghis-Tramoni)
 - Doc cleanup (Andree Leidenfrost)

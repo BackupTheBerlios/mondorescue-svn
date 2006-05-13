@@ -7,7 +7,7 @@
 
 # BerliOS FTP/SSH setup
 ACCOUNT=bruno@ftp.mondorescue.org
-DSTDIR=/
+DSTDIR=/mondo/ftp
 FTPSERV="ftp.berlios.de"
 FTPDIR="/incoming"
 

@@ -7,6 +7,8 @@
 
 # Adapt to your needs
 export BASE=${HOME}/mondo
+export TOPDIR=${BASE}/RPMS
+mkdir -p ${TOPDIR}
 
 # Should not be modified below
 dname=`dirname $0`
@@ -19,4 +21,4 @@ export MONDO_VER=`cat ${BASE}/svn/${SVNBRANCH}/mondo/VERSION`
 
 # To be safe for SVN commands
 cd $TOOLHOME/..
-export REVISION=`$TOOLHOME/mksvnversion`
+export REVISION=`svnversion .`

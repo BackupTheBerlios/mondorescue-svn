@@ -102,13 +102,14 @@ Started late Dec, 2001
 #include "my-stuff.h"
 #include "mondostructures.h"
 #include "libmondo-verify.h"
-#include "newt-specific-EXT.h"
+#include "libmondo-gui-EXT.h"
 #include "libmondo-files-EXT.h"
 #include "libmondo-fork-EXT.h"
 #include "libmondo-stream-EXT.h"
 #include "libmondo-string-EXT.h"
 #include "libmondo-devices-EXT.h"
 #include "libmondo-tools-EXT.h"
+#include "lib-common-externs.h"
 
 /*@unused@*/
 //static char cvsid[] = "$Id$";
@@ -756,7 +757,7 @@ verify_a_biggiefile_from_stream(struct s_bkpinfo *bkpinfo,
 			sprintf(tmp, "orig cksum=%s; curr cksum=%s", biggie_cksum,
 					orig_cksum);
 			log_msg(2, tmp);
-			sprintf(tmp, _("%s has changed on live filesystem"),
+			sprintf(tmp, "%s has changed on live filesystem",
 					biggie_fname);
 			log_to_screen(tmp);
 			sprintf(tmp, "echo \"%s\" >> /tmp/biggies.changed",
@@ -809,11 +810,11 @@ int verify_afioballs_from_stream(struct s_bkpinfo *bkpinfo)
 			bkpinfo->tmpdir);
 	sprintf(curr_acl_list_fname, ACL_BIGGLST_FNAME_RAW_SZ,
 			bkpinfo->tmpdir);
-	log_to_screen(_("Verifying regular archives on tape"));
+	log_to_screen("Verifying regular archives on tape");
 	total_afioballs = get_last_filelist_number(bkpinfo) + 1;
-	open_progress_form(_("Verifying filesystem"),
-					   _("I am verifying archives against your live filesystem now."),
-					   _("Please wait. This may take a couple of hours."), "",
+	open_progress_form("Verifying filesystem",
+					   "I am verifying archives against your live filesystem now.",
+					   "Please wait. This may take a couple of hours.", "",
 					   total_afioballs);
 	res = read_header_block_from_stream(&size, fname, &ctrl_chr);
 	if (ctrl_chr != BLK_START_AFIOBALLS) {
@@ -852,7 +853,7 @@ int verify_afioballs_from_stream(struct s_bkpinfo *bkpinfo)
 		update_progress_form(tmp);
 		res = verify_an_afioball_from_stream(bkpinfo, fname, size);
 		if (res) {
-			sprintf(tmp, _("Afioball %ld differs from live filesystem"),
+			sprintf(tmp, "Afioball %ld differs from live filesystem",
 					current_afioball_number);
 			log_to_screen(tmp);
 		}
@@ -936,8 +937,8 @@ int verify_biggiefiles_from_stream(struct s_bkpinfo *bkpinfo)
 	}
 	noof_biggiefiles = (long) size;
 	log_msg(1, "noof_biggiefiles = %ld", noof_biggiefiles);
-	open_progress_form(_("Verifying big files"), comment,
-					   _("Please wait. This may take some time."), "",
+	open_progress_form("Verifying big files", comment,
+					   "Please wait. This may take some time.", "",
 					   noof_biggiefiles);
 	for (res = read_header_block_from_stream(&size, orig_fname, &ctrl_chr);
 		 ctrl_chr != BLK_STOP_BIGGIEFILES;
@@ -953,7 +954,7 @@ int verify_biggiefiles_from_stream(struct s_bkpinfo *bkpinfo)
 		} else {
 			p++;
 		}
-		sprintf(comment, _("Verifying bigfile #%ld (%ld K)"),
+		sprintf(comment, "Verifying bigfile #%ld (%ld K)",
 				current_biggiefile_number, (long) size >> 10);
 		update_progress_form(comment);
 		sprintf(logical_fname, "%s/%s", bkpinfo->restore_path, orig_fname);
@@ -1018,8 +1019,8 @@ int verify_cd_image(struct s_bkpinfo *bkpinfo)
 	assert(bkpinfo != NULL);
 
 	sprintf(mountpoint, "%s/cdrom", bkpinfo->tmpdir);
-	sprintf(fname, "%s/%s/%s-%d.iso", bkpinfo->isodir, bkpinfo->nfs_remote_dir,
-			bkpinfo->prefix, g_current_media_number);
+	sprintf(fname, "%s/%s/%s-%d.iso", bkpinfo->nfs_remote_dir,
+			bkpinfo->isodir, bkpinfo->prefix, g_current_media_number);
 
 	mkdir(mountpoint, 1777);
 	sync();
@@ -1029,10 +1030,10 @@ int verify_cd_image(struct s_bkpinfo *bkpinfo)
 				fname);
 		log_msg(2, tmp);
 		if (bkpinfo->manual_cd_tray) {
-			popup_and_OK(_("Please push CD tray closed."));
+			popup_and_OK("Please push CD tray closed.");
 		}
 		if (find_and_mount_actual_cd(bkpinfo, mountpoint)) {
-			log_to_screen(_("failed to mount actual CD"));
+			log_to_screen("failed to mount actual CD");
 			return (1);
 		}
 	} else {
@@ -1042,7 +1043,7 @@ int verify_cd_image(struct s_bkpinfo *bkpinfo)
 		vndev = 2;
 		mddevice = make_vn(fname);
 		if (ret) {
-			sprintf(tmp, _("make_vn of %s failed; unable to verify ISO\n"),
+			sprintf(tmp, "make_vn of %s failed; unable to verify ISO\n",
 					fname);
 			log_to_screen(tmp);
 			return (1);
@@ -1053,7 +1054,7 @@ int verify_cd_image(struct s_bkpinfo *bkpinfo)
 				mountpoint);
 #endif
 		if (run_program_and_log_output(command, FALSE)) {
-			sprintf(tmp, _("%s failed; unable to mount ISO image\n"),
+			sprintf(tmp, "%s failed; unable to mount ISO image\n",
 					command);
 			log_to_screen(tmp);
 			return (1);
@@ -1131,7 +1132,7 @@ int verify_tape_backups(struct s_bkpinfo *bkpinfo)
 	assert(bkpinfo != NULL);
 
 	log_msg(3, "verify_tape_backups --- starting");
-	log_to_screen(_("Verifying backups"));
+	log_to_screen("Verifying backups");
 	openin_tape(bkpinfo);
 /* verify archives themselves */
 	retval += verify_afioballs_from_stream(bkpinfo);
@@ -1156,10 +1157,10 @@ int verify_tape_backups(struct s_bkpinfo *bkpinfo)
 		if (does_file_exist(changed_files_fname)
 			&& length_of_file(changed_files_fname) > 2) {
 			log_to_screen
-				(_("Warning - unable to check logfile to derive list of changed files"));
+				("Warning - unable to check logfile to derive list of changed files");
 		} else {
 			log_to_screen
-				(_("No differences found. Therefore, no 'changed.files' text file."));
+				("No differences found. Therefore, no 'changed.files' text file.");
 		}
 	}
 	sprintf(tmp, "cat /tmp/biggies.changed >> %s", changed_files_fname);
@@ -1175,9 +1176,9 @@ int verify_tape_backups(struct s_bkpinfo *bkpinfo)
 				diffs, changed_files_fname, "/tmp/changed.files");
 		log_msg(0, tmp);
 		log_to_screen
-			(_("See /tmp/changed.files for a list of nonmatching files."));
+			("See /tmp/changed.files for a list of nonmatching files.");
 		log_to_screen
-			(_("The files probably changed on filesystem, not on backup media."));
+			("The files probably changed on filesystem, not on backup media.");
 		//      retval++;
 	}
 	return (retval);

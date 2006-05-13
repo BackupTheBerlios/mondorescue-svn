@@ -62,8 +62,8 @@ in the directory containing all the required packages, and solve dependancies ma
 
 <p>Most of the time, you'll be able to download directly the packages suited for your distribution. Currently we provide packages for :
 <ul>
-		<li>RedHat <a href="ftp://ftp.mondorescue.org/redhat/7.3">7.3</a> and <a href="ftp://ftp.mondorescue.org/redhat/9">9</a>.</li>
-		<li>Fedora <a href="ftp://ftp.mondorescue.org/fedora/4">Core 4</a> and <a href="ftp://ftp.mondorescue.org/fedora/5">Core 5</a>.</li>
+		<li>RedHat <a href="ftp://ftp.mondorescue.org/redhat/7.3">7.3</a>.</li>
+		<li>Fedora <a href="ftp://ftp.mondorescue.org/fedora/4">Core 4</a>.</li>
 		<li>RedHat Enterprise Linux <!--<a href="ftp://ftp.mondorescue.org/rhel/2.1">2.1</a>, --><a href="ftp://ftp.mondorescue.org/rhel/3">3</a>, <a href="ftp://ftp.mondorescue.org/rhel/4">4</a>.</li>
 		<li>OpenSuSE <a href="ftp://ftp.mondorescue.org/suse/9.3">9.3</a>, <a href="ftp://ftp.mondorescue.org/suse/10.0">10.0</a>. Look also at <a href="http://www.mikenjane.net/~mike/">this</a> web page for SuSE details.
 		<li>SuSE Linux Enterprise Server <a href="ftp://ftp.mondorescue.org/sles/9">9</a>.</li>
@@ -75,7 +75,8 @@ in the directory containing all the required packages, and solve dependancies ma
 
 <h3>Mondo Rescue CD</h3>
 
-<p>In order to make it as easy as possible for you to use Mondo Rescue, you may want to download the latest <a href="ftp://ftp.mondorescue.org/iso/mondorescue.iso">Mondo Rescue CD</a> which contains all the packages with its dependancies available on the ftp site. It is updated daily (Currently un-available for bandwidth issues)
+<p>In order to make it as easy as possible for you to use Mondo Rescue, you may want to download the latest <a href="ftp://ftp.mondorescue.org/iso/mondorescue.iso">Mondo Rescue CD</a> which contains all the packages with its dependancies available on the ftp site. It is updated daily.
+
 <!--
     <div class="h2-5">
       <h2>Change Logs</h2>

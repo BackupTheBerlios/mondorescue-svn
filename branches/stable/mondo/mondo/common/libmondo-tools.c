@@ -173,8 +173,9 @@
 
 #include "my-stuff.h"
 #include "mondostructures.h"
+#include "lib-common-externs.h"
 #include "libmondo-tools.h"
-#include "newt-specific-EXT.h"
+#include "libmondo-gui-EXT.h"
 #include "libmondo-files-EXT.h"
 #include "libmondo-fork-EXT.h"
 #include "libmondo-raid-EXT.h"
@@ -269,9 +270,9 @@ void _mondo_assert_fail(const char *file,
 	if (!g_text_mode)
 		newtSuspend();
 #endif
-	printf(_("ASSERTION FAILED: `%s'\n"), exp);
-	printf(_("\tat %s:%d in %s\n\n"), file, line, function);
-	printf(_("(I)gnore, ignore (A)ll, (D)ebug, a(B)ort, or (E)xit? "));
+	printf("ASSERTION FAILED: `%s'\n", exp);
+	printf("\tat %s:%d in %s\n\n", file, line, function);
+	printf("(I)gnore, ignore (A)ll, (D)ebug, a(B)ort, or (E)xit? ");
 	do {
 		is_valid = TRUE;
 		switch (toupper(getchar())) {
@@ -298,11 +299,11 @@ void _mondo_assert_fail(const char *file,
 			 */
 		case '\n':
 			printf
-				(_("(I)gnore, ignore (A)ll, (D)ebug, a(B)ort, or (E)xit? "));
+				("(I)gnore, ignore (A)ll, (D)ebug, a(B)ort, or (E)xit? ");
 			break;
 		default:
 			is_valid = FALSE;
-			printf(_("Invalid choice.\n"));
+			printf("Invalid choice.\n");
 			break;
 		}
 	} while (!is_valid);
@@ -471,6 +472,52 @@ void insmod_crucial_modules(void)
 	//  system("modprobe osst &> /dev/null");
 #endif
 }
+
+
+/**
+ * Log a trace message to the trace file.
+ * @bug This function seems orphaned. Please remove.
+ */
+void log_trace(char *o)
+{
+	/*@ pointers **************************************************** */
+	FILE *fout;
+
+	/*@ buffers ***************************************************** */
+	char output[MAX_STR_LEN];
+
+	/*@ int    ****************************************************** */
+	int i;
+
+	/*@ end vars *************************************************** */
+
+	if (o[0] == '\0') {
+		return;
+	}
+	strcpy(output, o);
+	i = (int) strlen(output);
+	if (i <= 0) {
+		return;
+	}
+	if (output[i - 1] < 32) {
+		output[i - 1] = '\0';
+	}
+	if (g_text_mode
+		/* && !strstr(last_line_of_file(MONDO_LOGFILE),output) */ ) {
+		printf("%s\n", output);
+	}
+
+	fout = fopen(MONDO_TRACEFILE, "a");
+	if (fout) {
+		fprintf(fout, "%s\n", output);
+		paranoid_fclose(fout);
+	} else {
+		log_OS_error("Cannot write to tracefile");
+	}
+}
+
+
+
 
 
 /**
@@ -922,7 +969,7 @@ void reset_bkpinfo(struct s_bkpinfo *bkpinfo)
 	if (bkpinfo->disaster_recovery) {
 		strcpy(bkpinfo->isodir, "/");
 	} else {
-		strcpy(bkpinfo->isodir, "/var/cache/mondo/iso");
+		strcpy(bkpinfo->isodir, "/root/images/mondo");
 	}
 	strcpy(bkpinfo->prefix, STD_PREFIX);
 
@@ -1021,22 +1068,24 @@ int some_basic_system_sanity_checks()
 		   ("free | grep Mem | head -n1 | tr -s ' ' '\t' | cut -f2"));
 	if (atol(tmp) < 35000) {
 		retval++;
-		log_to_screen(_("You must have at least 32MB of RAM to use Mondo."));
+		log_to_screen("You must have at least 32MB of RAM to use Mondo.");
 	}
 	if (atol(tmp) < 66000) {
 		log_to_screen
-			(_("WARNING! You have very little RAM. Please upgrade to 64MB or more."));
+			("WARNING! You have very little RAM. Please upgrade to 64MB or more.");
 	}
 #endif
 
-	if ((Lres = free_space_on_given_partition("/var/cache/mondo")) == -1) /* {
+	if ((Lres = free_space_on_given_partition("/root")) == -1) {
 		Lres = free_space_on_given_partition("/");
 	}
-	*/
 	log_it("Free space on given partition = %ld MB", Lres);
 
 	if (Lres < 50) {
-		fatal_error("Your /var/cache/mondo partition has <50MB free. Please adjust your partition table to something saner."); 
+		run_program_and_log_output
+			("rm -Rf /root/images/mindi; mkdir -p /home/root/images/mindi; mkdir -p /root/images; ln -sf /home/root/images/mindi /root/images/mindi",
+			 3);
+		//      fatal_error("Your / (or /root) partition has <50MB free. Please adjust your partition table to something saner."); 
 	}
 
 	if (system("which " MKE2FS_OR_NEWFS " > /dev/null 2> /dev/null")) {
@@ -1050,13 +1099,13 @@ int some_basic_system_sanity_checks()
 	if (run_program_and_log_output
 		("grep ramdisk /proc/devices", FALSE)) {
 		if (!ask_me_yes_or_no
-			(_("Your kernel has no ramdisk support. That's mind-numbingly stupid but I'll allow it if you're planning to use a failsafe kernel. Are you?")))
+			("Your kernel has no ramdisk support. That's mind-numbingly stupid but I'll allow it if you're planning to use a failsafe kernel. Are you?"))
 		{
 			//          retval++;
 			log_to_screen
-				(_("It looks as if your kernel lacks ramdisk and initrd support."));
+				("It looks as if your kernel lacks ramdisk and initrd support.");
 			log_to_screen
-				(_("I'll allow you to proceed but FYI, if I'm right, your kernel is broken."));
+				("I'll allow you to proceed but FYI, if I'm right, your kernel is broken.");
 		}
 	}
 #endif
@@ -1078,13 +1127,13 @@ int some_basic_system_sanity_checks()
 		||
 		!run_program_and_log_output
 		("mount | grep -w dos | grep -v /dev/fd | grep -v nexdisk", 0)) {
-		log_to_screen(_("I think you have a Windows 9x partition."));
+		log_to_screen("I think you have a Windows 9x partition.");
 		retval += whine_if_not_found("parted");
 #ifndef __IA64__
 		/* IA64 always has one vfat partition for EFI even without Windows */
 		// retval += 
 		if (!find_home_of_exe("ms-sys")) {
-			log_to_screen(_("Please install ms-sys just in case."));
+			log_to_screen("Please install ms-sys just in case.");
 		}
 #endif
 	}
@@ -1094,7 +1143,7 @@ int some_basic_system_sanity_checks()
 			whine_if_not_found("cmp");
 		} else {
 			log_to_screen
-				(_("Your system lacks the 'cmp' binary. I'll create a dummy cmp for you."));
+				("Your system lacks the 'cmp' binary. I'll create a dummy cmp for you.");
 			if (run_program_and_log_output
 				("cp -f `which true` /usr/bin/cmp", 0)) {
 				fatal_error("Failed to create dummy 'cmp' file.");
@@ -1109,10 +1158,10 @@ int some_basic_system_sanity_checks()
 	if (strcmp("", tmp)) {
 		if (strstr(tmp, "autofs")) {
 			log_to_screen
-				(_("Your CD-ROM is mounted via autofs. I therefore cannot tell"));
+				("Your CD-ROM is mounted via autofs. I therefore cannot tell");
 			log_to_screen
-				(_("if a CD actually is inserted. If a CD is inserted, please"));
-			log_to_screen(_("eject it. Thank you."));
+				("if a CD actually is inserted. If a CD is inserted, please");
+			log_to_screen("eject it. Thank you.");
 			log_it
 				("Ignoring autofs CD-ROM 'mount' since we hope nothing's in it.");
 		} else
@@ -1138,7 +1187,7 @@ int some_basic_system_sanity_checks()
 		} else {
 			retval++;
 			log_to_screen
-				(_("Please find out what happened to /etc/modules.conf"));
+				("Please find out what happened to /etc/modules.conf");
 		}
 	}
 #endif
@@ -1151,36 +1200,36 @@ int some_basic_system_sanity_checks()
 #endif
 
 	if (run_program_and_log_output("mindi -V", 1)) {
-		log_to_screen(_("Could not ascertain mindi's version number."));
+		log_to_screen("Could not ascertain mindi's version number.");
 		log_to_screen
-			(_("You have not installed Mondo and/or Mindi properly."));
-		log_to_screen(_("Please uninstall and reinstall them both."));
+			("You have not installed Mondo and/or Mindi properly.");
+		log_to_screen("Please uninstall and reinstall them both.");
 		fatal_error("Please reinstall Mondo and Mindi.");
 	}
 	if (run_program_and_log_output
 		("mindi --makemountlist /tmp/mountlist.txt.test", 5)) {
 		log_to_screen
-			(_("Mindi --makemountlist /tmp/mountlist.txt.test failed for some reason."));
+			("Mindi --makemountlist /tmp/mountlist.txt.test failed for some reason.");
 		log_to_screen
-			(_("Please run that command by hand and examine /var/log/mindi.log"));
+			("Please run that command by hand and examine /var/log/mindi.log");
 		log_to_screen
-			(_("for more information. Perhaps your /etc/fstab file is insane."));
+			("for more information. Perhaps your /etc/fstab file is insane.");
 		log_to_screen
-			(_("Perhaps Mindi's MakeMountlist() subroutine has a bug. We'll see."));
+			("Perhaps Mindi's MakeMountlist() subroutine has a bug. We'll see.");
 		retval++;
 	}
 
 	if (!run_program_and_log_output("parted2fdisk -l | grep -i raid", 1)
 		&& !does_file_exist("/etc/raidtab")) {
 		log_to_screen
-			(_("You have RAID partitions but no /etc/raidtab - creating one from /proc/mdstat"));
+			("You have RAID partitions but no /etc/raidtab - creating one from /proc/mdstat");
 		create_raidtab_from_mdstat("/etc/raidtab", "/proc/mdstat");
 	}
 
 	if (retval) {
-		mvaddstr_and_log_it(g_currentY++, 74, _("Failed."));
+		mvaddstr_and_log_it(g_currentY++, 74, "Failed.");
 	} else {
-		mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
+		mvaddstr_and_log_it(g_currentY++, 74, "Done.");
 	}
 	return (retval);
 }
@@ -1442,6 +1491,71 @@ int write_cfg_var(char *config_file, char *label, char *value)
 	return (0);
 }
 
+
+/**
+ * The standard log_debug_msg() (log_msg() also due to a macro). Writes some describing
+ * information to the logfile.
+ */
+void standard_log_debug_msg(int debug_level, const char *szFile,
+							const char *szFunction, int nLine,
+							const char *fmt, ...)
+{
+	va_list args;
+	int i;
+	static int depth = 0;
+	char *tmp;
+	FILE *fout;
+
+	if (depth > 5) {
+		depth--;
+		return;
+	}
+	depth++;
+
+	malloc_string(tmp);
+
+	if (debug_level <= g_loglevel) {
+		va_start(args, fmt);
+		if (!(fout = fopen(MONDO_LOGFILE, "a"))) {
+			return;
+		}						// fatal_error("Failed to openout to logfile - sheesh..."); }
+
+		// add tabs to distinguish log levels
+		if (debug_level > 0) {
+			for (i = 1; i < debug_level; i++)
+				fprintf(fout, "\t");
+			if (getpid() == g_main_pid)
+				fprintf(fout, "[Main] %s->%s#%d: ", szFile, szFunction,
+						nLine);
+			else if (getpid() == g_buffer_pid && g_buffer_pid > 0)
+				fprintf(fout, "[Buff] %s->%s#%d: ", szFile, szFunction,
+						nLine);
+			else
+				fprintf(fout, "[TH=%d] %s->%s#%d: ", getpid(), szFile,
+						szFunction, nLine);
+		}
+		vfprintf(fout, fmt, args);
+
+		// do not slow down the progran if standard debug level
+		// must be enabled: if no flush, the log won't be up-to-date if there
+		// is a segfault
+		//if (g_dwDebugLevel != 1)
+
+		va_end(args);
+		fprintf(fout, "\n");
+		paranoid_fclose(fout);
+	}
+	depth--;
+	paranoid_free(tmp);
+}
+
+/**
+ * Function pointer to the @c log_debug_msg function to use. Points to standard_log_debug_msg() by default.
+ */
+void (*log_debug_msg) (int, const char *, const char *, int, const char *,
+					   ...) = standard_log_debug_msg;
+
+
 /**
  * If @p y, malloc @p x, else free @p x.
  * @bug This function seems orphaned. Please remove.
@@ -1471,6 +1585,36 @@ void do_libmondo_global_strings_thing(int mal)
 		paranoid_free(g_serial_string);
 		paranoid_free(g_magicdev_command);
 	}
+
+	/*
+	   char**list_of_arrays[] = {
+	   &g_boot_mountpt,
+	   &g_mondo_home,
+	   &g_tmpfs_mountpt,
+	   &g_erase_tmpdir_and_scratchdir,
+	   &g_serial_string,
+	   &g_magicdev_command,
+	   NULL};
+
+	   char**ppcurr;
+	   int i;
+
+	   for(i=0;list_of_arrays[i];i++)
+	   {
+	   log_msg(5, "Allocating %d", i);
+	   ppcurr = list_of_arrays[i];
+	   if (mal)
+	   { *ppcurr = malloc(MAX_STR_LEN); }
+	   else
+	   {
+	   if (*ppcurr)
+	   {
+	   free(*ppcurr);
+	   }
+	   }
+	   }
+	   log_msg(5, "Returning");
+	 */
 }
 
 /**

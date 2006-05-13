@@ -29,8 +29,6 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 
-AM_GNU_GETTEXT([external])
-ALL_LINGUAS="fr"
 
 dnl --with/--enable stuff
 do_static_mr=
@@ -73,7 +71,7 @@ case $build in
 	*linux*)
 		AC_CHECK_LIB(pthread, pthread_create, true, [echo "*** Cannot find -lpthread."; echo "*** Please make sure you have the linuxthreads glibc add-on installed."; exit 1])
 		PTHREAD="-lpthread"
-		CFLAGS="$CFLAGS -Wall -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_REENTRANT"
+		CFLAGS="$CFLAGS -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_REENTRANT"
 		;;
 	*)
 		echo "*** Sorry, only Linux and FreeBSD are supported at this time. Want to help?"
@@ -122,4 +120,4 @@ AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([bzero getcwd memmove memset mkdir mkfifo setenv strcasecmp strchr strerror strrchr strstr])
 
-AC_OUTPUT([Makefile mondo/Makefile mondo/common/Makefile mondo/mondoarchive/Makefile mondo/mondorestore/Makefile mondo/restore-scripts/Makefile mondo/restore-scripts/mondo/Makefile mondo/restore-scripts/usr/Makefile mondo/restore-scripts/usr/bin/Makefile mondo/post-nuke.sample/Makefile mondo/post-nuke.sample/usr/Makefile mondo/post-nuke.sample/usr/bin/Makefile po/Makefile.in m4/Makefile])
+AC_OUTPUT([Makefile mondo/Makefile mondo/common/Makefile mondo/mondoarchive/Makefile mondo/mondorestore/Makefile mondo/restore-scripts/Makefile mondo/restore-scripts/mondo/Makefile mondo/restore-scripts/usr/Makefile mondo/restore-scripts/usr/bin/Makefile mondo/post-nuke.sample/Makefile mondo/post-nuke.sample/usr/Makefile mondo/post-nuke.sample/usr/bin/Makefile])

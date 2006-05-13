@@ -15,11 +15,11 @@ DESTUSER=apache
 MONDODIR=/mondo/www/html/mondo
 TESTDIR=/mondo/www/html/test
 
-force=1
+force=0
 nodoc=0
 
-if [ "$1" = "--keep" ]; then
-		force=0
+if [ "$1" = "-f" ]; then
+		force=1
 		optsvn=""
 		shift
 elif [ "$1" = "-nodoc" ]; then
@@ -34,7 +34,7 @@ fi
 if [ $? = 0 ]; then
 	DESTMACH=mondo.hpintelco.org
 else
-	DESTMACH=www.mondorescue.org
+	DESTMACH=www1.mondorescue.org
 fi
 
 dname=`dirname $0`

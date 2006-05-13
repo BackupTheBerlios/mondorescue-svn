@@ -27,11 +27,7 @@ fi
 
 make maintainer-clean >/dev/null 2>&1
 libtoolize -f -c --automake
-cp /usr/bin/gettextize .
-perl -pi -e 's~read dummy < /dev/tty~~' gettextize
-./gettextize -c -f --no-changelog < /dev/null
-rm -f gettextize
-aclocal -I m4
+aclocal
 autoheader
 automake
 autoconf

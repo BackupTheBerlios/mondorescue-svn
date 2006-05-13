@@ -109,11 +109,12 @@
 
 #include "my-stuff.h"
 #include "mondostructures.h"
+#include "lib-common-externs.h"
 #include "libmondo-filelist.h"
 #include "libmondo-string-EXT.h"
 #include "libmondo-files-EXT.h"
 #include "libmondo-fork-EXT.h"
-#include "newt-specific-EXT.h"
+#include "libmondo-gui-EXT.h"
 #include "libmondo-tools-EXT.h"
 
 
@@ -201,9 +202,9 @@ int call_filelist_chopper(struct s_bkpinfo *bkpinfo)
 	malloc_string(tempfile);
 	malloc_string(cksumlist);
 	malloc_string(tmp);
-	mvaddstr_and_log_it(g_currentY, 0, _("Dividing filelist into sets"));
+	mvaddstr_and_log_it(g_currentY, 0, "Dividing filelist into sets");
 
-	log_to_screen(_("Dividing filelist into sets. Please wait."));
+	log_to_screen("Dividing filelist into sets. Please wait.");
 	i = 0;
 /*
   if (find_home_of_exe("getfattr")) 
@@ -501,7 +502,7 @@ void free_filelist(struct s_node *filelist)
 	assert(filelist != NULL);
 	if (depth == 0) {
 		open_evalcall_form("Freeing memory");
-		log_to_screen(_("Freeing memory formerly occupied by filelist"));
+		log_to_screen("Freeing memory formerly occupied by filelist");
 	}
 	depth++;
 
@@ -939,7 +940,7 @@ int add_string_at_node(struct s_node *startnode, char *string_to_add)
 
 /* add here */
 	if (!(newnode = (struct s_node *) malloc(sizeof(struct s_node)))) {
-		log_to_screen(_("failed to malloc"));
+		log_to_screen("failed to malloc");
 		depth--;
 		return (1);
 	}
@@ -971,7 +972,7 @@ int add_string_at_node(struct s_node *startnode, char *string_to_add)
 		if (!
 			(node->down =
 			 (struct s_node *) malloc(sizeof(struct s_node)))) {
-			log_to_screen(_("%s - failed to malloc"), string_to_add);
+			log_to_screen("%s - failed to malloc", string_to_add);
 			return (1);
 		}
 		node = node->down;
@@ -1024,14 +1025,14 @@ struct s_node *load_filelist(char *filelist_fname)
 	if (!does_file_exist(filelist_fname)) {
 		fatal_error("filelist does not exist -- cannot load it");
 	}
-	log_to_screen(_("Loading filelist"));
+	log_to_screen("Loading filelist");
 	sprintf(command_to_open_fname, "gzip -dc %s", filelist_fname);
 	sprintf(tmp, "zcat %s | wc -l", filelist_fname);
 	log_msg(6, "tmp = %s", tmp);
 	lines_in_filelist =
 		atol(call_program_and_get_last_line_of_output(tmp));
 	if (lines_in_filelist < 3) {
-		log_to_screen(_("Warning - surprisingly short filelist."));
+		log_to_screen("Warning - surprisingly short filelist.");
 	}
 	g_original_noof_lines_in_filelist = lines_in_filelist;
 	if (!(filelist = (struct s_node *) malloc(sizeof(struct s_node)))) {
@@ -1048,7 +1049,7 @@ struct s_node *load_filelist(char *filelist_fname)
 		log_OS_error("Unable to openin filelist_fname");
 		return (NULL);
 	}
-	open_evalcall_form(_("Loading filelist from disk"));
+	open_evalcall_form("Loading filelist from disk");
 	for (fgets(fname, MAX_STR_LEN, pin); !feof(pin);
 		 fgets(fname, MAX_STR_LEN, pin)) {
 		if ((fname[strlen(fname) - 1] == 13
@@ -1165,12 +1166,12 @@ void save_filelist(struct s_node *filelist, char *outfname)
 	assert(filelist != NULL);
 	assert(outfname != NULL);	// will be zerolength if save_filelist() is called by itself
 	if (depth == 0) {
-		log_to_screen(_("Saving filelist"));
+		log_to_screen("Saving filelist");
 		if (!(fout = fopen(outfname, "w"))) {
 			fatal_error("Cannot openout/save filelist");
 		}
 		lines_in_filelist = g_original_noof_lines_in_filelist;	/* set by load_filelist() */
-		open_evalcall_form(_("Saving selection to disk"));
+		open_evalcall_form("Saving selection to disk");
 	}
 	for (node = filelist; node != NULL; node = node->right) {
 		str[depth] = node->ch;
@@ -1450,10 +1451,10 @@ int prepare_filelist(struct s_bkpinfo *bkpinfo)
 		   bkpinfo->scratchdir);
 	if (bkpinfo->make_filelist) {
 		mvaddstr_and_log_it(g_currentY, 0,
-							_("Making catalog of files to be backed up"));
+							"Making catalog of files to be backed up");
 	} else {
 		mvaddstr_and_log_it(g_currentY, 0,
-							_("Using supplied catalog of files to be backed up"));
+							"Using supplied catalog of files to be backed up");
 	}
 
 	if (bkpinfo->make_filelist) {
@@ -1474,9 +1475,9 @@ int prepare_filelist(struct s_bkpinfo *bkpinfo)
 	if (res) {
 		log_OS_error("Call to mondo-makefilelist failed");
 		*p_res++;
-		mvaddstr_and_log_it(g_currentY++, 74, _("Failed."));
+		mvaddstr_and_log_it(g_currentY++, 74, "Failed.");
 	} else {
-		mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
+		mvaddstr_and_log_it(g_currentY++, 74, "Done.");
 	}
 	return (res);
 }
@@ -1570,7 +1571,7 @@ int open_and_list_dir(char *dir, char *sth, FILE * fout,
 				last_time = this_time;
 #ifndef _XWIN
 				if (!g_text_mode) {
-					sprintf(tmp, _("Reading %-68s"), dir);
+					sprintf(tmp, "Reading %-68s", dir);
 					newtDrawRootText(0, g_noof_rows - 3, tmp);
 				}
 #endif
@@ -1704,7 +1705,7 @@ int mondo_makefilelist(char *logfile, char *tmpdir, char *scratchdir,
 					   char *include_paths, char *excp, int differential,
 					   char *userdef_filelist)
 {
-	char sz_datefile_wildcard[] = "/var/cache/mondo/difflevel.%d";
+	char sz_datefile_wildcard[] = "/var/cache/mondo-archive/difflevel.%d";
 	char *p, *q;
 	char sz_datefile[80];
 	char *sz_filelist, *exclude_paths, *tmp;
@@ -1773,7 +1774,7 @@ int mondo_makefilelist(char *logfile, char *tmpdir, char *scratchdir,
 		log_msg(1, "Calculating filelist");
 		sprintf(exclude_paths, " %s %s %s %s %s %s . .. \
 " MNT_CDROM " " MNT_FLOPPY " /media/cdrom /media/cdrecorder \
-/proc /sys /tmp /var/cache/mondo /var/cache/mindi", excp, call_program_and_get_last_line_of_output("locate /win386.swp 2> /dev/null"), call_program_and_get_last_line_of_output("locate /hiberfil.sys 2> /dev/null"), call_program_and_get_last_line_of_output("locate /pagefile.sys 2> /dev/null"), (tmpdir[0] == '/' && tmpdir[1] == '/') ? (tmpdir + 1) : tmpdir, (scratchdir[0] == '/' && scratchdir[1] == '/') ? (scratchdir + 1) : scratchdir);
+/proc /sys /root/images/mondo /root/images/mindi ", excp, call_program_and_get_last_line_of_output("locate /win386.swp 2> /dev/null"), call_program_and_get_last_line_of_output("locate /hiberfil.sys 2> /dev/null"), call_program_and_get_last_line_of_output("locate /pagefile.sys 2> /dev/null"), (tmpdir[0] == '/' && tmpdir[1] == '/') ? (tmpdir + 1) : tmpdir, (scratchdir[0] == '/' && scratchdir[1] == '/') ? (scratchdir + 1) : scratchdir);
 
 		log_msg(2, "Excluding paths = '%s'", exclude_paths);
 		log_msg(2,

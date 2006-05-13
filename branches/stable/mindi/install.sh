@@ -40,19 +40,16 @@ echo $ARCH | grep -x "x86_64" &> /dev/null && ARCH=i386 && locallib=$local/lib64
 export ARCH
 
 echo "Creating target directories ..."
-install -m 755 -d $conf $conf/deplist.d $locallib/mindi $MANDIR $local/sbin $DOCDIR
+install -m 755 -d $conf $locallib/mindi $MANDIR $local/sbin $DOCDIR
 
 echo "Copying files ..."
 install -m 644 isolinux.cfg msg-txt sys-disk.raw.gz isolinux-H.cfg syslinux.cfg syslinux-H.cfg dev.tgz $locallib/mindi
 install -m 644 deplist.txt $conf
-install -m 644 distributions/conf/deplist.d/* $conf/deplist.d
-install -m 755 distributions/conf/mindi.conf $conf
 
 cp -af rootfs aux-tools $locallib/mindi
 chmod 755 $locallib/mindi/rootfs/bin/*
 chmod 755 $locallib/mindi/rootfs/sbin/*
 chmod 755 $locallib/mindi/aux-tools/sbin/*
-chmod 755 $conf/mindi.conf
 
 if [ "$RPMBUILDMINDI" = "true" ]; then
 	sed -e "s~^MINDI_PREFIX=XXX~MINDI_PREFIX=/usr~" -e "s~^MINDI_CONF=YYY~MINDI_CONF=/etc/mindi~" -e "s~^MINDI_VER=VVV~MINDI_VER=$MINDIVER~" -e "s~^MINDI_REV=RRR~MINDI_REV=$MINDIREV~" mindi > $local/sbin/mindi
@@ -60,8 +57,7 @@ else
 	sed -e "s~^MINDI_PREFIX=XXX~MINDI_PREFIX=$local~" -e "s~^MINDI_CONF=YYY~MINDI_CONF=$conf~" -e "s~^MINDI_VER=VVV~MINDI_VER=$MINDIVER~" -e "s~^MINDI_REV=RRR~MINDI_REV=$MINDIREV~" mindi > $local/sbin/mindi
 fi
 chmod 755 $local/sbin/mindi
-install -m 755 parted2fdisk.pl $local/sbin
-install -m 755 analyze-my-lvm $locallib/mindi
+install -m 755 analyze-my-lvm parted2fdisk.pl $local/sbin
 
 install -m 644 mindi.8 $MANDIR
 install -m 644 ChangeLog COPYING README README.busybox README.ia64 README.pxe TODO INSTALL svn.log $DOCDIR
@@ -106,15 +102,10 @@ rm -f $locallib/mindi/rootfs/sbin/parted2fdisk-*
 
 if [ "$RPMBUILDMINDI" != "true" ]; then
 	chown -R root:root $locallib/mindi $conf $DOCDIR
-	chown root:root $local/sbin/mindi $MANDIR/mindi.8 $locallib/mindi/analyze-my-lvm $local/sbin/parted2fdisk.pl 
+	chown root:root $local/sbin/mindi $MANDIR/mindi.8 $local/sbin/analyze-my-lvm $local/sbin/parted2fdisk.pl 
 	if [ "$ARCH" = "ia64" ] ; then
 		chown root:root $local/sbin/parted2fdisk
 	fi
-fi
-
-# Special case for SuSE family where doc is put elsewhere in the RPM
-if [ _"$dfam" = _"suse" ]; then
-	rm -rf $DOCDIR
 fi
 
 exit 0

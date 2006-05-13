@@ -476,14 +476,14 @@ struct s_bkpinfo {
    * In the former case, multiple directories should be separated by spaces.
    * If you do nothing, "/" will be used.
    */
-	char include_paths[MAX_STR_LEN*4];
+	char include_paths[MAX_STR_LEN];
 
   /**
    * Directories to NOT back up. Ignored if make_filelist == FALSE.
    * Multiple directories should be separated by spaces. /tmp, /proc,
    * the scratchdir, and the tempdir are automatically excluded.
    */
-	char exclude_paths[MAX_STR_LEN*4];
+	char exclude_paths[MAX_STR_LEN];
 
   /**
    * The path to restore files relative to during a restore.
@@ -799,9 +799,4 @@ struct s_mdrec {
 struct s_mdstat {
 	int entries;
 	struct s_mdrec el[MAXIMUM_RAID_DEVS];
-};
-
-struct s_mrconf {
-	int ia64_boot_size;
-	char *iso_creation_cmd;
 };

@@ -117,7 +117,8 @@ extern "C" {
 #include "libmondo-devices-EXT.h"
 #include "libmondo-tools-EXT.h"
 #include "libmondo-fork-EXT.h"
-#include "newt-specific-EXT.h"
+#include "libmondo-gui-EXT.h"
+#include "lib-common-externs.h"
 
 /*@unused@*/
 //static char cvsid[] = "$Id$";
@@ -225,21 +226,21 @@ extern "C" {
 				if (i > 0 && tmp[i - 1] < 32) {
 					tmp[i - 1] = '\0';
 				}
-				if (strstr(_("yesYES"), tmp)) {
+				if (strstr("yesYES", tmp)) {
 					paranoid_free(tmp);
 					return (TRUE);
-				} else if (strstr(_("NOno"), tmp)) {
+				} else if (strstr("NOno", tmp)) {
 					paranoid_free(tmp);
 					return (FALSE);
 				} else {
 					system("sync");
 					printf
-						(_("Please enter either YES or NO (or yes or no, or y or n, or...)\n"));
+						("Please enter either YES or NO (or yes or no, or y or n, or...)\n");
 				}
 			}
 		} else {
 			paranoid_free(tmp);
-			return (popup_with_buttons(prompt, _("Yes"), _("No")));
+			return (popup_with_buttons(prompt, "Yes", "No"));
 		}
 	}
 
@@ -271,7 +272,7 @@ extern "C" {
 			if (i > 0 && tmp[i - 1] < 32) {
 				tmp[i - 1] = '\0';
 			}
-			if (strstr(_("okOKOkYESyes"), tmp)) {
+			if (strstr("okOKOkYESyes", tmp)) {
 				paranoid_free(tmp);
 				return (TRUE);
 			} else {
@@ -280,7 +281,7 @@ extern "C" {
 			}
 		} else {
 			paranoid_free(tmp);
-			return (popup_with_buttons(prompt, _(" Okay "), _("Cancel")));
+			return (popup_with_buttons(prompt, " Okay ", "Cancel"));
 		}
 	}
 
@@ -424,16 +425,16 @@ extern "C" {
 		system
 			("gzip -9c /var/log/mondo-archive.log > /tmp/MA.log.gz 2> /dev/null");
 		printf
-				(_("If you require technical support, please contact the mailing list.\n"));
-		printf(_("See http://www.mondorescue.org for details.\n"));
+				("If you require technical support, please contact the mailing list.\n");
+		printf("See http://www.mondorescue.org for details.\n");
 		printf
-				(_("The list's members can help you, if you attach that file to your e-mail.\n"));
-		printf(_("Log file: %s\n"), MONDO_LOGFILE);
+				("The list's members can help you, if you attach that file to your e-mail.\n");
+		printf("Log file: %s\n", MONDO_LOGFILE);
 		if (does_file_exist("/tmp/MA.log.gz")) {
 			printf
-				(_("FYI, I have gzipped the log and saved it to /tmp/MA.log.gz\n"));
+				("FYI, I have gzipped the log and saved it to /tmp/MA.log.gz\n");
 		}
-		printf(_("Mondo has aborted.\n"));
+		printf("Mondo has aborted.\n");
 		register_pid(0, "mondo");	// finish() does this too, FYI
 		if (!g_main_pid) {
 			log_msg(3, "FYI - g_main_pid is blank");
@@ -488,8 +489,8 @@ extern "C" {
 		}
 //  system("clear");
 //  iamhere("Finished calling newtFinished");
-		printf(_("Execution run ended; result=%d\n"), signal);
-		printf(_("Type 'less %s' to see the output log\n"), MONDO_LOGFILE);
+		printf("Execution run ended; result=%d\n", signal);
+		printf("Type 'less %s' to see the output log\n", MONDO_LOGFILE);
 		free_libmondo_global_strings();
 		exit(signal);
 	}
@@ -781,7 +782,7 @@ extern "C" {
 				 prompt);
 			while (((ch = getchar()) != '\n') && (ch != EOF));
 		} else {
-			(void) popup_with_buttons(prompt, _(" OK "), "");
+			(void) popup_with_buttons(prompt, " OK ", "");
 		}
 	}
 
@@ -841,8 +842,8 @@ extern "C" {
 					  (void *) &entry_value, NEWT_FLAG_RETURNEXIT
 #endif
 			);
-		b_1 = newtButton(6, newtTextboxGetNumLines(text) + 4, _("  OK  "));
-		b_2 = newtButton(18, newtTextboxGetNumLines(text) + 4, _("Cancel"));
+		b_1 = newtButton(6, newtTextboxGetNumLines(text) + 4, "  OK  ");
+		b_2 = newtButton(18, newtTextboxGetNumLines(text) + 4, "Cancel");
 		//  newtOpenWindow (8, 5, 54, newtTextboxGetNumLines (text) + 9, title);
 		newtCenteredWindow(54, newtTextboxGetNumLines(text) + 9, title);
 		myForm = newtForm(NULL, NULL, 0);
@@ -929,7 +930,7 @@ extern "C" {
 			b_2 = NULL;
 		}
 		//  newtOpenWindow (25, 5, 46, newtTextboxGetNumLines (text) + 7, "Alert");
-		newtCenteredWindow(46, newtTextboxGetNumLines(text) + 7, _("Alert"));
+		newtCenteredWindow(46, newtTextboxGetNumLines(text) + 7, "Alert");
 		myForm = newtForm(NULL, NULL, 0);
 		newtFormAddComponents(myForm, text, b_1, b_2, NULL);
 		center_string(prompt, 80);
@@ -995,7 +996,7 @@ extern "C" {
 			newtInit();
 			newtCls();
 			newtPushHelpLine
-				(_("Welcome to Mondo Rescue, by Hugo Rabson and the Internet. All rights reversed."));
+				("Welcome to Mondo Rescue, by Hugo Rabson and the Internet. All rights reversed.");
 			/*  newtDrawRootText(28,0,"Welcome to Mondo Rescue"); */
 			newtDrawRootText(18, 0, WELCOME_STRING);
 			newtRefresh();
@@ -1073,11 +1074,11 @@ extern "C" {
 			|| percentage > g_isoform_old_progress) {
 			g_isoform_old_progress = percentage;
 			sprintf(timeline_str,
-					_("%2ld:%02ld taken            %2ld:%02ld remaining"),
+					"%2ld:%02ld taken            %2ld:%02ld remaining",
 					time_taken / 60, time_taken % 60, time_remaining / 60,
 					time_remaining % 60);
 			if (percentage < 3) {
-				sprintf(pcline_str, _(" Working"));
+				sprintf(pcline_str, " Working");
 				for (j = 0; j < g_mysterious_dot_counter; j++) {
 					strcat(pcline_str, ".");
 				}
@@ -1087,7 +1088,7 @@ extern "C" {
 				sprintf(pcline_str + strlen(pcline_str), " %c",
 						special_dot_char(g_mysterious_dot_counter));
 			} else {
-				sprintf(pcline_str, _(" %3d%% done              %3d%% to go"),
+				sprintf(pcline_str, " %3d%% done              %3d%% to go",
 						percentage, 100 - percentage);
 			}
 			if (g_text_mode) {
@@ -1233,10 +1234,10 @@ extern "C" {
 				percentage, 100 - percentage);
 
 		if (g_text_mode) {
-			printf(_("---progress-form---1--- %s%s"), blurb1, "\r\n");
-			printf(_("---progress-form---2--- %s%s"), blurb2, "\r\n");
-			printf(_("---progress-form---3--- %s%s"), blurb3, "\r\n");
-			printf(_("---progress-form---E---\n"));
+			printf("---progress-form---1--- %s\r\n", blurb1);
+			printf("---progress-form---2--- %s\r\n", blurb2);
+			printf("---progress-form---3--- %s\r\n", blurb3);
+			printf("---progress-form---E---\n");
 			sprintf(taskprogress, "TASK:  [");
 			for (i = 0; i < percentage; i += 5) {
 				strcat(taskprogress, "*");
@@ -1245,14 +1246,14 @@ extern "C" {
 				strcat(taskprogress, ".");
 			}
 			if (percentage > 100) {
-				log_msg(2, _("percentage = %d"), percentage);
+				log_msg(2, "percentage = %d", percentage);
 			}
 			sprintf(taskprogress + strlen(taskprogress),
 					"] %3d%c", percentage, '%');
 			sprintf(taskprogress + strlen(taskprogress),
-					_(" done; %2ld:%02ld to go"),
+					" done; %2ld:%02ld to go",
 					time_remaining / 60, time_remaining % 60);
-			printf(_("---progress-form---4--- %s\r\n"), taskprogress);
+			printf("---progress-form---4--- %s\r\n", taskprogress);
 		} else {
 			center_string(blurb1, 54);
 			center_string(blurb2, 54);
@@ -1328,7 +1329,7 @@ extern "C" {
 		outstr = malloc(MAX_NEWT_COMMENT_LEN);
 		if (g_text_mode) {
 			for (backup_type = none; backup_type == none;) {
-				printf(_("Backup type ("));
+				printf("Backup type (");
 				for (i = 0; possible_responses[i]; i++) {
 					printf("%c%s", (i == 0) ? '\0' : ' ',
 						   possible_responses[i]);
@@ -1350,24 +1351,24 @@ extern "C" {
 		newtDrawRootText(18, 0, WELCOME_STRING);
 		if (restoring) {
 			strcpy(title_sz,
-				   _("Please choose the backup media from which you want to read data."));
-			strcpy(minimsg_sz, _("Read from:"));
+				   "Please choose the backup media from which you want to read data.");
+			strcpy(minimsg_sz, "Read from:");
 		} else {
 			strcpy(title_sz,
-				   _("Please choose the backup media to which you want to archive data."));
-			strcpy(minimsg_sz, _("Backup to:"));
+				   "Please choose the backup media to which you want to archive data.");
+			strcpy(minimsg_sz, "Backup to:");
 		}
 		newtPushHelpLine(title_sz);
 		//  newtOpenWindow (23, 3, 34, 17, minimsg_sz);
 		newtCenteredWindow(34, 17, minimsg_sz);
-		b1 = newtButton(1, 1, _("CD-R disks "));
-		b2 = newtButton(17, 1, _("CD-RW disks"));
-		b3 = newtButton(1, 9, _("Tape drive "));
-		b4 = newtButton(17, 5, _("CD streamer"));
-		b5 = newtButton(1, 5, _(" DVD disks "));
-		b6 = newtButton(17, 9, _(" NFS mount "));
-		b7 = newtButton(1, 13, _(" Hard disk "));
-		b8 = newtButton(17, 13, _("    Exit   "));
+		b1 = newtButton(1, 1, "CD-R disks ");
+		b2 = newtButton(17, 1, "CD-RW disks");
+		b3 = newtButton(1, 9, "Tape drive ");
+		b4 = newtButton(17, 5, "CD streamer");
+		b5 = newtButton(1, 5, " DVD disks ");
+		b6 = newtButton(17, 9, " NFS mount ");
+		b7 = newtButton(1, 13, " Hard disk ");
+		b8 = newtButton(17, 13, "    Exit   ");
 		myForm = newtForm(NULL, NULL, 0);
 		newtFormAddComponents(myForm, b1, b5, b3, b7, b2, b4, b6, b8,
 							  NULL);
@@ -1425,14 +1426,14 @@ extern "C" {
 
 		newtDrawRootText(18, 0, WELCOME_STRING);
 		newtPushHelpLine
-			(_("   Please specify the level of compression that you want."));
+			("   Please specify the level of compression that you want.");
 		//  newtOpenWindow (23, 3, 34, 13, "How much compression?");
-		newtCenteredWindow(34, 13, _("How much compression?"));
-		b1 = newtButton(4, 1, _("Maximum"));
-		b2 = newtButton(18, 1, _("Average"));
-		b3 = newtButton(4, 5, _("Minimum"));
-		b4 = newtButton(18, 5, _(" None  "));
-		b5 = newtButton(4, 9, _("         Exit        "));
+		newtCenteredWindow(34, 13, "How much compression?");
+		b1 = newtButton(4, 1, "Maximum");
+		b2 = newtButton(18, 1, "Average");
+		b3 = newtButton(4, 5, "Minumum");
+		b4 = newtButton(18, 5, " None  ");
+		b5 = newtButton(4, 9, "         Exit        ");
 		myForm = newtForm(NULL, NULL, 0);
 		newtFormAddComponents(myForm, b1, b3, b2, b4, b5, NULL);
 		b_res = newtRunForm(myForm);
@@ -1513,7 +1514,7 @@ extern "C" {
 		}
 		paranoid_fclose(fin);
 		if (filelist->entries >= ARBITRARY_MAXIMUM) {
-			log_to_screen(_("Arbitrary limits suck, man!"));
+			log_to_screen("Arbitrary limits suck, man!");
 			paranoid_free(tmp);
 			return (1);
 		}
@@ -1655,14 +1656,14 @@ extern "C" {
 								   keylist[i]);
 		}
 		sprintf(differ_sz,
-				_("  %d files differ. Hit 'Select' to pick a file. Hit 'Close' to quit the list."),
+				"  %d files differ. Hit 'Select' to pick a file. Hit 'Close' to quit the list.",
 				i);
 		newtPushHelpLine(differ_sz);
-		bClose = newtCompactButton(10, 15, _(" Close  "));
-		bSelect = newtCompactButton(30, 15, _(" Select "));
-		sprintf(tmp, "%-10s               %-20s", _("Priority"), _("Filename"));
+		bClose = newtCompactButton(10, 15, " Close  ");
+		bSelect = newtCompactButton(30, 15, " Select ");
+		sprintf(tmp, "%-10s               %-20s", "Priority", "Filename");
 		headerMsg = newtLabel(2, 1, tmp);
-		newtOpenWindow(5, 4, 70, 16, _("Non-matching files"));
+		newtOpenWindow(5, 4, 70, 16, "Non-matching files");
 		myForm = newtForm(NULL, NULL, 0);
 		newtFormAddComponents(myForm, headerMsg, fileListbox, bClose,
 							  bSelect, NULL);
@@ -1676,7 +1677,7 @@ extern "C" {
 					 i < filelist->entries && keylist[i] != curr_choice;
 					 i++);
 				if (i == filelist->entries && filelist->entries > 0) {
-					log_to_screen(_("I don't know what that button does!"));
+					log_to_screen("I don't know what that button does!");
 				} else {
 					currline = i;
 					if (filelist->entries > 0) {

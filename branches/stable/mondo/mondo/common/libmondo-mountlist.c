@@ -52,11 +52,12 @@
 #include "my-stuff.h"
 #include "mondostructures.h"
 #include "libmondo-mountlist.h"
+#include "lib-common-externs.h"
 #include "libmondo-raid-EXT.h"
 #include "libmondo-devices-EXT.h"
 #include "libmondo-tools-EXT.h"
 #include "libmondo-string-EXT.h"
-#include "newt-specific-EXT.h"
+#include "libmondo-gui-EXT.h"
 
 /*@unused@*/
 //static char cvsid[] = "$Id$";
@@ -949,7 +950,7 @@ int load_mountlist(struct mountlist_itself *mountlist, char *fname)
 	malloc_string(tmp);
 	if (!(fin = fopen(fname, "r"))) {
 		log_it("Unable to open mountlist - '%s'", fname);
-		log_to_screen(_("Cannot open mountlist"));
+		log_to_screen("Cannot open mountlist");
 		paranoid_free(incoming);
 		paranoid_free(siz);
 		paranoid_free(tmp);
@@ -992,7 +993,7 @@ int load_mountlist(struct mountlist_itself *mountlist, char *fname)
 		if (mountlist->el[items].device[0] != '\0'
 			&& mountlist->el[items].device[0] != '#') {
 			if (items >= ARBITRARY_MAXIMUM) {
-				log_to_screen(_("Too many lines in mountlist.. ABORTING"));
+				log_to_screen("Too many lines in mountlist.. ABORTING");
 				finish(1);
 			}
 			for (j = 0;

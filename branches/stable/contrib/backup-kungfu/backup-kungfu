@@ -67,7 +67,7 @@ function check_path {
 
 function remove_garbage {
 	echo -e "Removing the files left from previous mondoarchive run...\n"
-	rm -rf /var/cache/mondo
+	rm -rf /root/images
 	rm -rf ${backup_dir}/mondo*
 	rm -rf ${backup_dir}/tmp*
 }
@@ -106,7 +106,7 @@ function move_all {
 	# Create the new folder and move all the iso and floppy images to it
 	echo -e "Creating the new backup directory and moving the files there...\n"
 	mkdir -p ${backup_dir}/${comp_name}_${date}/images
-	cp /var/cache/mindi/* ${backup_dir}/${comp_name}_${date}/images/
+	cp /root/images/mindi/* ${backup_dir}/${comp_name}_${date}/images/
 	
 	# If you want just move the iso files without renaming them just uncomment the next line
 	# and comment the next for loop

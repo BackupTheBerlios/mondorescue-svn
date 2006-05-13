@@ -16,11 +16,10 @@ Version:	%version
 Release:	%rel
 License:	GPL
 Group:		%{grp}
-Url:		http://www.mondorescue.org
+Url:		http://mondorescue.berlios.de
 Source:		%{src}
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(id -u -n)
+BuildRoot:	%{_tmppath}/%{name}-%{version}
 Requires:	%{addreq}
-Epoch:		%(echo EEE | cut -d- -f1 | sed "s~M~~")
 # Not on all systems
 #Conflicts:	bonnie++
 
@@ -31,6 +30,7 @@ and do system maintenance - e.g. format partitions, backup/restore data,
 verify packages, etc.
 
 %prep
+%{__rm}  -rf $RPM_BUILD_ROOT
 %setup -n %name-%{version}
 
 %build
@@ -40,9 +40,9 @@ verify packages, etc.
 %endif
 
 %install
-%{__rm}  -rf $RPM_BUILD_ROOT
 export DONT_RELINK=1
 
+%{__rm} -rf $RPM_BUILD_ROOT
 export PREFIX=${RPM_BUILD_ROOT}%{_exec_prefix}
 export CONFDIR=${RPM_BUILD_ROOT}%{_sysconfdir}
 export RPMBUILDMINDI="true"
@@ -59,14 +59,10 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%config(noreplace) %{_sysconfdir}/mindi
-%config(noreplace) %{_sysconfdir}/mindi/deplist.txt 
-%config(noreplace) %{_sysconfdir}/mindi/deplist.d/* 
-%config(noreplace) %{_sysconfdir}/mindi/mindi.conf
+%config(noreplace) %{_sysconfdir}/mindi/deplist.txt
 %doc ChangeLog INSTALL COPYING README TODO README.ia64 README.pxe README.busybox svn.log
 %{_mandir}/man8/*
 %{_libdir}/mindi
-%attr(755,root,root) %{_sysconfdir}/mindi/mindi.conf
 %attr(755,root,root) %{_sbindir}/*
 %attr(755,root,root) %{_libdir}/mindi/aux-tools/sbin/*
 %attr(755,root,root) %{_libdir}/mindi/rootfs/bin/*

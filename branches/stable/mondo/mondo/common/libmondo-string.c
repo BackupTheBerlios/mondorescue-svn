@@ -64,8 +64,9 @@
 #include "my-stuff.h"
 #include "mondostructures.h"
 #include "libmondo-string.h"
+#include "lib-common-externs.h"
 #include "libmondo-files-EXT.h"
-#include "newt-specific-EXT.h"
+#include "libmondo-gui-EXT.h"
 #include "libmondo-tools-EXT.h"
 
 /*@unused@*/
@@ -295,7 +296,7 @@ long friendly_sizestr_to_sizelong(char *incoming)
 		log_it
 			("Oh my gosh. You actually think a YOTTABYTE will get you anywhere? What're you going to do with 1,208,925,819,614,629,174,706,176 bytes of data?!?!");
 		popup_and_OK
-			(_("That sizespec is more than 1,208,925,819,614,629,174,706,176 bytes. You have a shocking amount of data. Please send a screenshot to the list :-)"));
+			("That sizespec is more than 1,208,925,819,614,629,174,706,176 bytes. You have a shocking amount of data. Please send a screenshot to the list :-)");
 		fatal_error("Integer overflow.");
 	} else if (ch != 'm' && ch != 'M') {
 		sprintf(tmp, "Re: parameter '%s' - bad multiplier ('%c')",
@@ -982,78 +983,78 @@ int severity_of_difference(char *fn, char *out_reason)
 
 	sev = 3;
 	sprintf(reason,
-			_("Changed since backup. Consider running a differential backup in a day or two."));
+			"Changed since backup. Consider running a differential backup in a day or two.");
 	if (!strncmp(filename, "/var/", 5)) {
 		sev = 2;
 		sprintf(reason,
-				_("/var's contents will change regularly, inevitably."));
+				"/var's contents will change regularly, inevitably.");
 	}
 	if (!strncmp(filename, "/home", 5)) {
 		sev = 2;
 		sprintf(reason,
-				_("It's in your /home partiton. Therefore, it is important."));
+				"It's in your /home partiton. Therefore, it is important.");
 	}
 	if (!strncmp(filename, "/usr/", 5)) {
 		sev = 3;
 		sprintf(reason,
-				_("You may have installed/removed software during the backup."));
+				"You may have installed/removed software during the backup.");
 	}
 	if (!strncmp(filename, "/etc/", 5)) {
 		sev = 3;
 		sprintf(reason,
-				_("Do not edit config files while backing up your PC."));
+				"Do not edit config files while backing up your PC.");
 	}
 	if (!strcmp(filename, "/etc/adjtime")
 		|| !strcmp(filename, "/etc/mtab")) {
 		sev = 1;
-		sprintf(reason, _("This file changes all the time. It's OK."));
+		sprintf(reason, "This file changes all the time. It's OK.");
 	}
 	if (!strncmp(filename, "/root/", 6)) {
 		sev = 3;
-		sprintf(reason, _("Were you compiling/editing something in /root?"));
+		sprintf(reason, "Were you compiling/editing something in /root?");
 	}
 	if (!strncmp(filename, "/root/.", 7)) {
 		sev = 2;
-		sprintf(reason, _("Temp or 'dot' files changed in /root."));
+		sprintf(reason, "Temp or 'dot' files changed in /root.");
 	}
 	if (!strncmp(filename, "/var/lib/", 9)) {
 		sev = 2;
-		sprintf(reason, _("Did you add/remove software during backing?"));
+		sprintf(reason, "Did you add/remove software during backing?");
 	}
 	if (!strncmp(filename, "/var/lib/rpm", 12)) {
 		sev = 3;
-		sprintf(reason, _("Did you add/remove software during backing?"));
+		sprintf(reason, "Did you add/remove software during backing?");
 	}
 	if (!strncmp(filename, "/var/lib/slocate", 16)) {
 		sev = 1;
 		sprintf(reason,
-				_("The 'update' daemon ran during backup. This does not affect the integrity of your backup."));
+				"The 'update' daemon ran during backup. This does not affect the integrity of your backup.");
 	}
 	if (!strncmp(filename, "/var/log/", 9)
 		|| strstr(filename, "/.xsession")
 		|| !strcmp(filename + strlen(filename) - 4, ".log")) {
 		sev = 1;
 		sprintf(reason,
-				_("Log files change frequently as the computer runs. Fret not."));
+				"Log files change frequently as the computer runs. Fret not.");
 	}
 	if (!strncmp(filename, "/var/spool", 10)) {
 		sev = 1;
 		sprintf(reason,
-				_("Background processes or printers were active. This does not affect the integrity of your backup."));
+				"Background processes or printers were active. This does not affect the integrity of your backup.");
 	}
 	if (!strncmp(filename, "/var/spool/mail", 10)) {
 		sev = 2;
-		sprintf(reason, _("Mail was sent/received during backup."));
+		sprintf(reason, "Mail was sent/received during backup.");
 	}
 	if (filename[strlen(filename) - 1] == '~') {
 		sev = 1;
 		sprintf(reason,
-				_("Backup copy of another file which was modified recently."));
+				"Backup copy of another file which was modified recently.");
 	}
 	if (strstr(filename, "cache")) {
 		sev = 1;
 		sprintf(reason,
-				_("Part of a cache of data. Caches change from time to time. Don't worry."));
+				"Part of a cache of data. Caches change from time to time. Don't worry.");
 	}
 	if (!strncmp(filename, "/var/run/", 9)
 		|| !strncmp(filename, "/var/lock", 8)
@@ -1130,7 +1131,7 @@ char *percent_media_full_comment(struct s_bkpinfo *bkpinfo)
 	if (bkpinfo->media_size[g_current_media_number] <= 0)
 //    { fatal_error( "percentage_media_full_comment() - unknown media size"); }
 	{
-		sprintf(outstr, _("Volume %d: %s kilobytes archived so far"),
+		sprintf(outstr, "Volume %d: %s kilobytes archived so far",
 				g_current_media_number, pos_w_commas);
 		return (outstr);
 	}
@@ -1143,7 +1144,7 @@ char *percent_media_full_comment(struct s_bkpinfo *bkpinfo)
 		if (percentage > 100) {
 			percentage = 100;
 		}
-		sprintf(outstr, _("Volume %d: ["), g_current_media_number);
+		sprintf(outstr, "Volume %d: [", g_current_media_number);
 	} else {
 		percentage =
 			(int) (space_occupied_by_cd(bkpinfo->scratchdir) * 100 / 1024 /
@@ -1159,7 +1160,7 @@ char *percent_media_full_comment(struct s_bkpinfo *bkpinfo)
 		strcat(outstr, ".");
 	}
 	j = (int) strlen(outstr);
-	sprintf(outstr + j, _("] %d%% used"), percentage);
+	sprintf(outstr + j, "] %d%% used", percentage);
 	paranoid_free(pos_w_commas);
 	paranoid_free(tmp);
 	return (outstr);

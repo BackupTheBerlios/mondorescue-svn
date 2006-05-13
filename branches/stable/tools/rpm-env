@@ -8,7 +8,7 @@
 dname=`dirname $0`
 prem=`echo $dname |cut -c1`
 if [ ${prem} == "/" ]; then
-	export TOOLHOME=$dname
+        export TOOLHOME=$dname
 else
 	export TOOLHOME=${PWD}/$dname
 fi
@@ -55,8 +55,8 @@ elif [ -e /etc/redhat-release ]; then
 		export dfam="redhat"
 		export ddir="redhat"
 		dver=`awk '{print $5}' /etc/redhat-release`
-		export dver=`echo ${dver} | sed "s/\.//"`
 		export suf=".rh${dver}"
+		export dver=`echo ${dver} | sed "s/\.//"`
 	fi
 elif [ -e /etc/SuSE-release ]; then
 	grep -q Enterprise /etc/SuSE-release

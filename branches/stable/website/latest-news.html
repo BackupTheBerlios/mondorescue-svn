@@ -1,150 +1,41 @@
-<p><B>2006-04-08 </B>Mondo 2.0.7 / Mindi 1.0.7 updated to r460</p>
-<p>
-I'm happy to announce the availability of a newest version of
-mondo 2.0.7 / mindi 1.0.7 aka r460
-</p>
-
-<p>
-Now available at ftp://ftp.mondorescue.org/
-</p>
-
-<p>
-fedora/4/mindi-1.0.7-460.fc4.i386.rpm
-fedora/4/mondo-2.0.7-460.fc4.i386.rpm
-fedora/5/mindi-1.0.7-460.fc5.i386.rpm
-fedora/5/mondo-2.0.7-460.fc5.i386.rpm
-mandrake/10.1/mindi-1.0.7-460.101mdk.i386.rpm
-mandrake/10.1/mondo-2.0.7-460.101mdk.i386.rpm
-mandrake/10.2/mindi-1.0.7-460.102mdk.i386.rpm
-mandrake/10.2/mondo-2.0.7-460.102mdk.i386.rpm
-mandriva/2006.0/mindi-1.0.7-460.20060mdk.i586.rpm
-mandriva/2006.0/mondo-2.0.7-460.20060mdk.i586.rpm
-redhat/73/mindi-1.0.7-460.rh73.i386.rpm
-redhat/73/mondo-2.0.7-460.rh73.i386.rpm
-redhat/9/mindi-1.0.7-460.rh9.i386.rpm
-redhat/9/mondo-2.0.7-460.rh9.i386.rpm
-rhel/3/mindi-1.0.7-460.rhel3.i386.rpm
-rhel/3/mondo-2.0.7-460.rhel3.i386.rpm
-rhel/4/mindi-1.0.7-460.rhel4.i386.rpm
-rhel/4/mondo-2.0.7-460.rhel4.i386.rpm
-sles/9/mindi-1.0.7-460.sles9.i386.rpm
-sles/9/mondo-2.0.7-460.sles9.i386.rpm
-suse/10.0/mindi-1.0.7-464.suse10.0.i386.rpm
-suse/10.0/mondo-2.0.7-464.suse10.0.i386.rpm
-</p>
-
-
-<p>
-Changes are few:
-</p>
-
-<p>
-MONDO:
-</p>
-
-<p>
-Remove speed=1 for growisofs (better version expected for 2.0.8)
-Usage of Epoch for RPMs to ease update
-</p>
-
-<p>
-MINDI:
-</p>
-
-<p>
-analyze-my-lvm is under $MINDI_SBIN (not _LIB)
-Usage of Epoch for RPMs to ease update
-</p>
-
-<p><B>2006-03-20 </B>Mondo 2.0.7 / Mindi 1.0.7 are out</p>
-<p>
-I'm happy to announce the availability of the latest and greatest
-version of mondo 2.0.7 / mindi 1.0.7. Version numbers have changed of
-format to be more in line with what is done generally (x.y.z)
-</p>
-<p>
-Now available at ftp://ftp.mondorescue.org :
-</p>
-
-<p>
-mandrake/10.1/mindi-1.0.7-447.101mdk.i386.rpm<br>
-mandrake/10.1/mondo-2.0.7-447.101mdk.i386.rpm<br>
-mandrake/10.2/mindi-1.0.7-447.102mdk.i386.rpm<br>
-mandrake/10.2/mondo-2.0.7-447.102mdk.i386.rpm<br>
-mandriva/2006.0/mindi-1.0.7-447.20060mdk.i386.rpm<br>
-mandriva/2006.0/mondo-2.0.7-447.20060mdk.i386.rpm<br>
-src/mindi-1.0.7-r447.tgz<br>
-src/mondo-2.0.7-r447.tgz<br>
-</p>
-
-<p>
-Other distributions will follow asap (should be able to produce soon
-redhat 7.3, fedora core 4, and only after rhel3/4 and sles9) due to the
-change in the virtual machines I have to do (now using qemu + more tools
-to generate RPMs)
-</p>
-
-<p>
-The focus on this version has been more around the new website and
-documentation, and a bit less on code. So some persistant bugs are still
-not corrected (some dvd burning issues and dm/lvm2 support mainly) and
-will be hopefully in 2.0.8.
-</p>
-
-<p>
-MONDO CHANGES
-</p>
-
-<p>
-v2.07 (2006-02-23)<br>
-- useless cat, sort|uniq commands removed (Bruno Cornec/Sébastien Aperghis-Tramoni)<br>
-- Doc cleanup (Andree Leidenfrost)<br>
-- Add the actual format to messages after calls to function is_this_a_valid_disk_format() about unsupported formats.  (Andree Leidenfrost)<br>
-- Abort|Warn when one of the include|exclude dirs (-I|-E) does not exist (Bruno Cornec/Jeffs)<br>
-- Replaced partimagehack with ntfsclone from ntfsprogs package. (Andree Leidenfrost)<br>
-- use df -P everywhere (Bruno Cornec)<br>
-- Paypal incitations removed (Andree Leidenfrost)<br>
-- mondo now uses /usr/share for the restore-scripts (Bruno Cornec)<br>
-- rpmlint cleanups (Bruno Cornec)<br>
-- no shared librairies and no X11 anymore (were useless) (Bruno Cornec)<br>
-- files > 2GB are now really supported (Andree Leidenfrost)<br>
-- new SGML based Mondo Rescue documentation + new Web site (Bruno Cornec/Andree Leidenfrost)<br>
-- mondoarchive aborts when 'mindi --findkernel' gives a fatal error (See also Debian bug #352323.) (Andree Leidenfrost)<br>
-- /tmp not excluded anymore from backup (Bruno Cornec)<br>
-- New RPM Build environement (Bruno Cornec)<br>
-</p>
-
-<p>
-MINDI CHANGES
-</p>
-
-<p>
-1.07 (2006-02-23)<br>
-- stop creating further size of floppy disks if the smaller one succeeds (Bruno Cornec)<br>
-- init revamped (removed unnecessary second general module loading phase, start NFS appropriately depending on PXE or simple NFS) (Andree Leidenfrost)<br>
-  - Changed module 'nfsacl' to 'nfs_acl' (Andree Leidenfrost)<br>
-  - Mindi/DiskSize is gone (Bruno Cornec)<br>
-- useless cat, sort|uniq commands removed (Bruno Cornec/Sébastien Aperghis-Tramoni)<br>
-- Doc cleanup (Andree Leidenfrost)<br>
-- Bug fix for chown in install.sh (JeffS)<br>
-- CHANGES renamed also in install.sh now (Bruno Cornec)<br>
-- rpmlint cleanups<br>
-- Get mindi to look for analyze-my-lvm in it's library directory MINDI_LIB (See also Debian bug #351446.)<br>
-- mindi only deletes freshly created 1440kb images in case of error (See also Debian Bug #348966.) (Andree Leidenfrost)<br>
-- try standard grub-install in grub-MR restore script before trying anything fancy (Andree Leidenfrost)<br>
-- busybox mount should be called with -o ro for PXE (Make RHEL 3 works in PXE with a 2.6 failsafe kernel now available) (Bruno Cornec)<br>
-- Fix mindi for 2.6 Failsafe support (Bruno Cornec)<br>
-- mindi now depends on grep >= 2.5 (for -m option) (Marco Puggelli/Bruno Cornec)<br>
-- Fix a bug in LVM context for RHEL4 in GetValueFromField (Rémi Bondoin/Bruno Cornec)<br>
-- New RPM Build environement (Bruno Cornec)<br>
-- mindi now supports x86_64 natively (Bruno Cornec)<br>
-- stop creating further size of floppy disks if the smaller one succeeds (Bruno Cornec)<br>
-</p>
-
 <p><B>2006-02-21 </B>Mondo Rescue has a new Web site</p>
 <p>Thanks to <a href="http://www.73lab.com">Ayo</a>'s authorization, and after 2 weeks of hard work, we are proud to announce that we now have a new and updated Web site. We hope it will be useful and wait for your feedback.</p>
 <p>You may find it at <a href="http://www.mondorescue.org">http://www.mondorescue.org</a> (IP: 213.30.161.23)</p>
 <p><B>2006-02-05 </B>Mondo Rescue referenced by HP</p>
 <p>Mondorescue has been officially referenced by the HP OpenSource Portal:
 <a href="http://opensource.hp.com/index.php">http://opensource.hp.com/index.php</a> (look in the "Recently released" area)</p>
+<p><B>2006-02-02 </B>Mondo Rescue rsync server available</p>
+<p>In our always increasing set of services :-) I'd like to announce the
+availability of an rsync mirror service for mondo-rescue.
 
+Try rsync rsync.mondorescue.org::</p>
+<p><B>2006-02-01 </B>Mondo Rescue ftp server available</p>
+<p>Things are progressing. I've gathered all the packages that were originally on <a href="http://www.mondorescue.org">http://www.mondorescue.org</a> and also added Mike's SuSE RPMs
++ all the latest packages I've produced and put them on a new ftp server
+accessible at <a href="ftp://ftp.mondorescue.org">ftp://ftp.mondorescue.org</a>
+</p><p>
+You may have issues to access to it yet, as I've done a DNS refresh this
+night and propagation could not be made everywhere now.
+
+FYI:
+
+</p><p>
+$ host ftp.mondorescue.org<br>
+ftp.mondorescue.org has address 213.30.161.23
+</p><p>
+
+The tree is:
+</p><p>
+level one distribution<br>
+level two version number<br>
+level three the packages
+
+</p><p>
+Feel free to send me (by private mail) packages that you have and that
+are not in the repository, so that I can add them.
+
+</p><p>
+Thanks to HP and especially the HP/Intel Solution Center to help me
+hosting the project.
+
+Next step will be the Web site.</p>

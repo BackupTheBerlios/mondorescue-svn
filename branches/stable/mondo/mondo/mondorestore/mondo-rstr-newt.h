@@ -24,7 +24,7 @@
 #define  raid_device_record             vinum_volume
 #endif /*__FreeBSD__*/
 
-#define NO_FLAWS_DETECTED _("No flaws detected in mountlist at this time. Hit 'OK' to proceed.")
+#define NO_FLAWS_DETECTED "No flaws detected in mountlist at this time. Hit 'OK' to proceed."
 
 
 /** I found this in the code :) *******************************************/

@@ -6,7 +6,7 @@ inherit libtool
 
 DESCRIPTION="The premier GPL disaster recovery solution."
 HOMEPAGE="http://www.mondorescue.org"
-SRC_URI="ftp://ftp.mondorecue.org/src/${PN/-rescue/}-${PV}.tgz"
+SRC_URI="ftp://ftp.berlios.de/pub/mondorescue/src/${PN/-rescue/}-${PV}.tgz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -21,7 +21,7 @@ RDEPEND="app-arch/afio
 	sys-devel/binutils
 	>=app-arch/bzip2-0.9
 	app-cdr/cdrtools
-	>=sys-apps/mindi-1.0.7
+	>=sys-apps/mindi-1.06
 	>=dev-libs/newt-0.50
 	>=sys-libs/slang-1.4.1
 	>=sys-boot/syslinux-1.52"

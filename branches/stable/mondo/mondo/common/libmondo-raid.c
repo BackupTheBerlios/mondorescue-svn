@@ -41,10 +41,11 @@
 
 #include "my-stuff.h"
 #include "mondostructures.h"
-#include "newt-specific-EXT.h"
+#include "libmondo-gui-EXT.h"
 #include "libmondo-files-EXT.h"
 #include "libmondo-tools-EXT.h"
 #include "libmondo-string-EXT.h"
+#include "lib-common-externs.h"
 #include "libmondo-raid.h"
 
 #ifdef __FreeBSD__
@@ -956,7 +957,7 @@ long long size_spec(char *spec)
 				log_it
 					("Oh my gosh. You actually think a YOTTABYTE will get you anywhere? What're you going to do with 1,208,925,819,614,629,174,706,176 bytes?!?!");
 				popup_and_OK
-					(_("That sizespec is more than 1,208,925,819,614,629,174,706,176 bytes. You have a shocking amount of data. Please send a screenshot to the list :-)"));
+					("That sizespec is more than 1,208,925,819,614,629,174,706,176 bytes. You have a shocking amount of data. Please send a screenshot to the list :-)");
 				return size * sign * 1024 * 1024 * 1024 * 1024 * 1024 *
 					1024 * 1024 * 1024;
 			}
@@ -1111,7 +1112,7 @@ int create_raidtab_from_mdstat(char *raidtab_fname, char *mdstat_fname)
 			   sizeof(struct list_of_disks));
 		// FIXME --- the above line does not allow for spare disks
 		log_to_screen
-			(_("FIXME - create_raidtab_from_mdstat does not allow for spare disks"));
+			("FIXME - create_raidtab_from_mdstat does not allow for spare disks");
 	}
 	raidlist->entries = i;
 	retval += save_raidlist_to_raidtab(raidlist, raidtab_fname);

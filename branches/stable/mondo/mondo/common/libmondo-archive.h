@@ -16,7 +16,7 @@ int make_those_slices_phase(struct s_bkpinfo *bkpinfo);
 int make_those_afios_phase(struct s_bkpinfo *bkpinfo);
 int make_slices_and_images(struct s_bkpinfo *bkpinfo,
 						   char *biggielist_fname);
-int make_iso_fs(struct s_bkpinfo *bkpinfo, struct s_mrconf *mrconf, char *destfile);
+int make_iso_fs(struct s_bkpinfo *bkpinfo, char *destfile);
 int make_afioballs_and_images(struct s_bkpinfo *bkpinfo);
 extern int (*move_files_to_cd) (struct s_bkpinfo *, char *, ...);
 int _move_files_to_cd(struct s_bkpinfo *bkpinfo, char *files_to_add, ...);
@@ -41,4 +41,4 @@ int call_growisofs(struct s_bkpinfo *bkpinfo, char *destfile);
 int make_afioballs_and_images_SINGLETHREAD(struct s_bkpinfo *bkpinfo);
 int archive_this_fileset_with_star(struct s_bkpinfo *bkpinfo,
 								   char *filelist, char *fname, int setno);
-void setenv_mondo_share(void);
+void setenv_mondo_lib(void);

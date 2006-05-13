@@ -246,18 +246,13 @@ void distro_specific_kludges_at_end_of_mondoarchive()
 int main(int argc, char *argv[])
 {
 	struct s_bkpinfo *bkpinfo;
-	struct s_mrconf *mrconf;
 	char *tmp;
 	int res, retval;
 	char *say_at_end;
 
-#ifdef ENABLE_NLS
-	setlocale(LC_ALL, "");
-	(void) textdomain("mondo");
-#endif
 /* Make sure I'm root; abort if not */
 	if (getuid() != 0) {
-		fprintf(stderr, _("Please run as root.\n"));
+		fprintf(stderr, "Please run as root.\r\n");
 		exit(127);
 	}
 
@@ -265,7 +260,7 @@ int main(int argc, char *argv[])
 	if (argc == 2
 		&& (!strcmp(argv[argc - 1], "-v") || !strcmp(argv[argc - 1], "-V")
 			|| !strcmp(argv[argc - 1], "--version"))) {
-		printf(_("mondoarchive v%s\nSee man page for help\n"), PACKAGE_VERSION);
+		printf("mondoarchive v%s\nSee man page for help\n", PACKAGE_VERSION);
 		exit(0);
 	}
 
@@ -275,14 +270,11 @@ int main(int argc, char *argv[])
 	malloc_string(tmp);
 	malloc_string(say_at_end);
 
-	/* Initialize Configuration Structure */
-	mrarchive_init_conf(mrconf);
-
 	res = 0;
 	retval = 0;
 	diffs = 0;
 	say_at_end[0] = '\0';
-	printf(_("Initializing...\n"));
+	printf("Initializing...\n");
 	if (!(bkpinfo = malloc(sizeof(struct s_bkpinfo)))) {
 		fatal_error("Cannot malloc bkpinfo");
 	}
@@ -328,7 +320,7 @@ int main(int argc, char *argv[])
 		g_text_mode = TRUE;
 		setup_newt_stuff();
 		if (!strstr(argv[2], "filelist")) {
-			printf(_("Sorry - filelist goes first\n"));
+			printf("Sorry - filelist goes first\n");
 			finish(1);
 		} else {
 			finish(get_fattr_list(argv[2], argv[3]));
@@ -357,7 +349,7 @@ int main(int argc, char *argv[])
 		g_text_mode = TRUE;
 		setup_newt_stuff();
 		if (!strstr(argv[2], "filelist")) {
-			printf(_("Sorry - filelist goes first\n"));
+			printf("Sorry - filelist goes first\n");
 			finish(1);
 		} else {
 			finish(get_acl_list(argv[2], argv[3]));
@@ -377,15 +369,15 @@ int main(int argc, char *argv[])
 		g_text_mode = TRUE;
 		setup_newt_stuff();
 		if (find_cdrw_device(tmp)) {
-			printf(_("Failed to find CDR-RW drive\n"));
+			printf("Failed to find CDR-RW drive\n");
 		} else {
-			printf(_("CD-RW is at %s\n"), tmp);
+			printf("CD-RW is at %s\n", tmp);
 		}
 		tmp[0] = '\0';
 		if (find_cdrom_device(tmp, atoi(argv[2]))) {
-			printf(_("Failed to find CD-ROM drive\n"));
+			printf("Failed to find CD-ROM drive\n");
 		} else {
-			printf(_("CD-ROM is at %s\n"), tmp);
+			printf("CD-ROM is at %s\n", tmp);
 		}
 		finish(0);
 	}
@@ -395,9 +387,9 @@ int main(int argc, char *argv[])
 		g_text_mode = TRUE;
 		setup_newt_stuff();
 		if (find_dvd_device(tmp, atoi(argv[2]))) {
-			printf(_("Failed to find DVD drive\n"));
+			printf("Failed to find DVD drive\n");
 		} else {
-			printf(_("DVD is at %s\n"), tmp);
+			printf("DVD is at %s\n", tmp);
 		}
 		finish(0);
 	}
@@ -408,9 +400,9 @@ int main(int argc, char *argv[])
 	}
 	if (argc > 2 && !strcmp(argv[1], "test-dev")) {
 		if (is_dev_an_NTFS_dev(argv[2])) {
-			printf(_("%s is indeed an NTFS dev\n"), argv[2]);
+			printf("%s is indeed an NTFS dev\n", argv[2]);
 		} else {
-			printf(_("%s is _not_ an NTFS dev\n"), argv[2]);
+			printf("%s is _not_ an NTFS dev\n", argv[2]);
 		}
 		finish(0);
 	}
@@ -433,8 +425,8 @@ int main(int argc, char *argv[])
 		res = handle_incoming_parameters(argc, argv, bkpinfo);
 		if (res) {
 			printf
-				(_("Errors were detected in the command line you supplied.\n"));
-			printf(_("Please review the log file - %s \n"),MONDO_LOGFILE);
+				("Errors were detected in the command line you supplied.\n");
+			printf("Please review the log file - " MONDO_LOGFILE "\n");
 			log_msg(1, "Mondoarchive will now exit.");
 			finish(1);
 		}
@@ -448,7 +440,7 @@ int main(int argc, char *argv[])
 	}
 
 	log_to_screen
-		(_("BusyBox's sources are available from http://www.busybox.net"));
+		("BusyBox's sources are available from http://www.busybox.net");
 	sprintf(g_erase_tmpdir_and_scratchdir, "rm -Rf %s %s", bkpinfo->tmpdir,
 			bkpinfo->scratchdir);
 
@@ -460,13 +452,13 @@ int main(int argc, char *argv[])
       log_to_screen("atfws returned %d", res);
       finish(0);
 */
-		res = backup_data(bkpinfo, mrconf);
+		res = backup_data(bkpinfo);
 		retval += res;
 		if (res) {
 			strcat(say_at_end,
-				   _("Data archived. Please check the logs, just as a precaution. "));
+				   "Data archived. Please check the logs, just as a precaution. ");
 		} else {
-			strcat(say_at_end, _("Data archived OK. "));
+			strcat(say_at_end, "Data archived OK. ");
 		}
 	}
 
@@ -474,7 +466,7 @@ int main(int argc, char *argv[])
 	if (bkpinfo->verify_data) {
 		res = verify_data(bkpinfo);
 		if (res < 0) {
-			sprintf(tmp, _("%d difference%c found."), -res,
+			sprintf(tmp, "%d difference%c found.", -res,
 					(-res != 1) ? 's' : ' ');
 			strcat(say_at_end, tmp);
 			log_to_screen(tmp);
@@ -494,25 +486,25 @@ int main(int argc, char *argv[])
 /* Report result of entire operation (success? errors?) */
 	if (!retval) {
 		mvaddstr_and_log_it(g_currentY++, 0,
-							_("Backup and/or verify ran to completion. Everything appears to be fine."));
+							"Backup and/or verify ran to completion. Everything appears to be fine.");
 	} else {
 		mvaddstr_and_log_it(g_currentY++, 0,
-							_("Backup and/or verify ran to completion. However, errors did occur."));
+							"Backup and/or verify ran to completion. However, errors did occur.");
 	}
 
-	if (does_file_exist("/var/cache/mindi/mondorescue.iso")) {
+	if (does_file_exist("/root/images/mindi/mondorescue.iso")) {
 		log_to_screen
-			(_("/var/cache/mindi/mondorescue.iso, a boot/utility CD, is available if you want it."));
+			("/root/images/mindi/mondorescue.iso, a boot/utility CD, is available if you want it.");
 	}
 
 
 	if (length_of_file("/tmp/changed.files") > 2) {
 		if (g_text_mode) {
 			log_to_screen
-				(_("Type 'less /tmp/changed.files' to see which files don't match the archives"));
+				("Type 'less /tmp/changed.files' to see which files don't match the archives");
 		} else {
 			log_msg(1,
-					_("Type 'less /tmp/changed.files' to see which files don't match the archives"));
+					"Type 'less /tmp/changed.files' to see which files don't match the archives");
 			log_msg(2, "Calling popup_changelist_from_file()");
 			popup_changelist_from_file("/tmp/changed.files");
 			log_msg(2, "Returned from popup_changelist_from_file()");
@@ -530,9 +522,9 @@ int main(int argc, char *argv[])
 	system("rm -f /var/cache/mondo-archive/last-backup.aborted");
 	system("rm -Rf /tmp.mondo.* /mondo.scratch.*");
 	if (!retval) {
-		printf(_("Mondoarchive ran OK.\n"));
+		printf("Mondoarchive ran OK.\n");
 	} else {
-		printf(_("Errors occurred during backup. Please check logfile.\n"));
+		printf("Errors occurred during backup. Please check logfile.\n");
 	}
 	distro_specific_kludges_at_end_of_mondoarchive();
 	register_pid(0, "mondo");
@@ -556,11 +548,11 @@ int main(int argc, char *argv[])
 
 	if (!g_text_mode) {
 		popup_and_OK
-			(_("Mondo Archive has finished its run. Please press ENTER to return to the shell prompt."));
-		log_to_screen(_("See %s for details of backup run."), MONDO_LOGFILE);
+			("Mondo Archive has finished its run. Please press ENTER to return to the shell prompt.");
+		log_to_screen("See %s for details of backup run.", MONDO_LOGFILE);
 		finish(retval);
 	} else {
-		printf(_("See %s for details of backup run.\n"), MONDO_LOGFILE);
+		printf("See %s for details of backup run.\n", MONDO_LOGFILE);
 		exit(retval);
 	}
 

@@ -17,6 +17,7 @@ fi
 
 cd $TOOLHOME
 . ./common-env
+. ./svn-env
 
 mkdir -p ${TOPDIR}/SOURCES 
 

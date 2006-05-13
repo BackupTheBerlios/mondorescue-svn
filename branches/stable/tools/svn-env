@@ -1,18 +1,10 @@
 #!/bin/bash
 #
-# Creates common environment from SVN repository
+# Creates common environment for SVN repository
 #
 # $Id$
 #
 
-# Adapt to your needs
-export BASE=${HOME}/mondo
-export TOPDIR=${BASE}/RPMS
-mkdir -p ${TOPDIR}
-export TMP=${BASE}/tmp
-mkdir -p ${TMP}
-
-# Should not be modified below
 export SVNBRANCH="branches/`cat ${TOOLHOME}/../mondo/VERSION`"
 export MINDI_VER=`cat ${BASE}/svn/${SVNBRANCH}/mindi/VERSION`
 export MONDO_VER=`cat ${BASE}/svn/${SVNBRANCH}/mondo/VERSION`

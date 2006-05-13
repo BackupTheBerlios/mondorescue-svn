@@ -1,146 +1,15 @@
-/* my-stuff.h
-   $Id$
-.
+/*
+ * Common defines across the project
+ *
+ *  $Id$
+ */
 
+#ifndef _MY_STUFF_H_
+#define _MY_STUFF_H_
 
-07/14
-- ARCH_THREADS is now 2; buffers, 4
-
-07/10
-- added acl, xattr stuff
-
-06/19
-- added AUX_VER
-
-06/14
-- added DO_MBR_PLEASE
-
-04/17
-- replaced INTERNAL_TAPE_BLK_SIZE with g_internal_tape_block_size
-  and DEFAULT_INTERNAL_TAPE_BLOCK_SIZE
-
-04/13
-- log_msg is now calling standard_log_debug_msg, not the alias (log_debug_msg)
-
-04/03/2004
-- added star and SELINUX support
-
-11/20/2003
-- boot from isolinux.bin, not mindi-boot.2880.img
-
-11/15
-- reduced SLICE_SIZE from 8192 to 4096
-
-10/08
-- set p-i-h volsize to 1GB
-
-10/21
-- added MNT_CDROM and FREELOADER
-
-10/11
-- added DEFAULT_DVD_DISK_SIZE
-- added PARTIMAGE_DEBUG_LEVEL
-
-09/27
-- better logging
-
-09/24
-- added MR_LOGFILE="/tmp/mondo-restore.log"
-
-09/22
-- added bool, FALSE, TRUE
-
-09/20
-- increasd PPCFG_RAMDISK_SIZE to 150
-
-09/12
-- reduced MAX_STR_LEN from 512 to 460
-
-09/10
-- moved PPCFG_RAMDISK_SIZE here
-
-09/05
-- better config.h stuff
-
-06/05
-- changed fgrep to grep
-
-05/19
-- added CP_BIN
-
-05/05
-- added #include <sys/param.h> and sys/sem.h and ioctl.h
-
-05/03
-- added kill_anything_like_this()
-
-04/24/2003
-- added *STUB #define's
-
-11/22/2002
-- added INTERNAL_TAPE_BLK_SIZE
-
-10/10
-- use #define to create XMondo-friendly log file name if appropriate
-
-08/30
-- changed ARBITRARY_MAXIMUM to 512
-
-08/26
-- set MAX_STR_LEN at 512 but halved it within many _structures_
-- changed ARBITRARY_MAXIMUM to 128
-
-08/08
-- added '#include <signal.h>'
-- added WELCOME_STRING
-
-06/19
-- changed tape block size from 8192 to 65536
-
-04/08
-- added manual_cd_tray flag to bkpinfo
-
-03/31
-- added restore_path to struct s_bkpinfo
-
-03/21
-- updated version# to 1.42
-
-02/20
-- added bkpinfo->using_cdstream
-
-02/06
-- added MONDO_VERSION
-
-02/02
-- added MONDO_CFG_FILE
-- added SLICE_SIZE
-
-01/31
-- removed MINDI_HOME: it is unnecessary
-- replaced MONDO_HOME with variable g_mondo_home
-
-01/25
-- added MONDO_HOME, MINDI_HOME
-
-01/21
-- added s_node{} structure
-
-01/17
-- added sys/shm.h, types.h, ipc.h
-
-01/02/2002
-- added that groovy bkpinfo{} stuff
-
-11/29/2001
-- added raidlist{} struct
-
-08/27
-- stuff
-*/
-
+/* BERLIOS
 #define HAVE_MALLOC 1
-
+*/
 
 // Extra info for ACLs and SELINUX users
 #define STAR_ACL_SZ "-xfflags -acl"
@@ -157,17 +26,16 @@
 /**
  * Create the illusion of a Boolean type.
  */
-#define bool int
+#define bool unsigned char
 #define TRUE 1
 #define FALSE 0
 #endif
 
-#ifndef _MY_STUFF_H_
-#define _MY_STUFF_H_
-
+/* BERLIOS
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+*/
 
 #ifndef __FreeBSD__
 #include <getopt.h>
@@ -180,12 +48,14 @@
 #include <sys/param.h>
 #include <stdio.h>
 #include <stdlib.h>
+/* BERLIOS
 #ifndef  __USE_FILE_OFFSET64
 #define  __USE_FILE_OFFSET64
 #endif
 #ifndef  __USE_LARGEFILE64
 #define  __USE_LARGEFILE64
 #endif
+*/
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -195,23 +65,21 @@
 #include <time.h>
 #include <unistd.h>
 #include <signal.h>
-//#include <curses.h>
 #include <newt.h>
 #include <ctype.h>
 #include <string.h>
 #include <pthread.h>
 #include <assert.h>
 
-#include "../../config.h"
-
+/*
 #if defined(DEBUG) && !__cplusplus
 int count;
-char trace_log[255];			/*buffer for logging */
+char trace_log[255];
 char *trace_log_ptr;
-#endif							/* DEBUG */
+#endif
+*/
 
-#define IA64_BOOT_SIZE "8192"	/* Should be coherent with mindi */
-#define STD_PREFIX "mondorescue"	/* Should be coherent with mindi */
+#define STD_PREFIX "mondorescue"
 
 /**
  * The biggielist stub (appended to the directory where all.tar.gz was unpacked).
@@ -254,9 +122,6 @@ extern void _mondo_assert_fail(const char *file, const char *function,
 
 #define CRC_M16	0xA001			///< Mask for crc16.
 #define	CRC_MTT	0x1021			///< Mask for crc-ccitt.
-
-#define FALSE 0					///< The ubiquitous FALSE macro.
-#define TRUE 1					///< The even more ubiquitous TRUE macro.
 
 #define SCREEN_LENGTH 25		///< The default size of the screen.
 #define NOOF_ERR_LINES 6		///< The number of lines of log output to keep at the bottom of the screen.

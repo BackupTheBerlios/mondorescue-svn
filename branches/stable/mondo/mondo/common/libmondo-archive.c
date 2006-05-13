@@ -579,7 +579,7 @@ archive_this_fileset(struct s_bkpinfo *bkpinfo, char *filelist,
  * @return The number of non-fatal errors encountered (0 for success).
  * @ingroup archiveGroup
  */
-int backup_data(struct s_bkpinfo *bkpinfo)
+int backup_data(struct s_bkpinfo *bkpinfo, struct s_mrconf *mrconf)
 {
 	int retval = 0, res = 0;
 	char *tmp;
@@ -642,7 +642,7 @@ int backup_data(struct s_bkpinfo *bkpinfo)
 	retval += do_that_initial_phase(bkpinfo);	// prepare
 	sprintf(tmp, "rm -f %s/images/*.iso", bkpinfo->scratchdir);
 	run_program_and_log_output(tmp, 1);
-	retval += make_those_afios_phase(bkpinfo);	// backup regular files
+	retval += make_those_afios_phase(bkpinfo,mrconf);	// backup regular files
 	retval += make_those_slices_phase(bkpinfo);	// backup BIG files
 	retval += do_that_final_phase(bkpinfo);	// clean up
 	log_msg(1, "Creation of archives... complete.");
@@ -1013,11 +1013,11 @@ int call_mindi_to_supply_boot_disks(struct s_bkpinfo *bkpinfo)
 	}							// hack
 	if (!res) {
 		log_to_screen("Boot+data disks were created OK");
-		sprintf(command, "mkdir -p /root/images/mindi/");
+		sprintf(command, "mkdir -p /var/cache/mindi/");
 		log_msg(2, command);
 		run_program_and_log_output(command, FALSE);
 		sprintf(command,
-				"cp -f %s/images/mindi.iso /root/images/mindi/mondorescue.iso",
+				"cp -f %s/images/mindi.iso /var/cache/mindi/mondorescue.iso",
 				bkpinfo->scratchdir);
 		log_msg(2, command);
 		run_program_and_log_output(command, FALSE);
@@ -1251,7 +1251,7 @@ void *create_afio_files_in_background(void *inbuf)
  * for the @c backup_media_type.
  * @ingroup MLarchiveGroup
  */
-int do_that_final_phase(struct s_bkpinfo *bkpinfo)
+int do_that_final_phase(struct s_bkpinfo *bkpinfo, struct s_mrconf *mrconf)
 {
 
 	/*@ int ************************************** */
@@ -1272,7 +1272,7 @@ int do_that_final_phase(struct s_bkpinfo *bkpinfo)
 	} else
 		/* write final ISO */
 	{
-		res = write_final_iso_if_necessary(bkpinfo);
+		res = write_final_iso_if_necessary(bkpinfo, mrconf);
 		retval += res;
 		if (res) {
 			log_msg(1, "write_final_iso_if_necessary returned an error");
@@ -1562,7 +1562,7 @@ bool get_bit_N_of_array(char *array, int N)
  *
  * @return The number of errors encountered (0 for success)
  */
-int make_afioballs_and_images(struct s_bkpinfo *bkpinfo)
+int make_afioballs_and_images(struct s_bkpinfo *bkpinfo, struct s_mrconf *mrconf)
 {
 
 	/*@ int ************************************************** */
@@ -1706,7 +1706,7 @@ int make_afioballs_and_images(struct s_bkpinfo *bkpinfo)
 										 NULL);
 			} else {
 				res =
-					move_files_to_cd(bkpinfo, storing_filelist_fname,
+					move_files_to_cd(bkpinfo, mrconf, storing_filelist_fname,
 									 curr_xattr_list_fname,
 									 curr_acl_list_fname,
 									 storing_afioball_fname, NULL);
@@ -1784,7 +1784,7 @@ void pause_for_N_seconds(int how_long, char *msg)
  * @param destfile Where to put the generated ISO image.
  * @return The number of errors encountered (0 for success)
  */
-int make_iso_fs(struct s_bkpinfo *bkpinfo, char *destfile)
+int make_iso_fs(struct s_bkpinfo *bkpinfo, struct s_mrconf *mrconf, char *destfile)
 {
 	/*@ int ********************************************** */
 	int retval = 0;
@@ -2004,11 +2004,10 @@ int make_iso_fs(struct s_bkpinfo *bkpinfo, char *destfile)
 // and add ' .' at end
 #ifdef __IA64__
 				log_msg(1, "IA64 --> elilo");
+				asprintf(&tmp2,"mkisofs -no-emul-boot -b images/mindi-bootroot.%s.img -c boot.cat -o _ISO_ -J -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL -V _CD#_ .", mrconf->ia64_boot_size);
 				res = eval_call_to_make_ISO(bkpinfo,
 											//-b images/mindi-boot.2880.img
-											"mkisofs -no-emul-boot -b images/mindi-bootroot."
-											IA64_BOOT_SIZE
-											".img -c boot.cat -o _ISO_ -J -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL -V _CD#_ .",
+											tmp2,
 											destfile,
 											g_current_media_number,
 											MONDO_LOGFILE,
@@ -2016,6 +2015,7 @@ int make_iso_fs(struct s_bkpinfo *bkpinfo, char *destfile)
 #else
 // FIXME --- change mkisofs string to MONDO_MKISOFS_REGULAR_SYSLINUX/LILO depending on bkpinfo->make_cd_usE_lilo
 // and add ' .' at end
+ 				paranoid_free(tmp2);
 				log_msg(1, "Non-ia64 --> lilo");
 				res =
 					eval_call_to_make_ISO(bkpinfo,
@@ -2149,7 +2149,7 @@ bool is_dev_an_NTFS_dev(char *bigfile_fname)
  * @see slice_up_file_etc
  */
 int
-make_slices_and_images(struct s_bkpinfo *bkpinfo, char *biggielist_fname)
+make_slices_and_images(struct s_bkpinfo *bkpinfo, struct s_mrconf *mrconf, char *biggielist_fname)
 {
 
 	/*@ pointers ******************************************* */
@@ -2222,7 +2222,7 @@ make_slices_and_images(struct s_bkpinfo *bkpinfo, char *biggielist_fname)
 			delete_when_done = TRUE;
 		} else {
 // Call ntfsclone (formerly partimagehack) if it's a /dev entry (i.e. a partition to be imaged)
-			log_msg(2, "bigfile_fname = %s", bigfile_fname);
+			log_msg(2, "bigfile_fname = '%s'", bigfile_fname);
 			use_ntfsprog = FALSE;
 			if (!strncmp(bigfile_fname, "/dev/", 5)
 				&& is_dev_an_NTFS_dev(bigfile_fname)) {
@@ -2268,7 +2268,7 @@ make_slices_and_images(struct s_bkpinfo *bkpinfo, char *biggielist_fname)
 											 BLK_START_A_NORMBIGGIE);
 			}
 			res =
-				slice_up_file_etc(bkpinfo, bigfile_fname,
+				slice_up_file_etc(bkpinfo, mrconf, bigfile_fname,
 								  ntfsprog_fifo, biggie_file_number,
 								  noof_biggie_files, use_ntfsprog);
 			if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
@@ -2320,7 +2320,7 @@ make_slices_and_images(struct s_bkpinfo *bkpinfo, char *biggielist_fname)
  * Single-threaded version of @c make_afioballs_and_images().
  * @see make_afioballs_and_images
  */
-int make_afioballs_and_images_OLD(struct s_bkpinfo *bkpinfo)
+int make_afioballs_and_images_OLD(struct s_bkpinfo *bkpinfo, struct s_mrconf *mrconf)
 {
 
 	/*@ int ************************************************** */
@@ -2402,7 +2402,7 @@ int make_afioballs_and_images_OLD(struct s_bkpinfo *bkpinfo)
 			res = move_files_to_stream(bkpinfo, curr_afioball_fname, NULL);
 		} else {
 			res =
-				move_files_to_cd(bkpinfo, curr_filelist_fname,
+				move_files_to_cd(bkpinfo, mrconf, curr_filelist_fname,
 								 curr_xattr_list_fname,
 								 curr_acl_list_fname, curr_afioball_fname,
 								 NULL);
@@ -2447,7 +2447,7 @@ int make_afioballs_and_images_OLD(struct s_bkpinfo *bkpinfo)
  * @see make_afioballs_and_images
  * @ingroup MLarchiveGroup
  */
-int make_those_afios_phase(struct s_bkpinfo *bkpinfo)
+int make_those_afios_phase(struct s_bkpinfo *bkpinfo, struct s_mrconf *mrconf)
 {
 	/*@ int ******************************************* */
 	int res = 0;
@@ -2464,14 +2464,14 @@ int make_those_afios_phase(struct s_bkpinfo *bkpinfo)
 #if __FreeBSD__ == 5
 		log_msg(1,
 				"Using single-threaded make_afioballs_and_images() to suit b0rken FreeBSD 5.0");
-		res = make_afioballs_and_images_OLD(bkpinfo);
+		res = make_afioballs_and_images_OLD(bkpinfo, mrconf);
 #else
-		res = make_afioballs_and_images_OLD(bkpinfo);
+		res = make_afioballs_and_images_OLD(bkpinfo, mrconf);
 #endif
 		write_header_block_to_stream(0, "stop-afioballs",
 									 BLK_STOP_AFIOBALLS);
 	} else {
-		res = make_afioballs_and_images(bkpinfo);
+		res = make_afioballs_and_images(bkpinfo, mrconf);
 	}
 
 	retval += res;
@@ -2574,7 +2574,7 @@ int make_those_slices_phase(struct s_bkpinfo *bkpinfo)
  * You can set this to your own function (for example, one to
  * transfer files over the network) or leave it as is.
  */
-int (*move_files_to_cd) (struct s_bkpinfo *, char *, ...) =
+int (*move_files_to_cd) (struct s_bkpinfo *, struct s_mrconf *mrconf, char *, ...) =
 	_move_files_to_cd;
 
 /**
@@ -2595,7 +2595,7 @@ int (*move_files_to_cd) (struct s_bkpinfo *, char *, ...) =
  *
  * @return The number of errors encountered (0 for success)
  */
-int _move_files_to_cd(struct s_bkpinfo *bkpinfo, char *files_to_add, ...)
+int _move_files_to_cd(struct s_bkpinfo *bkpinfo, struct s_mrconf *mrconf, char *files_to_add, ...)
 {
 
 	/*@ int ************************************************************ */
@@ -2634,7 +2634,7 @@ int _move_files_to_cd(struct s_bkpinfo *bkpinfo, char *files_to_add, ...)
 		fatal_error("move_files_to_cd() - unknown media size");
 	}
 	if (would_occupy / 1024 > bkpinfo->media_size[g_current_media_number]) {
-		res = write_iso_and_go_on(bkpinfo, FALSE);	/* FALSE because this is not the last CD we'll write */
+		res = write_iso_and_go_on(bkpinfo, struct s_mrconf *mrconf, FALSE);	/* FALSE because this is not the last CD we'll write */
 		retval += res;
 		if (res) {
 			log_msg(1, "WARNING - write_iso_and_go_on returned an error");
@@ -2684,7 +2684,7 @@ int _move_files_to_cd(struct s_bkpinfo *bkpinfo, char *files_to_add, ...)
  * @param bkpinfo The backup information structure. Only the
  * @c backup_media_type field is used in this function.
  * @param imagesdir The directory containing the floppy images (usually
- * /root/images/mindi).
+ * /var/cache/mindi).
  *
  * @return The number of errors encountered (0 for success)
  * @see write_image_to_floppy
@@ -2863,20 +2863,22 @@ int offer_to_write_boot_floppies_to_physical_disks(struct s_bkpinfo
 
 	if (!bkpinfo->nonbootable_backup) {
 #ifdef __FreeBSD__
-		if (!does_file_exist("/root/images/mindi/mindi-kern.1722.img"))
+		if (!does_file_exist("/var/cache/mindi/mindi-kern.1722.img"))
 #else
-		if (!does_file_exist("/root/images/mindi/mindi-bootroot.1722.img")
-			&& !does_file_exist("/root/images/mindi/mindi-boot.1440.img"))
+		if (!does_file_exist("/var/cache/mindi/mindi-bootroot.1722.img")
+			&& !does_file_exist("/var/cache/mindi/mindi-boot.1440.img")
+			&& !does_file_exist("/var/cache/mindi/mindi-boot.2880.img")
+			&& !does_file_exist("/var/cache/mindi/mindi-boot.5760.img"))
 #endif
 		{
 			mvaddstr_and_log_it(g_currentY++, 74, "No Imgs");
-			if (does_file_exist("/root/images/mindi/mondorescue.iso")) {
+			if (does_file_exist("/var/cache/mindi/mondorescue.iso")) {
 				popup_and_OK
-					("Boot+data floppy creation failed. However, FYI, you may burn /root/images/mindi/mondorescue.iso to a CD and boot from that instead if you wish.");
+					("Boot+data floppy creation failed. However, FYI, you may burn /var/cache/mindi/mondorescue.iso to a CD and boot from that instead if you wish.");
 				res++;
 			}
 		} else {
-			offer_to_write_floppies(bkpinfo, "/root/images/mindi");
+			offer_to_write_floppies(bkpinfo, "/var/cache/mindi");
 			mvaddstr_and_log_it(g_currentY++, 74, "Done.");
 		}
 	} else {
@@ -3276,7 +3278,7 @@ void set_bit_N_of_array(char *array, int N, bool true_or_false)
  * @ingroup LLarchiveGroup
  */
 int
-slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
+slice_up_file_etc(struct s_bkpinfo *bkpinfo, struct s_mrconf *mrconf, char *biggie_filename,
 				  char *ntfsprog_fifo, long biggie_file_number,
 				  long noof_biggie_files, bool use_ntfsprog)
 {
@@ -3406,7 +3408,7 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
 											 bkpinfo->tmpdir, ""), NULL);
 	} else {
 		res =
-			move_files_to_cd(bkpinfo,
+			move_files_to_cd(bkpinfo, mrconf,
 							 slice_fname(biggie_file_number, 0,
 										 bkpinfo->tmpdir, ""), NULL);
 	}
@@ -3508,7 +3510,7 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, char *biggie_filename,
 												   file_to_archive);
 			res = move_files_to_stream(bkpinfo, file_to_archive, NULL);
 		} else {
-			res = move_files_to_cd(bkpinfo, file_to_archive, NULL);
+			res = move_files_to_cd(bkpinfo, mrconf, file_to_archive, NULL);
 		}
 		retval += res;
 		if (res) {
@@ -3600,7 +3602,7 @@ void wipe_archives(char *d)
  * @bug The final ISO is written even if there are no files on it. In practice,
  * however, this occurs rarely.
  */
-int write_final_iso_if_necessary(struct s_bkpinfo *bkpinfo)
+int write_final_iso_if_necessary(struct s_bkpinfo *bkpinfo, struct s_mrconf *mrconf)
 {
 	/*@ int ***************************************************** */
 	int res;
@@ -3621,7 +3623,7 @@ int write_final_iso_if_necessary(struct s_bkpinfo *bkpinfo)
 		newtPushHelpLine(tmp);
 	}
 #endif
-	res = write_iso_and_go_on(bkpinfo, TRUE);
+	res = write_iso_and_go_on(bkpinfo, struct s_mrconf *mrconf, TRUE);
 #ifndef _XWIN
 	if (!g_text_mode) {
 		newtPopHelpLine();
@@ -3650,7 +3652,7 @@ int write_final_iso_if_necessary(struct s_bkpinfo *bkpinfo)
  * @return The number of errors encountered (0 for success)
  * @see make_iso_fs
  */
-int write_iso_and_go_on(struct s_bkpinfo *bkpinfo, bool last_cd)
+int write_iso_and_go_on(struct s_bkpinfo *bkpinfo, struct s_mrconf *mrconf, bool last_cd)
 {
 	/*@ pointers **************************************************** */
 	FILE *fout;
@@ -3726,7 +3728,7 @@ int write_iso_and_go_on(struct s_bkpinfo *bkpinfo, bool last_cd)
 			bkpinfo->nfs_remote_dir, bkpinfo->prefix,
 			g_current_media_number);
 	for (that_one_was_ok = FALSE; !that_one_was_ok;) {
-		res = make_iso_fs(bkpinfo, isofile);
+		res = make_iso_fs(bkpinfo, mrconf, isofile);
 		if (g_current_media_number == 1 && !res
 			&& (bkpinfo->backup_media_type == cdr
 				|| bkpinfo->backup_media_type == cdrw)) {
@@ -4028,3 +4030,37 @@ void setenv_mondo_share(void) {
 
 setenv("MONDO_SHARE", MONDO_SHARE, 1);
 }
+
+void mrarchive_init_conf(struct s_mrconf *mrconf) {
+	char *command = NULL;
+	FILE *conffd = NULL;
+	FILE *fin = NULL;
+	int n = 0;
+	char *param = NULL;
+
+	mrconf = (struct s_mrconf *)malloc(sizeof(struct s_mrconf));
+	if (mrconf == NULL) {
+			fatal_error("Unable to malloc mrconf");
+	}
+	/* Default for everything int : 0 char * : NULL */
+
+	/* mindi conf parameters also needed in mondo */
+	mrconf->ia64_boot_size = 0;
+
+	asprintf(&command, "mindi -printvar IA64_BOOT_SIZE");
+	fin = popen(command, "r");
+	getline(&param, &n, fin);
+	pclose(fin);
+	paranoid_free(command);
+	mrconf->ia64_boot_size = atoi(param);
+	paranoid_free(param);
+
+	mrconf->iso_creation_cmd = NULL;
+
+	/* Finds mondo conf file */
+	mrconf_open(MONDO_CONF_DIR"/mondo.conf");
+
+	/* mondo conf parameters needed */
+	mrconf->iso_creation_cmd = mrconf_sread(iso_creation_cmd);
+
+	mrconf_close();

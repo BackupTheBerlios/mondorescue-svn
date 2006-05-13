@@ -78,9 +78,9 @@ else
 fi
 # TBC
 if [ "$mindi_images_dir" == "" ]; then
-	CACHE_LOC="/var/cache/mindi"
+	CACHEDIR="/var/cache/mindi"
 else
-	CACHE_LOC="$mindi_images_dir"
+	CACHEDIR="$mindi_images_dir"
 fi
 if [ "$mindi_dual_floppies" == "" ]; then
 	FORCE_DUAL_FLOPPIES="/var/cache/mindi"
@@ -218,7 +218,7 @@ AbortIfMkfsVfatMissing() {
 
 Aborted() {
 	trap SIGHUP SIGTERM SIGTRAP SIGINT
-	[ "$imagesdir" != "" ] && rm -f $imagesdir/mindi*img $imagesdir/*gz $imagesdir/mindi.iso
+	rm -f $CACHEDIR/mindi*img $CACHEDIR/*gz $CACHEDIR/mindi.iso
 	[ "$minidir_root" != "" ] && rm -Rf $minidir_root/*
 	Die "User abort."
 }
@@ -509,7 +509,7 @@ CreateOneDataDiskImage() {
 	mv $tarball $mountpoint/
 	if [ "$?" -ne "0" ] ; then
 	umount $mountpoint
-	Die "Tarball $tarball is too big for disk! (CODI)\nTell Hugo to adjust MAX_COMPRESSED_SIZE"
+	Die "Tarball $tarball is too big for disk! (CODI)\nTell dev team to adjust MAX_COMPRESSED_SIZE"
 	fi
 	[ "$diskno" -eq "$noof_disks" ] && echo "This is the last disk ($diskno=$noof_disks)" >> $mountpoint/LAST-DISK
 	umount $mountpoint || LogIt "Cannot umount (CODI)\n"
@@ -683,7 +683,7 @@ FindHomeOfMindiAndMondo() {
 	[ "$MINDI_CONF" = "YYY" ] && Die "Mindi has not been installed correctly."
 	echo "MINDI_CONF = $MINDI_CONF" >> $LOGFILE
 	echo "MONDO_SHARE = $MONDO_SHARE" >> $LOGFILE
-	mkdir -p $CACHE_LOC
+	mkdir -p $CACHEDIR
 }
 
 
@@ -1625,35 +1625,6 @@ MoveHyperlinkSensibly() {
 
 
 
-OfferToCopyImagesToDisks() {
-	local imagesdir i imagename dev count boot_dev data_dev
-	imagesdir=$1
-	boot_dev=$2
-	data_dev=$3
-	echo -en "Would you like to create boot+data floppy disks now (y/n) ?"
-	read i
-	[ "$i" != "y" ] && [ "$i" != "Y" ] && return
-	mount | fgrep /dev/fd > /dev/null && Die "Please unmount your floppies first."
-	echo "WARNING! THIS WILL ERASE YOUR FLOPPY DISKS."
-	[ ! -e "$boot_dev" ] && Die "Cannot find $boot_dev - is your Linux distro broken?"
-	[ ! -e "$data_dev" ] && Die "Cannot find $data_dev - is your Linux distro broken?"
-	i=`find $imagesdir -type f | fgrep "/mindi-root.1" 2> /dev/null`
-	j=`find $imagesdir -type f | fgrep "/mindi-boot" | egrep -v '2880|5760'`
-#    echo "i=$i"
-#    echo "j=$j"
-	if [ "$i" ] ; then
-		CopyImageToDisk $j $data_dev "boot disk"
-		CopyImageToDisk $i $data_dev "root disk"
-	else
-		CopyImageToDisk $j $boot_dev "boot/root disk"
-	fi
-	count=1
-	for i in `find $imagesdir | fgrep mindi-data` ; do
-		CopyImageToDisk $i $data_dev "data disk #$count"
-		count=$(($count+1))
-	done
-}
-
 
 
 OfferToMakeBootableISO() {
@@ -1687,7 +1658,7 @@ OfferToMakeBootableISO() {
 	MakeSyslinuxMessageFile $TMP_ROOT/iso/isolinux/message.txt
 	cp $kernelpath $TMP_ROOT/iso/isolinux/vmlinuz || Die "Cannot copy vmlinuz ($kernelpath) to mondo root ($MONDO_ROOT/isolinux/vmlinuz). Did you run out of disk space?"
 	cp $TMP_ROOT/mindi.rdz $TMP_ROOT/iso/isolinux/initrd.img
-	cp $TMP_ROOT/mindi.rdz $imagesdir/initrd.img
+	cp $TMP_ROOT/mindi.rdz $CACHEDIR/initrd.img
 	[ -e "$iso_cfg_file" ] || Die "FIXME - unable to find $iso_cfg_file - this should never occur"
 	cd $TMP_ROOT/iso/isolinux
 	cat $iso_cfg_file | HackSyslinuxFile $ramdisk_size $TMP_ROOT/iso > isolinux.cfg || Die "Cannot copy isolinux.cfg from mindi_home to tmp_root - did you run out of disk space?"
@@ -1708,9 +1679,9 @@ OfferToMakeBootableISO() {
 	cp -pRdu /home/MondoCD/* .
 	fi
 	if [ "$ARCH" != "ia64" ] ; then
-		mkisofs -U -J -r -o $imagesdir/mindi.iso -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table . > /dev/null 2> /tmp/$$.mk
+		mkisofs -U -J -r -o $CACHEDIR/mindi.iso -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table . > /dev/null 2> /tmp/$$.mk
 	else
-		mkisofs -J -r -o $imagesdir/mindi.iso -b images/mindi-bootroot.$IA64_BOOT_SIZE.img -c isolinux/boot.cat -no-emul-boot . > /dev/null 2> /tmp/$$.mk
+		mkisofs -J -r -o $CACHEDIR/mindi.iso -b images/mindi-bootroot.$IA64_BOOT_SIZE.img -c isolinux/boot.cat -no-emul-boot . > /dev/null 2> /tmp/$$.mk
 	fi
 	if [ "$?" -ne "0" ] ; then
 	echo "----------- mkisofs's errors --------------" >> $LOGFILE
@@ -1719,7 +1690,7 @@ OfferToMakeBootableISO() {
 	cat /tmp/$$.mk
 	LogIt "Failed to create ISO image.\n"
 	else
-	echo "Created bootable ISO image at $imagesdir/mindi.iso" >> $LOGFILE
+	echo "Created bootable ISO image at $CACHEDIR/mindi.iso" >> $LOGFILE
 	fi
 	rm -f /tmp/$$.mk
 	cd $old_pwd
@@ -2173,129 +2144,6 @@ Sorry, your kernel is too big for a boot/root floppy.\nI'll try the new boot/roo
 	fi
 	[ "$retval" -ne "0" ] && LogIt "PrepareBootDiskImage() is returning nonzero\n"
 	return $retval
-}
-
-
-
-
-PrepareDataDiskImages() {
-	local needlist bigdir minidir_root tardir diskdir imagesdir res i j k old_pwd lines
-
-	imagesdir=$1
-	rm -f $imagesdir/mindi-*.img $imagesdir/[0-9]*.tar.gz $imagesdir/mindi.iso
-	needlist=$TMP_ROOT/what-we-need.txt
-	bigdir=$TMP_ROOT/bigdir
-	minidir_root=$TMP_ROOT/minidir
-	mkdir -p $minidir_root
-	mkdir -p $bigdir/usr/bin
-	tardir=$TMP_ROOT/tardir
-
-	lines=`grep -vx " *#.*" $MINDI_CONF/deplist.txt $DEPLIST_DIR/* | grep -vx "" | wc -l`
-	cat $MINDI_CONF/deplist.txt $DEPLIST_DIR/* | GenerateGiantDependencyList $needlist $lines
-	res=$?
-	if [ "$YOUR_KERNEL_SUCKS" ]; then
-	pwd=`pwd`
-	cd $TMP_ROOT
-		for i in `ListKernelModulePaths | HackPathsToFailsafe` ; do
-		cp --parents -pRdf ./$i $bigdir || Die "PDDI can't cp $i->$bigdir"
-		if [ "`du -sk $i | cut -f1`" -lt "$(($CHOPSIZE*2))" ] ; then
-		cp --parents -pRdf $i $bigdir
-		else
-		ChopUpAndCopyFile $i $bigdir $CHOPSIZE $BIGNO
-		BIGNO=$(($BIGNO+1))
-		fi
-	done
-	for i in $EXTRA_MODS ; do
-		j=`find lib/modules/$FAILSAFE_KVER -name $i.*o 2> /dev/null`
-		[ ! "$j" ] && echo "Warning - cannot find failsafe module $i.o" >> $LOGFILE
-		for k in $j ; do
-		if [ "`du -sk $k | cut -f1`" -lt "$CHOPSIZE" ] ; then
-		    cp --parents -pRdf $k $bigdir
-		else
-		    ChopUpAndCopyFile $k $bigdir $CHOPSIZE $BIGNO
-		    BIGNO=$(($BIGNO+1))
-		fi
-		echo "Added failsafe module $k to ramdisk" >> $LOGFILE
-		done
-	done
-	cd $pwd
-	else
-	ListKernelModulePaths >> $needlist
-	fi
-	if [ "$res" -ne "0" ] ; then
-		Die "You have $res file`PluralOrNot $res` present in dependency list\nbut absent from filesystem."
-	fi
-	FindAndAddUserKeyboardMappingFile
-	mkdir -p $bigdir/tmp
-	if [ "`DidMondoCallMe`" ] ; then
-		MakeMondoConfigFile $TMP_ROOT/mondo-restore.cfg
-		cp -f $TMP_ROOT/mondo-restore.cfg $bigdir/tmp &> /dev/null
-		cp -f $TMP_ROOT/mondo-restore.cfg $CACHE_LOC &> /dev/null
-	fi
-	[ -d "/mnt/.boot.d" ] && echo "Oh Jebus" > $bigdir/tmp/DUMBASS-GENTOO
-	DropOptimizedLibraries $needlist $bigdir
-	echo -en "Assembling dependency files"
-	CopyDependenciesToDirectory < $needlist $bigdir
-
-# also copy io.sys and msdos.sys, if we can find them
-	for i in `mount | cut -d' ' -f3` ; do
-	for j in io.sys msdos.sys ; do
-		[ -e "$i/$j" ] && cp -f $i/$j $bigdir
-	done
-	done
-
-# master boot record, too
-	i=`cat $MONDO_TMP/BOOTLOADER.DEVICE 2> /dev/null`
-	if [ "$i" ] ; then
-	LogIt "Backing up $i's MBR\n"
-	dd if=$i of=$bigdir/BOOTLOADER.MBR bs=446 count=1 >> $LOGFILE 2>> $LOGFILE
-# < < E O F
-	sleep 1
-	sync
-#        [ "$?" -ne "0" ] && echo "Failed to save $i's MBR to bigdir" >> $LOGFILE
-	j=$i
-	[ -h "$j" ] && j=`ResolveSoftlink $j`
-	LogIt "Creating /dev/boot_device ($j)\n"
-	mkdir -p $bigdir/dev
-	cp -pRdf $j $bigdir/dev/boot_device || Die "Unable to create /dev/boot_device on ramdisk"
-	fi
-
-# more stuff
-#    cp -f $MINDI_LIB/embleer* $bigdir
-	old_pwd=`pwd`
-	cd $bigdir
-
-	[ -e "$MINDI_LIB/aux-tools" ] || Die "aux-tools not found in Mindi's home dir. Do you have multiple copies of Mindi lying around? Please delete them. No, don't e-mail me and ask how. ;) Use 'rm'."
-	cp -Rdf $MINDI_LIB/aux-tools/* . 2>> $LOGFILE || LogIt "Warning - error occurred while unzipping aux-tools\n"
-	if [ -e "$MINDI_LIB/x11-tools.tgz" ] ; then
-	tar -zxf $MINDI_LIB/x11-tools.tgz 2>> $LOGFILE || LogIt "Warning - error occurred while unzipping x11-tools.tgz\n"
-	fi
-	if [ -e "$MONDO_SHARE/restore-scripts" ] ; then
-		cp -Rdf $MONDO_SHARE/restore-scripts/* . 2>> $LOGFILE
-		[ "$?" -ne "0" ] && [ "`DidMondoCallMe`" ] && Die "Cannot find/install $MONDO_SHARE/restore-scripts"
-	fi
-	[ -d "/lib/dev-state" ] && cp --parents -pRdf /lib/dev-state .
-	cd $old_pwd
-	echo -e "$DONE"
-	TOTAL_BIGDIR_SIZE=`du -sk $bigdir | cut -f1`
-	SplitDirectoryIntoMinidirs $bigdir $minidir_root
-	noof_disks=$?
-	[ "$noof_disks" -eq "0" ] && Die "Too much stuff!"
-	MakeMountlist $TMP_ROOT/mountlist.txt
-	mkdir -p $minidir_root/$noof_disks/tmp
-	cp -f $TMP_ROOT/mountlist.txt $minidir_root/$noof_disks/tmp/mountlist.txt || Die "Cannot copy mountlist.txt from $TMP_ROOT to data disk"
-	cp -f $TMP_ROOT/mountlist.txt $CACHE_LOC
-	[ "`DidMondoCallMe`" ] && cp -f $minidir_root/$noof_disks/tmp/mountlist.txt $MONDO_TMP/.
-	[ -d "/proc/lvm" ] && $MINDI_LIB/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
-	[ -d "/dev/mapper" ] && $MINDI_LIB/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
-	cat $minidir_root/$noof_disks/tmp/mountlist.txt >> $LOGFILE
-	ZipMinidirsIntoTarballs $minidir_root $tardir $noof_disks
-	CreateDataDiskImagesFromTarballs $tardir $imagesdir $noof_disks
-	FRIENDLY_OUTSTRING="Boot and data disk images were created."
-# One 1.72MB boot disk, one 2.88MB boot disk and $noof_disks data disk images
-	rmdir $tardir $bigdir
-	rm -f $needlist
-	return $noof_disks
 }
 
 
@@ -2924,7 +2772,7 @@ ZipMinidirsIntoTarballs() {
 	diskno=1
 	while [ "$diskno" -le "$noof_disks" ] ; do
 		cd $minidir_root/$diskno || LogIt "Warning - cannot cd to $minidir_root/$diskno\n"
-		tar -cf - . 2>> $LOGFILE | gzip -9 > $tardir/$diskno.tar.gz || Die "Can't tar/gzip disk#$diskno; please tell Hugo -exactly- what the errors where."
+		tar -cf - . 2>> $LOGFILE | gzip -9 > $tardir/$diskno.tar.gz || Die "Can't tar/gzip disk#$diskno; please tell dev team -exactly- what the errors where."
 		diskno=$(($diskno+1))
 		echo -n "..."
 	cp -pRdf * $minidir_root/all
@@ -2977,6 +2825,14 @@ if [ "$1" = "-V" ] || [ "$1" = "-v" ] || [ "$1" = "--version" ] || [ "$1" = "-ve
 	exit 0
 fi
 
+if [ "$1" = "-printvar" ] ; then
+	shift
+	if [ _"$1" != _"" ] ; then
+		set | egrep "^$1" | cut -d= -f2
+	fi
+	exit 0
+fi
+
 > $LOGFILE
 echo "mindi v$MINDI_VERSION" >> $LOGFILE
 echo "$ARCH architecture detected" >> $LOGFILE
@@ -3025,8 +2881,7 @@ DONE="\r\t\t\t\t\t\t\t\tDone.         "
 CHOPSIZE=240
 BIGNO=0
 MAX_COMPRESSED_SIZE=1300
-imagesdir=/root/images/mindi
-mkdir -p $imagesdir
+imagesdir=$CACHEDIR
 kernelpath=""
 MONDO_ROOT=/tmp/mindilinux/mondo-root
 mkdir -p $MONDO_ROOT
@@ -3061,21 +2916,21 @@ if [ "$#" -ne "0" ] ; then
 		MakeMountlist $2
 		exit $?
 	elif [ "$1" = " --version" ] || [ "$1" = "-v" ] ; then
-	echo "Mindi v$MINDI_VERSION"
+		echo "Mindi v$MINDI_VERSION"
 		exit 0
 	elif [ "$#" -ge "9" ] && [ "$1" = "--custom" ] ; then
-	TMP_ROOT=$2
-	MONDO_TMP=$2
-	imagesdir=$3
-	kernelpath=$4; [ "$kernelpath" = "(null)" ] && kernelpath=""
+		TMP_ROOT=$2
+		MONDO_TMP=$2
+		imagesdir=$3
+		kernelpath=$4; [ "$kernelpath" = "(null)" ] && kernelpath=""
 ###
 ### Sq-Modification...
 ### Attempt to locate kernel specific module path
 ### if module path is found then use it other wise use uname -r to set it...
 ###
 		kernelname=`echo $kernelpath | cut -d'-' -f2-`
-	LogIt "kernelname = $kernelname\n"
-	LogIt "kernelpath = $kernelpath\n"
+		LogIt "kernelname = $kernelname\n"
+		LogIt "kernelpath = $kernelpath\n"
 		if [ ! -d "/lib/modules/$kernelname" ] && [ "$kernelpath" != "FAILSAFE" ]
 		then
 		   LogIt "Module path for ${kernelpath} not found...\n"
@@ -3087,33 +2942,33 @@ if [ "$#" -ne "0" ] ; then
 ###
 ### end of Sq-Modification
 ###
-	TAPEDEV=$5
-	TAPESIZE=$6
-	FILES_IN_FILELIST=$7
-	USE_LZO=$8
-	CDRECOVERY=$9
+		TAPEDEV=$5
+		TAPESIZE=$6
+		FILES_IN_FILELIST=$7
+		USE_LZO=$8
+		CDRECOVERY=$9
 		if [ "${10}" = "(null)" ] || [ "${10}" = "" ] ; then
 		    IMAGE_DEVS=""
 		else
 		    IMAGE_DEVS="`echo "${10}" | tr '|' ' '`"
 		fi
-	if [ "${11}" ] ; then
-		LILO_OPTIONS=""
+		if [ "${11}" ] ; then
+			LILO_OPTIONS=""
 #	    LogIt "LILO will use conservative settings, to be compatible with older BIOSes."
-	fi
-	LAST_FILELIST_NUMBER=${12}
+		fi
+		LAST_FILELIST_NUMBER=${12}
 		ESTIMATED_TOTAL_NOOF_SLICES=${13}
 		EXCLUDE_DEVS="${14}"
 		USE_COMP="${15}"
 		USE_LILO="${16}"
-	USE_STAR="${17}"
-	INTERNAL_TAPE_BLOCK_SIZE="${18}"
+		USE_STAR="${17}"
+		INTERNAL_TAPE_BLOCK_SIZE="${18}"
 		DIFFERENTIAL="${19}"
 		NOT_BOOT="${20}"
 		[ "$USE_COMP" = "" ] && USE_COMP=yes
 		[ "$NOT_BOOT" = "" ] && NOT_BOOT=no
-	[ "$TAPEDEV" ] && LogIt "This is a tape-based backup. Fine.\n"
-	[ "$kernelpath" = "" ] && kernelpath=`TryToFindKernelPath`
+		[ "$TAPEDEV" ] && LogIt "This is a tape-based backup. Fine.\n"
+		[ "$kernelpath" = "" ] && kernelpath=`TryToFindKernelPath`
 		kernelname=`echo $kernelpath | cut -d'-' -f2-`
 		if [ ! -d "/lib/modules/$kernelname" ] && [ "$kernelpath" != "FAILSAFE" ]
 		then
@@ -3123,12 +2978,12 @@ if [ "$#" -ne "0" ] ; then
 		else
 		   LogIt "Using modules for kernel: ${kernelname}\n"
 		fi
-	[ "$CDRECOVERY" = "yes" ] && [ "$TAPEDEV" != "" ] && Die "Sorry, you can't use --cd-recovery and --write-tapes at the same time"
+		[ "$CDRECOVERY" = "yes" ] && [ "$TAPEDEV" != "" ] && Die "Sorry, you can't use --cd-recovery and --write-tapes at the same time"
 		MONDO_ROOT=`echo $imagesdir | sed 's/\(.*\)\/.*/\1/'`
-	[ "$MONDO_ROOT" = "" ] && Die "MONDO_ROOT is undefined"
+		[ "$MONDO_ROOT" = "" ] && Die "MONDO_ROOT is undefined"
 	else
-	echo "Syntax: mindi (--custom ....)" >> /dev/stderr
-	exit 1
+		echo "Syntax: mindi (--custom ....)" >> /dev/stderr
+		exit 1
 	fi
 fi
 #ScanCDandTape
@@ -3142,26 +2997,13 @@ else
 fi
 
 
-
-
-#ReplaceIndividualLine /tmp/init `grep -n "#WHOLIVESINAPINEAPPLEUNDERTHESEA#" /tmp/init | cut -d':' -f1` "$RUN_AFTER_INITIAL_BOOT_PHASE"
-#exit 0
-
-
-#ListKernelModules
-#exit 0
-
-
-
-
 [ -e "$iso_cfg_file" ] || Die "Cannot find $iso_cfg_file"
 rm -Rf $TMP_ROOT/mindilinux/*
 TMP_ROOT=$TMP_ROOT/mindilinux/$$
 mkdir -p $TMP_ROOT
-mkdir -p $imagesdir
 if [ ! "`DidMondoCallMe`" ] ; then
 	LogIt "Mindi Linux mini-distro generator v$MINDI_VERSION\n"
-	LogIt "Latest Mindi is available from http://mondorescue.berlios.de\n"
+	LogIt "Latest Mindi is available from http://www.mondorescue.org\n"
 	LogIt "BusyBox sources are available from http://www.busybox.net\n"
 	LogIt "------------------------------------------------------------------------------"
 else
@@ -3203,14 +3045,14 @@ if [ "$kernelpath" = "" ] ; then
 		fi
 	fi
 	if [ "$USE_OWN_KERNEL" = "yes" ]; then
-	YOUR_KERNEL_SUCKS=""
-	kernelpath=`TryToFindKernelPath`
-	if [ "$kernelpath" = "" ] ; then
-		echo -n "Please enter kernel path : "
-		read kernelpath
-	fi
+		YOUR_KERNEL_SUCKS=""
+		kernelpath=`TryToFindKernelPath`
+		if [ "$kernelpath" = "" ] ; then
+			echo -n "Please enter kernel path : "
+			read kernelpath
+		fi
 	else
-	YOUR_KERNEL_SUCKS="That's why you're using mine, dude. :-)"
+		YOUR_KERNEL_SUCKS="That's why you're using mine, dude. :-)"
 	fi
 fi
 if [ ! "`DidMondoCallMe`" ] ; then
@@ -3239,10 +3081,123 @@ rm -f /tmp/mindi.err.*.tgz
 
 [ "$YOUR_KERNEL_SUCKS" ] && [ ! "$FAILSAFE_KVER" ] && Die "Please install mindi-kernel package. You need it. Go to http://www.mondorescue.org and download it, then install it."
 
-rm -f /root/images/mindi/{*img,*gz,*iso}
+rm -f $CACHEDIR/{*img,*gz,*iso}
 
-PrepareDataDiskImages $imagesdir
+rm -f $imagesdir/mindi-*.img $imagesdir/[0-9]*.tar.gz $imagesdir/mindi.iso
+needlist=$TMP_ROOT/what-we-need.txt
+bigdir=$TMP_ROOT/bigdir
+minidir_root=$TMP_ROOT/minidir
+mkdir -p $minidir_root
+mkdir -p $bigdir/usr/bin
+tardir=$TMP_ROOT/tardir
+
+lines=`grep -vx " *#.*" $MINDI_CONF/deplist.txt $DEPLIST_DIR/* | grep -vx "" | wc -l`
+cat $MINDI_CONF/deplist.txt $DEPLIST_DIR/* | GenerateGiantDependencyList $needlist $lines
+res=$?
+if [ "$YOUR_KERNEL_SUCKS" ]; then
+	pwd=`pwd`
+	cd $TMP_ROOT
+	for i in `ListKernelModulePaths | HackPathsToFailsafe` ; do
+		cp --parents -pRdf ./$i $bigdir || Die "PDDI can't cp $i->$bigdir"
+		if [ "`du -sk $i | cut -f1`" -lt "$(($CHOPSIZE*2))" ] ; then
+			cp --parents -pRdf $i $bigdir
+		else
+			ChopUpAndCopyFile $i $bigdir $CHOPSIZE $BIGNO
+			BIGNO=$(($BIGNO+1))
+		fi
+	done
+	for i in $EXTRA_MODS ; do
+		j=`find lib/modules/$FAILSAFE_KVER -name $i.*o 2> /dev/null`
+		[ ! "$j" ] && echo "Warning - cannot find failsafe module $i.o" >> $LOGFILE
+		for k in $j ; do
+			if [ "`du -sk $k | cut -f1`" -lt "$CHOPSIZE" ] ; then
+		    		cp --parents -pRdf $k $bigdir
+		else
+		    	ChopUpAndCopyFile $k $bigdir $CHOPSIZE $BIGNO
+		    	BIGNO=$(($BIGNO+1))
+			fi
+			echo "Added failsafe module $k to ramdisk" >> $LOGFILE
+		done
+	done
+	cd $pwd
+else
+	ListKernelModulePaths >> $needlist
+fi
+if [ "$res" -ne "0" ] ; then
+	Die "You have $res file`PluralOrNot $res` present in dependency list\nbut absent from filesystem."
+fi
+FindAndAddUserKeyboardMappingFile
+mkdir -p $bigdir/tmp
+if [ "`DidMondoCallMe`" ] ; then
+	MakeMondoConfigFile $TMP_ROOT/mondo-restore.cfg
+	cp -f $TMP_ROOT/mondo-restore.cfg $bigdir/tmp &> /dev/null
+	cp -f $TMP_ROOT/mondo-restore.cfg $CACHEDIR &> /dev/null
+fi
+[ -d "/mnt/.boot.d" ] && echo "Oh Jebus" > $bigdir/tmp/DUMBASS-GENTOO
+DropOptimizedLibraries $needlist $bigdir
+echo -en "Assembling dependency files"
+CopyDependenciesToDirectory < $needlist $bigdir
+
+# also copy io.sys and msdos.sys, if we can find them
+for i in `mount | cut -d' ' -f3` ; do
+	for j in io.sys msdos.sys ; do
+		[ -e "$i/$j" ] && cp -f $i/$j $bigdir
+	done
+done
+
+# master boot record, too
+i=`cat $MONDO_TMP/BOOTLOADER.DEVICE 2> /dev/null`
+if [ "$i" ] ; then
+	LogIt "Backing up $i's MBR\n"
+	dd if=$i of=$bigdir/BOOTLOADER.MBR bs=446 count=1 >> $LOGFILE 2>> $LOGFILE
+# < < E O F
+	sleep 1
+	sync
+#        [ "$?" -ne "0" ] && echo "Failed to save $i's MBR to bigdir" >> $LOGFILE
+	j=$i
+	[ -h "$j" ] && j=`ResolveSoftlink $j`
+	LogIt "Creating /dev/boot_device ($j)\n"
+	mkdir -p $bigdir/dev
+	cp -pRdf $j $bigdir/dev/boot_device || Die "Unable to create /dev/boot_device on ramdisk"
+fi
+
+# more stuff
+#    cp -f $MINDI_LIB/embleer* $bigdir
+old_pwd=`pwd`
+cd $bigdir
+
+[ -e "$MINDI_LIB/aux-tools" ] || Die "aux-tools not found in Mindi's home dir. Do you have multiple copies of Mindi lying around? Please delete them. No, don't e-mail me and ask how. ;) Use 'rm'."
+cp -Rdf $MINDI_LIB/aux-tools/* . 2>> $LOGFILE || LogIt "Warning - error occurred while unzipping aux-tools\n"
+if [ -e "$MINDI_LIB/x11-tools.tgz" ] ; then
+	tar -zxf $MINDI_LIB/x11-tools.tgz 2>> $LOGFILE || LogIt "Warning - error occurred while unzipping x11-tools.tgz\n"
+fi
+if [ -e "$MONDO_SHARE/restore-scripts" ] ; then
+	cp -Rdf $MONDO_SHARE/restore-scripts/* . 2>> $LOGFILE
+	[ "$?" -ne "0" ] && [ "`DidMondoCallMe`" ] && Die "Cannot find/install $MONDO_SHARE/restore-scripts"
+fi
+[ -d "/lib/dev-state" ] && cp --parents -pRdf /lib/dev-state .
+cd $old_pwd
+echo -e "$DONE"
+TOTAL_BIGDIR_SIZE=`du -sk $bigdir | cut -f1`
+SplitDirectoryIntoMinidirs $bigdir $minidir_root
 noof_disks=$?
+[ "$noof_disks" -eq "0" ] && Die "Too much stuff!"
+MakeMountlist $TMP_ROOT/mountlist.txt
+mkdir -p $minidir_root/$noof_disks/tmp
+cp -f $TMP_ROOT/mountlist.txt $minidir_root/$noof_disks/tmp/mountlist.txt || Die "Cannot copy mountlist.txt from $TMP_ROOT to data disk"
+cp -f $TMP_ROOT/mountlist.txt $CACHEDIR
+[ "`DidMondoCallMe`" ] && cp -f $minidir_root/$noof_disks/tmp/mountlist.txt $MONDO_TMP/.
+[ -d "/proc/lvm" ] && $MINDI_SBIN/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
+[ -d "/dev/mapper" ] && $MINDI_SBIN/analyze-my-lvm > $minidir_root/$noof_disks/tmp/i-want-my-lvm
+cat $minidir_root/$noof_disks/tmp/mountlist.txt >> $LOGFILE
+ZipMinidirsIntoTarballs $minidir_root $tardir $noof_disks
+CreateDataDiskImagesFromTarballs $tardir $imagesdir $noof_disks
+FRIENDLY_OUTSTRING="Boot and data disk images were created."
+# One 1.72MB boot disk, one 2.88MB boot disk and $noof_disks data disk images
+rmdir $tardir $bigdir
+rm -f $needlist
+#return $noof_disks
+
 ramdisk_size=$(($size_of_all_tools+$EXTRA_SPACE))
 rds=$(($ramdisk_size-$((ramdisk_size%4096))))
 ramdisk_size=$rds
@@ -3287,15 +3242,33 @@ if [ ! "`DidMondoCallMe`" ] ; then
 	boot_dev=/dev/fd0u1722
 	[ ! -e "$boot_dev" ] && mknod $boot_dev b 2 60
 	[ ! -e "$boot_dev" ] && boot_dev=/dev/fd0H1722
-	[ ! -e "$boot_dev" ] && Die "Oh Lord, will you PLEASE tell the vendor to create the 1.72MB devices in /dev?"
+	[ ! -e "$boot_dev" ] && Die "Will you PLEASE tell your distribution maker to create the 1.72MB devices in /dev?"
 	if [ "$PROMPT_WRITE_BOOT_FLOPPIES" = "yes" ]; then
-		OfferToCopyImagesToDisks $imagesdir $boot_dev $FDDEVICE
+		echo -en "Would you like to create boot+data floppy disks now (y/n) ?"
+		read i
+		[ "$i" != "y" ] && [ "$i" != "Y" ] && return
+		mount | fgrep /dev/fd > /dev/null && Die "Please unmount your floppies first."
+		echo "WARNING! THIS WILL ERASE YOUR FLOPPY DISKS."
+		[ ! -e "$boot_dev" ] && Die "Cannot find $boot_dev - is your Linux distro broken?"
+		[ ! -e "$FDDEVICE" ] && Die "Cannot find $FDDEVICE - is your Linux distro broken?"
+		i=`find $imagesdir -type f | fgrep "/mindi-root.1" 2> /dev/null`
+		j=`find $imagesdir -type f | fgrep "/mindi-boot" | egrep -v '2880|5760'`
+		if [ "$i" ] ; then
+			CopyImageToDisk $j $FDDEVICE "boot disk"
+			CopyImageToDisk $i $FDDEVICE "root disk"
+		else
+			CopyImageToDisk $j $boot_dev "boot/root disk"
+		fi
+		count=1
+		for i in `find $imagesdir | fgrep mindi-data` ; do
+			CopyImageToDisk $i $FDDEVICE "data disk #$count"
+			count=$(($count+1))
+		done
 	fi
 	OfferToMakeBootableISO $imagesdir
 	LogIt "Finished.\n"
 elif [ "$TAPEDEV" ] ; then
-	mkdir -p /root/images/mindi
-	rm -f /root/images/mindi/{*img,*gz,*iso}
+	rm -f $CACHEDIR/{*img,*gz,*iso}
 	OfferToMakeBootableISO $imagesdir
 	if [ -e "$imagesdir/all.tar.gz" ] ; then
 		cp -f $imagesdir/all.tar.gz $MONDO_TMP/
@@ -3304,11 +3277,6 @@ elif [ "$TAPEDEV" ] ; then
 	fi
 else
 	OfferToMakeBootableISO $imagesdir
-fi
-if [ "$imagesdir" != "/root/images/mindi" ] ; then
-	for i in `find $imagesdir -maxdepth 1 -name "*.iso" -o -name "*.img"` ; do
-	cp -f $i /root/images/mindi || LogIt "[line 3260] Cannot copy $i to /root/images/mindi\n"
-	done
 fi
 [ "$TMP_ROOT" != "/tmp" ] && rm -Rf $TMP_ROOT
 # cleanup

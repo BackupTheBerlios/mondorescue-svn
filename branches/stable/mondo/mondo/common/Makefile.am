@@ -8,7 +8,7 @@ noinst_LIBRARIES = libmondo.a
 
 libmondo_a_SOURCES  = libmondo-archive.c libmondo-devices.c libmondo-fifo.c \
                        libmondo-filelist.c libmondo-files.c libmondo-fork.c \
-                       libmondo-mountlist.c libmondo-raid.c \
+                       libmondo-mountlist.c libmondo-raid.c libmondo-msg.c \
                        libmondo-stream.c libmondo-string.c libmondo-tools.c \
                        libmondo-verify.c newt-specific.c \
 					   libmondo-archive.h libmondo-devices.h \

@@ -474,52 +474,6 @@ void insmod_crucial_modules(void)
 
 
 /**
- * Log a trace message to the trace file.
- * @bug This function seems orphaned. Please remove.
- */
-void log_trace(char *o)
-{
-	/*@ pointers **************************************************** */
-	FILE *fout;
-
-	/*@ buffers ***************************************************** */
-	char output[MAX_STR_LEN];
-
-	/*@ int    ****************************************************** */
-	int i;
-
-	/*@ end vars *************************************************** */
-
-	if (o[0] == '\0') {
-		return;
-	}
-	strcpy(output, o);
-	i = (int) strlen(output);
-	if (i <= 0) {
-		return;
-	}
-	if (output[i - 1] < 32) {
-		output[i - 1] = '\0';
-	}
-	if (g_text_mode
-		/* && !strstr(last_line_of_file(MONDO_LOGFILE),output) */ ) {
-		printf("%s\n", output);
-	}
-
-	fout = fopen(MONDO_TRACEFILE, "a");
-	if (fout) {
-		fprintf(fout, "%s\n", output);
-		paranoid_fclose(fout);
-	} else {
-		log_OS_error("Cannot write to tracefile");
-	}
-}
-
-
-
-
-
-/**
  * Finish configuring the backup information structure. Call this function
  * to set the parameters that depend on those that can be given on the command
  * line.
@@ -968,7 +922,7 @@ void reset_bkpinfo(struct s_bkpinfo *bkpinfo)
 	if (bkpinfo->disaster_recovery) {
 		strcpy(bkpinfo->isodir, "/");
 	} else {
-		strcpy(bkpinfo->isodir, "/root/images/mondo");
+		strcpy(bkpinfo->isodir, "/var/cache/mondo/iso");
 	}
 	strcpy(bkpinfo->prefix, STD_PREFIX);
 
@@ -1075,16 +1029,14 @@ int some_basic_system_sanity_checks()
 	}
 #endif
 
-	if ((Lres = free_space_on_given_partition("/root")) == -1) {
+	if ((Lres = free_space_on_given_partition("/var/cache/mondo")) == -1) /* {
 		Lres = free_space_on_given_partition("/");
 	}
+	*/
 	log_it("Free space on given partition = %ld MB", Lres);
 
 	if (Lres < 50) {
-		run_program_and_log_output
-			("rm -Rf /root/images/mindi; mkdir -p /home/root/images/mindi; mkdir -p /root/images; ln -sf /home/root/images/mindi /root/images/mindi",
-			 3);
-		//      fatal_error("Your / (or /root) partition has <50MB free. Please adjust your partition table to something saner."); 
+		fatal_error("Your /var/cache/mondo partition has <50MB free. Please adjust your partition table to something saner."); 
 	}
 
 	if (system("which " MKE2FS_OR_NEWFS " > /dev/null 2> /dev/null")) {
@@ -1490,71 +1442,6 @@ int write_cfg_var(char *config_file, char *label, char *value)
 	return (0);
 }
 
-
-/**
- * The standard log_debug_msg() (log_msg() also due to a macro). Writes some describing
- * information to the logfile.
- */
-void standard_log_debug_msg(int debug_level, const char *szFile,
-							const char *szFunction, int nLine,
-							const char *fmt, ...)
-{
-	va_list args;
-	int i;
-	static int depth = 0;
-	char *tmp;
-	FILE *fout;
-
-	if (depth > 5) {
-		depth--;
-		return;
-	}
-	depth++;
-
-	malloc_string(tmp);
-
-	if (debug_level <= g_loglevel) {
-		va_start(args, fmt);
-		if (!(fout = fopen(MONDO_LOGFILE, "a"))) {
-			return;
-		}						// fatal_error("Failed to openout to logfile - sheesh..."); }
-
-		// add tabs to distinguish log levels
-		if (debug_level > 0) {
-			for (i = 1; i < debug_level; i++)
-				fprintf(fout, "\t");
-			if (getpid() == g_main_pid)
-				fprintf(fout, "[Main] %s->%s#%d: ", szFile, szFunction,
-						nLine);
-			else if (getpid() == g_buffer_pid && g_buffer_pid > 0)
-				fprintf(fout, "[Buff] %s->%s#%d: ", szFile, szFunction,
-						nLine);
-			else
-				fprintf(fout, "[TH=%d] %s->%s#%d: ", getpid(), szFile,
-						szFunction, nLine);
-		}
-		vfprintf(fout, fmt, args);
-
-		// do not slow down the progran if standard debug level
-		// must be enabled: if no flush, the log won't be up-to-date if there
-		// is a segfault
-		//if (g_dwDebugLevel != 1)
-
-		va_end(args);
-		fprintf(fout, "\n");
-		paranoid_fclose(fout);
-	}
-	depth--;
-	paranoid_free(tmp);
-}
-
-/**
- * Function pointer to the @c log_debug_msg function to use. Points to standard_log_debug_msg() by default.
- */
-void (*log_debug_msg) (int, const char *, const char *, int, const char *,
-					   ...) = standard_log_debug_msg;
-
-
 /**
  * If @p y, malloc @p x, else free @p x.
  * @bug This function seems orphaned. Please remove.
@@ -1584,36 +1471,6 @@ void do_libmondo_global_strings_thing(int mal)
 		paranoid_free(g_serial_string);
 		paranoid_free(g_magicdev_command);
 	}
-
-	/*
-	   char**list_of_arrays[] = {
-	   &g_boot_mountpt,
-	   &g_mondo_home,
-	   &g_tmpfs_mountpt,
-	   &g_erase_tmpdir_and_scratchdir,
-	   &g_serial_string,
-	   &g_magicdev_command,
-	   NULL};
-
-	   char**ppcurr;
-	   int i;
-
-	   for(i=0;list_of_arrays[i];i++)
-	   {
-	   log_msg(5, "Allocating %d", i);
-	   ppcurr = list_of_arrays[i];
-	   if (mal)
-	   { *ppcurr = malloc(MAX_STR_LEN); }
-	   else
-	   {
-	   if (*ppcurr)
-	   {
-	   free(*ppcurr);
-	   }
-	   }
-	   }
-	   log_msg(5, "Returning");
-	 */
 }
 
 /**

@@ -800,3 +800,8 @@ struct s_mdstat {
 	int entries;
 	struct s_mdrec el[MAXIMUM_RAID_DEVS];
 };
+
+struct s_mrconf {
+	int ia64_boot_size;
+	char *iso_creation_cmd;
+};

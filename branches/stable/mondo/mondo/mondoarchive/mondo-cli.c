@@ -246,8 +246,6 @@ handle_incoming_parameters(int argc, char *argv[],
 		flag_val[i][0] = '\0';
 		flag_set[i] = FALSE;
 	}
-	//  strcpy (bkpinfo->tmpdir, "/root/images/mondo");
-	//  strcpy (bkpinfo->scratchdir, "/home");
 	for (j = 1; j <= MAX_NOOF_MEDIA; j++) {
 		bkpinfo->media_size[j] = 650;
 	}							/* default */

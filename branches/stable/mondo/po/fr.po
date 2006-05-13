@@ -1313,10 +1313,10 @@ msgstr "Sauvegarde ou vérification terminée avec des erreurs."
 
 #: mondo/mondoarchive/main.c:501
 msgid ""
-"/root/images/mindi/mondorescue.iso, a boot/utility CD, is available if you "
+"/var/cache/mindi/mondorescue.iso, a boot/utility CD, is available if you "
 "want it."
 msgstr ""
-"/root/images/mindi/mondorescue.iso est un CD de boot/utilitaires à votre "
+"/var/cache/mindi/mondorescue.iso est un CD de boot/utilitaires à votre "
 "disposition"
 
 #: mondo/mondoarchive/main.c:508 mondo/mondoarchive/main.c:511

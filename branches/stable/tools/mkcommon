@@ -33,14 +33,14 @@ fi
 
 cd ${BASE}/svn
 
-for p in "$c"; do
-	v=`cat ${VER}/$p/VERSION`
+for p in $c; do
+	v=`cat ${SVNBRANCH}/$p/VERSION`
 	echo "Management of $p $v-$REVISION"
 	rm -fr $p-$v
-	svn export ${VER}/$p $p-$v
+	svn export ${SVNBRANCH}/$p $p-$v
 	echo "$REVISION" > $p-$v/REVISION
 	echo "Generating SVN log file ..."
-	svn log -v ${VER}/$p > $p-$v/svn.log
+	svn log -v ${SVNBRANCH}/$p > $p-$v/svn.log
 
 	if [ _"`echo $p | grep mondo-doc`" != _"" ]; then
 		cd ${p}-${v}
@@ -57,16 +57,16 @@ for p in "$c"; do
 	fi
 
 	if [ _"`echo $p | grep -v kernel | grep mindi`" != _"" ]; then
-		v1=`cat ${VER}/mondo-doc/VERSION`
+		v1=`cat ${SVNBRANCH}/mondo-doc/VERSION`
 		if [ ! -d mondo-doc-$v1 ]; then
 			echo "mondo-doc should be created before $p"
 			exit -1
 		fi
 		(cd mondo-doc-$v1 ; make -f Makefile.man install-$p INSTALLDIR=../$p-$v)
-		rm -f mindi-${MINDI_VER}/rootfs/sbin/parted2fdisk-ia64 
+		rm -f $p-$v/rootfs/sbin/parted2fdisk-ia64 
 	fi
 	if [ "`echo $p | grep -v doc | grep  mondo`" != "" ]; then
-		v1=`cat ${VER}/mondo-doc/VERSION`
+		v1=`cat ${SVNBRANCH}/mondo-doc/VERSION`
 		if [ ! -d mondo-doc-$v1 ]; then
 			echo "mondo-doc should be created before $p"
 			exit -1
@@ -77,6 +77,6 @@ for p in "$c"; do
 
 	# Finally creates the tar files
 	echo "Creating $p tar files"
-	tar cvfhz ${TOPDIR}/SOURCES/$p-$v.tgz $p-$v
-	tar cvfhj ${TOPDIR}/SOURCES/$p-$v.tar.bz2 $p-$v
+	tar cfhz ${TOPDIR}/SOURCES/$p-$v-$TAG.tgz $p-$v
+	tar cfhj ${TOPDIR}/SOURCES/$p-$v-$TAG.tar.bz2 $p-$v
 done

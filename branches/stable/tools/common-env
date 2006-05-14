@@ -7,7 +7,7 @@
 
 # Adapt to your needs
 export BASE=${HOME}/mondo
-export TOPDIR=${BASE}/RPMS
+export TOPDIR=${BASE}/build
 mkdir -p ${TOPDIR}
 export TMP=${BASE}/tmp
 mkdir -p ${TMP}

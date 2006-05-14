@@ -1,10 +1,9 @@
 #!/bin/bash
 #
-# Creates build file for packages from SVN repository
+# Creates build environment and files for packages creation from SVN repository
 #
 # $Id$
 #
-
 
 umask 022
 dname=`dirname $0`
@@ -19,7 +18,7 @@ cd $TOOLHOME
 . ./common-env
 . ./svn-env
 
-mkdir -p ${TOPDIR}/SPECS 
+mkdir -p ${TOPDIR}/SOURCES 
 
 if [ "$1" = "" ]; then
 		c="mondo-doc mindi mondo"
@@ -34,52 +33,152 @@ fi
 
 cd ${BASE}/svn
 
-for d in `cat $TOOLHOME/DISTROS`; do
-	for p in $c; do
-		v=`cat ${SVNBRANCH}/$p/VERSION`
-		echo "Management of build of $v-$REVISION"
-		rm -fr $p-$v
-		svn export ${SVNBRANCH}/$p $p-$v
-		echo "$REVISION" > $p-$v/REVISION
-		echo "Generating SVN log file ..."
-		svn log -v ${SVNBRANCH}/$p > $p-$v/svn.log
-	
-		if [ _"`echo $p | grep mondo-doc`" != _"" ]; then
-			cd ${p}-${v}
-			$TOOLHOME/expandver mondorescue-howto.sgml *8
-			make -f Makefile.howto
-			if [ $? != 0 ]; then
-				exit -1
+for p in $c; do
+	v=`cat ${SVNBRANCH}/$p/VERSION`
+	echo "Management of $p $v-$REVISION"
+	rm -fr $p-$v
+	svn export ${SVNBRANCH}/$p $p-$v
+	echo "$REVISION" > $p-$v/REVISION
+	echo "Generating SVN log file ..."
+	svn log -v ${SVNBRANCH}/$p > $p-$v/svn.log
+
+	for d in `cat ${TOOLHOME}/DISTROS`; do
+		ddir=`echo $d | cut -f'_' -d1`
+		dver=`echo $d | cut -f'_' -d2`
+		echo "Generating build files for $ddir ($dver)"
+		if [ $ddir = "debian" ]; then
+			dfam="debian"
+			dtype="deb"
+			suf=".${dfam}${dver}"
+			BUILDDIR=${TOPDIR}/debian 
+		elif [ $ddir = "gentoo" ]; then
+			dfam="gentoo"
+			dtype="ebuild"
+			suf=".${ddir}${dver}"
+			BUILDDIR=${TOPDIR}/ebuild 
+		elif [ $ddir = "slackware" ]; then
+			dfam="slack"
+			dtype="tgz"
+			suf=".${dfam}${dver}"
+			BUILDDIR=${TOPDIR}/slack 
+		elif [ $ddir = "sles" || $ddir = "suse" ]; then
+			dfam="suse"
+			dtype="rpm"
+			suf=".${ddir}${dver}"
+			BUILDDIR=${TOPDIR}/SPECS 
+		elif [ $ddir = "fedora" || $ddir = "redhat" || $ddir = "rhel" ]; then
+			dfam="redhat"
+			dtype="rpm"
+			dver=`echo ${dver} | sed "s/\.//"`
+			if [ $ddir = "fedora" ]; then
+				suf=".fc${dver}"
+			elif [ $ddir = "redhat" ]; then
+				suf=".rh${dver}"
+			else
+				suf=".rhel${dver}"
 			fi
-			make -f Makefile.man
-			if [ $? != 0 ]; then
-				exit -1
-			fi
-			cd ..
+			BUILDDIR=${TOPDIR}/SPECS 
+		elif [ $ddir = "mandrake" || $ddir = "mandriva" ]; then
+			dfam="mandriva"
+			dtype="rpm"
+			suf=".`echo $dver | sed 's/\.//'`mdk"
+			BUILDDIR=${TOPDIR}/SPECS 
+		else
+			dfam="unknown"
+			dtype="unknown"
+			BUILDDIR=${TOPDIR}/SPECS 
+			suf="unknown"
 		fi
-	
-		if [ _"`echo $p | grep -v kernel | grep mindi`" != _"" ]; then
-			v1=`cat ${SVNBRANCH}/mondo-doc/VERSION`
-			if [ ! -d mondo-doc-$v1 ]; then
-				echo "mondo-doc should be created before $p"
+
+		# Create conf file dir
+		mkdir -p ${BUILDDIR}
+
+		if [ $dtype = "rpm" ]; then
+			if [ -f $p-$v/distributions/$ddir/spec.m4 ]; then
+				inc=$p-$v/distributions/$ddir/spec.m4
+			elif [ -f $p-$v/distributions/$dfam/spec.m4 ]; then
+				inc=$p-$v/distributions/$dfam/spec.m4
+			else
+				echo "Unable to build the RPM specfile for this distro. Please report to authors"
 				exit -1
 			fi
-			(cd mondo-doc-$v1 ; make -f Makefile.man install-$p INSTALLDIR=../$p-$v)
-			rm -f $p-$v/rootfs/sbin/parted2fdisk-ia64 
-		fi
-		if [ "`echo $p | grep -v doc | grep  mondo`" != "" ]; then
-			v1=`cat ${SVNBRANCH}/mondo-doc/VERSION`
-			if [ ! -d mondo-doc-$v1 ]; then
-				echo "mondo-doc should be created before $p"
+			cp $inc /tmp/mondorescue.mc
+			ddd=`LANG=C ; date '+%Y-%m-%d'`
+			cat >> /tmp/mondorescue.mc << EOF
+define(\`RRR', ${TAG}${suf})dnl
+define(\`VVV', ${v})dnl
+define(\`DDD', ${ddd})dnl
+EOF
+			echo "Using $inc customization to build SPEC file"
+			m4 /tmp/mondorescue.mc $p-$v/distributions/rpm/$p.spec > $p-$v/distributions/$ddir/$p.spec
+
+			if [ -f $p-$v/distributions/$ddir/changelog ]; then
+				log=$p-$v/distributions/$ddir/changelog
+			elif [ -f $p-$v/distributions/$dfam/changelog ]; then
+				log=$p-$v/distributions/$dfam/changelog
+			else
+				echo "Unable to build RPM changelog for this distro. Please report to authors"
 				exit -1
 			fi
-			(cd mondo-doc-$v1 ; make -f Makefile.howto install INSTALLDIR=../$p-$v/docs/en ; make -f Makefile.man install-$p INSTALLDIR=../$p-$v/docs/man)
-			(cd $p-$v ; echo "Bootstraping mondo ... " ; ./bootstrap)
+
+			echo "Using $log customization to build changelog file"
+			ddate=`LANG=C ; date "+%a %b %d %Y"`
+			cat > $p-$v/distributions/$ddir/$p.changelog.new << EOF
+* $ddate Bruno Cornec <bruno@mondorescue.org> VVV-RRR
+- Updated to VVV-r${REVISION}
+
+EOF
+			cat $log >> $p-$v/distributions/$ddir/$p.changelog.new
+			m4 /tmp/mondorescue.mc $p-$v/distributions/$ddir/$p.changelog.new > $p-$v/distributions/$ddir/$p.changelog
+			rm -f $p-$v/distributions/$ddir/$p.changelog.new
+
+		elif [ $dtype = "ebuild" ]; then
+			echo "Gentoo Buid"
+		else
+			echo "Unknown Buid"
 		fi
-	
-		# Finally creates the tar files
-		echo "Creating $p tar files"
-		tar cfhz ${TOPDIR}/SOURCES/$p-$v-$TAG.tgz $p-$v
-		tar cfhj ${TOPDIR}/SOURCES/$p-$v-$TAG.tar.bz2 $p-$v
 	done
+
+	if [ _"`echo $p | grep mondo-doc`" != _"" ]; then
+		cd ${p}-${v}
+		for f in mondorescue-howto.sgml *8; do
+			m4 /tmp/mondorescue.mc $f > ${f}.new
+			mv ${f}.new $f
+		done
+		make -f Makefile.howto
+		if [ $? != 0 ]; then
+			exit -1
+		fi
+		make -f Makefile.man
+		if [ $? != 0 ]; then
+			exit -1
+		fi
+		cd ..
+	fi
+
+	if [ _"`echo $p | grep -v kernel | grep mindi`" != _"" ]; then
+		v1=`cat ${SVNBRANCH}/mondo-doc/VERSION`
+		if [ ! -d mondo-doc-$v1 ]; then
+			echo "mondo-doc should be created before $p"
+			exit -1
+		fi
+		(cd mondo-doc-$v1 ; make -f Makefile.man install-$p INSTALLDIR=../$p-$v)
+		rm -f $p-$v/rootfs/sbin/parted2fdisk-ia64 
+	fi
+	if [ "`echo $p | grep -v doc | grep  mondo`" != "" ]; then
+		v1=`cat ${SVNBRANCH}/mondo-doc/VERSION`
+		if [ ! -d mondo-doc-$v1 ]; then
+			echo "mondo-doc should be created before $p"
+			exit -1
+		fi
+		(cd mondo-doc-$v1 ; make -f Makefile.howto install INSTALLDIR=../$p-$v/docs/en ; make -f Makefile.man install-$p INSTALLDIR=../$p-$v/docs/man)
+		(cd $p-$v ; echo "Bootstraping mondo ... " ; ./bootstrap)
+	fi
+
+	# Finally creates the tar files
+	echo "Creating $p tar files"
+	tar cfhz ${TOPDIR}/SOURCES/$p-$v-$TAG.tgz $p-$v
+	tar cfhj ${TOPDIR}/SOURCES/$p-$v-$TAG.tar.bz2 $p-$v
 done
+
+rm -f /tmp/mondorescue.mc

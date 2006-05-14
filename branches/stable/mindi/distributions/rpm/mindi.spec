@@ -1,26 +1,18 @@
 #
 # $Id$
 #
-%define name	mindi
-%define version	VVV
 %define mrel	RRR
-%define src		SSS
-%define grp		GRP
-%define addreqb	bzip2 >= 0.9, mkisofs, ncurses, binutils, gawk, dosfstools
-%define addreq	DDD
-%define rel		%{mrel}
 
 Summary:	Mindi creates emergency boot disks/CDs using your kernel, tools and modules
-Name:		%name
-Version:	%version
-Release:	%rel
+Name:		mindi
+Version:	VVV
+Release:	%mrel
 License:	GPL
-Group:		%{grp}
+Group:		GRP
 Url:		http://www.mondorescue.org
-Source:		%{src}
+Source:		SSS
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(id -u -n)
-Requires:	%{addreq}
-Epoch:		%(echo EEE | cut -d- -f1 | sed "s~M~~")
+Requires:	bzip2 >= 0.9, mkisofs, ncurses, binutils, gawk, dosfstools DDD
 # Not on all systems
 #Conflicts:	bonnie++
 

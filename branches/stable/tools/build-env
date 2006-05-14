@@ -1,46 +1,29 @@
 #!/bin/bash
 #
-# Creates RPMs environment from SVN repository
+# Creates build environment for packages
+# Executed on a VM (non-SVN)
 #
 # $Id$
 #
-
-dname=`dirname $0`
-prem=`echo $dname |cut -c1`
-if [ ${prem} == "/" ]; then
-	export TOOLHOME=$dname
-else
-	export TOOLHOME=${PWD}/$dname
-fi
-
-. $TOOLHOME/common-env
-
-export ARCH=`rpm --showrc | egrep "^build arch" | awk '{print $4}'`
 
 # Should not be modified below
 export pkg=""
 export opt=""
 
-if [ -f ${HOME}/.rpmmacros ]; then
-	export TOPDIR=`egrep '^%_topdir' ${HOME}/.rpmmacros | awk '{print $2}'`
-else
-	export TOPDIR=${BASE}/RPMS
-fi
-mkdir -p ${TOPDIR}
-cd ${TOPDIR}
-mkdir -p RPMS SRPMS SPECS SOURCES BUILD
-
 if [ -e /etc/mandriva-release ]; then
+	export dtype="rpm"
 	export dfam="mandriva"
 	export ddir="mandriva"
 	export dver=`awk '{print $4}' /etc/mandriva-release`
 	export suf=".`echo $dver | sed 's/\.//'`mdk"
 elif [ -e /etc/mandrake-release ]; then
+	export dtype="rpm"
 	export dfam="mandriva"
 	export ddir="mandrake"
 	export dver=`awk '{print $3}' /etc/mandrake-release`
 	export suf=".`echo $dver | sed 's/\.//'`mdk"
 elif [ -e /etc/redhat-release ]; then
+	export dtype="rpm"
 	grep -q Enterprise /etc/redhat-release
 	if [ $? -eq 0 ]; then
 		export dfam="redhat"
@@ -59,6 +42,7 @@ elif [ -e /etc/redhat-release ]; then
 		export suf=".rh${dver}"
 	fi
 elif [ -e /etc/SuSE-release ]; then
+	export dtype="rpm"
 	grep -q Enterprise /etc/SuSE-release
 	if [ $? -eq 0 ]; then
 		export dfam="suse"
@@ -70,6 +54,7 @@ elif [ -e /etc/SuSE-release ]; then
 		export dver=`head -1 /etc/SuSE-release | awk '{print $3}'`
 	fi
 else
+	export dtype="unknown"
 	export dfam="generic"
 	export dver=""
 	export ddir="generic"
@@ -78,3 +63,16 @@ fi
 if [ _"$suf" = _"" ]; then
 	export suf=".${ddir}${dver}"
 fi
+
+if [ $dtype == "rpm" ]; then
+	export ARCH=`rpm --showrc | egrep "^build arch" | awk '{print $4}'`
+	if [ -f ${HOME}/.rpmmacros ]; then
+		export TOPDIR=`egrep '^%_topdir' ${HOME}/.rpmmacros | awk '{print $2}'`
+	else
+		export TOPDIR=${BASE}/build
+	fi
+	mkdir -p ${TOPDIR}
+	cd ${TOPDIR}
+	mkdir -p RPMS SRPMS SPECS SOURCES BUILD
+fi
+

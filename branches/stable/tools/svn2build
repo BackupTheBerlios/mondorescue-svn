@@ -43,8 +43,8 @@ for p in $c; do
 	svn log -v ${SVNBRANCH}/$p > $p-$v/svn.log
 
 	for d in `cat ${TOOLHOME}/DISTROS`; do
-		ddir=`echo $d | cut -f'_' -d1`
-		dver=`echo $d | cut -f'_' -d2`
+		ddir=`echo $d | cut -d_ -f1`
+		dver=`echo $d | cut -d_ -f2`
 		echo "Generating build files for $ddir ($dver)"
 		if [ $ddir = "debian" ]; then
 			dfam="debian"
@@ -61,12 +61,12 @@ for p in $c; do
 			dtype="tgz"
 			suf=".${dfam}${dver}"
 			BUILDDIR=${TOPDIR}/slack 
-		elif [ $ddir = "sles" || $ddir = "suse" ]; then
+		elif [ $ddir = "sles" -o $ddir = "suse" ]; then
 			dfam="suse"
 			dtype="rpm"
 			suf=".${ddir}${dver}"
 			BUILDDIR=${TOPDIR}/SPECS 
-		elif [ $ddir = "fedora" || $ddir = "redhat" || $ddir = "rhel" ]; then
+		elif [ $ddir = "fedora" -o $ddir = "redhat" -o $ddir = "rhel" ]; then
 			dfam="redhat"
 			dtype="rpm"
 			dver=`echo ${dver} | sed "s/\.//"`
@@ -78,7 +78,7 @@ for p in $c; do
 				suf=".rhel${dver}"
 			fi
 			BUILDDIR=${TOPDIR}/SPECS 
-		elif [ $ddir = "mandrake" || $ddir = "mandriva" ]; then
+		elif [ $ddir = "mandrake" -o $ddir = "mandriva" ]; then
 			dfam="mandriva"
 			dtype="rpm"
 			suf=".`echo $dver | sed 's/\.//'`mdk"
@@ -93,6 +93,14 @@ for p in $c; do
 		# Create conf file dir
 		mkdir -p ${BUILDDIR}
 
+		ddd=`LANG=C ; date '+%Y-%m-%d'`
+		cat > /tmp/mondorescue.mc << EOF
+define(\`RRR', ${TAG}${suf})dnl
+define(\`VVV', ${v})dnl
+define(\`DDD', ${ddd})dnl
+EOF
+
+		mkdir -p $p-$v/distributions/$ddir
 		if [ $dtype = "rpm" ]; then
 			if [ -f $p-$v/distributions/$ddir/spec.m4 ]; then
 				inc=$p-$v/distributions/$ddir/spec.m4
@@ -102,15 +110,8 @@ for p in $c; do
 				echo "Unable to build the RPM specfile for this distro. Please report to authors"
 				exit -1
 			fi
-			cp $inc /tmp/mondorescue.mc
-			ddd=`LANG=C ; date '+%Y-%m-%d'`
-			cat >> /tmp/mondorescue.mc << EOF
-define(\`RRR', ${TAG}${suf})dnl
-define(\`VVV', ${v})dnl
-define(\`DDD', ${ddd})dnl
-EOF
 			echo "Using $inc customization to build SPEC file"
-			m4 /tmp/mondorescue.mc $p-$v/distributions/rpm/$p.spec > $p-$v/distributions/$ddir/$p.spec
+			m4 /tmp/mondorescue.mc $inc $p-$v/distributions/rpm/$p.spec > $p-$v/distributions/$ddir/$p.spec
 
 			if [ -f $p-$v/distributions/$ddir/changelog ]; then
 				log=$p-$v/distributions/$ddir/changelog
@@ -133,9 +134,9 @@ EOF
 			rm -f $p-$v/distributions/$ddir/$p.changelog.new
 
 		elif [ $dtype = "ebuild" ]; then
-			echo "Gentoo Buid"
+			echo "Gentoo Build"
 		else
-			echo "Unknown Buid"
+			echo "Unknown Build"
 		fi
 	done
 
@@ -177,8 +178,9 @@ EOF
 
 	# Finally creates the tar files
 	echo "Creating $p tar files"
-	tar cfhz ${TOPDIR}/SOURCES/$p-$v-$TAG.tgz $p-$v
-	tar cfhj ${TOPDIR}/SOURCES/$p-$v-$TAG.tar.bz2 $p-$v
+	tar cfhz ${TOPDIR}/SOURCES/$p-$v-$TAG.tar.gz $p-$v
+	gzip -cd ${TOPDIR}/SOURCES/$p-$v-$TAG.tar.gz | bzip2 -c3 > ${TOPDIR}/SOURCES/$p-$v-$TAG.tar.bz2
+	#tar cfhj ${TOPDIR}/SOURCES/$p-$v-$TAG.tar.bz2 $p-$v
 done
 
 rm -f /tmp/mondorescue.mc

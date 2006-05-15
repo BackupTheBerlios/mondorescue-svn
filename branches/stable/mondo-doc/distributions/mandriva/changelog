@@ -1,0 +1,10 @@
+* Tue Feb 21 2006 Bruno Cornec <bcornec@users.berlios.de> 2.0.7-1mdk
+
+- Update to 2.0.7
+- spec files are now generated
+
+* Tue Sep 06 2005 Bruno Cornec <bcornec@users.berlios.de> 2.04_berlios-74
+
+- Merge of patches mentionned on mondo ML + ia64 updates
+- Add -p option
+

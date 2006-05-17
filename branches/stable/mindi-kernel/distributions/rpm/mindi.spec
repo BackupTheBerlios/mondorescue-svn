@@ -2,6 +2,7 @@
 # $Id$
 #
 %define mrel	RRR
+%define tag		TTT
 
 Summary:	Mindi Kernel provides a safe kernel for mindi
 Name:		mindi

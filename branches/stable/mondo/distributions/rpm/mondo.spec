@@ -3,6 +3,7 @@
 #
 
 %define mrel	RRR
+%define tag		TTT
 # if mandriva official build (rpm --with is_official)
 %{?is_official:%define rel %{mkrel} %{mrel}}%{!?is_official:%define rel %{mrel}}
 %define addreq	mindi >= 1.0.7, bzip2 >= 0.9, afio, mkisofs, binutils, newt >= 0.50, slang >= 1.4.1 DDD

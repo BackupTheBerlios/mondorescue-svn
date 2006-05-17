@@ -2,6 +2,7 @@
 # $Id$
 #
 %define mrel	RRR
+%define tag		TTT
 
 Summary:	Mindi creates emergency boot disks/CDs using your kernel, tools and modules
 Name:		mindi

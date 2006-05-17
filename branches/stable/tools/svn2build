@@ -55,6 +55,7 @@ for p in $c; do
 
 		ddd=`LANG=C ; date '+%Y-%m-%d'`
 		cat > /tmp/mondorescue.mc << EOF
+define(\`TTT', ${TAG})dnl
 define(\`RRR', ${TAG}${suf})dnl
 define(\`VVV', ${v})dnl
 define(\`DDD', ${ddd})dnl

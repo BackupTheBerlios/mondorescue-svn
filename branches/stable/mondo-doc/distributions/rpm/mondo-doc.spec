@@ -5,6 +5,7 @@
 # if mandriva official build (rpm --with is_official)
 %{?is_official:%define rel %{mkrel} %{mrel}}%{!?is_official:%define rel %{mrel}}
 %define rel		RRR
+%define tag		TTT
 
 Summary:	Documentation for Mondo Rescue
 Summary(fr):	Documentation pour Mondo Rescue

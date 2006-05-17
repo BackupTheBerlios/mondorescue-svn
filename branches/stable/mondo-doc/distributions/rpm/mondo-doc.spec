@@ -27,7 +27,7 @@ Documentation for Mondo Rescue
 Documentation pour Mondo Rescue
 
 %prep
-%setup -q -n %name-%{version}
+%setup -q -n %name-%{version}-%{tag}
 
 %build
 %{__make} VERSION=%{version}

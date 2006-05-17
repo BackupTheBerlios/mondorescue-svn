@@ -24,7 +24,7 @@ and do system maintenance - e.g. format partitions, backup/restore data,
 verify packages, etc.
 
 %prep
-%setup -n %name-%{version}
+%setup -n %name-%{version}-%{tag}
 
 %build
 %ifarch ia64

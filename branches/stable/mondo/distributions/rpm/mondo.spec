@@ -58,7 +58,7 @@ de restoracion/rescate (o CDs, si su instalacion es >2GO aprox.).  Funciona
 con cintas y NFS, tambien.
 
 %prep
-%setup -q -n %name-%{version}
+%setup -q -n %name-%{version}-%{tag}
 
 %build
 %configure --program-prefix=%{?_program_prefix}

@@ -18,7 +18,8 @@ cd $TOOLHOME
 . ./common-env
 . ./svn-env
 
-mkdir -p ${TOPDIR}/SOURCES 
+DEST=${TOPDIR}/${VER}-$TAG
+mkdir -p $DEST
 
 if [ "$1" = "" ]; then
 		c="mondo-doc mindi mondo"
@@ -30,65 +31,24 @@ else
 	fi
 fi
 
-
+# Make it safe for SVN commands
 cd ${BASE}/svn
 
 for p in $c; do
 	v=`cat ${SVNBRANCH}/$p/VERSION`
 	echo "Management of $p $v-$REVISION"
-	rm -fr $p-$v
-	svn export ${SVNBRANCH}/$p $p-$v
-	echo "$REVISION" > $p-$v/REVISION
+	dest="$p-$v-$TAG"
+	rm -fr $dest
+	svn export ${SVNBRANCH}/$p $dest
+	echo "$REVISION" > $dest/REVISION
 	echo "Generating SVN log file ..."
-	svn log -v ${SVNBRANCH}/$p > $p-$v/svn.log
+	svn log -v ${SVNBRANCH}/$p > $dest/svn.log
 
 	for d in `cat ${TOOLHOME}/DISTROS`; do
-		ddir=`echo $d | cut -d_ -f1`
-		dver=`echo $d | cut -d_ -f2`
+		export ddir=`echo $d | cut -d_ -f1`
+		export dver=`echo $d | cut -d_ -f2`
 		echo "Generating build files for $ddir ($dver)"
-		if [ $ddir = "debian" ]; then
-			dfam="debian"
-			dtype="deb"
-			suf=".${dfam}${dver}"
-			BUILDDIR=${TOPDIR}/debian 
-		elif [ $ddir = "gentoo" ]; then
-			dfam="gentoo"
-			dtype="ebuild"
-			suf=".${ddir}${dver}"
-			BUILDDIR=${TOPDIR}/ebuild 
-		elif [ $ddir = "slackware" ]; then
-			dfam="slack"
-			dtype="tgz"
-			suf=".${dfam}${dver}"
-			BUILDDIR=${TOPDIR}/slack 
-		elif [ $ddir = "sles" -o $ddir = "suse" ]; then
-			dfam="suse"
-			dtype="rpm"
-			suf=".${ddir}${dver}"
-			BUILDDIR=${TOPDIR}/SPECS 
-		elif [ $ddir = "fedora" -o $ddir = "redhat" -o $ddir = "rhel" ]; then
-			dfam="redhat"
-			dtype="rpm"
-			dver=`echo ${dver} | sed "s/\.//"`
-			if [ $ddir = "fedora" ]; then
-				suf=".fc${dver}"
-			elif [ $ddir = "redhat" ]; then
-				suf=".rh${dver}"
-			else
-				suf=".rhel${dver}"
-			fi
-			BUILDDIR=${TOPDIR}/SPECS 
-		elif [ $ddir = "mandrake" -o $ddir = "mandriva" ]; then
-			dfam="mandriva"
-			dtype="rpm"
-			suf=".`echo $dver | sed 's/\.//'`mdk"
-			BUILDDIR=${TOPDIR}/SPECS 
-		else
-			dfam="unknown"
-			dtype="unknown"
-			BUILDDIR=${TOPDIR}/SPECS 
-			suf="unknown"
-		fi
+		. $TOOLHOME/distro-env
 
 		# Create conf file dir
 		mkdir -p ${BUILDDIR}
@@ -100,23 +60,23 @@ define(\`VVV', ${v})dnl
 define(\`DDD', ${ddd})dnl
 EOF
 
-		mkdir -p $p-$v/distributions/$ddir
-		if [ $dtype = "rpm" ]; then
-			if [ -f $p-$v/distributions/$ddir/spec.m4 ]; then
-				inc=$p-$v/distributions/$ddir/spec.m4
-			elif [ -f $p-$v/distributions/$dfam/spec.m4 ]; then
-				inc=$p-$v/distributions/$dfam/spec.m4
+		mkdir -p $dest/distributions/$ddir
+		if [ "$dtype" = "rpm" ]; then
+			if [ -f $dest/distributions/$ddir/spec.m4 ]; then
+				inc=$dest/distributions/$ddir/spec.m4
+			elif [ -f $dest/distributions/$dfam/spec.m4 ]; then
+				inc=$dest/distributions/$dfam/spec.m4
 			else
 				echo "Unable to build the RPM specfile for this distro. Please report to authors"
 				exit -1
 			fi
 			echo "Using $inc customization to build SPEC file"
-			m4 /tmp/mondorescue.mc $inc $p-$v/distributions/rpm/$p.spec > $p-$v/distributions/$ddir/$p.spec
+			m4 /tmp/mondorescue.mc $inc $dest/distributions/rpm/$p.spec > $dest/distributions/$ddir/$p.spec
 
-			if [ -f $p-$v/distributions/$ddir/changelog ]; then
-				log=$p-$v/distributions/$ddir/changelog
-			elif [ -f $p-$v/distributions/$dfam/changelog ]; then
-				log=$p-$v/distributions/$dfam/changelog
+			if [ -f $dest/distributions/$ddir/changelog ]; then
+				log=$dest/distributions/$ddir/changelog
+			elif [ -f $dest/distributions/$dfam/changelog ]; then
+				log=$dest/distributions/$dfam/changelog
 			else
 				echo "Unable to build RPM changelog for this distro. Please report to authors"
 				exit -1
@@ -124,16 +84,16 @@ EOF
 
 			echo "Using $log customization to build changelog file"
 			ddate=`LANG=C ; date "+%a %b %d %Y"`
-			cat > $p-$v/distributions/$ddir/$p.changelog.new << EOF
+			cat > $dest/distributions/$ddir/$p.changelog.new << EOF
 * $ddate Bruno Cornec <bruno@mondorescue.org> VVV-RRR
 - Updated to VVV-r${REVISION}
 
 EOF
-			cat $log >> $p-$v/distributions/$ddir/$p.changelog.new
-			m4 /tmp/mondorescue.mc $p-$v/distributions/$ddir/$p.changelog.new > $p-$v/distributions/$ddir/$p.changelog
-			rm -f $p-$v/distributions/$ddir/$p.changelog.new
+			cat $log >> $dest/distributions/$ddir/$p.changelog.new
+			m4 /tmp/mondorescue.mc $dest/distributions/$ddir/$p.changelog.new > $dest/distributions/$ddir/$p.changelog
+			rm -f $dest/distributions/$ddir/$p.changelog.new
 
-		elif [ $dtype = "ebuild" ]; then
+		elif [ "$dtype" = "ebuild" ]; then
 			echo "Gentoo Build"
 		else
 			echo "Unknown Build"
@@ -141,7 +101,7 @@ EOF
 	done
 
 	if [ _"`echo $p | grep mondo-doc`" != _"" ]; then
-		cd ${p}-${v}
+		cd $dest
 		for f in mondorescue-howto.sgml *8; do
 			m4 /tmp/mondorescue.mc $f > ${f}.new
 			mv ${f}.new $f
@@ -163,8 +123,8 @@ EOF
 			echo "mondo-doc should be created before $p"
 			exit -1
 		fi
-		(cd mondo-doc-$v1 ; make -f Makefile.man install-$p INSTALLDIR=../$p-$v)
-		rm -f $p-$v/rootfs/sbin/parted2fdisk-ia64 
+		(cd mondo-doc-$v1 ; make -f Makefile.man install-$p INSTALLDIR=../$dest)
+		rm -f $dest/rootfs/sbin/parted2fdisk-ia64 
 	fi
 	if [ "`echo $p | grep -v doc | grep  mondo`" != "" ]; then
 		v1=`cat ${SVNBRANCH}/mondo-doc/VERSION`
@@ -172,15 +132,22 @@ EOF
 			echo "mondo-doc should be created before $p"
 			exit -1
 		fi
-		(cd mondo-doc-$v1 ; make -f Makefile.howto install INSTALLDIR=../$p-$v/docs/en ; make -f Makefile.man install-$p INSTALLDIR=../$p-$v/docs/man)
-		(cd $p-$v ; echo "Bootstraping mondo ... " ; ./bootstrap)
+		(cd mondo-doc-$v1 ; make -f Makefile.howto install INSTALLDIR=../$dest/docs/en ; make -f Makefile.man install-$p INSTALLDIR=../$dest/docs/man)
+		(cd $dest ; echo "Bootstraping mondo ... " ; ./bootstrap)
 	fi
 
 	# Finally creates the tar files
 	echo "Creating $p tar files"
-	tar cfhz ${TOPDIR}/SOURCES/$p-$v-$TAG.tar.gz $p-$v
-	gzip -cd ${TOPDIR}/SOURCES/$p-$v-$TAG.tar.gz | bzip2 -c3 > ${TOPDIR}/SOURCES/$p-$v-$TAG.tar.bz2
-	#tar cfhj ${TOPDIR}/SOURCES/$p-$v-$TAG.tar.bz2 $p-$v
+	tar cfhz ${DEST}/$p-$v-$TAG.tar.gz $dest
+	#gzip -cd ${DEST}/$p-$v-$TAG.tar.gz | bzip2 -c3 > ${DEST}/$p-$v-$TAG.tar.bz2
+	#tar cfhj ${DEST}/$p-$v-$TAG.tar.bz2 $dest
 done
 
 rm -f /tmp/mondorescue.mc
+
+echo "Version delivered :"
+echo "-------------------"
+echo "${VER}-$TAG"
+echo "-------------------"
+echo "${VER}-$TAG" > ${TOPDIR}/LAST
+exit 0

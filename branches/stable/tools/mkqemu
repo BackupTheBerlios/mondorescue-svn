@@ -2,69 +2,59 @@
 #
 # $Id$
 #
-# Script allowing mondo packages production on various distributions with qemu
+# Script build packages on various distributions with qemu
 #
 
 if [ _"$1" == _"" ]; then
-	echo "Syntax: mkqemu [mondo version] ([vm].. )"
+	echo "Syntax: build2qemu [version-tag [vm1]..|vmx]] )"
 	exit -1
 fi
 
-if [ _"$2" == _"" ]; then
-	export SVN_VM="mdk101 mdk102 mdv2006 rh73 rh9 fc4 fc5 rhel3 rhel4 suse10 sles9 debian31 slackware102 gentoo"
+. $TOOLHOME/common-env
+. $TOOLHOME/distro-env
+
+# We need to get $VER and $TAG
+if [ "$1" = "" ]; then
+	LAST=`cat ${TOPDIR}/LAST`
 else
-	export SVN_VM="$2"
+	LAST=$1
+	shift
+fi
+VER=`echo $LAST | cut -d- -f1`
+TAG=`echo $LAST | cut -d- -f2`
+echo "Working on ${VER}-$TAG"
+
+if [ _"$1" == _"" ]; then
+	VM=`cat ${TOOLHOME}/DISTROS` 
+	VMS=""
+	for $v in $VM; do
+		VMS="$VMS `echo $VM | cut -d_ -f1`"
+	done
+else
+	export VMS="$1"
 fi
 
-cat > /tmp/mkmondo << EOF
+
+cat > $TMP/mkmondo << EOF
 #!/bin/bash
 
-export SVN_HOME=\$HOME/mondo/svn/branches
-export SVN_SSH="ssh -l bcornec"
-export SVN_EDITOR=vim
 export LANG="C"
 export LANGUAGE="C"
 export LC_ALL="C"
+export TOOLHOME=$TOOLHOME
 
-if [ -d \$SVN_HOME/$1 ]; then
-	cd \$SVN_HOME/$1
-	svn up
-	if [ \$? != 0 ]; then
-			echo "Verify SVN installation"
-			exit -1
-	fi
-else
-	mkdir -p \$SVN_HOME
-	cd \$SVN_HOME
-	svn co svn+ssh://bcornec@svn.berlios.de/svnroot/repos/mondorescue/branches/$1 $1
-	if [ \$? != 0 ]; then
-			echo "Verify SVN installation"
-			exit -1
-	fi
-fi
-echo \$SVN_VM | grep -q "debian"
-if [ \$? -eq 0 ]; then
-	\$SVN_HOME/$1/tools/mkdeb < /dev/null
-else
-	echo \$SVN_VM | grep -q "slack"
-	if [ \$? -eq 0 ]; then
-		\$SVN_HOME/$1/tools/mkslack < /dev/null
-	else
-		echo \$SVN_VM | grep -q "gentoo"
-		if [ \$? -eq 0 ]; then
-			\$SVN_HOME/$1/tools/mkemerge < /dev/null
-		else
-			\$SVN_HOME/$1/tools/mkrpm < /dev/null
-		fi
-	fi
-fi
-\$SVN_HOME/$1/tools/mkdeliv
+\$TOOLHOME/build2pkg
+\$TOOLHOME/mkdeliv
 EOF
+chmod 755 $TMP/mkmondo
 
 ipvm=10.0.2.15
 sp=2222
 
-for m in $SVN_VM; do
+cd $TOOLHOME/..
+tar cvfz $TMP/mkmondo.tar.gz $TOOLHOME/tools $TMP/mkmondo $TOPDIR/${VER}-$TAG
+
+for m in $VMS; do
 	vmp=0
 	if [ ! -f /users/vmplayer/$m.qemu ]; then
 			echo "VM unaccessible. Verify NFS mount"
@@ -77,8 +67,8 @@ for m in $SVN_VM; do
 		qemu -m 256 $QEMUOPT -redir tcp:${sp}:${ipvm}:22 /users/vmplayer/$m.qemu &
 		sleep 300
 	fi
-	scp -P $sp /tmp/mkmondo bruno@localhost:
-	ssh -p $sp bruno@localhost "chmod 755 ./mkmondo ; ./mkmondo" | tee /tmp/mkvm.log
+	scp -P $sp $TMP/mkmondo.tar.gz bruno@localhost:
+	ssh -p $sp bruno@localhost "cd / ; tar xvfz $TMP/mkmondo.tar.gz ; $TMP/mkmondo" | tee $TMP/mkvm.log
 	if [ $vmp -eq 1 ]; then
 		ssh -p $sp root@localhost "halt -p"
 		sleep 300

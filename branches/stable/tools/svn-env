@@ -6,10 +6,8 @@
 #
 
 export SVNBRANCH="branches/`cat ${TOOLHOME}/../mondo/VERSION`"
-export MINDI_VER=`cat ${BASE}/svn/${SVNBRANCH}/mindi/VERSION`
-export MONDO_VER=`cat ${BASE}/svn/${SVNBRANCH}/mondo/VERSION`
+export VER=`cat ${BASE}/svn/${SVNBRANCH}/mondo/VERSION`
 
 # To be safe for SVN commands
-cd $TOOLHOME/..
-export REVISION=`svnversion .`
+export REVISION=`(cd $TOOLHOME/.. ; svnversion .)`
 export TAG=`cat ${TOOLHOME}/TAG`

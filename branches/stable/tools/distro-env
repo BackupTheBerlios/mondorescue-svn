@@ -1,0 +1,112 @@
+#!/bin/bash
+#
+# Create env depending on the distro on which we are
+#
+# $Id$
+#
+# Input parameters : $ddir (distro name) and $dver (distro version)
+# If they do not exist then deduce from current distro
+# Exports : $dfam (distro family) $suf (pkg suffix) $dtype (distro type) BUILDDIR (dir to build packages) 
+
+#
+# Guess ddir and dver from the underlying distro
+#
+if [ _"$ddir" = _"" ]; then
+	if [ -e /etc/mandriva-release ]; then
+		export ddir="mandriva"
+		export dver=`awk '{print $4}' /etc/mandriva-release`
+	elif [ -e /etc/mandrake-release ]; then
+		export ddir="mandrake"
+		export dver=`awk '{print $3}' /etc/mandrake-release`
+	elif [ -e /etc/redhat-release ]; then
+		grep -q Enterprise /etc/redhat-release
+		if [ $? -eq 0 ]; then
+			export ddir="rhel"
+			export dver=`awk '{print $7}' /etc/redhat-release`
+		elif grep -q Fedora /etc/redhat-release ; then
+			export ddir="fedora"
+			export dver=`awk '{print $4}' /etc/redhat-release`
+		else
+			export ddir="redhat"
+			dver=`awk '{print $5}' /etc/redhat-release`
+			export dver=`echo ${dver} | sed "s/\.//"`
+		fi
+	elif [ -e /etc/SuSE-release ]; then
+		grep -q Enterprise /etc/SuSE-release
+		if [ $? -eq 0 ]; then
+			export ddir="sles"
+			export dver=`head -1 /etc/SuSE-release | awk '{print $5}'`
+		else
+							export ddir="suse"
+			export dver=`head -1 /etc/SuSE-release | awk '{print $3}'`
+		fi
+	else
+		export ddir="unknown"
+		export dver=""
+	fi
+fi
+
+#
+# Generate all other parameters
+#
+if [ $ddir = "debian" ]; then
+	dfam="debian"
+	dtype="deb"
+	suf=".${dfam}${dver}"
+	BUILDDIR=${TOPDIR}/debian 
+elif [ $ddir = "gentoo" ]; then
+	dfam="gentoo"
+	dtype="ebuild"
+	suf=".${ddir}${dver}"
+	BUILDDIR=${TOPDIR}/ebuild 
+elif [ $ddir = "slackware" ]; then
+	dfam="slack"
+	dtype="tgz"
+	suf=".${dfam}${dver}"
+	BUILDDIR=${TOPDIR}/slack 
+elif [ $ddir = "sles" -o $ddir = "suse" ]; then
+	dfam="suse"
+	dtype="rpm"
+	suf=".${ddir}${dver}"
+	BUILDDIR=${TOPDIR}/SPECS 
+elif [ $ddir = "fedora" -o $ddir = "redhat" -o $ddir = "rhel" ]; then
+	dfam="redhat"
+	dtype="rpm"
+	dver=`echo ${dver} | sed "s/\.//"`
+	if [ $ddir = "fedora" ]; then
+		suf=".fc${dver}"
+	elif [ $ddir = "redhat" ]; then
+		suf=".rh${dver}"
+	else
+		suf=".rhel${dver}"
+	fi
+	BUILDDIR=${TOPDIR}/SPECS 
+elif [ $ddir = "mandrake" -o $ddir = "mandriva" ]; then
+	dfam="mandriva"
+	dtype="rpm"
+	suf=".`echo $dver | sed 's/\.//'`mdk"
+	BUILDDIR=${TOPDIR}/SPECS 
+else
+	dfam="unknown"
+	dtype="unknown"
+	BUILDDIR=${TOPDIR}/SPECS 
+	suf="unknown"
+fi
+
+export dfam
+export dtype
+export BUILDDIR
+export suf
+
+#
+# Additional exports and preparation for some distros
+#
+if [ _"$dtype" = _"rpm" ]; then
+	export ARCH=`rpm --showrc | egrep "^build arch" | awk '{print $4}'`
+	if [ -f ${HOME}/.rpmmacros ]; then
+		export TOPBUILDDIR=`egrep '^%_topdir' ${HOME}/.rpmmacros | awk '{print $2}'`
+	else
+		export TOPBUILDDIR=${BASE}/build
+	fi
+	mkdir -p ${TOPBUILDDIR}/{RPMS,SRPMS,SPECS,SOURCES,BUILD}
+fi

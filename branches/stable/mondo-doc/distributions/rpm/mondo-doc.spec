@@ -2,30 +2,22 @@
 # $Id$
 #
 
-%define name	mondo-doc
-%define version	VVV
-%define mrel	RRR
 # if mandriva official build (rpm --with is_official)
 %{?is_official:%define rel %{mkrel} %{mrel}}%{!?is_official:%define rel %{mrel}}
-%define src		SSS
-%define grp		GRP
-%define addreq	DDD
-%define rel		%{mrel}
+%define rel		RRR
 
 Summary:	Documentation for Mondo Rescue
 Summary(fr):	Documentation pour Mondo Rescue
 
-Name:		%{name}
-Version:	%{version}
+Name:		mondo-doc
+Version:	VVV
 Release:	%{rel}
 License:	GPL
-Group:		%{grp}
+Group:		GRP
 Url:		http://www.mondorescue.org
-Source:		%{src}
+Source:		SSS
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(id -u -n)
 BuildRequires:	docbook-utils
-Epoch:		%(echo EEE | cut -d- -f1 | sed "s~M~~")
-OBS
 
 %description
 Documentation for Mondo Rescue

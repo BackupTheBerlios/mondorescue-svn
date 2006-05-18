@@ -6,7 +6,7 @@ inherit libtool
 
 DESCRIPTION="The premier GPL disaster recovery solution."
 HOMEPAGE="http://www.mondorescue.org"
-SRC_URI="ftp://ftp.mondorecue.org/src/${PN/-rescue/}-${PV}.tgz"
+SRC_URI="ftp://ftp.mondorecue.org/src/${PN/-rescue/}-${PV}-${PR}.tgz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -26,7 +26,7 @@ RDEPEND="app-arch/afio
 	>=sys-libs/slang-1.4.1
 	>=sys-boot/syslinux-1.52"
 
-S=${WORKDIR}/${PN/-rescue/}-${PV}
+S=${WORKDIR}/${PN/-rescue/}-${PV}-${PR}
 
 src_unpack() {
 	unpack ${A}
@@ -37,13 +37,12 @@ src_unpack() {
 src_compile() {
 	elibtoolize
 	econf || die "Configuration failed"
-	emake || die "Make failed"
-	#make VERSION=VVV CFLAGS="-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_REENTRANT"
+	emake VERSION=VVV || die "Make failed"
 }
 
 src_install() {
-	#make install DESTDIR=${D} || die "make install failed"
-	einstall || die "Install failed"
+	make install DESTDIR=${D} || die "make install failed"
+	#einstall || die "Install failed"
 	exeinto /usr/share/mondo
 	doexe mondo/autorun
 }
@@ -53,7 +52,7 @@ pkg_postinst() {
 	einfo "Please read the associated docs for help."
 	einfo "Or visit the website @ ${HOMEPAGE}"
 	echo
-	ewarn "This package is still in unstable."
+	ewarn "This package is a new version after a long gap."
 	ewarn "Please report bugs to http://bugs.gentoo.org/"
 	ewarn "However, please do an advanced query to search for bugs"
 	ewarn "before reporting. This will keep down on duplicates."

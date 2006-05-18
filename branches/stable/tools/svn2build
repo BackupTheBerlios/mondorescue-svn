@@ -95,7 +95,7 @@ EOF
 			rm -f $dest/distributions/$ddir/$p.changelog.new
 
 		elif [ "$dtype" = "ebuild" ]; then
-			echo "Gentoo Build"
+			m4 /tmp/mondorescue.mc $dest/distributions/$dfam/$p.ebuild > $dest/distributions/$ddir/$p-$v-r$TAG.ebuild
 		else
 			echo "Unknown Build"
 		fi

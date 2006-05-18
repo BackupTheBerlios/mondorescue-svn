@@ -28,8 +28,7 @@ if [ _"$ddir" = _"" ]; then
 			export dver=`awk '{print $4}' /etc/redhat-release`
 		else
 			export ddir="redhat"
-			dver=`awk '{print $5}' /etc/redhat-release`
-			export dver=`echo ${dver} | sed "s/\.//"`
+			export dver=`awk '{print $5}' /etc/redhat-release | sed "s/\.//"`
 		fi
 	elif [ -e /etc/SuSE-release ]; then
 		grep -q Enterprise /etc/SuSE-release
@@ -40,6 +39,9 @@ if [ _"$ddir" = _"" ]; then
 							export ddir="suse"
 			export dver=`head -1 /etc/SuSE-release | awk '{print $3}'`
 		fi
+	elif [ -e /etc/gentoo-release ]; then
+		export ddir="gentoo"
+		export dver=`awk '{print $5}' /etc/gentoo-release | cut -d. -f1-2`
 	else
 		export ddir="unknown"
 		export dver=""

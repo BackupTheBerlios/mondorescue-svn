@@ -19,6 +19,7 @@ Url:		http://www.mondorescue.org
 Source:		SSS
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(id -u -n)
 BuildRequires:	docbook-utils
+BuildArch: noarch
 
 %description
 Documentation for Mondo Rescue
@@ -30,12 +31,13 @@ Documentation pour Mondo Rescue
 %setup -q -n %name-%{version}-%{tag}
 
 %build
-%{__make} VERSION=%{version}
+%{__make} -f Makefile.man VERSION=%{version}
+%{__make} -f Makefile.howto VERSION=%{version}
 
 %install
 %{__rm} -rf $RPM_BUILD_ROOT
-%make -f Makefile.man install INSTALLDIR=$RPM_BUILDROOT/$RPM_DOC_DIR/%name-%{version}
-%make -f Makefile.howto install INSTALLDIR=$RPM_BUILDROOT/$RPM_DOC_DIR/%name-%{version}
+%{__make} -f Makefile.man install INSTALLDIR=$RPM_BUILDROOT/$RPM_DOC_DIR/%name-%{version}
+%{__make} -f Makefile.howto install INSTALLDIR=$RPM_BUILDROOT/$RPM_DOC_DIR/%name-%{version}
 
 %clean
 %{__rm} -rf $RPM_BUILD_ROOT

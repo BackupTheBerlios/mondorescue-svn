@@ -132,6 +132,12 @@ struct s_disk {
    * Index number of this entry in the whole disklist.
    */
 	int index;
+	
+  /**
+   * Type of disk.
+   */
+	char type;  // ' ' = data (default), S = spare, F = faulty
+	
 };
 
 /**
@@ -223,6 +229,11 @@ struct raid_device_record {
 	   * The chunk size of this RAID device.
 	   */
 	int chunk_size;
+	
+	  /**
+	   * The parity algorithm of this RAID device. (RAID5 only)
+	   */
+	int parity; // 0=left-asymmetric, 1=right-asymmetric, 2=left-symmetric, 3=right-symmetric
 
 	  /**
 	   * A list of the disks to use for storing data.
@@ -248,6 +259,11 @@ struct raid_device_record {
 	   * The additional RAID variables for this device.
 	   */
 	struct additional_raid_variables additional_vars;
+
+	  /**
+	   * Resync progress for this device.
+	   */
+	int progress;
 };
 
 		/**

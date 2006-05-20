@@ -838,7 +838,7 @@ interactive_mode(struct s_bkpinfo *bkpinfo,
 							(_("Warning. Errors occurred during disk partitioning."));
 					}
 
-					fmt_errs = format_everything(mountlist, FALSE);
+					fmt_errs = format_everything(mountlist, FALSE, raidlist);
 					if (!fmt_errs) {
 						log_to_screen
 							(_("Errors during disk partitioning were handled OK."));
@@ -856,7 +856,7 @@ interactive_mode(struct s_bkpinfo *bkpinfo,
 									_("User opted not to partition the devices"));
 				if (ask_me_yes_or_no
 					(_("Do you want to format your hard drives?"))) {
-					fmt_errs = format_everything(mountlist, TRUE);
+					fmt_errs = format_everything(mountlist, TRUE, raidlist);
 					if (!fmt_errs) {
 						done = TRUE;
 					}
@@ -1163,7 +1163,7 @@ nuke_mode(struct s_bkpinfo *bkpinfo,
 				sleep(1);
 				system("sync");
 				log_to_screen(_("Please wait. This may take a few minutes."));
-				res += format_everything(mountlist, FALSE);
+				res += format_everything(mountlist, FALSE, raidlist);
 			}
 			paranoid_fclose(g_fprep);
 		}
@@ -3424,8 +3424,8 @@ int main(int argc, char *argv[])
 		finish(0);
 	}
 
-	if (argc == 4 && strcmp(argv[1], "--mdconv") == 0) {
-		finish(create_raidtab_from_mdstat(argv[2], argv[3]));
+	if (argc == 3 && strcmp(argv[1], "--mdconv") == 0) {
+		finish(create_raidtab_from_mdstat(argv[2]));
 	}
 
 
@@ -3524,7 +3524,7 @@ int main(int argc, char *argv[])
 			load_raidtab_into_raidlist(raidlist, RAIDTAB_FNAME);
 			strcpy(g_mountlist_fname, "/tmp/mountlist.txt");
 			load_mountlist(mountlist, g_mountlist_fname);
-			res = format_everything(mountlist, FALSE);
+			res = format_everything(mountlist, FALSE, raidlist);
 			finish(res);
 		}
 

@@ -4,7 +4,10 @@
 #
 # test script for library functions
 #
-	gcc -O2 -I../common test-conf.c ../common/libmondo-conf.c ../common/libmondo-msg.c -o test-conf
+
+gcc -O2 -I../common test-conf.c ../common/libmondo-conf.c ../common/libmondo-msg.c -o test-conf
+gcc -O2 -I../common test-string.c ../common/libmondo-string.c ../common/libmondo-msg.c -o test-string
+
 for f in "test-conf"; do
 	chmod 755 $f
 	./$f > /tmp/$f.res

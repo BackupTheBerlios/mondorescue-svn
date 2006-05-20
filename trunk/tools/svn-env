@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# Creates common environment for SVN repository
+#
+# $Id$
+#
+
+export SVNBRANCH="branches/`cat ${TOOLHOME}/../mondo/VERSION`"
+export VER=`cat ${BASE}/svn/${SVNBRANCH}/mondo/VERSION`
+
+# To be safe for SVN commands
+export REVISION=`(cd $TOOLHOME/.. ; svnversion .)`
+export TAG=`cat ${TOOLHOME}/TAG`

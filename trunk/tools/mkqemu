@@ -2,89 +2,17 @@
 #
 # $Id$
 #
-# Script allowing mondo packages production on various distributions with qemu
+# Call virtual machine with qemu
 #
 
 if [ _"$1" == _"" ]; then
-	echo "Syntax: mkqemu [mondo version] ([vm].. )"
+	echo "Syntax: qemu vm"
 	exit -1
-fi
-
-if [ _"$2" == _"" ]; then
-	export SVN_VM="mdk101 mdk102 mdv2006 rh73 rh9 fc4 fc5 rhel3 rhel4 suse10 sles9 debian31 slackware102 gentoo"
 else
-	export SVN_VM="$2"
+	m=$1
 fi
-
-cat > /tmp/mkmondo << EOF
-#!/bin/bash
-
-export SVN_HOME=\$HOME/mondo/svn/branches
-export SVN_SSH="ssh -l bcornec"
-export SVN_EDITOR=vim
-export LANG="C"
-export LANGUAGE="C"
-export LC_ALL="C"
-
-if [ -d \$SVN_HOME/$1 ]; then
-	cd \$SVN_HOME/$1
-	svn up
-	if [ \$? != 0 ]; then
-			echo "Verify SVN installation"
-			exit -1
-	fi
-else
-	mkdir -p \$SVN_HOME
-	cd \$SVN_HOME
-	svn co svn+ssh://bcornec@svn.berlios.de/svnroot/repos/mondorescue/branches/$1 $1
-	if [ \$? != 0 ]; then
-			echo "Verify SVN installation"
-			exit -1
-	fi
-fi
-echo \$SVN_VM | grep -q "debian"
-if [ \$? -eq 0 ]; then
-	\$SVN_HOME/$1/tools/mkdeb < /dev/null
-else
-	echo \$SVN_VM | grep -q "slack"
-	if [ \$? -eq 0 ]; then
-		\$SVN_HOME/$1/tools/mkslack < /dev/null
-	else
-		echo \$SVN_VM | grep -q "gentoo"
-		if [ \$? -eq 0 ]; then
-			\$SVN_HOME/$1/tools/mkemerge < /dev/null
-		else
-			\$SVN_HOME/$1/tools/mkrpm < /dev/null
-		fi
-	fi
-fi
-\$SVN_HOME/$1/tools/mkdeliv
-EOF
 
 ipvm=10.0.2.15
+sp=2222
 
-for m in $SVN_VM; do
-	sp=22`host $m.mondo.musique-ancienne.org | cut -d. -f7`
-	vmp=0
-	if [ ! -f /users/vmplayer/$m.qemu ]; then
-			echo "VM unaccessible. Verify NFS mount"
-			exit -1
-	fi
-	ps auxww | grep qemu | grep -v grep | grep -q /users/vmplayer/$m.qemu
-	if [ $? -ne 0 ]; then
-		# Virtual machine alreday started
-		vmp=1
-		qemu -m 256 $QEMUOPT -redir tcp:${sp}:${ipvm}:22 /users/vmplayer/$m.qemu &
-		sleep 300
-	fi
-	scp -P $sp /tmp/mkmondo bruno@localhost:
-	ssh -p $sp bruno@localhost "chmod 755 ./mkmondo ; ./mkmondo" | tee /tmp/mkvm.log
-	if [ $vmp -eq 1 ]; then
-		ssh -p $sp root@localhost "halt -p"
-		sleep 300
-		proces=`ps auxww | grep qemu | grep -v grep | grep -q /users/vmplayer/$m.qemu | awk '{print $2}'`
-		if [ "$proces" != "" ]; then
-			kill $proces
-		fi
-	fi
-done
+qemu -m 256 $QEMUOPT -redir tcp:${sp}:${ipvm}:22 /users/qemu/$m.qemu

@@ -343,24 +343,48 @@ void save_raidrec_to_file(struct
 	assert(fout != NULL);
 
 	fprintf(fout, "raiddev %s\n", raidrec->raid_device);
-	if (raidrec->raid_level == -1) {
+	if (raidrec->raid_level == -2) {
+		fprintf(fout, "    raid-level            multipath\n");
+	} else if (raidrec->raid_level == -1) {
 		fprintf(fout, "    raid-level            linear\n");
 	} else {
 		fprintf(fout, "    raid-level            %d\n",
 				raidrec->raid_level);
 	}
-	fprintf(fout, "    chunk-size            %d\n", raidrec->chunk_size);
 	fprintf(fout, "    nr-raid-disks         %d\n",
 			raidrec->data_disks.entries);
-	fprintf(fout, "    nr-spare-disks        %d\n",
-			raidrec->spare_disks.entries);
+	if (raidrec->spare_disks.entries > 0) {
+		fprintf(fout, "    nr-spare-disks        %d\n",
+				raidrec->spare_disks.entries);
+	}
 	if (raidrec->parity_disks.entries > 0) {
 		fprintf(fout, "    nr-parity-disks       %d\n",
 				raidrec->parity_disks.entries);
 	}
-
 	fprintf(fout, "    persistent-superblock %d\n",
 			raidrec->persistent_superblock);
+	if (raidrec->chunk_size > -1) {
+	  fprintf(fout, "    chunk-size            %d\n", raidrec->chunk_size);
+	}
+	if (raidrec->parity > -1) {
+	  switch(raidrec->parity) {
+	  case 0:
+	    fprintf(fout, "    parity-algorithm      left-asymmetric\n");
+	    break;
+	  case 1:
+	    fprintf(fout, "    parity-algorithm      right-asymmetric\n");
+	    break;
+	  case 2:
+	    fprintf(fout, "    parity-algorithm      left-symmetric\n");
+	    break;
+	  case 3:
+	    fprintf(fout, "    parity-algorithm      right-symmetric\n");
+	    break;
+	  default:
+	    fatal_error("Unknown RAID parity algorithm.");
+	    break;
+	  }
+	}
 	save_additional_vars_to_file(&raidrec->additional_vars, fout);
 	fprintf(fout, "\n");
 	save_disklist_to_file("raid-disk", &raidrec->data_disks, fout);
@@ -641,7 +665,9 @@ process_raidtab_line(FILE * fin,
 	assert(value != NULL);
 
 	if (!strcmp(label, "raid-level")) {
-		if (!strcmp(value, "linear")) {
+		if (!strcmp(value, "multipath")) {
+			raidrec->raid_level = -2;
+		} else if (!strcmp(value, "linear")) {
 			raidrec->raid_level = -1;
 		} else {
 			raidrec->raid_level = atoi(value);
@@ -654,6 +680,18 @@ process_raidtab_line(FILE * fin,
 		raidrec->persistent_superblock = atoi(value);
 	} else if (!strcmp(label, "chunk-size")) {
 		raidrec->chunk_size = atoi(value);
+	} else if (!strcmp(label, "parity-algorithm")) {
+		if (!strcmp(value, "left-asymmetric")) {
+			raidrec->parity = 0;
+		} else if (!strcmp(value, "right-asymmetric")) {
+			raidrec->parity = 1;
+		} else if (!strcmp(value, "left-symmetric")) {
+			raidrec->parity = 2;
+		} else if (!strcmp(value, "right-symmetric")) {
+			raidrec->parity = 3;
+		} else {
+			log_msg(1, "Unknown RAID parity algorithm '%s'\n.", value);
+		}
 	} else if (!strcmp(label, "device")) {
 		get_next_raidtab_line(fin, labelB, valueB);
 		if (!strcmp(labelB, "raid-disk")) {
@@ -897,147 +935,261 @@ long long size_spec(char *spec)
 
 
 
-int read_mdstat(struct s_mdstat *mdstat, char *mdstat_file)
-{
-	FILE *fin;
-	char *tmp;
-	char *stub;
-	char *incoming = NULL;
-	char *p, *q, *r;
-	int diskno;
-	size_t n = 0;
+int parse_mdstat(struct raidlist_itself *raidlist, char *device_prefix) {
 
-	malloc_string(incoming);
-	if (!(fin = fopen(mdstat_file, "r"))) {
-		log_msg(1, "%s not found", mdstat_file);
-		return (1);
+  const char delims[] = " ";
+
+  FILE   *fin;
+  int    res = 0, row, i, index_min;
+  int lastpos = 0;
+  size_t len = 0;
+  char   *token;
+  char *string = NULL;
+  char *pos;
+  char type;
+  char *strtmp;
+
+  // open file
+  if (!(fin = fopen(MDSTAT_FILE, "r"))) {
+    log_msg(1, "Could not open %s.\n", MDSTAT_FILE);
+    return 1;
+  }
+  // initialise record, build progress and row counters
+  raidlist->entries = 0;
+  raidlist->el[raidlist->entries].progress = 999;
+  row = 1;
+  // skip first output row - contains registered RAID levels
+  res = getline(&string, &len, fin);
+  // parse the rest
+  while ( !feof_unlocked(fin) ) {
+    res = getline(&string, &len, fin);
+    if (res <= 0) break;
+    // trim leading spaces
+    pos = string;
+    while (*pos == ' ') *pos++;
+	asprintf(&string, pos);
+	//
+    // if we have newline after only spaces, this is a blank line, update
+    // counters, otherwise do normal parsing
+    if (*string == '\n') {
+      row = 1;
+      raidlist->entries++;
+      raidlist->el[raidlist->entries].progress = 999;
+    } else {
+      switch (row) {
+      case 1:  // device information
+	// check whether last line of record and if so skip
+	pos = strcasestr(string, "unused devices: ");
+	if (pos == string) {
+	  //raidlist->entries--;
+	  break;
 	}
-	mdstat->entries = 0;
-	for (getline(&incoming, &n, fin); !feof(fin);
-		 getline(&incoming, &n, fin)) {
-		p = incoming;
-		if (*p != 'm' && *(p + 1) == 'm') {
-			p++;
-		}
-		if (strncmp(p, "md", 2)) {
-			continue;
-		}
-// read first line --- mdN : active raidX ............
-		mdstat->el[mdstat->entries].md = atoi(p + 2);
-		log_msg(8, "Storing /dev/md%d's info", atoi(p + 2));
-		while (*p != ':' && *p) {
-			p++;
-		}
-		while ((*p != 'r' || *(p + 1) != 'a') && *p) {
-			p++;
-		}
-		if (!strncmp(p, "raid", 4)) {
-			mdstat->el[mdstat->entries].raidlevel = *(p + 4) - '0';
-		}
-		p += 4;
-		while (*p != ' ' && *p) {
-			p++;
-		}
-		while (*p == ' ' && *p) {
-			p++;
-		}
-		for (diskno = 0; *p; diskno++) {
-			asprintf(&stub, "%s", p);
-			q = strchr(stub, '[');
-			if (q) {
-				*q = '\0';
-				q++;
-				r = strchr(q, ']');
-				if (r) {
-					*r = '\0';
-				}
-				mdstat->el[mdstat->entries].disks.el[diskno].index =
-					atoi(q);
-			} else {
-				mdstat->el[mdstat->entries].disks.el[diskno].index = -1;
-				q = strchr(stub, ' ');
-				if (q) {
-					*q = '\0';
-				}
-			}
-			asprintf(&tmp, "/dev/%s", stub);
-			paranoid_free(stub);
-
-			log_msg(8, "/dev/md%d : disk#%d : %s (%d)",
-					mdstat->el[mdstat->entries].md, diskno, tmp,
-					mdstat->el[mdstat->entries].disks.el[diskno].index);
-			strcpy(mdstat->el[mdstat->entries].disks.el[diskno].device,
-				   tmp);
-			paranoid_free(tmp);
-
-			while (*p != ' ' && *p) {
-				p++;
-			}
-			while (*p == ' ' && *p) {
-				p++;
-			}
-		}
-		mdstat->el[mdstat->entries].disks.entries = diskno;
-// next line --- skip it
-		if (!feof(fin)) {
-			getline(&incoming, &n, fin);
-		} else {
-			continue;
-		}
-// next line --- the 'progress' line
-		if (!feof(fin)) {
-			getline(&incoming, &n, fin);
-		} else {
-			continue;
-		}
-//  log_msg(1, "Percentage line = '%s'", incoming);
-		if (!(p = strchr(incoming, '\%'))) {
-			mdstat->el[mdstat->entries].progress = 999;	// not found
-		} else if (strstr(incoming, "DELAYED")) {
-			mdstat->el[mdstat->entries].progress = -1;	// delayed (therefore, stuck at 0%)
-		} else {
-			for (*p = '\0'; *p != ' '; p--);
-			mdstat->el[mdstat->entries].progress = atoi(p);
-		}
-		log_msg(8, "progress =%d", mdstat->el[mdstat->entries].progress);
-		mdstat->entries++;
+	// tokenise string
+	token = mr_strtok (string, delims, &lastpos);
+	// get RAID device name
+	asprintf(&strtmp,"%s%s", device_prefix, token);
+	strcpy(raidlist->el[raidlist->entries].raid_device, strtmp);
+	paranoid_free(strtmp);
+	paranoid_free(token);
+	// skip ':' and status
+	token = strtok (string, delims, &lastpos);
+	paranoid_free(token);
+	token = strtok (string, delims, &lastpos);
+	if (!strcmp(token, "inactive")) {
+	  log_msg(1, "RAID device '%s' inactive.\n",
+		 raidlist->el[raidlist->entries].raid_device);
+	  paranoid_free(string);
+	  paranoid_free(token);
+	  return 1;
 	}
-	fclose(fin);
-	paranoid_free(incoming);
-	return (0);
+	paranoid_free(token);
+
+	// get RAID level
+	token = strtok (string, delims, &lastpos);
+	if (!strcmp(token, "multipath")) {
+	  raidlist->el[raidlist->entries].raid_level = -2;
+	} else if (!strcmp(token, "linear")) {
+	  raidlist->el[raidlist->entries].raid_level = -1;
+	} else if (!strcmp(token, "raid0")) {
+	  raidlist->el[raidlist->entries].raid_level = 0;
+	} else if (!strcmp(token, "raid1")) {
+	  raidlist->el[raidlist->entries].raid_level = 1;
+	} else if (!strcmp(token, "raid4")) {
+	  raidlist->el[raidlist->entries].raid_level = 4;
+	} else if (!strcmp(token, "raid5")) {
+	  raidlist->el[raidlist->entries].raid_level = 5;
+	} else if (!strcmp(token, "raid6")) {
+	  raidlist->el[raidlist->entries].raid_level = 6;
+	} else if (!strcmp(token, "raid10")) {
+	  raidlist->el[raidlist->entries].raid_level = 10;
+	} else {
+	  log_msg(1, "Unknown RAID level '%s'.\n", token);
+	  paranoid_free(string);
+	  paranoid_free(token);
+	  return 1;
+	}
+	paranoid_free(token);
+
+	// get RAID devices (type, index, device)
+	// Note: parity disk for RAID4 is last normal disk, there is no '(P)'
+	raidlist->el[raidlist->entries].data_disks.entries = 0;
+	raidlist->el[raidlist->entries].spare_disks.entries = 0;
+	raidlist->el[raidlist->entries].failed_disks.entries = 0;
+	while((token = strtok (string, delims, &lastpos))) {
+	  if ((pos = strstr(token, "("))) {
+	    type = *(pos+1);
+	  } else {
+	    type = ' ';
+	  }
+	  pos = strstr(token, "[");
+	  *pos = '\0';
+	  switch(type) {
+	  case ' ': // normal data disks
+	    raidlist->el[raidlist->entries].data_disks.el[raidlist->el[raidlist->entries].data_disks.entries].index = atoi(pos + 1);
+	    asprintf(&strtmp,"%s%s", device_prefix, token);
+	    strcpy(raidlist->el[raidlist->entries].data_disks.el[raidlist->el[raidlist->entries].data_disks.entries].device, strtmp);
+	    paranoid_free(strtmp);
+	    raidlist->el[raidlist->entries].data_disks.entries++;
+	    break;
+	  case 'S': // spare disks
+	    raidlist->el[raidlist->entries].spare_disks.el[raidlist->el[raidlist->entries].spare_disks.entries].index = atoi(pos + 1);
+	    asprintf(&strtmp,"%s%s", device_prefix, token);
+	    strcpy(raidlist->el[raidlist->entries].spare_disks.el[raidlist->el[raidlist->entries].spare_disks.entries].device, strtmp);
+	    paranoid_free(strtmp);
+	    raidlist->el[raidlist->entries].spare_disks.entries++;
+	    break;
+	  case 'F': // failed disks
+	    raidlist->el[raidlist->entries].failed_disks.el[raidlist->el[raidlist->entries].failed_disks.entries].index = atoi(pos + 1);
+	    asprintf(&strtmp,"%s%s", device_prefix, token);
+	    strcpy(raidlist->el[raidlist->entries].failed_disks.el[raidlist->el[raidlist->entries].failed_disks.entries].device, strtmp);
+	    paranoid_free(strtmp);
+	    raidlist->el[raidlist->entries].failed_disks.entries++;
+	    log_it("At least one failed disk found in RAID array.\n");
+	    break;
+	  default: // error
+	    log_msg(1, "Unknown device type '%c'\n", type);
+	    paranoid_free(string);
+	    paranoid_free(token);
+	    return 1;
+	    break;
+	  }
+	  paranoid_free(token);
+	}
+
+	// adjust index for each device so that it starts with 0 for every type
+	index_min = 99;
+	for (i=0; i<raidlist->el[raidlist->entries].data_disks.entries;i++) {
+	  if (raidlist->el[raidlist->entries].data_disks.el[i].index < index_min) {
+	    index_min = raidlist->el[raidlist->entries].data_disks.el[i].index;
+	  }
+	}
+	if (index_min > 0) {
+	  for (i=0; i<raidlist->el[raidlist->entries].data_disks.entries;i++) {
+	    raidlist->el[raidlist->entries].data_disks.el[i].index = raidlist->el[raidlist->entries].data_disks.el[i].index - index_min;	
+	  }
+	}
+	index_min = 99;
+	for (i=0; i<raidlist->el[raidlist->entries].spare_disks.entries;i++) {
+	  if (raidlist->el[raidlist->entries].spare_disks.el[i].index < index_min) {
+	    index_min = raidlist->el[raidlist->entries].spare_disks.el[i].index;
+	  }
+	}
+	if (index_min > 0) {
+	  for (i=0; i<raidlist->el[raidlist->entries].spare_disks.entries;i++) {
+	    raidlist->el[raidlist->entries].spare_disks.el[i].index = raidlist->el[raidlist->entries].spare_disks.el[i].index - index_min;	
+	  }
+	}
+	index_min = 99;
+	for (i=0; i<raidlist->el[raidlist->entries].failed_disks.entries;i++) {
+	  if (raidlist->el[raidlist->entries].failed_disks.el[i].index < index_min) {
+	    index_min = raidlist->el[raidlist->entries].failed_disks.el[i].index;
+	  }
+	}
+	if (index_min > 0) {
+	  for (i=0; i<raidlist->el[raidlist->entries].failed_disks.entries;i++) {
+	    raidlist->el[raidlist->entries].failed_disks.el[i].index = raidlist->el[raidlist->entries].failed_disks.el[i].index - index_min;	
+	  }
+	}
+	break;
+      case 2:  // config information
+	// check for persistent super block
+	if (strcasestr(string, "super non-persistent")) {
+	  raidlist->el[raidlist->entries].persistent_superblock = 0;
+	} else {
+	  raidlist->el[raidlist->entries].persistent_superblock = 1;
+	}
+	// extract chunk size
+	if (!(pos = strcasestr(string, "k chunk"))) {
+	  raidlist->el[raidlist->entries].chunk_size = -1;
+	} else {
+	  while (*pos != ' ') {
+	    *pos--;
+	    if (pos < string) {
+	      log_it("String underflow!\n");
+	      paranoid_free(string);
+	      return 1;
+	    }
+	  }
+	  raidlist->el[raidlist->entries].chunk_size = atoi(pos + 1);
+	}
+	// extract parity if present
+	if ((pos = strcasestr(string, "algorithm"))) {
+	  raidlist->el[raidlist->entries].parity = atoi(pos + 9);
+	} else {
+	  raidlist->el[raidlist->entries].parity = -1;
+	}
+	break;
+      case 3:  // optional build status information
+	if (!(pos = strchr(string, '\%'))) {
+	  if (strcasestr(string, "delayed")) {
+	    raidlist->el[raidlist->entries].progress = -1;	// delayed (therefore, stuck at 0%)
+	  } else {
+	    raidlist->el[raidlist->entries].progress = 999;	// not found
+	  }
+	} else {
+	  while (*pos != ' ') {
+	    *pos--;
+	    if (pos < string) {
+	      printf("ERROR: String underflow!\n");
+	      paranoid_free(string);
+	      return 1;
+	    }
+	  }
+	  raidlist->el[raidlist->entries].progress = atoi(pos);
+	}
+	break;
+      default: // error
+	log_msg(1, "Row %d should not occur in record!\n", row);
+	break;
+      }
+      row++;
+    }
+  }
+  // close file
+  fclose(fin);
+  // free string
+  paranoid_free(string);
+  // return success
+  return 0;
+
 }
 
 
 
-int create_raidtab_from_mdstat(char *raidtab_fname, char *mdstat_fname)
+
+int create_raidtab_from_mdstat(char *raidtab_fname)
 {
 	struct raidlist_itself *raidlist;
-	struct s_mdstat *mdstat;
 	int retval = 0;
-	int i;
 
 	raidlist = malloc(sizeof(struct raidlist_itself));
-	mdstat = malloc(sizeof(struct s_mdstat));
 
-	if (read_mdstat(mdstat, mdstat_fname)) {
-		log_to_screen("Sorry, cannot read %s", mdstat_fname);
+	// FIXME: Prefix '/dev/' should really be dynamic!
+	if (parse_mdstat(raidlist, "/dev/")) {
+		log_to_screen("Sorry, cannot read %s", MDSTAT_FILE);
 		return (1);
 	}
 
-	for (i = 0; i < mdstat->entries; i++) {
-		sprintf(raidlist->el[i].raid_device, "/dev/md%d",
-				mdstat->el[i].md);
-		raidlist->el[i].raid_level = mdstat->el[i].raidlevel;
-		raidlist->el[i].persistent_superblock = 1;
-		raidlist->el[i].chunk_size = 4;
-		memcpy((void *) &raidlist->el[i].data_disks,
-			   (void *) &mdstat->el[i].disks,
-			   sizeof(struct list_of_disks));
-		// FIXME --- the above line does not allow for spare disks
-		log_to_screen
-			(_("FIXME - create_raidtab_from_mdstat does not allow for spare disks"));
-	}
-	raidlist->entries = i;
 	retval += save_raidlist_to_raidtab(raidlist, raidtab_fname);
 	return (retval);
 }

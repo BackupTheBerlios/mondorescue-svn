@@ -2,7 +2,6 @@
    $Id$
 */
 
-
 /**
  * @file
  * Functions for handling strings.
@@ -1138,4 +1137,30 @@ char *media_descriptor_string(t_bkptype type_of_bkp)
 	return (type_of_backup);
 }
 
+
+/* New functions safe from a memory manageemnt point of view */
+/* Developped by Andree Leidenfrost */
+
+char *mr_strtok(char *instr, const char *delims, int *lastpos) {
+
+char *token = NULL;
+char *strptr = NULL;
+size_t pos1 = 0;
+size_t pos2 = 0;
+
+if (strlen(instr) <= *lastpos) {
+	*lastpos = 0;
+	return token;
+}
+
+strptr = instr + *lastpos;
+pos2 = strspn(strptr, delims);
+strptr += pos2;
+pos1 = strcspn(strptr, delims);
+token = malloc(sizeof(*token)*(pos1+1));
+strncpy(token, strptr, pos1);
+*lastpos = *lastpos + pos1 + pos2 + 1;
+
+return token;
+}
 /* @} - end of stringGroup */

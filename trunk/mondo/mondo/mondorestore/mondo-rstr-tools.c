@@ -1,125 +1,5 @@
-/***************************************************************************
-mondo-rstr-tools.c  -  description
------------------
-
-begin: Sun Sep 21 16:40:35 EDT 2003
-copyright : (C) 2002 Mondo  Hugo Rabson
-email	  : Hugo Rabson <hugorabson@msn.com>
-edited by : by Stan Benoit ?/2003
-email     : troff@nakedsoul.org
-cvsid     : $Id: mondo-rstr-tools.c
-***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
-/* mondo-rstr-tools.c               Hugo Rabson
-
-
-07/27
-- if the user is foolish enough to use /dev/md0 as boot device,
-  call lilo -M /dev/hda to make sure lilo does its job properly
-- better NFS+nuke support
-
-07/20
-- use backup's i-want-my-lvm file
-- be sure to use archives' raidtab when restoring
-
-07/18
-- use /tmp/isodir for NFS if DR mode
-- better support of users who boot from LVM CD and nuke-restore non-LVM backups
-
-07/12
-- bugfix to allow user to burn ISOs to CDs and restore from CDs (not original src)
-
-06/29
-- mount ext3 partitions as ext2, just in case :)
-
-06/26
-- delete make_relevant_partition_bootable()
-
-06/19
-- futzed with the call to mount floppy, to stop it from locking up on my AMD64 system
-
-06/14
-- shell out to /mnt/RESTORING chroot in order to let user install GRUB
-  manually if automatic GRUB installation fails
-
-06/15
-- Added check for different 'isodir' chosen by user than stored in the archive
-  Conor Daly <conor.daly@met.ie>
-
-04/17
-- replaced INTERNAL_TAPE_BLK_SIZE with bkpinfo->internal_tape_block_size
-
-04/09
-- don't try to mount CD if tape bkp
-
-04/03
-- trying to copy tmp/mondo-restore.cfg to itself - silly! - fixed
-
-04/02
-- when extracting cfg file and mountlist from all.tar.gz (tape copy),
-  use block size of INTERNAL_TAPE_BLK_SIZE, not TAPE_BLOCK_SIZE
-
-02/21
-- don't use 'mv -v' cos Busybox won't support it
-
-02/09
-- make hole for cfg file before moving it (line 2094 or so)
-
-02/03
-- changed a couple of refs to filelist.full, to filelist.full.gz
-
-01/16/2004
-- instead of copying filelist, use 'ln -sf' to link to original;
-  saves space
-
-11/20/2003
-- also retrieve /tmp/mountlist.txt if user wants
-
-11/16
-- fixed NFS path bug affecting the extractions of filelist/biggielist
-  during selective restore
-
-11/02
-- fixed mount_cdrom() to run properly w/ nfs restores
-- mount_device() returns 0 if swap mount fails cos swap isn't crucial
-
-10/17
-- run_grub() uses MNT_RESTORING instead of "/mnt/RESTORING"
-
-10/26
-- cleaned up run_grub()
-
-10/25
-- fixed mount_cdrom() to run properly w/ nfs restores
-
-10/21
-- mount_device() returns 0 if swap mount fails cos swap isn't crucial
-
-10/15
-- run_grub() now uses its initiative instead
-  of calling grub-install
-
-10/10
-- don't leave copies of filelist.full lying around, clogging up
-  the ramdisk, there's a good fellow :-)
-
-10/02
-- added 'dvd' to the range of media types I'll understand
-- fixed iso->cdr problem (thanks, Stan Benoit & Fred Beondo)
-
-09/24
-- try lots of tape devs if /dev/st0 fails
-
-09/23/2003
-- first incarnation
+/*
+ * $Id$
 */
 
 
@@ -2568,34 +2448,38 @@ int get_cfg_file_from_archive(struct s_bkpinfo *bkpinfo)
 void wait_until_software_raids_are_prepped(char *mdstat_file,
 										   int wait_for_percentage)
 {
-	struct s_mdstat *mdstat;
+	struct raidlist_itself *raidlist;
 	int unfinished_mdstat_devices = 9999, i;
 	char *screen_message;
 
 	malloc_string(screen_message);
-	mdstat = malloc(sizeof(struct s_mdstat));
+	raidlist = malloc(sizeof(struct raidlist_itself));
 
 	assert(wait_for_percentage <= 100);
 	iamhere("Help, my boat is sync'ing. (Get it? Urp! Urp!)");
 	while (unfinished_mdstat_devices > 0) {
-		if (read_mdstat(mdstat, mdstat_file)) {
-			log_to_screen(_("Sorry, cannot read %s"), mdstat_file);
+		if (parse_mdstat(raidlist, "/dev/")) {
+			log_to_screen("Sorry, cannot read %s", MDSTAT_FILE);
+			log_msg(1,"Sorry, cannot read %s", MDSTAT_FILE);
 			return;
 		}
-		for (unfinished_mdstat_devices = i = 0; i < mdstat->entries; i++) {
-			if (mdstat->el[i].progress < wait_for_percentage) {
+		for (unfinished_mdstat_devices = i = 0; i <= raidlist->entries; i++) {
+			if (raidlist->el[i].progress < wait_for_percentage) {
 				unfinished_mdstat_devices++;
-				sprintf(screen_message, _("Sync'ing /dev/md%d"),
-						mdstat->el[i].md);
+				log_msg(1,"Sync'ing %s (i=%d)", raidlist->el[i].raid_device, i);
+				sprintf(screen_message, "Sync'ing %s",
+						raidlist->el[i].raid_device);
 				open_evalcall_form(screen_message);
-				if (mdstat->el[i].progress == -1)	// delayed while another partition inits
+				if (raidlist->el[i].progress == -1)	// delayed while another partition inits
 				{
 					continue;
 				}
-				while (mdstat->el[i].progress < wait_for_percentage) {
-					update_evalcall_form(mdstat->el[i].progress);
+				while (raidlist->el[i].progress < wait_for_percentage) {
+					log_msg(1,"Percentage sync'ed: %d", raidlist->el[i].progress);
+					update_evalcall_form(raidlist->el[i].progress);
 					sleep(2);
-					if (read_mdstat(mdstat, mdstat_file)) {
+					// FIXME: Prefix '/dev/' should really be dynamic!
+					if (parse_mdstat(raidlist, "/dev/")) {
 						break;
 					}
 				}
@@ -2604,5 +2488,5 @@ void wait_until_software_raids_are_prepped(char *mdstat_file,
 		}
 	}
 	paranoid_free(screen_message);
-	paranoid_free(mdstat);
+	paranoid_free(raidlist);
 }

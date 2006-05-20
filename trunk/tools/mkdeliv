@@ -19,6 +19,8 @@ else
 	export TOOLHOME=${PWD}/$dname
 fi
 
+. $TOOLHOME/common-env
+. $TOOLHOME/svn-env
 . $TOOLHOME/rpm-env
 
 tgz=""

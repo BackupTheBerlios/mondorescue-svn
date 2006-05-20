@@ -21,11 +21,8 @@
  * @file
  * The main header file for Mondo.
  */
-#ifndef _MY_STUFF_H_
-#define _MY_STUFF_H_
 
 /* Required for the use of getline, ... */
-#define __USE_GNU
 #define _GNU_SOURCE
 
 #include <stdio.h>
@@ -82,6 +79,7 @@
 #include <string.h>
 #ifndef S_SPLINT_S
 #include <pthread.h>
+#endif
 #include <assert.h>
 
 /*
@@ -113,6 +111,11 @@ char *trace_log_ptr;
  * The mondo-restore.cfg stub (appended to the directory where all.tar.gz was unpacked).
  */
 #define MONDO_CFG_FILE_STUB "tmp/mondo-restore.cfg"
+
+/**
+ * The RAID kernel proc file
+ */
+#define MDSTAT_FILE "/proc/mdstat"
 
 /**
  * @bug Apparently unused.
@@ -425,7 +428,6 @@ extern void _mondo_assert_fail(const char *file, const char *function,
 # define N_(String) (String)  
 
 #endif 
-
 
 
 #endif							/* _MY_STUFF_H_ */

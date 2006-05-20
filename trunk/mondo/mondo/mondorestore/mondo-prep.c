@@ -694,6 +694,125 @@ int extrapolate_mountlist_to_include_raid_partitions(struct mountlist_itself
 
 
 /**
+ * Create @p RAID device using information from @p structure.
+ * This will create the specified RAID devive using information provided in
+ * raidlist by means of the mdadm tool.
+ * @param raidlist The structure containing all RAID information
+ * @param device The RAID device to create.
+ * @return 0 for success, nonzero for failure.
+ */
+int create_raid_device_via_mdadm(struct raidlist_itself *raidlist, char *device)
+{
+  /** int **************************************************************/
+  int i   = 0;
+  int j   = 0;
+  int res = 0;
+  
+  /** buffers ***********************************************************/
+  char *devices = NULL;
+  char *strtmp  = NULL;
+  char *level   = NULL;
+  char *program = NULL;
+  
+  // leave straight away if raidlist is initial or has no entries
+  if (!raidlist || raidlist->entries == 0) {
+    log_msg(1, "No RAID arrays found.");
+    return 1;
+  } else {
+    log_msg(1, "%d RAID arrays found.", raidlist->entries);
+  }
+  // find raidlist entry for requested device
+  for (i = 0; i < raidlist->entries; i++) {
+    if (!strcmp(raidlist->el[i].raid_device, device)) break;
+  }
+  // check whether RAID device was found in raidlist
+  if (i == raidlist->entries) {
+    log_msg(1, "RAID device %s not found in list.", device);
+    return 1;
+  }
+  // create device list from normal disks followed by spare ones
+  asprintf(&devices, raidlist->el[i].data_disks.el[0].device);
+  for (j = 1; j < raidlist->el[i].data_disks.entries; j++) {
+    asprintf(&strtmp, "%s", devices);
+    paranoid_free(devices);
+    asprintf(&devices, "%s %s", strtmp,
+	     raidlist->el[i].data_disks.el[j].device);
+    paranoid_free(strtmp);
+  }
+  for (j = 0; j < raidlist->el[i].spare_disks.entries; j++) {
+    asprintf(&strtmp, "%s", devices);
+    paranoid_free(devices);
+    asprintf(&devices, "%s %s", strtmp,
+	     raidlist->el[i].spare_disks.el[j].device);
+    paranoid_free(strtmp);
+  }
+  // translate RAID level
+  if (raidlist->el[i].raid_level == -2) {
+    asprintf(&level, "multipath");
+  } else if (raidlist->el[i].raid_level == -1) {
+    asprintf(&level, "linear");
+  } else {
+    asprintf(&level, "raid%d", raidlist->el[i].raid_level);
+  }
+  // create RAID device:
+  // - RAID device, number of devices and devices mandatory
+  // - parity algorithm, chunk size and spare devices optional
+  // - faulty devices ignored
+  // - persistent superblock always used as this is recommended
+  asprintf(&program,
+	   "mdadm --create --force --run --auto=yes %s --level=%s --raid-devices=%d",
+	   raidlist->el[i].raid_device, level,
+	   raidlist->el[i].data_disks.entries);
+  if (raidlist->el[i].parity != -1) {
+    asprintf(&strtmp, "%s", program);
+    paranoid_free(program);
+    switch(raidlist->el[i].parity) {
+    case 0:
+      asprintf(&program, "%s --parity=%s", strtmp, "la");
+      break;
+    case 1:
+      asprintf(&program, "%s --parity=%s", strtmp, "ra");
+      break;
+    case 2:
+      asprintf(&program, "%s --parity=%s", strtmp, "ls");
+      break;
+    case 3:
+      asprintf(&program, "%s --parity=%s", strtmp, "rs");
+      break;
+    default:
+      fatal_error("Unknown RAID parity algorithm.");
+      break;
+    }
+    paranoid_free(strtmp);
+  }
+  if (raidlist->el[i].chunk_size != -1) {
+    asprintf(&strtmp, "%s", program);
+    paranoid_free(program);
+    asprintf(&program, "%s --chunk=%d", strtmp, raidlist->el[i].chunk_size);
+    paranoid_free(strtmp);
+  }
+  if (raidlist->el[i].spare_disks.entries > 0) {
+    asprintf(&strtmp, "%s", program);
+    paranoid_free(program);
+    asprintf(&program, "%s --spare-devices=%d", strtmp,
+	     raidlist->el[i].spare_disks.entries);
+    paranoid_free(strtmp);
+  }
+  asprintf(&strtmp, "%s", program);
+  paranoid_free(program);
+  asprintf(&program, "%s %s", strtmp, devices);
+  paranoid_free(strtmp);
+  res = run_program_and_log_output(program, 1);
+  // free memory
+  paranoid_free(devices);
+  paranoid_free(level);
+  paranoid_free(program);
+  // return to calling instance
+  return res;
+}
+
+
+/**
  * Format @p device as a @p format filesystem.
  * This will use the format command returned by which_format_command_do_i_need().
  * If @p device is an LVM PV, it will not be formatted, and LVM will be started
@@ -703,7 +822,7 @@ int extrapolate_mountlist_to_include_raid_partitions(struct mountlist_itself
  * @param format The filesystem type to format it as.
  * @return 0 for success, nonzero for failure.
  */
-int format_device(char *device, char *format)
+int format_device(char *device, char *format, struct raidlist_itself *raidlist)
 {
 	/** int **************************************************************/
 	int res;
@@ -835,26 +954,28 @@ int format_device(char *device, char *format)
 		}
 
 		log_msg(1, "Making %s", device);
-		sprintf(program, "mkraid --really-force %s", device);
-		res = run_program_and_log_output(program, 1);
-		log_msg(1, "%s returned %d", program, res);
-		system("sync");
-		sleep(3);
-		start_raid_device(device);
-		if (g_fprep) {
-			fprintf(g_fprep, "%s\n", program);
+		// use mkraid if it exists, otherwise use mdadm
+  		if (run_program_and_log_output("which mkraid", FALSE)) {
+  			res = create_raid_device_via_mdadm(raidlist, device);
+  			log_msg(1, "Creating RAID device %s via mdadm returned %d", device, res);
+		} else {
+			sprintf(program, "mkraid --really-force %s", device);
+			res = run_program_and_log_output(program, 1);
+			log_msg(1, "%s returned %d", program, res);
+			system("sync");
+			sleep(3);
+			start_raid_device(device);
+			if (g_fprep) {
+				fprintf(g_fprep, "%s\n", program);
+			}
 		}
 		system("sync");
 		sleep(2);
-
 //      log_to_screen("Starting %s", device);
 //      sprintf(program, "raidstart %s", device);
 //      res = run_program_and_log_output(program, 1);
 //      log_msg(1, "%s returned %d", program, res);
 //      system("sync"); sleep(1);
-		if (g_fprep) {
-			fprintf(g_fprep, "%s\n", program);
-		}
 #endif
 		system("sync");
 		sleep(1);
@@ -922,8 +1043,8 @@ int format_device(char *device, char *format)
  * @param interactively If TRUE, then prompt the user before each partition.
  * @return The number of errors encountered (0 for success).
  */
-int format_everything(struct mountlist_itself *mountlist,
-					  bool interactively)
+int format_everything(struct mountlist_itself *mountlist, bool interactively,
+					      struct raidlist_itself *raidlist)
 {
 	/** int **************************************************************/
 	int retval = 0;
@@ -982,7 +1103,7 @@ int format_everything(struct mountlist_itself *mountlist,
 			}
 			if (do_it) {
 				// NB: format_device() also stops/starts RAID device if necessary
-				retval += format_device(me->device, me->format);
+				retval += format_device(me->device, me->format, raidlist);
 			}
 			g_current_progress += progress_step;
 		}
@@ -999,7 +1120,7 @@ int format_everything(struct mountlist_itself *mountlist,
 // do LVMs now
 	log_msg(1, "Creating LVMs");
 	if (does_file_exist("/tmp/i-want-my-lvm")) {
-		wait_until_software_raids_are_prepped("/proc/mdstat", 10);
+		wait_until_software_raids_are_prepped("/proc/mdstat", 100);
 		log_to_screen(_("Configuring LVM"));
 		if (!g_text_mode) {
 			newtSuspend();
@@ -1075,7 +1196,7 @@ int format_everything(struct mountlist_itself *mountlist,
 			}
 
 			if (do_it)
-				retval += format_device(me->device, me->format);
+				retval += format_device(me->device, me->format, raidlist);
 		}
 
 		// update progress bar
@@ -2245,8 +2366,12 @@ int stop_raid_device(char *raid_device)
 	}
 	sprintf(program, "vinum stop -f %s", raid_device);
 #else
-	sprintf(program, "raidstop %s", raid_device);
-//      sprintf (program, "raidstop " RAID_DEVICE_STUB "*");
+  	// use raidstop if it exists, otherwise use mdadm
+  	if (run_program_and_log_output("which raidstop", FALSE)) {
+		sprintf(program, "mdadm -S %s", raid_device);
+	} else {
+		sprintf(program, "raidstop %s", raid_device);
+	}
 #endif
 	log_msg(1, "program = %s", program);
 	res = run_program_and_log_output(program, 1);

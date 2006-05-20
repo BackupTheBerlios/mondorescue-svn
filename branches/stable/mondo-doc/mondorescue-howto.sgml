@@ -39,7 +39,15 @@ CD/floppy set which Mondo uses at boot-time.
 <surname>Cornec</surname>
 <affiliation>
 <orgname>MondoRescue Project</orgname>
-<address><email>bcornec@users.berlios.de</email></address>
+<address><email>bruno@mondorescue.org</email></address>
+</affiliation>
+</author>
+<author>
+<firstname>Conor</firstname>
+<surname>Daly</surname>
+<affiliation>
+<orgname>MondoRescue Project</orgname>
+<address><email>conor.daly_at_met.ie</email></address>
 </affiliation>
 </author>
 <!--
@@ -53,7 +61,7 @@ Bryan J. Smith
 
 <copyright>
 <year>2000-2006</year>
-<holder role="mailto:bcornec@users.berlios.de">Bruno Cornec</holder>
+<holder role="mailto:bruno@mondorescue.org">Bruno Cornec</holder>
 </copyright>
 
 <legalnotice>
@@ -76,6 +84,16 @@ eady copyrighted is released under the GPL.
 </legalnotice>
 
 <revhistory>
+<revision>
+	<revnumber>2.0.7</revnumber>
+	<date>2006-05-16</date>
+	<authorinitials>Bruno Cornec</authorinitials>
+	<revdescription>
+	<para>
+	Integration of a chapter on HOWTO run mondo interactively using cron written by Conor Daly
+	</para>
+	</revdescription>
+</revision>
 <revision>
 	<revnumber>2.06</revnumber>
 	<date>2006-01-16</date>
@@ -465,6 +483,10 @@ execute as root</para>
 <entry>
 
 		bash# mindi
+</entry>
+</row>
+<row>
+<entry>
 		bash# cd /root/images/mindi
 
 </entry>
@@ -546,10 +568,26 @@ the command line</para>
 <entry>
 
 		bash# mkdir -p /mnt/nfs
+</entry>
+</row>
+<row>
+<entry>
 		bash# mount 192.168.1.28:/home/nfs /mnt/nfs
-		bash# mondoarchive -OVn 192.168.1.28:/home/nfs -gF[...]
-		bash# umount /mnt/nfs
-		bash# cdrecord dev=0,0,0 speed=4 -eject -v /root/images/mindi/mindi.iso
+		</entry>
+</row>
+<row>
+<entry>
+bash# mondoarchive -OVn 192.168.1.28:/home/nfs -gF[...]
+		</entry>
+</row>
+<row>
+<entry>
+bash# umount /mnt/nfs
+		</entry>
+</row>
+<row>
+<entry>
+bash# cdrecord dev=0,0,0 speed=4 -eject -v /root/images/mindi/mindi.iso
 
 </entry>
 </row>
@@ -938,8 +976,20 @@ you have enough space, for example /tmp and type:</para>
 <entry>
 
 		bash# cd /tmp
+</entry>
+</row>
+<row>
+<entry>
 		bash# tar -zxvf mindi-1.x.tgz
-		bash# cd mindi-1.x
+		</entry>
+</row>
+<row>
+<entry>
+bash# cd mindi-1.x
+</entry>
+</row>
+<row>
+<entry>
 		bash# ./install.sh
 
 </entry>
@@ -956,8 +1006,16 @@ wherever you have enough space, for example /tmp and type:</para>
 <entry>
 
 bash# rpm -Uvh /tmp/mindi-1.x-x.i386.rpm
+</entry>
+</row>
+<row>
+<entry>
 
 or
+</entry>
+</row>
+<row>
+<entry>
 
 bash# dpkg -i /tmp/mindi-1.x-x.deb
 
@@ -980,9 +1038,21 @@ you have enough space, for example /tmp and type:</para>
 <entry>
 
 		bash# cd /tmp
+</entry>
+</row>
+<row>
+<entry>
 		bash# tar -zxvf mondo-2.xx.tgz
-		bash# cd mondo-2.xx
-		bash# make &amp;&amp; make install
+		</entry>
+</row>
+<row>
+<entry>
+bash# cd mondo-2.xx
+		</entry>
+</row>
+<row>
+<entry>
+bash# make &amp;&amp; make install
 
 </entry>
 </row>
@@ -999,8 +1069,16 @@ type:</para>
 <entry>
 
 bash# rpm -Uvh /tmp/mondo-2.x-x.i386.rpm
+</entry>
+</row>
+<row>
+<entry>
 
 or
+</entry>
+</row>
+<row>
+<entry>
 
 bash# dpkg -i /tmp/mondo-2.x-x.deb
 
@@ -1052,9 +1130,7 @@ bash# mindi
 <para>Example screen output, selecting to use your own kernel, to
 create boot disks, and to create a bootable CD image:</para>
 <para></para>
-<informaltable><tgroup cols="1"><tbody>
-<row>
-<entry>
+<screen>
 
 # mindi
 Mindi Linux mini-distro generator v1.06-r343
@@ -1121,9 +1197,7 @@ Boot and data disk images were created.
 
 #
 		
-</entry>
-</row>
-</tbody></tgroup></informaltable>
+</screen>
 
 <para>If your kernel is too large (more than about 900KB) then you
 cannot make boot floppies, although you can still make a bootable
@@ -1138,6 +1212,10 @@ CD-RW.</para>
 <entry>
 
 		bash# cd /root/images/mindi
+</entry>
+</row>
+<row>
+		<entry>
 		bash# cdrecord -scanbus
 
 </entry>
@@ -1237,14 +1315,8 @@ write the first (or any) disk, it will offer to retry, abort or
 fail.</para>
 <para>Find the speed/compression
 compromise that best suits your needs. Here maximum (-9) compression level is used.</para>
-<para>If you are using cron then please use -F to make sure that
-Mondo does not prompt you to create bootable floppy disks. Cron
-does not handle user interaction well because it pipes stdin and
-stdout specially. Please consult cron's manual for more
-information. Jesse Keating has written a script for cron/Mondo
-users. It is available on the
-<ulink url="http://www.mondorescue.org/docs/docs.html">Documentation</ulink>
-page.</para>
+<para>If you are using cron then please consult the chapter that Conor Daly has dedicated to that <link linkend="backup-cron">topic</link>
+</para>
 </sect1>
 
 <sect1 id="backup-cmd">
@@ -1357,7 +1429,15 @@ bash# mondoarchive -k FAILSAFE -Ow 2
 <entry>
 
 		bash# mount 192.168.1.3:/home/nfs -t nfs /mnt/nfs
+</entry>
+</row>
+<row>
+		<entry>
 		bash# mondoarchive -OVn 192.168.1.3:/home/nfs -g -s 200m
+</entry>
+</row>
+<row>
+		<entry>
 		bash# umount /mnt/nfs
 
 </entry>
@@ -1373,6 +1453,320 @@ archives are on the CD's). Or, you can boot from the Mindi floppies
 		to work, please refer to the file README.pxe provided with 
 		your mindi package.
 </para>
+</sect2>
+</sect1>
+</chapter>
+
+<chapter id="backup-cron">
+<title>HOWTO run mondo interactively using cron</title>
+
+<sect1 id="backup-cron-overview">
+<title>Overview</title>
+
+<para>
+		Mondoarchive is designed to run interactively (at least where
+ media changes are necessary). Cron does not allow user interaction
+ with a job. This section addresses the problem by using screen as a
+ wrapper for mondo.
+</para>
+<para>
+		This section is Copyright 2003 Conor Daly.
+</para>
+</sect1>
+<sect1 id="backup-cron-intro">
+		<title>Introduction</title>
+
+<para>
+Mondoarchive is designed to run interactively. That's not strictly
+ true, if you run mondoarchive without the '-g' switch, it will just
+ run. However, there is a problem where media changes are necessary.
+ The user must change the media and tell mondoarchive that the change
+ has been done. The problem lies in the fact that cron does not allow
+ user interaction with a job. If you schedule a mondoarchive job via
+ cron, you better be sure it needs only one media. in practical terms,
+ this means using tapes or ISOs (if CD-R(W) is your backup medium).
+ However, for tape users, there's always the possibility that the
+ backup will overflow the tape while for CD-R(W) users, there is the
+ added hassle of burning the ISOs in the morning. If your CD_R(W)
+ backup routinely occupies more than one media, this is not for you
+ (use the ISO option and burn the CDs in the morning). This HOWTO
+ addresses the problem by using screen as a wrapper for mondo.
+</para>
+</sect1>
+<sect1 id="backup-cron-who">
+		<title>Who should read this?</title>
+<sect2><title>Insurance</title>
+<para>
+Mondo users who wish to automate the backup and whose backups
+ routinely occupy close to one media are the best audience. If you
+ backup to tape, the occasion will arise when the backup will overflow
+ your tape. In this instance, mondoarchive will ask for another tape.
+ If you're using cron to start the backup, you won't be able to tell
+ mondo that the new tape is mounted and the backup will fail. If you
+ backup to CD-R(W), the same situation will arise but sooner.
+ </para>
+ </sect2>
+ <sect2><title>Efficiency</title>
+<para>
+If your backup already occupies two media, this method will allow
+ as much of the backup as possible to proceed during quiet periods.
+ Time the backup to start wich enough time to complete the first media
+ shortly before the operator arrives for work. The next media can
+ be mounted and the backup completed asap and minimises the time for
+ which users are inconvenienced by the backup (eg. database locked...).
+ </para>
+ </sect2>
+ </sect1>
+ <sect1 id="backup-cron-problem">
+		 <title>The Problem</title>
+<sect2><title>Cron's environment</title>
+<para>
+When a user submits a job with cron, their environment is not
+ preserved. This is reasonable since cron jobs are typically ongoing
+ and may be adversely affected if the user's environment changes subsequent
+ to the cron submission. Thus, a cron job should call a script that
+ set's up the correct environment before starting the user's desired
+ program. The 'at' command does this nicely.
+ </para>
+ </sect2>
+ <sect2><title>Interactivity</title>
+<para>
+When a job is started with cron, it runs as a background process.
+ No interaction with the program is possible (unless it is capable
+ of interacting via a FIFO or some such) except termination via its
+ pid. The only program that I know of that allows such interaction
+ and serves as a wrapper for other prrocesses is 'screen'
+ </para>
+ </sect2>
+ <sect2><title>Screen</title>
+<para>
+There's one little problem with screen though. It expects to
+ attach to a terminal when it first starts. This won't happen under
+ cron so screen will fail. Fortunately, screen comes with a "start
+ detached" option.
+ </para>
+ </sect2>
+ </sect1>
+ <sect1 id="backup-cron-solution">
+		 <title>The Solution</title>
+<sect2><title>Briefly</title>
+<para>
+<itemizedlist>
+<listitem>
+		<para>Use 'at' to run your usual mondoarchive command</para>
+</listitem>
+<listitem>
+		<para>Grab the script generated by 'at' and make a copy of it</para>
+		</listitem>
+<listitem>
+		<para>Edit that script to use 'screen -m -d &lt;your mondoarchive command&gt;'</para>
+		</listitem>
+<listitem>
+		<para>Run that script from your crontab</para>
+		</listitem>
+<listitem>
+		<para>Use 'screen -r' to attach to the mondo screen to change CDs</para>
+		</listitem>
+<listitem>
+		<para>Use '&lt;CTRL&gt;-a d' to detach the screen again</para>
+</listitem>
+</itemizedlist>
+</para>
+</sect2>
+<sect2><title>In Detail</title>
+		<sect3><title>at</title>
+<para>
+Use the 'at' command to submit your usual mondoarchive command.
+My mondoarchive command is:
+</para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+	# mondoarchive -D -Ow 10 -S /home/mondo/ -T /home/mondo/ -g &bsol;
+-E &quot;&bsol;&quot;/home/cdaly/GIS/W2K /home/mondo/&bsol;&quot;&quot; -9
+
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+<para>
+		To submit the mondoarchive command with 'at' do:
+</para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+	# at now + 5 min 
+mondoarchive -D -Ow 10 -S /home/mondo/ -T /home/mondo/ -g &bsol;
+-E &quot;&bsol;&quot;/home/cdaly/GIS/W2K /home/mondo/&bsol;&quot;&quot; -9 
+&lt;CTRL&gt;-d
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+<para>
+
+This generates a script in /var/spool/at/ which sets up your
+ environment and runs your command. Grab this script to become your
+ cron job.
+ </para>
+ </sect3>
+ <sect3><title>Grab the 'at' script</title>
+<para>
+		Make a copy of the script generated by the 'at' command to use
+		as the basis for your cron job.
+		</para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+
+grep mondo /var/spool/at/* 
+</entry>
+</row>
+<row>
+		<entry>
+cp /var/spool/at/&lt;file-from-grep&gt; /root/mondo-cronscript
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+<para>
+
+		You'll need to edit this.
+</para>
+ </sect3>
+<sect3><title>Edit mondo-cronscript</title>
+<para>
+To use screen, you'll need to edit the cronscript and add the
+ screen command. My mondo-cronscript looks like:
+</para>
+<screen>
+
+#!/bin/sh 
+# atrun uid=0 gid=0 
+# mail    cdaly 0 umask 22 
+PWD=/root; export PWD 
+XAUTHORITY=/root/.xauthyOrD4f; export XAUTHORITY 
+HOSTNAME=bofh.irmet.ie; export HOSTNAME 
+PVM_RSH=/usr/bin/rsh; export PVM_RSH 
+QTDIR=/usr/lib/qt-2.3.1; export QTDIR 
+LESSOPEN=\|/usr/bin/lesspipe.sh\ %s; export LESSOPEN 
+XPVM_ROOT=/usr/share/pvm3/xpvm; export XPVM_ROOT 
+KDEDIR=/usr; export KDEDIR 
+USER=root; export USER 
+LS_COLORS=no=00:fi=00:di=01\;34:ln=01\;36:pi=40\;33:so=01\;35:bd=40\;33\;01:cd=40\;33\;01:or=01\;05\;37\;41:mi=01\;05\;37\;41:ex=01\;32:\*.cmd=01\;32:\*.exe=01\;32:\*.com=01\;32:\*.btm=01\;32:\*.bat=01\;32:\*.sh=01\;32:\*.csh=01\;32:\*.tar=01\;31:\*.tgz=01\;31:\*.arj=01\;31:\*.taz=01\;31:\*.lzh=01\;31:\*.zip=01\;31:\*.z=01\;31:\*.Z=01\;31:\*.gz=01\;31:\*.bz2=01\;31:\*.bz=01\;31:\*.tz=01\;31:\*.rpm=01\;31:\*.cpio=01\;31:\*.jpg=01\;35:\*.gif=01\;35:\*.bmp=01\;35:\*.xbm=01\;35:\*.xpm=01\;35:\*.png=01\;35:\*.tif=01\;35:; export LS_COLORS 
+MACHTYPE=i386-redhat-linux-gnu; export MACHTYPE 
+MAIL=/var/spool/mail/root; export MAIL 
+INPUTRC=/etc/inputrc; export INPUTRC 
+BASH_ENV=/root/.bashrc; export BASH_ENV 
+LANG=en_US; export LANG 
+LOGNAME=root; export LOGNAME 
+SHLVL=1; export SHLVL 
+II_SYSTEM=/usr/local/ingres; export II_SYSTEM
+USERNAME=root; export USERNAME 
+HOSTTYPE=i386; export HOSTTYPE 
+OSTYPE=linux-gnu; export OSTYPE 
+HISTSIZE=1000; export HISTSIZE 
+LAMHELPFILE=/etc/lam/lam-helpfile; export LAMHELPFILE 
+PVM_ROOT=/usr/share/pvm3; export PVM_ROOT 
+HOME=/root; export HOME 
+SSH_ASKPASS=/usr/libexec/openssh/gnome-ssh-askpass; 
+export SSH_ASKPASS 
+PATH=/usr/local/ingres/ingres/bin:/usr/local/ingres/ingres/utility:/usr/kerberos/sbin:/usr/kerberos/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/bin/X11:/usr/X11R6/bin:/root/bin; export PATH 
+cd /root || {
+echo 'Execution directory inaccessible' >&2     
+exit 1 
+} 
+screen -m -d mondoarchive -D -Ow 10 -S /home/mondo/ -T \
+/home/mondo/ -g -E "\"/home/cdaly/GIS/W2K /home/mondo/\"" -9
+#done
+
+</screen>
+<para>
+		The crucial line is this one:
+</para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+		screen -m -d mondoarchive -D -Ow 10 -S /home/mondo/ -T &bsol;
+/home/mondo/ -g -E &quot;&bsol;&quot;/home/cdaly/GIS/W2K /home/mondo/&bsol;&quot;&quot; -9
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+<para>
+This uses 'screen -m -d' to <quote>-m -d Start screen in "detached" mode. This creates a new session
+ but doesn't attach to it. This is useful for system startup scripts.
+ (From 'man screen')
+</quote>	
+</para>
+<para>
+	When screen starts, it will be in the background and "detached".
+</para>
+</sect3>
+<sect3><title>Run the thing with cron</title>
+<para>
+		To get the whole thing running, do:
+</para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+		crontab -e
+		</entry>
+</row>
+</tbody></tgroup></informaltable>
+<para>
+and add the following lines:
+</para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+&num; run mondoarchive at 23:59 weekdays 
+</entry>
+</row>
+<row>
+		<entry>
+59 23 * * 1-5 /root/mondo-cronscript
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+<para>
+		Your mondoarchive job will run at 23:59 monday-friday.
+</para>
+<para>
+DON'T FORGET TO CHANGE TAPES!
+</para>
+</sect3>
+<sect3><title>Getting at it...</title>
+<para>
+Once your cron job is running regularly, you'll want to get to
+ it to change tapes and check status etc.
+</para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+screen -r 
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+<para>
+attaches to the running screen where you can change CDs etc
+</para>
+<informaltable><tgroup cols="1"><tbody>
+<row>
+<entry>
+&lt;CTRL&gt;-a d 
+</entry>
+</row>
+</tbody></tgroup></informaltable>
+<para>
+detaches the running screen again.
+</para>
+</sect3>
+<sect3><title>Caveat</title>
+<para>
+The script generated by 'at' is unique to the user/machine combination.
+ You MUST regenerate it on each machine where it will be used. Using
+ the one above will NOT work for you. MAKE YOUR OWN!
+</para>
+</sect3>
 </sect2>
 </sect1>
 </chapter>
@@ -1502,11 +1896,30 @@ bash# mondorestore --mbr
 <informaltable><tgroup cols="1"><tbody>
 <row>
 <entry>
-
 		bash# mount-me
+</entry>
+</row>
+<row>
+<entry>
 		bash# chroot /mnt/RESTORING
-		bash# lilo OR grub-install '(hd0)'
-		bash# exit
+		</entry>
+</row>
+<row>
+<entry>
+		</entry>
+</row>
+<row>
+<entry>
+bash# lilo OR grub-install '(hd0)'
+		</entry>
+</row>
+<row>
+<entry>
+bash# exit
+</entry>
+</row>
+<row>
+<entry>
 		bash# unmount-me
 
 </entry>
@@ -1615,11 +2028,31 @@ bash# interactive
 <entry>
 
 		Do you want to partition your devices? no
-		Do you want to format them? no
-		Do you want to restore everything? no
-		Do you want to restore something? yes
-		Which path do you want to restore? /mydata [e.g.]
-		Do you want to run LILO to setup your boot sectors? Yes
+		</entry>
+</row>
+<row>
+<entry>
+Do you want to format them? no
+		</entry>
+</row>
+<row>
+<entry>
+Do you want to restore everything? no
+		</entry>
+</row>
+<row>
+<entry>
+Do you want to restore something? yes
+		</entry>
+</row>
+<row>
+<entry>
+Which path do you want to restore? /mydata [e.g.]
+		</entry>
+</row>
+<row>
+<entry>
+Do you want to run LILO to setup your boot sectors? Yes
 
 </entry>
 </row>
@@ -1722,8 +2155,20 @@ called a mountlist. This can be found on the ramdisk at
 <entry>
 
 		/dev/hda1	/mnt/windows	vfat		4096000
+</entry>
+</row>
+<row>
+<entry>
 		/dev/hda5	/				reiserfs	6023000
+</entry>
+</row>
+<row>
+<entry>
 		/dev/hda6	/tmp			xfs			955000
+</entry>
+</row>
+<row>
+<entry>
 		/dev/hda7	/usr			ext3		4096000
 
 </entry>
@@ -1752,9 +2197,25 @@ read:</para>
 <entry>
 
 		/dev/hda1	/mnt/windows	vfat		6096000
+</entry>
+</row>
+<row>
+<entry>
 		/dev/hda5	/				reiserfs	9123000
+</entry>
+</row>
+<row>
+<entry>
 		/dev/hda6	/tmp			xfs			955000
+</entry>
+</row>
+<row>
+<entry>
 		/dev/hdb1	/usr			ext3		8192000
+</entry>
+</row>
+<row>
+<entry>
 		/dev/hdb2	/home			xfs			8192000
 
 </entry>
@@ -1772,9 +2233,25 @@ HOWTO) and then write a mountlist like this:</para>
 <entry>
 
 		/dev/hda1	/mnt/windows	vfat		6096000
+</entry>
+</row>
+<row>
+<entry>
 		/dev/md0	/				reiserfs	9123000
+</entry>
+</row>
+<row>
+<entry>
 		/dev/md1	/tmp			xfs			955000
+</entry>
+</row>
+<row>
+<entry>
 		/dev/md2	/usr			ext3		8192000
+</entry>
+</row>
+<row>
+<entry>
 		/dev/md3	/home			xfs			8192000
 
 </entry>
@@ -2288,11 +2765,35 @@ the images to disk as follows:-</para>
 <row>
 <entry>
 		Put an empty Boot floppy
+</entry>
+</row>
+<row>
+<entry>
 		bash# fdformat /dev/fd0u1722
+</entry>
+</row>
+<row>
+<entry>
 		bash# dd if=/root/images/mindi/mindi-boot.1722.img of=/dev/fd0u1722
+</entry>
+</row>
+<row>
+<entry>
 		Put an empty Data floppy
+</entry>
+</row>
+<row>
+<entry>
 		bash# fdformat /dev/fd0
+</entry>
+</row>
+<row>
+<entry>
 		bash# dd if=/root/images/mindi/mindi-data-N.img of=/dev/fd0
+</entry>
+</row>
+<row>
+<entry>
 		Replace N with 1, 2, etc.
 
 </entry>
@@ -2413,6 +2914,10 @@ floppy. Type:</para>
 <entry>
 
 		bash# cd /mnt/cdrom/images
+</entry>
+</row>
+<row>
+<entry>
 		bash# dd if=mindi-boot.1722.img of=/dev/fd0u1722
 
 </entry>

@@ -56,5 +56,6 @@ fi
 %doc ChangeLog INSTALL COPYING README TODO README.ia64 README.pxe README.busybox svn.log
 %{_mandir}/man8/*
 %{_libdir}/mindi
+%{_sbindir}/*
 
 %changelog

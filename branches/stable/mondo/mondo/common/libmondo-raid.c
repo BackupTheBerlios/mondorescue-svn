@@ -1066,9 +1066,9 @@ int parse_mdstat(struct raidlist_itself *raidlist, char *device_prefix) {
 	paranoid_free(strtmp);
 	paranoid_free(token);
 	// skip ':' and status
-	token = strtok (string, delims, &lastpos);
+	token = mr_strtok (string, delims, &lastpos);
 	paranoid_free(token);
-	token = strtok (string, delims, &lastpos);
+	token = mr_strtok (string, delims, &lastpos);
 	if (!strcmp(token, "inactive")) {
 	  log_msg(1, "RAID device '%s' inactive.\n",
 		 raidlist->el[raidlist->entries].raid_device);
@@ -1079,7 +1079,7 @@ int parse_mdstat(struct raidlist_itself *raidlist, char *device_prefix) {
 	paranoid_free(token);
 
 	// get RAID level
-	token = strtok (string, delims, &lastpos);
+	token = mr_strtok (string, delims, &lastpos);
 	if (!strcmp(token, "multipath")) {
 	  raidlist->el[raidlist->entries].raid_level = -2;
 	} else if (!strcmp(token, "linear")) {
@@ -1109,7 +1109,7 @@ int parse_mdstat(struct raidlist_itself *raidlist, char *device_prefix) {
 	raidlist->el[raidlist->entries].data_disks.entries = 0;
 	raidlist->el[raidlist->entries].spare_disks.entries = 0;
 	raidlist->el[raidlist->entries].failed_disks.entries = 0;
-	while((token = strtok (string, delims, &lastpos))) {
+	while((token = mr_strtok (string, delims, &lastpos))) {
 	  if ((pos = strstr(token, "("))) {
 	    type = *(pos+1);
 	  } else {

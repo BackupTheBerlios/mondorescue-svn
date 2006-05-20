@@ -1158,6 +1158,7 @@ char *media_descriptor_string(t_bkptype type_of_bkp)
 
 
 /* New functions safe from a memory manageemnt point of view */
+/* Developped by Andree Leidenfrost */
 
 char *mr_strtok(char *instr, const char *delims, int *lastpos) {
 

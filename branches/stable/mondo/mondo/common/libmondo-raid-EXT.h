@@ -52,8 +52,5 @@ extern void add_disk_to_raid_device(struct list_of_disks *disklist,
 									char *device_to_add, int index);
 #endif
 
-extern int create_raidtab_from_mdstat(char *, char *);
-extern int read_mdstat(struct s_mdstat *mdstat, char *mdstat_file);
-
-extern int create_raidtab_from_mdstat(char *raidtab_fname,
-									  char *mdstat_fname);
+extern int parse_mdstat(struct raidlist_itself *raidlist, char *device_prefix);
+extern int create_raidtab_from_mdstat(char *raidtab_fname);

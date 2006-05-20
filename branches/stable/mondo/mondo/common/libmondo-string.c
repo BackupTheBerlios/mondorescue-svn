@@ -1,59 +1,4 @@
-/* libmondo-string.c
-   $Id$
-
-- string manipulation
-
-
-08/02
-- added function turn_wildcard_chars_into_literal_chars()
-
-03/10/2004?
-- make percent_media_full_comment() use media_descriptor_string():
-  "DVD %d" or "ISO %d" (if that's what it is) rather than "CD %d"
-- fix build_partition_name() to use 'adXsY' rather than 'adXpY' on FreeBSD
-
-10/08/2003
-- changed 'CD %d' to '<media> %d' (msg)
-
-10/01
-- fixing strip_spaces() to handle /r properly
-
-09/26
-- added char *media_descriptor_string(t_bkptype);
-
-05/06
-- cleaned up severity_of_difference() a bit
-
-05/05
-- added Joshua Oreman's FreeBSD patches
-
-04/24
-- added lots of assert()'s and log_OS_error()'s
-- severity_of_difference() skips "/mnt/RESTORING" at start
-  of filename if it's there
-
-04/04/2003
-- misc clean-up (Tom Mortell)
-
-11/17/2002
-- strip_spaces() now accommodates _smaller_ strings auto'y
-
-11/08
-- if decimal point in string sent to friendly_sizestr_to_sizelong()
-  then fatal error: we expect integers only
-
-10/01 - 10/31
-- commented subroutines
-- strip_spaces() allows up to MAX_STR_LEN-len input string
-
-08/01 - 08/31
-- fixed bug in friendly_sizestr_to_sizelong() which stopped
-  it from working with capital G's and K's
-- fixed bug in build_partition_name()
-
-07/24
-- created
-*/
+/* $Id$ */
 
 
 /**
@@ -1211,4 +1156,29 @@ char *media_descriptor_string(t_bkptype type_of_bkp)
 	return (type_of_backup);
 }
 
+
+/* New functions safe from a memory manageemnt point of view */
+
+char *mr_strtok(char *instr, const char *delims, int *lastpos) {
+
+char *token = NULL;
+char *strptr = NULL;
+size_t pos1 = 0;
+size_t pos2 = 0;
+
+if (strlen(instr) <= *lastpos) {
+	*lastpos = 0;
+	return token;
+}
+
+strptr = instr + *lastpos;
+pos2 = strspn(strptr, delims);
+strptr += pos2;
+pos1 = strcspn(strptr, delims);
+token = malloc(sizeof(*token)*(pos1+1));
+strncpy(token, strptr, pos1);
+*lastpos = *lastpos + pos1 + pos2 + 1;
+
+return token;
+}
 /* @} - end of stringGroup */

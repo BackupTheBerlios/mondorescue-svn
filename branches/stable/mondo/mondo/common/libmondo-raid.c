@@ -1041,7 +1041,8 @@ int parse_mdstat(struct raidlist_itself *raidlist, char *device_prefix) {
     // trim leading spaces
     pos = string;
     while (*pos == ' ') *pos++;
-    memmove(string, pos, strlen(string));
+	asprintf(&string, pos);
+	//
     // if we have newline after only spaces, this is a blank line, update
     // counters, otherwise do normal parsing
     if (*string == '\n') {

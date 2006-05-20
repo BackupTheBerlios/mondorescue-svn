@@ -1015,8 +1015,13 @@ int parse_mdstat(struct raidlist_itself *raidlist, char *device_prefix) {
 
   FILE   *fin;
   int    res = 0, row, i, index_min;
+  int lastpos = 0;
   size_t len = 0;
-  char   *token, *string = NULL, *pos, type, *strtmp;
+  char   *token;
+  char *string = NULL;
+  char *pos;
+  char type;
+  char *strtmp;
 
   // open file
   if (!(fin = fopen(MDSTAT_FILE, "r"))) {
@@ -1053,22 +1058,27 @@ int parse_mdstat(struct raidlist_itself *raidlist, char *device_prefix) {
 	  break;
 	}
 	// tokenise string
-	token = strtok (string, delims);
+	token = mr_strtok (string, delims, &lastpos);
 	// get RAID device name
 	asprintf(&strtmp,"%s%s", device_prefix, token);
 	strcpy(raidlist->el[raidlist->entries].raid_device, strtmp);
 	paranoid_free(strtmp);
+	paranoid_free(token);
 	// skip ':' and status
-	token = strtok (NULL, delims);
-	token = strtok (NULL, delims);
+	token = strtok (string, delims, &lastpos);
+	paranoid_free(token);
+	token = strtok (string, delims, &lastpos);
 	if (!strcmp(token, "inactive")) {
 	  log_msg(1, "RAID device '%s' inactive.\n",
 		 raidlist->el[raidlist->entries].raid_device);
 	  paranoid_free(string);
+	  paranoid_free(token);
 	  return 1;
 	}
+	paranoid_free(token);
+
 	// get RAID level
-	token = strtok (NULL, delims);
+	token = strtok (string, delims, &lastpos);
 	if (!strcmp(token, "multipath")) {
 	  raidlist->el[raidlist->entries].raid_level = -2;
 	} else if (!strcmp(token, "linear")) {
@@ -1088,14 +1098,17 @@ int parse_mdstat(struct raidlist_itself *raidlist, char *device_prefix) {
 	} else {
 	  log_msg(1, "Unknown RAID level '%s'.\n", token);
 	  paranoid_free(string);
+	  paranoid_free(token);
 	  return 1;
 	}
+	paranoid_free(token);
+
 	// get RAID devices (type, index, device)
 	// Note: parity disk for RAID4 is last normal disk, there is no '(P)'
 	raidlist->el[raidlist->entries].data_disks.entries = 0;
 	raidlist->el[raidlist->entries].spare_disks.entries = 0;
 	raidlist->el[raidlist->entries].failed_disks.entries = 0;
-	while((token = strtok (NULL, delims))) {
+	while((token = strtok (string, delims, &lastpos))) {
 	  if ((pos = strstr(token, "("))) {
 	    type = *(pos+1);
 	  } else {
@@ -1129,10 +1142,13 @@ int parse_mdstat(struct raidlist_itself *raidlist, char *device_prefix) {
 	  default: // error
 	    log_msg(1, "Unknown device type '%c'\n", type);
 	    paranoid_free(string);
+	    paranoid_free(token);
 	    return 1;
 	    break;
 	  }
+	  paranoid_free(token);
 	}
+
 	// adjust index for each device so that it starts with 0 for every type
 	index_min = 99;
 	for (i=0; i<raidlist->el[raidlist->entries].data_disks.entries;i++) {

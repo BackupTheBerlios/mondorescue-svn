@@ -36,15 +36,15 @@ Documentation pour Mondo Rescue
 
 %install
 %{__rm} -rf $RPM_BUILD_ROOT
-%{__make} -f Makefile.man install INSTALLDIR=$RPM_BUILDROOT/$RPM_DOC_DIR/%name-%{version}
-%{__make} -f Makefile.howto install INSTALLDIR=$RPM_BUILDROOT/$RPM_DOC_DIR/%name-%{version}
+%{__make} -f Makefile.man install INSTALLDIR=${RPM_BUILDROOT}/${RPM_DOC_DIR}/%{name}-%{version}
+%{__make} -f Makefile.howto install INSTALLDIR=${RPM_BUILDROOT}/${RPM_DOC_DIR}/%{name}-%{version}
 
 %clean
 %{__rm} -rf $RPM_BUILD_ROOT
 
 %files
-%defattr(644,root,root,755)
 %doc svn.log
-%doc 
+%doc mindi.8 mondoarchive.8 mondorestore.8
+%doc mondorescue-howto.html mondorescue-howto.pdf mondorescue-howto.ps mondorescue-howto.rtf mondorescue-howto.txt mondorescue-howto/ images/
 
 %changelog

@@ -77,10 +77,7 @@ con cintas y NFS, tambien.
 %doc docs/en/mondorescue-howto.html docs/en/mondorescue-howto.pdf
 
 %{_sbindir}/*
-%{_datadir}/%{name}/restore-scripts/%{name}/*
-%{_datadir}/%{name}/autorun
-%{_datadir}/%{name}/post-nuke.sample/usr/bin/post-nuke
-%{_datadir}/%{name}/*
+%{_datadir}/%{name}
 %{_mandir}/man8/*
 
 %changelog

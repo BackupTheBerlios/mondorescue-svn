@@ -1583,8 +1583,8 @@ My mondoarchive command is:
 <row>
 <entry>
 
-	# mondoarchive -D -Ow 10 -S /home/mondo/ -T /home/mondo/ -g &bsol;
--E &quot;&bsol;&quot;/home/cdaly/GIS/W2K /home/mondo/&bsol;&quot;&quot; -9
+		# mondoarchive -D -Ow 10 -S /home/mondo/ -T /home/mondo/ -g \
+		-E "\"/home/cdaly/GIS/W2K /home/mondo/\"" -9
 
 </entry>
 </row>
@@ -1597,8 +1597,8 @@ My mondoarchive command is:
 <entry>
 
 	# at now + 5 min 
-mondoarchive -D -Ow 10 -S /home/mondo/ -T /home/mondo/ -g &bsol;
--E &quot;&bsol;&quot;/home/cdaly/GIS/W2K /home/mondo/&bsol;&quot;&quot; -9 
+mondoarchive -D -Ow 10 -S /home/mondo/ -T /home/mondo/ -g \
+-E "\"/home/cdaly/GIS/W2K /home/mondo/\"" -9 
 &lt;CTRL&gt;-d
 </entry>
 </row>
@@ -1675,8 +1675,8 @@ cd /root || {
 echo 'Execution directory inaccessible' >&2     
 exit 1 
 } 
-screen -m -d mondoarchive -D -Ow 10 -S /home/mondo/ -T \
-/home/mondo/ -g -E "\"/home/cdaly/GIS/W2K /home/mondo/\"" -9
+screen -m -d mondoarchive -D -Ow 10 -S /home/mondo/ \
+-T /home/mondo/ -g -E "\"/home/cdaly/GIS/W2K /home/mondo/\"" -9
 #done
 
 </screen>
@@ -1686,8 +1686,8 @@ screen -m -d mondoarchive -D -Ow 10 -S /home/mondo/ -T \
 <informaltable><tgroup cols="1"><tbody>
 <row>
 <entry>
-		screen -m -d mondoarchive -D -Ow 10 -S /home/mondo/ -T &bsol;
-/home/mondo/ -g -E &quot;&bsol;&quot;/home/cdaly/GIS/W2K /home/mondo/&bsol;&quot;&quot; -9
+		screen -m -d mondoarchive -D -Ow 10 -S /home/mondo/ \
+		-T /home/mondo/ -g -E "\"/home/cdaly/GIS/W2K /home/mondo/\"" -9
 </entry>
 </row>
 </tbody></tgroup></informaltable>

@@ -55,6 +55,8 @@ clean:
 	@echo ""
 	@rm -f *.8.{dvi,pdf,ps,txt,html}
 
+install: install-mindi install-mondo
+
 install-mindi: all
 	@echo ""
 	@echo "Delivering mindi man page"

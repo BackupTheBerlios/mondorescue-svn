@@ -65,7 +65,6 @@ for p in $c; do
 
 		pkg="$pkg $pkg1"
 
-		echo "Generating $p RPMS"
 		log=/tmp/$p-rpm.log
 
 		if [ "$dfam" = "mandriva" ]; then
@@ -74,6 +73,7 @@ for p in $c; do
 		else
 			ln -sf $src SOURCES/
 		fi
+		echo "Generating $p RPMS"
 		cd SPECS
 		tar xfz $src $pv/distributions/$ddir/$p.spec
 		mv $pv/distributions/$ddir/$p.spec .

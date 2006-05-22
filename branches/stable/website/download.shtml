@@ -2,28 +2,3 @@
        hardware is faulty, please download <A HREF="mindi.iso">this ISO</A>, 
        burn it to a CD, and boot from it. It lets you test your RAM (with 
        memtest86) and your CPU (with cpuburn and lucifer). Feedback is welcome.</P>
-      <P ALIGN=JUSTIFY>
-       <B>Debian users</B> - click to download <A HREF="http://packages.debian.org/cgi-bin/search_packages2.pl?keywords=mondo&amp;searchon=names&amp;version=all&amp;release=all">Mondo</A> 
-       and <A HREF="http://packages.debian.org/cgi-bin/search_packages2.pl?keywords=mindi&amp;searchon=names&amp;version=all&amp;release=all">Mindi</A>...
-        and <A HREF="other/mindi-kernel-1.0.tgz">mindi-kernel</A> if your 
-       kernel blows. Much <A HREF="http://www.dictionary.com/search?q=kudos">kudos</A> 
-       is due to H&eacute;ctor Garc&iacute;a &Aacute;lvarez for rolling the 
-       DEBs. I am trying to create my own snapshot DEBs but I have not yet 
-       succeeded. Please be gentle with your criticism. :) My thanks go to 
-       Steve Hindle and Dagfinn Bakken for helping me with Debian.</P>
-           <A HREF="daily/unstable/changes">Monitas</A> (alpha-quality)</TD>
-         <TD WIDTH="25%" VALIGN=CENTER>
-          <P ALIGN=CENTER>
-           August/September</TD>
-         <TD WIDTH="15%" VALIGN=CENTER>
-          <P ALIGN=CENTER>
-           <A HREF="monitas/stefan/html/monitasconcepts.html">HTML docs</A></TD>
-         <TD WIDTH="15%" VALIGN=CENTER>
-          <P ALIGN=CENTER>
-           <A HREF="monitas/monitas.html">Download</A></TD>
-         <TD WIDTH="15%" VALIGN=CENTER>
-          <P ALIGN=CENTER>
-           <A HREF="monitas/stefan/monitasconcepts.pdf">PDF docs</A></TD>
-        </TR>
-       </TABLE></P>
-      </CENTER>

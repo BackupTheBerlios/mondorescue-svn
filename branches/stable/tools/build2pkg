@@ -47,6 +47,7 @@ status=0
 #
 
 export pkg=""
+echo "Working under $TOPBUILDDIR"
 cd $TOPBUILDDIR
 
 for p in $c; do
@@ -85,18 +86,40 @@ for p in $c; do
 			status=-1
 		fi
 		cd ..
-	elif [  _"$dtype" = _"gentoo" ]; then
-		echo "Gentoo"
+	elif [  _"$dtype" = _"ebuild" ]; then
 		log=/tmp/$p-gentoo.log
 		ln -sf $src .
-		tar xfz $src $pv/distributions/$ddir/$pv-r$TAG.ebuild
+		tar xfz $src $pv/distributions/$ddir/$p-${VER}-r$TAG.ebuild
+		if [ _"`grep $TOPBUILDDIR/portage /etc/make.conf`" = _"" ]; then
+			echo "Adding $TOPBUILDDIR/portage to /etc/make.conf"
+			echo "PORTDIR_OVERLAY=\"$TOPBUILDDIR/portage\"" >> /etc/make.conf
+		fi
 
-		ebuild $pv/distributions/$ddir/$pv-r$TAG.ebuild
+		mkdir -p ${TOPBUILDDIR}/portage/sys-apps/$p
+		mv $pv/distributions/$ddir/$p-${VER}-r$TAG.ebuild ${TOPBUILDDIR}/portage/sys-apps/$p
+		rm -rf $pv
+
+		cd ${TOPBUILDDIR}/portage/sys-apps/$p
+		ebuild $p-${VER}-r$TAG.ebuild digest 2> $log 1> $log
 		if [ $? != 0 ]; then 
 			cat $log
 			status=-1
 		fi
-		rm -rf $pv
+		ebuild $p-${VER}-r$TAG.ebuild unpack 2>> $log 1>> $log
+		if [ $? != 0 ]; then 
+			cat $log
+			status=-1
+		fi
+		ebuild $p-${VER}-r$TAG.ebuild compile 2>> $log 1>> $log
+		if [ $? != 0 ]; then 
+			cat $log
+			status=-1
+		fi
+		#ebuild $p-${VER}-r$TAG.ebuild install 2>> $log 1>> $log
+		if [ $? != 0 ]; then 
+			cat $log
+			status=-1
+		fi
 	else
 		echo "Unknown"
 	fi

@@ -1,5 +1,7 @@
-# Copyright 1999-2005 Gentoo Foundation
+# Copyright 1999-2004 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
+# $Header: $
+
 # $Id$
 
 DESCRIPTION="A program that creates emergency boot disks/CDs using your kernel, tools and modules."

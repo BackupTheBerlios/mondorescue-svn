@@ -43,11 +43,11 @@ useradd bruno
 passwd bruno
 
 su - bruno
-mkdir -p mondo/tmp RPMS/BUILD RPMS/RPMS/i386 RPMS/RPMS/noarch RPMS/SOURCES RPMS/SPECS RPMS/SRPMS RPMS/tmp SRPMS tmp
+mkdir -p mondo/tmp build
 cat > ~bruno/.rpmmacros << EOF
-%_topdir    /home/bruno/RPMS
+%_topdir    /home/bruno/build
 %_tmppath   %{_topdir}/tmp
-%packager   Bruno Cornec <bruno@HyPer-Linux.org>
+%packager   Bruno Cornec <bruno@mondorescue.org>
 EOF
 cat > ~bruno/.rpmrc << EOF
 buildarchtranslate: i386: i386
@@ -65,12 +65,6 @@ cat >> ~/.ssh/known_hosts << EOF
 shell.berlios.de,195.37.77.140 ssh-dss AAAAB3NzaC1kc3MAAACBAKawwrOuxejvOTWc6zFKEs2KKzVDXchPICt0p5A6LuIeIX+Uw9QMM5hji7txwuNt+ErPX/Z9xd1OBKAsormCMe6BZaxi0KMyFHPTnFTJpy168ztBD+782fQwlvop9nNRWkKoY1BGqQvKX50Zj+mQ39VP+RgJsyDMl+sKA3OqtGcVAAAAFQCBx79R1fUfJgOAVKxrCnvCu2vQRQAAAIBq5Li0/Fdf0yL/fSv6q8OZLCUgjMk6agnNbMxSK35Vctx0E4KXQbIJTmpwZIgYdZm+S2LYe0EgEYcWyBgcll1kK5Rti2e71sVuSoRNCo+rD8bsBcIETENtHZYuAeAWBlwrvT5LReGRpJ1YMNQpXXq4mQFbmhuhgJw9nKyt5xv6bgAAAIAro+dquEuGy32MOLcSqHtJm/FA+3FRG0RbLS8VDtxVC3ISe3SlSM0BecIHZ6aP5dL5W2b39/U2clls05X23SRK68DSqxoR/o9YshKdshDkPGEDfqyucOCn5FwUsZkd/WkZIuBZdLHLUtXUK6h85+08t5gmaL8eoXoOvHpsuCnNdA==
 svn.berlios.de,195.37.77.137 ssh-dss AAAAB3NzaC1kc3MAAACBAKouB77l1f4FgdP6DjLOgq5RKuGYm3zMJlM4WHcKzWnPuErZW4Omxk1CO0JojDNj/bjxz/95blWbdonEcAo0v71GcZbECFDsJdgVbZM+yxLHKOF4S5uHkiJ+LMawFcRoCGAochowoP9jUfLVAzyT1q3dbvmL43YO3FDvD+mCKTbZAAAAFQCWs/2nOqvitE/CyOCa81sadnzsPQAAAIBrgWRs2VN6jAtX1eUxPwtkJWX886DkiBwdEgtUwDW8RJJCFU6+zjNwFZ8VcjeA7OCFKmZqoD8ABojMMtB53VoXXRzp5PtWgJEMpCLOhHbAA6nLR+Zu9zV8rFHsrjvR17ZgmA8q1dZRqqvZSyzsoP4KdW7f9nD2SjFEVhjHfIsQmwAAAIEAoDlEoGO/lc8XkvNW7G8/rybzETG0cepONVKThYufP5Z2FdGj9a1TYc2Gaw2DygM20Ohwj1RW8aeRE/jYbEm4unM6IFYeLvCbDeeCCHCiCJmw/Pj2ityB5uPTat4Yn28FCd4eP5LyQq2EHz6bPA0LzpNJKwto4naIMsDpET1GNH0=
 EOF
-cat >> ~/.bash_profile << EOF
-export SVN_SSH="ssh -l bcornec"
-export SVN_M=svn+ssh://bcornec@svn.berlios.de/svnroot/repos/mondorescue/
-export SVN_EDITOR=vim
-EOF
-source ~/.bash_profile
 
 rebuild paquets necessaires mondo:
 wget ftp://ftp.mondorescue.org/src/afio-2.4.7-1.src.rpm 
@@ -84,3 +78,7 @@ scp -p RPMS/RPMS/i386/afio-[0-9]* RPMS/RPMS/i386/buffer-[0-9]* ftp.mondorescue.o
 
 root:
 rpm -ivh ~bruno/RPMS/RPMS/i386/afio-[0-9]* ~bruno/RPMS/RPMS/i386/buffer-[0-9]*
+
+pour gentoo
+chown bruno /etc/make.conf
+bruno in portage group

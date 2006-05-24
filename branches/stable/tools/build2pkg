@@ -120,6 +120,15 @@ for p in $c; do
 			cat $log
 			status=-1
 		fi
+	elif [  _"$dtype" = _"deb" ]; then
+		log=/tmp/$p-deb.log
+		cd $TOPBUILDDIR
+		tar xfz $src
+		cd ${pv}*
+		ln -s distributions/debian debian
+		# update debian/changelog
+		pkg-buildpackage -us -uc -rfakeroot
+		# Et voila !
 	else
 		echo "Unknown"
 	fi

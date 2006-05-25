@@ -2,6 +2,27 @@
 
 MONDO CHANGES
 
+2.0.8 (2006-05-25)
+- new build process (Bruno Cornec)
+- Fix a bug in .spec for RPM build (%attr now unused)
+  (Bruno Cornec)
+- Support of dm and LVM v2 (Andree Leidenfrost)
+- New mr_strtok functionn added and used for dm support (Andree Leidenfrost)
+- Complete doc is now a separate package. mondo still contains the 
+  man pages and howto in minimal useful formats
+  (Bruno Cornec)
+- HOWTO now contains a new chapter on unattended support for mondo
+- Increase size (4 times) of include|exclude variables
+- Fix a bug on -I and -E not working with multiple parameters
+- Fix a bug in verify for NFS by swapping nfs_remote_dir and isodir when
+  assembling name for image file to verify
+  (Andree Leidenfrost)
+- Fix mondo when restoring filenames containing blanks 
+  (still a problem for filenames with ')
+  (Bruno Cornec)
+- Fix a RPM generation bug for rh7.3 (i386-redhat-linux prefix for binaries)
+  (Bruno Cornec)
+
 2.0.7 (2006-03-10)
 - useless cat, sort|uniq commands removed 
   (Bruno Cornec/Sébastien Aperghis-Tramoni)

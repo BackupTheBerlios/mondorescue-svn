@@ -96,6 +96,9 @@ EOF
 
 		elif [ "$dtype" = "ebuild" ]; then
 			m4 /tmp/mondorescue.mc $dest/distributions/$dfam/$p.ebuild > $dest/distributions/$ddir/$p-$v-r$TAG.ebuild
+		elif [ "$dtype" = "deb" ]; then
+			# To be developped
+			m4 /tmp/mondorescue.mc $dest/distributions/$dfam/$p > /dev/null
 		else
 			echo "Unknown Build"
 		fi
@@ -120,20 +123,20 @@ EOF
 
 	if [ _"`echo $p | grep -v kernel | grep mindi`" != _"" ]; then
 		v1=`cat ${SVNBRANCH}/mondo-doc/VERSION`
-		if [ ! -d mondo-doc-$v1 ]; then
+		if [ ! -d mondo-doc-$v1-$TAG ]; then
 			echo "mondo-doc should be created before $p"
 			exit -1
 		fi
-		(cd mondo-doc-$v1 ; make -f Makefile.man install-$p INSTALLDIR=../$dest)
+		(cd mondo-doc-$v1-$TAG ; make -f Makefile.man install-$p INSTALLDIR=../$dest)
 		rm -f $dest/rootfs/sbin/parted2fdisk-ia64 
 	fi
 	if [ "`echo $p | grep -v doc | grep  mondo`" != "" ]; then
 		v1=`cat ${SVNBRANCH}/mondo-doc/VERSION`
-		if [ ! -d mondo-doc-$v1 ]; then
+		if [ ! -d mondo-doc-$v1-$TAG ]; then
 			echo "mondo-doc should be created before $p"
 			exit -1
 		fi
-		(cd mondo-doc-$v1 ; make -f Makefile.howto install INSTALLDIR=../$dest/docs/en ; make -f Makefile.man install-$p INSTALLDIR=../$dest/docs/man)
+		(cd mondo-doc-$v1-$TAG ; make -f Makefile.howto install INSTALLDIR=../$dest/docs/en ; make -f Makefile.man install-$p INSTALLDIR=../$dest/docs/man)
 		(cd $dest ; echo "Bootstraping mondo ... " ; ./bootstrap)
 	fi
 

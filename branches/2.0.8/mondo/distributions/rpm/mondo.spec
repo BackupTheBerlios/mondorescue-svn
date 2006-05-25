@@ -76,16 +76,8 @@ con cintas y NFS, tambien.
 %doc INSTALL COPYING README TODO AUTHORS NEWS
 %doc docs/en/mondorescue-howto.html docs/en/mondorescue-howto.pdf
 
-<<<<<<< .working
-%attr(755,root,root) %{_sbindir}/*
-%attr(755,root,root) %{_datadir}/%{name}/restore-scripts/%{name}/*
-%attr(755,root,root) %{_datadir}/%{name}/autorun
-%attr(755,root,root) %{_datadir}/%{name}/post-nuke.sample/usr/bin/post-nuke
-%{_datadir}/%{name}/*
-=======
 %{_sbindir}/*
 %{_datadir}/%{name}
->>>>>>> .merge-right.r575
 %{_mandir}/man8/*
 
 %changelog

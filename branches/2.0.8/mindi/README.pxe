@@ -26,7 +26,7 @@ Without prefix keyword, the name of the images used during archiving with the -p
 
 During boot mondorestore will start your NFS configuration and mount mondo's content from the network rather than from a physical media. You may alter the IP configuration stored from the original machine by passing the ipconf option describing respectively the IP address, netmask, broadcast and default gateway you want to setup for the machine, separated by ':'. Or alternatively, you may specify the dhcp keyword so that a DhCP request is made to get those information. On some configurations, you may also want to increase the number of ping queries made before the NFS mount, which is of 3 by default, using the ping option and give the number you want.
 
-Please report any problem around that tool to bcornec@users.berlios.de
+Please report any problem around that tool to bruno@mondorescue.org
 
 2005-12-18 new ipconf and ping option
 2005-12-14 detailed explanations on where to find initrd and kernel

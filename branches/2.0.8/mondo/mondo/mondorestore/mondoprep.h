@@ -57,14 +57,14 @@ int start_raid_device(char *);
 int stop_raid_device(char *);
 int start_all_raid_devices(struct mountlist_itself *);
 int stop_all_raid_devices(struct mountlist_itself *);
-int format_everything(struct mountlist_itself *, bool);
+int format_everything(struct mountlist_itself *, bool, struct raidlist_itself *);
 int partition_device(FILE *, const char *, int, int, const char *,
 					 long long);
 int partition_device_with_parted(FILE *, const char *, int, int,
 								 const char *, long long);
 int partition_device_with_fdisk(FILE *, const char *, int, int,
 								const char *, long long);
-int format_device(char *, char *);
+int format_device(char *, char *, struct raidlist_itself *);
 int partition_drive(struct mountlist_itself *, char *);
 int partition_everything(struct mountlist_itself *);
 int do_my_funky_lvm_stuff(bool, bool);

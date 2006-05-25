@@ -232,6 +232,11 @@ char *trace_log_ptr;
 #define MONDO_CFG_FILE_STUB "tmp/mondo-restore.cfg"
 
 /**
+ * The RAID kernel proc file
+ */
+#define MDSTAT_FILE "/proc/mdstat"
+
+/**
  * @bug Apparently unused.
  */
 #define MONDO_TRACEFILE	"/var/log/mondo-tracefile.log"

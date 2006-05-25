@@ -1,26 +1,19 @@
 #
 # $Id$
 #
-%define name	mindi
-%define version	VVV
 %define mrel	RRR
-%define src		SSS
-%define grp		GRP
-%define addreqb	bzip2 >= 0.9, mkisofs, ncurses, binutils, gawk, dosfstools
-%define addreq	DDD
-%define rel		%{mrel}
+%define tag		TTT
 
 Summary:	Mindi creates emergency boot disks/CDs using your kernel, tools and modules
-Name:		%name
-Version:	%version
-Release:	%rel
+Name:		mindi
+Version:	VVV
+Release:	%mrel
 License:	GPL
-Group:		%{grp}
+Group:		GRP
 Url:		http://www.mondorescue.org
-Source:		%{src}
+Source:		SSS
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(id -u -n)
-Requires:	%{addreq}
-Epoch:		%(echo EEE | cut -d- -f1 | sed "s~M~~")
+Requires:	bzip2 >= 0.9, mkisofs, ncurses, binutils, gawk, dosfstools DDD
 # Not on all systems
 #Conflicts:	bonnie++
 
@@ -31,7 +24,7 @@ and do system maintenance - e.g. format partitions, backup/restore data,
 verify packages, etc.
 
 %prep
-%setup -n %name-%{version}
+%setup -n %name-%{version}-%{tag}
 
 %build
 %ifarch ia64
@@ -58,15 +51,11 @@ if [ -f /usr/local/sbin/mindi ]; then
 fi
 
 %files
-%defattr(644,root,root,755)
 %config(noreplace) %{_sysconfdir}/mindi
 %config(noreplace) %{_sysconfdir}/mindi/deplist.txt 
 %doc ChangeLog INSTALL COPYING README TODO README.ia64 README.pxe README.busybox svn.log
 %{_mandir}/man8/*
 %{_libdir}/mindi
-%attr(755,root,root) %{_sbindir}/*
-%attr(755,root,root) %{_libdir}/mindi/aux-tools/sbin/*
-%attr(755,root,root) %{_libdir}/mindi/rootfs/bin/*
-%attr(755,root,root) %{_libdir}/mindi/rootfs/sbin/*
+%{_sbindir}/*
 
 %changelog

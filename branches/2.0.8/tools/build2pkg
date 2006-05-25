@@ -1,0 +1,143 @@
+#!/bin/bash
+#
+# Creates packages from build repository
+#
+# $Id$
+#
+# Syntax: build2pkg [version-tag [pkg list]]
+#
+
+umask 022
+dname=`dirname $0`
+prem=`echo $dname |cut -c1`
+if [ ${prem} == "/" ]; then
+	export TOOLHOME=$dname
+else
+	export TOOLHOME=${PWD}/$dname
+fi
+
+. $TOOLHOME/common-env
+. $TOOLHOME/distro-env
+
+# We need to get $VER and $TAG
+if [ "$1" = "" ]; then
+	LAST=`cat ${TOPDIR}/LAST`
+else
+	LAST=$1
+	shift
+fi
+VER=`echo $LAST | cut -d- -f1`
+TAG=`echo $LAST | cut -d- -f2`
+echo "Working on ${VER}-$TAG"
+	
+if [ "$1" = "" ]; then
+	c="mondo-doc mindi mondo"
+else
+	if [ "$1" = "all" ]; then
+		c="mindi-kernel mondo-doc mindi mondo"
+	else
+		c=$1
+	fi
+fi
+
+status=0
+
+#
+# Define on which distro we are to generate the right packages
+#
+
+export pkg=""
+echo "Working under $TOPBUILDDIR"
+cd $TOPBUILDDIR
+
+for p in $c; do
+	# s= stable; t = trunk; 1-9 = official version
+	src=${TOPDIR}/${VER}-$TAG/$p-[1-9st]*.tar.gz
+	pv=`basename $src .tar.gz`
+
+	if [  _"$dtype" = _"rpm" ]; then
+		if [ _"$p" = _"mondo-doc" ]; then
+			ar="noarch"
+		else
+			ar=$ARCH
+		fi
+		pkg1="${TOPBUILDDIR}/RPMS/${ar}/$pv${suf}.${ar}.rpm"
+		#rm -f $pkg1
+
+		pkg="$pkg $pkg1"
+
+		log=/tmp/$p-rpm.log
+
+		if [ "$dfam" = "mandriva" ]; then
+			echo "Generating bzip2 files (mandriva)"
+			gzip -cd $src | bzip2 -c3 > SOURCES/$pv.tar.bz2
+		else
+			ln -sf $src SOURCES/
+		fi
+		echo "Generating $p RPMS"
+		cd SPECS
+		tar xfz $src $pv/distributions/$ddir/$p.spec
+		mv $pv/distributions/$ddir/$p.spec .
+		rm -rf $pv
+
+		rpmbuild -ba $p.spec 2> $log 1> $log
+		if [ $? != 0 ]; then 
+			cat $log
+			status=-1
+		fi
+		cd ..
+	elif [  _"$dtype" = _"ebuild" ]; then
+		log=/tmp/$p-gentoo.log
+		ln -sf $src .
+		tar xfz $src $pv/distributions/$ddir/$p-${VER}-r$TAG.ebuild
+		if [ _"`grep $TOPBUILDDIR/portage /etc/make.conf`" = _"" ]; then
+			echo "Adding $TOPBUILDDIR/portage to /etc/make.conf"
+			echo "PORTDIR_OVERLAY=\"$TOPBUILDDIR/portage\"" >> /etc/make.conf
+		fi
+
+		mkdir -p ${TOPBUILDDIR}/portage/sys-apps/$p
+		mv $pv/distributions/$ddir/$p-${VER}-r$TAG.ebuild ${TOPBUILDDIR}/portage/sys-apps/$p
+		rm -rf $pv
+
+		cd ${TOPBUILDDIR}/portage/sys-apps/$p
+		ebuild $p-${VER}-r$TAG.ebuild digest 2> $log 1> $log
+		if [ $? != 0 ]; then 
+			cat $log
+			status=-1
+		fi
+		ebuild $p-${VER}-r$TAG.ebuild unpack 2>> $log 1>> $log
+		if [ $? != 0 ]; then 
+			cat $log
+			status=-1
+		fi
+		ebuild $p-${VER}-r$TAG.ebuild compile 2>> $log 1>> $log
+		if [ $? != 0 ]; then 
+			cat $log
+			status=-1
+		fi
+		#ebuild $p-${VER}-r$TAG.ebuild install 2>> $log 1>> $log
+		if [ $? != 0 ]; then 
+			cat $log
+			status=-1
+		fi
+	elif [  _"$dtype" = _"deb" ]; then
+		log=/tmp/$p-deb.log
+		cd $TOPBUILDDIR
+		tar xfz $src
+		cd ${pv}*
+		ln -s distributions/debian debian
+		# update debian/changelog
+		pkg-buildpackage -us -uc -rfakeroot
+		# Et voila !
+	else
+		echo "Unknown"
+	fi
+done
+echo "Packages handled : $pkg"
+
+if [ $status = 0 ]; then
+	if [  _"$dtype" = _"rpm" ]; then
+		echo "Installing RPMS as root"
+		su - -c "$opt rpm -Uvh --force $pkg"
+	fi
+fi

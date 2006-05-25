@@ -33,3 +33,6 @@ int severity_of_difference(char *filename, char *out_reason);
 char *percent_media_full_comment(struct s_bkpinfo *bkpinfo);
 char *media_descriptor_string(t_bkptype);
 inline void turn_wildcard_chars_into_literal_chars(char *out, char *in);
+
+/* Valid external functions */
+char *mr_strtok(char *instr, const char *delims, int *lastpos);

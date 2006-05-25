@@ -2584,34 +2584,39 @@ int get_cfg_file_from_archive(struct s_bkpinfo *bkpinfo)
 void wait_until_software_raids_are_prepped(char *mdstat_file,
 										   int wait_for_percentage)
 {
-	struct s_mdstat *mdstat;
+	struct raidlist_itself *raidlist;
 	int unfinished_mdstat_devices = 9999, i;
 	char *screen_message;
 
 	malloc_string(screen_message);
-	mdstat = malloc(sizeof(struct s_mdstat));
+	raidlist = malloc(sizeof(struct raidlist_itself));
 
 	assert(wait_for_percentage <= 100);
 	iamhere("Help, my boat is sync'ing. (Get it? Urp! Urp!)");
 	while (unfinished_mdstat_devices > 0) {
-		if (read_mdstat(mdstat, mdstat_file)) {
-			log_to_screen("Sorry, cannot read %s", mdstat_file);
+	        // FIXME: Prefix '/dev/' should really be dynamic!
+		if (parse_mdstat(raidlist, "/dev/")) {
+			log_to_screen("Sorry, cannot read %s", MDSTAT_FILE);
+			log_msg(1,"Sorry, cannot read %s", MDSTAT_FILE);
 			return;
 		}
-		for (unfinished_mdstat_devices = i = 0; i < mdstat->entries; i++) {
-			if (mdstat->el[i].progress < wait_for_percentage) {
+		for (unfinished_mdstat_devices = i = 0; i <= raidlist->entries; i++) {
+			if (raidlist->el[i].progress < wait_for_percentage) {
 				unfinished_mdstat_devices++;
-				sprintf(screen_message, "Sync'ing /dev/md%d",
-						mdstat->el[i].md);
+				log_msg(1,"Sync'ing %s (i=%d)", raidlist->el[i].raid_device, i);
+				sprintf(screen_message, "Sync'ing %s",
+						raidlist->el[i].raid_device);
 				open_evalcall_form(screen_message);
-				if (mdstat->el[i].progress == -1)	// delayed while another partition inits
+				if (raidlist->el[i].progress == -1)	// delayed while another partition inits
 				{
 					continue;
 				}
-				while (mdstat->el[i].progress < wait_for_percentage) {
-					update_evalcall_form(mdstat->el[i].progress);
+				while (raidlist->el[i].progress < wait_for_percentage) {
+					log_msg(1,"Percentage sync'ed: %d", raidlist->el[i].progress);
+					update_evalcall_form(raidlist->el[i].progress);
 					sleep(2);
-					if (read_mdstat(mdstat, mdstat_file)) {
+					// FIXME: Prefix '/dev/' should really be dynamic!
+					if (parse_mdstat(raidlist, "/dev/")) {
 						break;
 					}
 				}
@@ -2620,5 +2625,5 @@ void wait_until_software_raids_are_prepped(char *mdstat_file,
 		}
 	}
 	paranoid_free(screen_message);
-	paranoid_free(mdstat);
+	paranoid_free(raidlist);
 }

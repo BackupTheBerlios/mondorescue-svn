@@ -441,9 +441,10 @@ void initialize_raidrec(struct raid_device_record *raidrec)
 {
 	assert(raidrec != NULL);
 	raidrec->raid_device[0] = '\0';
-	raidrec->raid_level = 0;
-	raidrec->chunk_size = 4;
+	raidrec->raid_level = -9;
 	raidrec->persistent_superblock = 1;
+	raidrec->chunk_size = 64;
+	raidrec->parity = -1;
 	raidrec->data_disks.entries = 0;
 	raidrec->spare_disks.entries = 0;
 	raidrec->parity_disks.entries = 0;
@@ -1223,7 +1224,7 @@ int some_basic_system_sanity_checks()
 		&& !does_file_exist("/etc/raidtab")) {
 		log_to_screen
 			("You have RAID partitions but no /etc/raidtab - creating one from /proc/mdstat");
-		create_raidtab_from_mdstat("/etc/raidtab", "/proc/mdstat");
+		create_raidtab_from_mdstat("/etc/raidtab");
 	}
 
 	if (retval) {

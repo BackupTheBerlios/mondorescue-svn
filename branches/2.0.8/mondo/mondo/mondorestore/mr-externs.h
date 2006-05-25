@@ -26,8 +26,8 @@ extern int do_my_funky_lvm_stuff(bool, bool);
 extern int edit_filelist(struct s_node *);
 extern int edit_mountlist(char *mountlist_fname, struct mountlist_itself *,
 						  struct raidlist_itself *);
-extern int format_everything(struct mountlist_itself *, bool);
-extern int format_device(char *, char *);
+extern int format_everything(struct mountlist_itself *, bool, struct raidlist_itself *);
+extern int format_device(char *, char *, struct raidlist_itself *);
 extern void finish(int);
 extern void free_filelist(struct s_node *);
 extern long get_time(void);

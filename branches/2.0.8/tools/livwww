@@ -46,6 +46,7 @@ else
 fi
 
 . $TOOLHOME/common-env
+. $TOOLHOME/svn-env
 
 cd ${BASE}/svn
 
@@ -54,14 +55,14 @@ if [ $force -eq 1 ]; then
 	rm -rf $LOCALDIR
 fi
 
-svn export $optsvn ${VER}/website $LOCALDIR
+svn export $optsvn ${SVNBRANCH}/website $LOCALDIR
 
 if [ $force -eq 1 ]; then
 	echo "Purging $LOCALDOC"
 	rm -rf $LOCALDOC
 fi
 
-svn export $optsvn ${VER}/documentation $LOCALDOC
+svn export $optsvn ${SVNBRANCH}/mondo-doc $LOCALDOC
 
 #
 # Version handling

@@ -3,7 +3,7 @@
 # $Id$
 #
 # parted2fdisk: fdisk like interface for parted 
-# [developped for mindi/mondo http://mondorescue.berlios.de]
+# [developped for mindi/mondo http://www.mondorescue.org]
 #
 # Aims to be architecture independant (i386/ia64)
 # Tested on RHAS 2.1 ia64 - Mandrake 9.0 ia64 - RHAS 3.0 ia64

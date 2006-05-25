@@ -21,6 +21,25 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
       <h2>Mirrors</h2>
     </div>
 	<p>We are interested in up to date mirrors for both the Web and FTP sites. Please contact us on the <a href="/support.shtml">mailing list</a>.
+	<ul>
+		<li><b>Europe</b>:
+		<ul>
+			<li><i>France</i>:</li>
+			<ul>
+				<li>HP/Intel Solution Center :
+					<a href="http://www.mondorescue.org">Web site</a>, 
+					<a href="ftp://ftp.mondorescue.org">Ftp site</a>
+				</li>
+			</ul>
+			<li><i>Germany</i>:</li>
+			<ul>
+				<li>Linjection.org :
+					<a href="http://mondorescue.linjection.org">Web site</a>, 
+					<a href="http://mondorescue.linjection.org/ftp">Ftp site (http)</a>
+				</li>
+			</ul>
+		</ul>
+	</ul>
 
     <div class="h2-3">
       <h2>Dependencies</h2>

@@ -1,10 +1,12 @@
-# Copyright 1999-2005 Gentoo Foundation
+# Copyright 1999-2004 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
+# $Header: $
+
 # $Id$
 
 DESCRIPTION="A program that creates emergency boot disks/CDs using your kernel, tools and modules."
 HOMEPAGE="http://www.mondorescue.org"
-SRC_URI="ftp://ftp.mondorescue.org/src/${P}.tgz"
+SRC_URI="ftp://ftp.mondorescue.org/src/${PVR}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -13,7 +15,6 @@ IUSE=""
 
 DEPEND="virtual/libc"
 RDEPEND=">=app-arch/bzip2-0.9
-		>=sys-apps/mindi-kernel-1.0-r1
 		sys-libs/ncurses
 		sys-devel/binutils
 		sys-fs/dosfstools
@@ -26,6 +27,7 @@ src_unpack() {
 src_install() {
 	export PREFIX="/usr"
 	export CONFDIR="/etc"
+	export DONT_RELINK=1
 	export RPMBUILDMINDI="true"
 	./install.sh
 }

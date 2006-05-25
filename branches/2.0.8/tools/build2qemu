@@ -1,0 +1,91 @@
+#!/bin/bash
+#
+# $Id$
+#
+# Script build packages on various distributions with qemu
+#
+
+#if [ _"$1" == _"" ]; then
+	#echo "Syntax: build2qemu [version-tag [vm1]..|vmx]] )"
+	#exit -1
+#fi
+
+# Syntax: build2qemu [version-tag [vm1]..|vmx]]
+
+umask 022
+dname=`dirname $0`
+prem=`echo $dname |cut -c1`
+if [ ${prem} == "/" ]; then
+	export TOOLHOME=$dname
+else
+	export TOOLHOME=${PWD}/$dname
+fi
+
+
+. $TOOLHOME/common-env
+. $TOOLHOME/distro-env
+
+# We need to get $VER and $TAG
+if [ "$1" = "" ]; then
+	LAST=`cat ${TOPDIR}/LAST`
+else
+	LAST=$1
+	shift
+fi
+VER=`echo $LAST | cut -d- -f1`
+TAG=`echo $LAST | cut -d- -f2`
+echo "Working on ${VER}-$TAG"
+
+if [ _"$1" == _"" ]; then
+	export VMS=`cat ${TOOLHOME}/DISTROS` 
+else
+	export VMS="$1"
+fi
+
+mkdir -p $TMP
+cat > $TMP/mkmondo << EOF
+#!/bin/bash
+
+export LANG="C"
+export LANGUAGE="C"
+export LC_ALL="C"
+export TOOLHOME=$TOOLHOME
+
+$TOOLHOME/build2pkg $LAST
+#$TOOLHOME/mkdeliv
+EOF
+chmod 755 $TMP/mkmondo
+
+cd $TOOLHOME/..
+tar cfz $TMP/mkmondo.tar.gz $TOOLHOME $TMP/mkmondo $TOPDIR/${VER}-$TAG
+
+for m in $VMS; do
+	vmp=0
+	if [ ! -f /users/qemu/$m.qemu ]; then
+			echo "VM unaccessible. Verify NFS mount"
+			rm -rf $TMP
+			exit -1
+	fi
+	ps auxww | grep qemu | grep -v grep | grep -q /users/qemu/$m.qemu
+	export sp=2222
+	if [ $? -ne 0 ]; then
+		# Virtual machine alreday started
+		vmp=1
+		$TOOLHOME/mkqemu $m &
+		sleep 300
+	fi
+	scp -P $sp $TMP/mkmondo.tar.gz bruno@localhost:
+	ssh -p $sp bruno@localhost "cd / ; tar xfz ~bruno/mkmondo.tar.gz ; $TMP/mkmondo " | tee $TMP/mkvm.log
+	#ssh -p $sp bruno@localhost "cd / ; tar xfz ~bruno/mkmondo.tar.gz ; $TMP/mkmondo ; rm -f $TMP" | tee $TMP/mkvm.log
+	if [ $vmp -eq 1 ]; then
+		ssh -p $sp root@localhost "halt -p"
+		sleep 300
+		proces=`ps auxww | grep qemu | grep -v grep | grep -q /users/qemu/$m.qemu | awk '{print $2}'`
+		if [ "$proces" != "" ]; then
+			kill $proces
+		fi
+	fi
+done
+
+# Should be removed at the end
+rm -rf $TMP

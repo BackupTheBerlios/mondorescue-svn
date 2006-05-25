@@ -1,0 +1,154 @@
+#!/bin/bash
+#
+# Creates build environment and files for packages creation from SVN repository
+#
+# $Id$
+#
+
+umask 022
+dname=`dirname $0`
+prem=`echo $dname |cut -c1`
+if [ ${prem} == "/" ]; then
+        export TOOLHOME=$dname
+else
+        export TOOLHOME=${PWD}/$dname
+fi
+
+cd $TOOLHOME
+. ./common-env
+. ./svn-env
+
+DEST=${TOPDIR}/${VER}-$TAG
+mkdir -p $DEST
+
+if [ "$1" = "" ]; then
+		c="mondo-doc mindi mondo"
+else
+	if [ "$1" = "all" ]; then
+			c="mindi-kernel mondo-doc mindi mondo"
+	else
+		c=$1
+	fi
+fi
+
+# Make it safe for SVN commands
+cd ${BASE}/svn
+
+for p in $c; do
+	v=`cat ${SVNBRANCH}/$p/VERSION`
+	echo "Management of $p $v-$REVISION"
+	dest="$p-$v-$TAG"
+	rm -fr $dest
+	svn export ${SVNBRANCH}/$p $dest
+	echo "$REVISION" > $dest/REVISION
+	echo "Generating SVN log file ..."
+	svn log -v ${SVNBRANCH}/$p > $dest/svn.log
+
+	for d in `cat ${TOOLHOME}/DISTROS`; do
+		export ddir=`echo $d | cut -d_ -f1`
+		export dver=`echo $d | cut -d_ -f2`
+		echo "Generating build files for $ddir ($dver)"
+		. $TOOLHOME/distro-env
+
+		# Create conf file dir
+		mkdir -p ${BUILDDIR}
+
+		ddd=`LANG=C ; date '+%Y-%m-%d'`
+		cat > /tmp/mondorescue.mc << EOF
+define(\`TTT', ${TAG})dnl
+define(\`RRR', ${TAG}${suf})dnl
+define(\`VVV', ${v})dnl
+define(\`DDD', ${ddd})dnl
+EOF
+
+		mkdir -p $dest/distributions/$ddir
+		if [ "$dtype" = "rpm" ]; then
+			if [ -f $dest/distributions/$ddir/spec.m4 ]; then
+				inc=$dest/distributions/$ddir/spec.m4
+			elif [ -f $dest/distributions/$dfam/spec.m4 ]; then
+				inc=$dest/distributions/$dfam/spec.m4
+			else
+				echo "Unable to build the RPM specfile for this distro. Please report to authors"
+				exit -1
+			fi
+			echo "Using $inc customization to build SPEC file"
+			m4 /tmp/mondorescue.mc $inc $dest/distributions/rpm/$p.spec > $dest/distributions/$ddir/$p.spec
+
+			if [ -f $dest/distributions/$ddir/changelog ]; then
+				log=$dest/distributions/$ddir/changelog
+			elif [ -f $dest/distributions/$dfam/changelog ]; then
+				log=$dest/distributions/$dfam/changelog
+			else
+				echo "Unable to build RPM changelog for this distro. Please report to authors"
+				exit -1
+			fi
+
+			echo "Using $log customization to build changelog file"
+			ddate=`LANG=C ; date "+%a %b %d %Y"`
+			cat > $dest/distributions/$ddir/$p.changelog.new << EOF
+* $ddate Bruno Cornec <bruno@mondorescue.org> VVV-RRR
+- Updated to VVV-r${REVISION}
+
+EOF
+			cat $log >> $dest/distributions/$ddir/$p.changelog.new
+			m4 /tmp/mondorescue.mc $dest/distributions/$ddir/$p.changelog.new > $dest/distributions/$ddir/$p.changelog
+			rm -f $dest/distributions/$ddir/$p.changelog.new
+
+		elif [ "$dtype" = "ebuild" ]; then
+			m4 /tmp/mondorescue.mc $dest/distributions/$dfam/$p.ebuild > $dest/distributions/$ddir/$p-$v-r$TAG.ebuild
+		else
+			echo "Unknown Build"
+		fi
+	done
+
+	if [ _"`echo $p | grep mondo-doc`" != _"" ]; then
+		cd $dest
+		for f in mondorescue-howto.sgml *8; do
+			m4 /tmp/mondorescue.mc $f > ${f}.new
+			mv ${f}.new $f
+		done
+		make -f Makefile.howto
+		if [ $? != 0 ]; then
+			exit -1
+		fi
+		make -f Makefile.man
+		if [ $? != 0 ]; then
+			exit -1
+		fi
+		cd ..
+	fi
+
+	if [ _"`echo $p | grep -v kernel | grep mindi`" != _"" ]; then
+		v1=`cat ${SVNBRANCH}/mondo-doc/VERSION`
+		if [ ! -d mondo-doc-$v1 ]; then
+			echo "mondo-doc should be created before $p"
+			exit -1
+		fi
+		(cd mondo-doc-$v1 ; make -f Makefile.man install-$p INSTALLDIR=../$dest)
+		rm -f $dest/rootfs/sbin/parted2fdisk-ia64 
+	fi
+	if [ "`echo $p | grep -v doc | grep  mondo`" != "" ]; then
+		v1=`cat ${SVNBRANCH}/mondo-doc/VERSION`
+		if [ ! -d mondo-doc-$v1 ]; then
+			echo "mondo-doc should be created before $p"
+			exit -1
+		fi
+		(cd mondo-doc-$v1 ; make -f Makefile.howto install INSTALLDIR=../$dest/docs/en ; make -f Makefile.man install-$p INSTALLDIR=../$dest/docs/man)
+		(cd $dest ; echo "Bootstraping mondo ... " ; ./bootstrap)
+	fi
+
+	# Finally creates the tar files
+	echo "Creating $p tar files"
+	tar cfhz ${DEST}/$p-$v-$TAG.tar.gz $dest
+	#gzip -cd ${DEST}/$p-$v-$TAG.tar.gz | bzip2 -c3 > ${DEST}/$p-$v-$TAG.tar.bz2
+	#tar cfhj ${DEST}/$p-$v-$TAG.tar.bz2 $dest
+done
+
+rm -f /tmp/mondorescue.mc
+
+echo "Version delivered :"
+echo "-------------------"
+echo "${VER}-$TAG"
+echo "-------------------"
+echo "${VER}-$TAG" > ${TOPDIR}/LAST
+exit 0

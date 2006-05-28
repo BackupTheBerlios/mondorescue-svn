@@ -114,4 +114,9 @@ if [ _"$dfam" = _"suse" ]; then
 	rm -rf $DOCDIR
 fi
 
+# Special case for Debian family where doc is put elsewhere in the DEB
+if [ _"$dfam" = _"debian" ]; then
+	rm -rf $DOCDIR
+fi
+
 exit 0

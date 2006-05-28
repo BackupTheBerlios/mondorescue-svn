@@ -1,0 +1,19 @@
+Source: mindi
+Section: utils
+Priority: optional
+Maintainer: Bruno Cornec <bruno@mondorescue.org>
+Build-Depends: debhelper (>= 4.2.20)
+Standards-Version: 3.6.1
+
+Package: mindi
+Architecture: amd64 i386 ia64
+Depends: binutils, bzip2, dosfstools, mkisofs, module-init-tools, syslinux, gawk, parted, ms-sys, file, nano
+Recommends: cpio, mdadm, ntfsprogs
+Suggests: eject, less, acl, attr, lilo
+Description: creates boot/root disks based on your system
+ Mindi is a script to create boot/root disks based on your system. It uses your
+ kernel, modules, tools and libraries. It is used for the Mondo disaster
+ recovery suite to create the boot media.
+ .
+ Homepage: http://www.mondorescue.org
+ 

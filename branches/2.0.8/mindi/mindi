@@ -2799,7 +2799,7 @@ TurnTgzIntoRdz() {
 	fi
 	floppy_modules=""
 	if [ "$disksize" -lt "2880" ] ; then
-		list_of_groovy_mods="$FLOPPY_MODS $IDE_MODS ide-scsi sr_mod `WhichOfTheseModulesAreLoaded "$SCSI_MODS"`"
+		list_of_groovy_mods="$FLOPPY_MODS $IDE_MODS ide-scsi sr_mod cdrom isocd isofs `WhichOfTheseModulesAreLoaded "$SCSI_MODS"`"
 	else
 		list_of_groovy_mods="$CDROM_MODS `WhichOfTheseModulesAreLoaded "$SCSI_MODS"`"
 	fi

@@ -75,17 +75,13 @@ con cintas y NFS, tambien.
 %{__rm} -rf $RPM_BUILD_ROOT
 
 %files
-%defattr(644,root,root,755)
 %doc ChangeLog svn.log
 %doc INSTALL COPYING README TODO AUTHORS NEWS
 %doc docs/en/mondorescue-howto.html docs/en/mondorescue-howto.pdf
 
-%attr(755,root,root) %{_sbindir}/*
-%attr(755,root,root) %{_datadir}/%{name}/restore-scripts/%{name}/*
-%attr(755,root,root) %{_datadir}/%{name}/autorun
-%attr(755,root,root) %{_datadir}/%{name}/post-nuke.sample/usr/bin/post-nuke
 %{_datadir}/locale/*/LC_MESSAGES/mondo.mo
-%{_datadir}/%{name}/*
+%{_sbindir}/*
+%{_datadir}/%{name}
 %{_mandir}/man8/*
 
 %changelog

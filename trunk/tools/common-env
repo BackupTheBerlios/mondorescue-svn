@@ -9,5 +9,5 @@
 export BASE=${HOME}/mondo
 export TOPDIR=${BASE}/build
 mkdir -p ${TOPDIR}
-export TMP=${BASE}/tmp
-mkdir -p ${TMP}
+export TMPDIR=
+export TMP=`mktemp -d -p /tmp`

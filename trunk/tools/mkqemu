@@ -13,6 +13,5 @@ else
 fi
 
 ipvm=10.0.2.15
-sp=2222
 
 qemu -m 256 $QEMUOPT -redir tcp:${sp}:${ipvm}:22 /users/qemu/$m.qemu

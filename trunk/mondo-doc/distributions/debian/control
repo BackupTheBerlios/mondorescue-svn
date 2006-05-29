@@ -1,18 +1,16 @@
 Source: mondo
 Section: utils
 Priority: optional
-Maintainer: Bruno Cornec <bruno@mondorescue.org>
-Build-Depends: debhelper (>= 4.2.20), libnewt-dev, libncurses5-dev
+Maintainer: Bruno Cornec <bruno@mondorescue>
+Build-Depends: debhelper (>= 4.2.20)
 Standards-Version: 3.6.1
 
-Package: mondo
-Architecture: amd64 i386
-Section: utils
+Package: mondo-doc
+Architecture: all
+Section: doc
 Priority: optional
-Depends: ${shlibs:Depends}, ${misc:Depends}, mindi (>= 1.0.8-1), afio, buffer, gawk, cdrecord, lzop
-Recommends: dvd+rw-tools
-Suggests: mondo-doc
-Description: powerful disaster recovery suite
+Suggests: mondo
+Description: manual for Mondo, a powerful disaster recovery suite
  Mondo is reliable. It backs up your Debian GNU/Linux server or workstation to
  tape, CD-R, CD-RW, NFS or hard disk partition. In the event of catastrophic
  data loss, you will be able to restore all of your data [or as much as you

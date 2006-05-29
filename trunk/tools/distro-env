@@ -42,6 +42,18 @@ if [ _"$ddir" = _"" ]; then
 	elif [ -e /etc/gentoo-release ]; then
 		export ddir="gentoo"
 		export dver=`awk '{print $5}' /etc/gentoo-release | cut -d. -f1-2`
+	elif [ -e /etc/debian_version ]; then
+		export ddir="debian"
+		export dver=`cat /etc/debian_version`
+		# Debian assigns release names only once a release actually happens.
+		# Debian does not distinguish between testing and unstable because
+		# unstable today is what testing will be in about ten days time. So,
+		# in case we encounter "tesing/unstable", we assume unstable, i.e. sid.
+		# Note that for released versions, the numeric version will be contained
+		# in debian_version, e.g. on a sarge system, the value will be '3.1'.
+		if [ $dver = "testing/unstable" ]; then
+			export dver = "sid"
+		fi
 	else
 		export ddir="unknown"
 		export dver=""
@@ -111,4 +123,7 @@ if [ _"$dtype" = _"rpm" ]; then
 		export TOPBUILDDIR=${BASE}/build
 	fi
 	mkdir -p ${TOPBUILDDIR}/{RPMS,SRPMS,SPECS,SOURCES,BUILD}
+elif [ _"$dtype" = _"ebuild" ]; then
+	export TOPBUILDDIR=${BASE}/build
+	mkdir -p ${TOPBUILDDIR}/portage
 fi

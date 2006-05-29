@@ -2,56 +2,27 @@
 # -*- makefile -*-
 # Sample debian/rules that uses debhelper.
 # GNU copyright 1997 to 1999 by Joey Hess.
-#
-# $Id$
-#
 
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
 # Define package name variable for a one-stop change.
-PACKAGE_NAME = mondo
+PACKAGE_NAME = mondo-doc
 
 # These are used for cross-compiling and for saving the configure script
 # from having to guess our platform (since we know it already)
 DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 
-CFLAGS = -Wall -g
-
-ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-	CFLAGS += -O0
-else
-	CFLAGS += -O2
-endif
 ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 	INSTALL_PROGRAM += -s
 endif
 
-config.status: configure
-	dh_testdir
-
-	# Configure the package.
-	CFLAGS="$(CFLAGS)" ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man
-
 # Build both architecture dependent and independent
-build: build-arch build-indep
-
-# Build architecture dependent
-build-arch: build-arch-stamp
-
-build-arch-stamp:  config.status
-	dh_testdir
-
-	# Compile the package.
-	$(MAKE)
-
-	touch build-stamp
+build: build-indep
 
 # Build architecture independent
 build-indep: build-indep-stamp
-
-build-indep-stamp:  config.status
 	# Nothing to do, the only indep item is the manual which is available as html in original source
 	touch build-indep-stamp
 
@@ -75,23 +46,7 @@ endif
 	dh_clean 
 
 # Install architecture dependent and independent
-install: install-arch install-indep
-
-# Install architecture dependent
-install-arch: build-arch
-	dh_testdir
-	dh_testroot
-	dh_clean -k -s
-	dh_installdirs -s
-
-	# Install the package files into build directory:
-	# - start with upstream make install
-	$(MAKE) install prefix=$(CURDIR)/debian/$(PACKAGE_NAME)/usr mandir=$(CURDIR)/debian/$(PACKAGE_NAME)/usr/share/man
-	# - copy html manual to temporary location for renaming
-	mkdir -p debian/doc-temp
-	cp -a docs/en/mondorescue-howto debian/doc-temp/html
-
-	dh_install -s
+install: install-indep
 
 # Install architecture independent
 install-indep: build-indep
@@ -124,10 +79,6 @@ binary-common:
 binary-indep: build-indep install-indep
 	$(MAKE) -f debian/rules DH_OPTIONS=-i binary-common
 
-# Build architecture dependant packages using the common target.
-binary-arch: build-arch install-arch
-	$(MAKE) -f debian/rules DH_OPTIONS=-a binary-common
-
 # Build architecture depdendent and independent packages
-binary: binary-arch binary-indep
+binary: binary-indep
 .PHONY: clean binary

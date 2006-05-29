@@ -46,6 +46,7 @@ else
 fi
 
 . $TOOLHOME/common-env
+. $TOOLHOME/svn-env
 
 cd ${BASE}/svn
 

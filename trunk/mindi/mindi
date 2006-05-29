@@ -509,7 +509,7 @@ CreateOneDataDiskImage() {
 	mv $tarball $mountpoint/
 	if [ "$?" -ne "0" ] ; then
 	umount $mountpoint
-	Die "Tarball $tarball is too big for disk! (CODI)\nTell dev team to adjust MAX_COMPRESSED_SIZE"
+	Die "Tarball $tarball is too big for disk! (CODI)\nTell Dev Team to adjust MAX_COMPRESSED_SIZE"
 	fi
 	[ "$diskno" -eq "$noof_disks" ] && echo "This is the last disk ($diskno=$noof_disks)" >> $mountpoint/LAST-DISK
 	umount $mountpoint || LogIt "Cannot umount (CODI)\n"
@@ -756,13 +756,13 @@ FindSpecificModuleInPath() {
 	local modpaths pwd line
 	pwd=`pwd`
 	if [ "$YOUR_KERNEL_SUCKS" ] ; then
-	cd $TMP_ROOT
+		cd $TMP_ROOT
 	else
-	cd /
+		cd /
 	fi
 	if [ ! -e "$1" ] ; then
-	LogIt "Warning - cannot search specific path '$1'\n"
-	return 1
+		LogIt "Warning - cannot search specific path '$1'\n"
+		return 1
 	fi
 	modpaths=`find $1 -name $2.*o -type f`
 	[ "$?" -ne "0" ] && Die "find $1 -name $2.o -type f --- failed"
@@ -1273,9 +1273,9 @@ MakeModuleLoadingScript() {
 	echo -en "#\041/bin/sh\n\n" >> $outfile
 	echo "echo -en \"Loading your modules...\"" >> $outfile
 	if [ "$YOUR_KERNEL_SUCKS" ] ; then
-	kver=$FAILSAFE_KVER
-	cd $TMP_ROOT
-	searchpath=lib/modules/$kver
+		kver=$FAILSAFE_KVER
+		cd $TMP_ROOT
+		searchpath=lib/modules/$kver
 	else
 ###
 ### Sq-Modification ... Use kernelname for module search path if specified
@@ -1290,7 +1290,7 @@ MakeModuleLoadingScript() {
 ###
 ### Sq-Modification end
 ###
-	searchpath=/lib/modules/$kver
+		searchpath=/lib/modules/$kver
 	fi
 	
 	echo -en "for outerloop in 1 2 3 4 5 ; do\necho -en \".\"\n" >> $outfile
@@ -2784,19 +2784,19 @@ TurnTgzIntoRdz() {
 	echo -en "..."
 	old_pwd=`pwd`
 	if [ "$YOUR_KERNEL_SUCKS" ] ; then
-	cd $TMP_ROOT
-	floppy_modules_path=lib/modules/$FAILSAFE_KVER
+		cd $TMP_ROOT
+		floppy_modules_path=lib/modules/$FAILSAFE_KVER
 	else
-	cd /
+		cd /
 ###
 ### Sq-Modification... Use kernel name in module path if specified.
 ###
 		#floppy_modules_path=lib/modules/`uname -r`
 		if [ "${kernelname}" != "" ]
 		then
-		  floppy_modules_path=lib/modules/${kernelname}
+			floppy_modules_path=lib/modules/${kernelname}
 		else
-		  floppy_modules_path=lib/modules/`uname -r`
+			floppy_modules_path=lib/modules/`uname -r`
 		fi
 ###
 ### Sq-Modification end
@@ -2804,7 +2804,7 @@ TurnTgzIntoRdz() {
 	fi
 	floppy_modules=""
 	if [ "$disksize" -lt "2880" ] ; then
-		list_of_groovy_mods="$FLOPPY_MODS `WhichOfTheseModulesAreLoaded "$SCSI_MODS"`"
+		list_of_groovy_mods="$FLOPPY_MODS $IDE_MODS ide-scsi sr_mod cdrom isocd isofs `WhichOfTheseModulesAreLoaded "$SCSI_MODS"`"
 	else
 		list_of_groovy_mods="$CDROM_MODS `WhichOfTheseModulesAreLoaded "$SCSI_MODS"`"
 	fi
@@ -2819,14 +2819,14 @@ TurnTgzIntoRdz() {
 	fi
 	[ -e "$floppy_modules_path" ] || LogIt "path $floppy_modules_path does not exist.\n If you're not using a modular kernel then you're NUTS.\n"
 	for i in $list_of_groovy_mods ; do
-	floppy_modules="$floppy_modules `FindSpecificModuleInPath $floppy_modules_path $i`"
+		floppy_modules="$floppy_modules `FindSpecificModuleInPath $floppy_modules_path $i`"
 	done
 	for i in $floppy_modules ; do
 		[ -e "$i" ] && s=`du -sk $i | cut -f1` || s=""
-	[ "$YOUR_KERNEL_SUCKS" ] && i=$TMP_ROOT/$i
-	echo "Adding $i ($s KB) to the rootfs" >> $LOGFILE
-	cp -df $i $mountpoint/ || LogIt "Unable to copy $i to $mountpoint\n"
-	[ "`echo "$i" | fgrep ".gz"`" ] && gunzip -f $mountpoint/`basename $i`
+		[ "$YOUR_KERNEL_SUCKS" ] && i=$TMP_ROOT/$i
+		echo "Adding $i ($s KB) to the rootfs" >> $LOGFILE
+		cp -df $i $mountpoint/ || LogIt "Unable to copy $i to $mountpoint\n"
+		[ "`echo "$i" | fgrep ".gz"`" ] && gunzip -f $mountpoint/`basename $i`
 	done
 #    if [ -e "/dev/.devfsd" ] ; then
 #	echo "Copying devfs stuff to ramdisk" >> $LOGFILE
@@ -2898,7 +2898,7 @@ ZipMinidirsIntoTarballs() {
 	diskno=1
 	while [ "$diskno" -le "$noof_disks" ] ; do
 		cd $minidir_root/$diskno || LogIt "Warning - cannot cd to $minidir_root/$diskno\n"
-		tar -cf - . 2>> $LOGFILE | gzip -9 > $tardir/$diskno.tar.gz || Die "Can't tar/gzip disk#$diskno; please tell dev team -exactly- what the errors where."
+		tar -cf - . 2>> $LOGFILE | gzip -9 > $tardir/$diskno.tar.gz || Die "Can't tar/gzip disk#$diskno; please tell Dev Team -exactly- what the errors where."
 		diskno=$(($diskno+1))
 		echo -n "..."
 	cp -pRdf * $minidir_root/all

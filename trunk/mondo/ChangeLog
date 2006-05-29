@@ -2,26 +2,36 @@
 
 MONDO CHANGES
 
-trunk:
+v2.2.0 (2006-05-01) 
 - indent on source files
 - asprintf used instead of malloc_string + sprintf/strcpy/strcat without 
   verifications. Optimisations on memory consumption (allocate only size
   needed + remove memory leaks)
-
-v2.2.0 (2006-05-01) 
-=======
-
 - Internationalization (A huge thank to rene-marc dolhen
-<rmd_at_mecreant.org> who achieved that big task)
-- Fixed verify for NFS (Andree Leidenfrost)
-- Fix for Bug #6975 (Bruno Cornec)
-- Fix a bug when restoring interactively and having file names with blank
-  (Bruno Cornec)
-- Fix options -I and -E of mondoarchive which were not working 
-  (Bruno Cornec)
-- Removed 'ax' options from ps call in busybox (Andree Leidenfrost)
+  <rmd_at_mecreant.org> who achieved that big task)
 
-v2.0.7 (2006-02-23)
+2.0.8 (2006-05-25)
+- new build process (Bruno Cornec)
+- Fix a bug in .spec for RPM build (%attr now unused)
+  (Bruno Cornec)
+- Support of dm and LVM v2 (Andree Leidenfrost)
+- New mr_strtok functionn added and used for dm support (Andree Leidenfrost)
+- Complete doc is now a separate package. mondo still contains the 
+  man pages and howto in minimal useful formats
+  (Bruno Cornec)
+- HOWTO now contains a new chapter on unattended support for mondo
+- Increase size (4 times) of include|exclude variables
+- Fix a bug on -I and -E not working with multiple parameters
+- Fix a bug in verify for NFS by swapping nfs_remote_dir and isodir when
+  assembling name for image file to verify
+  (Andree Leidenfrost)
+- Fix mondo when restoring filenames containing blanks 
+  (still a problem for filenames with ')
+  (Bruno Cornec)
+- Fix a RPM generation bug for rh7.3 (i386-redhat-linux prefix for binaries)
+  (Bruno Cornec)
+
+2.0.7 (2006-03-10)
 - useless cat, sort|uniq commands removed 
   (Bruno Cornec/Sébastien Aperghis-Tramoni)
 - Doc cleanup (Andree Leidenfrost)
@@ -33,6 +43,16 @@ v2.0.7 (2006-02-23)
 - Replaced partimagehack with ntfsclone from ntfsprogs package.
   (Andree Leidenfrost)
 - use df -P everywhere (Bruno Cornec)
+- Paypal incitations removed (Andree Leidenfrost)
+- mondo now uses /usr/share for the restore-scripts (Bruno Cornec)
+- rpmlint cleanups (Bruno Cornec)
+- no shared librairies and no X11 anymore (were useless) (Bruno Cornec)
+- files > 2GB are now really supported (Andree Leidenfrost)
+- new SGML based Mondo Rescue documentation + new Web site 
+  (Bruno Cornec/Andree Leidenfrost)
+- mondoarchive aborts when 'mindi --findkernel' gives a fatal error (See also Debian bug #352323.) (Andree Leidenfrost)
+- /tmp not excluded anymore from backup (Bruno Cornec)
+- New RPM Build environement (Bruno Cornec)
 
 v2.06 (2005-12-23)
 - better error handling of failed commands/mindi (Andree Leidenfrost)

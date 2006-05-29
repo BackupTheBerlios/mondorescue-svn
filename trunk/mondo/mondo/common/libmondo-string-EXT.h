@@ -43,3 +43,5 @@ extern char *media_descriptor_string(t_bkptype);
 
 extern inline void turn_wildcard_chars_into_literal_chars(char *out,
 														  char *in);
+/* Valid external functions */
+extern char *mr_strtok(char *instr, const char *delims, int *lastpos);

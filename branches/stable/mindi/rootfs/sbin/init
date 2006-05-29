@@ -565,7 +565,7 @@ UseTmpfs()
 WelcomeMessage()
 {
     echo "********************************************************************"
-    echo "MINDI-LINUX by Hugo Rabson --- web site: http://www.mondorescue.org"
+    echo "MINDI-LINUX by Mondo dev team - web site: http://www.mondorescue.org"
     echo "Boot disk based on AlfaLinux & Trinux. BusyBox by Erik Andersen."
 which petris > /dev/null 2> /dev/null && echo "Petris was written by Peter Seidler <p.seidler@mail1.stofanet.dk>."
     echo "Executables and source code are covered by the GNU GPL. No warranty."

@@ -996,7 +996,7 @@ extern "C" {
 			newtInit();
 			newtCls();
 			newtPushHelpLine
-				("Welcome to Mondo Rescue, by Hugo Rabson and the Internet. All rights reversed.");
+				("Welcome to Mondo Rescue, by Dev Team and the Internet. All rights reversed.");
 			/*  newtDrawRootText(28,0,"Welcome to Mondo Rescue"); */
 			newtDrawRootText(18, 0, WELCOME_STRING);
 			newtRefresh();

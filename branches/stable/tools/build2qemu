@@ -52,10 +52,11 @@ export LC_ALL="C"
 export TOOLHOME=$TOOLHOME
 
 $TOOLHOME/build2pkg $LAST
-#$TOOLHOME/mkdeliv
+$TOOLHOME/pkg2ftp
 EOF
 chmod 755 $TMP/mkmondo
 
+$TOOLHOME/files2ftp
 cd $TOOLHOME/..
 tar cfz $TMP/mkmondo.tar.gz $TOOLHOME $TMP/mkmondo $TOPDIR/${VER}-$TAG
 

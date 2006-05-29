@@ -455,7 +455,7 @@ CreateOneDataDiskImage() {
 	mv $tarball $mountpoint/
 	if [ "$?" -ne "0" ] ; then
 	umount $mountpoint
-	Die "Tarball $tarball is too big for disk! (CODI)\nTell Hugo to adjust MAX_COMPRESSED_SIZE"
+	Die "Tarball $tarball is too big for disk! (CODI)\nTell Dev Team to adjust MAX_COMPRESSED_SIZE"
 	fi
 	[ "$diskno" -eq "$noof_disks" ] && echo "This is the last disk ($diskno=$noof_disks)" >> $mountpoint/LAST-DISK
 	umount $mountpoint || LogIt "Cannot umount (CODI)\n"
@@ -2893,7 +2893,7 @@ ZipMinidirsIntoTarballs() {
 	diskno=1
 	while [ "$diskno" -le "$noof_disks" ] ; do
 		cd $minidir_root/$diskno || LogIt "Warning - cannot cd to $minidir_root/$diskno\n"
-		tar -cf - . 2>> $LOGFILE | gzip -9 > $tardir/$diskno.tar.gz || Die "Can't tar/gzip disk#$diskno; please tell Hugo -exactly- what the errors where."
+		tar -cf - . 2>> $LOGFILE | gzip -9 > $tardir/$diskno.tar.gz || Die "Can't tar/gzip disk#$diskno; please tell Dev Team -exactly- what the errors where."
 		diskno=$(($diskno+1))
 		echo -n "..."
 	cp -pRdf * $minidir_root/all

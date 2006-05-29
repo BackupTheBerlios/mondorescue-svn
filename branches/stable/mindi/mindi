@@ -2893,7 +2893,7 @@ ZipMinidirsIntoTarballs() {
 	diskno=1
 	while [ "$diskno" -le "$noof_disks" ] ; do
 		cd $minidir_root/$diskno || LogIt "Warning - cannot cd to $minidir_root/$diskno\n"
-		tar -cf - . 2>> $LOGFILE | gzip -9 > $tardir/$diskno.tar.gz || Die "Can't tar/gzip disk#$diskno; please tell Dev team -exactly- what the errors where."
+		tar -cf - . 2>> $LOGFILE | gzip -9 > $tardir/$diskno.tar.gz || Die "Can't tar/gzip disk#$diskno; please tell Dev Team -exactly- what the errors where."
 		diskno=$(($diskno+1))
 		echo -n "..."
 	cp -pRdf * $minidir_root/all

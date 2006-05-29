@@ -1,0 +1,9 @@
+#!/bin/bash
+#
+# Environmeent for Mandriva
+#
+# $Id$
+#
+
+export ACCOUNT="bcornec@kenobi.mandriva.com"
+export DSTNODE="-t ssh n3.mandriva.com"

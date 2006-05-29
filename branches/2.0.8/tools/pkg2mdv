@@ -1,0 +1,75 @@
+#!/bin/bash
+#
+# Deliver packages and tgz files to Mandriva
+#
+# $Id$
+#
+
+dname=`dirname $0`
+prem=`echo $dname |cut -c1`
+if [ ${prem} == "/" ]; then
+        export TOOLHOME=$dname
+else
+	export TOOLHOME=${PWD}/$dname
+fi
+
+. $TOOLHOME/common-env
+. $TOOLHOME/distro-env
+. $TOOLHOME/mdv-env
+
+# We need to get $VER and $TAG
+if [ "$1" = "" ]; then
+	LAST=`cat ${TOPDIR}/LAST`
+else
+	LAST=$1
+	shift
+fi
+VER=`echo $LAST | cut -d- -f1`
+TAG=`echo $LAST | cut -d- -f2`
+echo "Working on ${VER}-$TAG"
+	
+if [ "$1" = "" ]; then
+	c="mondo-doc mindi mondo"
+else
+	if [ "$1" = "all" ]; then
+		c="mindi-kernel mondo-doc mindi mondo"
+	else
+		c=$1
+	fi
+fi
+
+export pkg=""
+echo "Working under $TOPBUILDDIR"
+cd $TOPBUILDDIR
+
+ppkg=""
+spkg=""
+
+for p in $c; do
+	# s= stable; t = trunk; 1-9 = official version
+	src=${TOPDIR}/${VER}-$TAG/$p-[1-9st]*.tar.gz
+	pv=`basename $src .tar.gz`
+	spkg="$spkg ${TOPBUILDDIR}/SRPMS/$pv${suf}.src.rpm"
+	ppkg="$ppkg $pv${suf}.src.rpm"
+done
+
+echo "Packages delivery to ${ACCOUNT}"
+cat > /tmp/mkmondo << EOF
+rm -f /tmp/mondorescue.log
+for p in $ppkg ; do
+	rpm -ivh \$p
+	s=\`rpm -qlp \$p | egrep '\.spec'\`
+	# Use mkrel for mdv
+	perl -pi -e 's/define mrel[ \t]+([0-9]+)\..*/define mrel	%mkrel \$1/' rpm/SPECS/\$s
+	rpmbuild -ba rpm/SPECS/\$s 2>&1 | tee -a /tmp/mondorescue.log
+	#ftpcontrib 
+done
+apkg=\`egrep "^Wrote:" /tmp/mondorescue.log | grep -v debug | cut -d: -f2\`
+#sudo ftpcontrib \$apkg
+#rm -f $ppkg
+EOF
+chmod 755 /tmp/mkmondo
+#scp -p ${spkg} /tmp/mkmondo ${ACCOUNT}:
+scp -p /tmp/mkmondo ${ACCOUNT}:
+echo "Packages rebuild on ${DSTNODE}"
+ssh ${ACCOUNT} ${DSTNODE} "./mkmondo"

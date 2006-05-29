@@ -1,0 +1,57 @@
+#!/bin/bash
+#
+# Deliver tgz files to ftp.mondorescue.org
+#
+# $Id$
+#
+
+dname=`dirname $0`
+prem=`echo $dname |cut -c1`
+if [ ${prem} == "/" ]; then
+        export TOOLHOME=$dname
+else
+	export TOOLHOME=${PWD}/$dname
+fi
+
+. $TOOLHOME/common-env
+. $TOOLHOME/distro-env
+. $TOOLHOME/ftp-env
+
+# We need to get $VER and $TAG
+if [ "$1" = "" ]; then
+	LAST=`cat ${TOPDIR}/LAST`
+else
+	LAST=$1
+	shift
+fi
+VER=`echo $LAST | cut -d- -f1`
+TAG=`echo $LAST | cut -d- -f2`
+echo "Working on ${VER}-$TAG"
+	
+if [ "$1" = "" ]; then
+	c="mondo-doc mindi mondo"
+else
+	if [ "$1" = "all" ]; then
+		c="mindi-kernel mondo-doc mindi mondo"
+	else
+		c=$1
+	fi
+fi
+
+export src=""
+echo "Working under $TOPBUILDDIR"
+cd $TOPBUILDDIR
+
+for p in $c; do
+	src="$src ${TOPDIR}/${VER}-$TAG/$p-[1-9st]*.tar.gz"
+done
+
+echo "Sources delivery to ${ACCOUNT}:${DSTDIR}/src"
+scp -p ${src} ${ACCOUNT}:${DSTDIR}/src
+
+echo "Sources delivery to ${FTPSERV} ${FTPDIR}"
+if [ "`which ncftpput`" != "" ]; then
+	ncftpput ${FTPSERV} ${FTPDIR} ${src}
+elif [ "`which lftp`" != "" ]; then
+	lftp -e "cd ${FTPDIR} ; put ${src} ; quit" ${FTPSERV}
+fi

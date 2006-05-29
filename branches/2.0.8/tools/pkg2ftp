@@ -1,0 +1,65 @@
+#!/bin/bash
+#
+# Deliver packages and tgz files to ftp.mondorescue.org
+#
+# $Id$
+#
+
+dname=`dirname $0`
+prem=`echo $dname |cut -c1`
+if [ ${prem} == "/" ]; then
+        export TOOLHOME=$dname
+else
+	export TOOLHOME=${PWD}/$dname
+fi
+
+. $TOOLHOME/common-env
+. $TOOLHOME/distro-env
+. $TOOLHOME/ftp-env
+
+# We need to get $VER and $TAG
+if [ "$1" = "" ]; then
+	LAST=`cat ${TOPDIR}/LAST`
+else
+	LAST=$1
+	shift
+fi
+VER=`echo $LAST | cut -d- -f1`
+TAG=`echo $LAST | cut -d- -f2`
+echo "Working on ${VER}-$TAG"
+	
+if [ "$1" = "" ]; then
+	c="mondo-doc mindi mondo"
+else
+	if [ "$1" = "all" ]; then
+		c="mindi-kernel mondo-doc mindi mondo"
+	else
+		c=$1
+	fi
+fi
+
+export pkg=""
+echo "Working under $TOPBUILDDIR"
+cd $TOPBUILDDIR
+
+spkg=""
+pkg=""
+
+for p in $c; do
+	# s= stable; t = trunk; 1-9 = official version
+	src=${TOPDIR}/${VER}-$TAG/$p-[1-9st]*.tar.gz
+	pv=`basename $src .tar.gz`
+	if [  _"$dtype" = _"rpm" ]; then
+		if [ _"$p" = _"mondo-doc" ]; then
+			ar="noarch"
+		else
+			ar=$ARCH
+		fi
+		pkg="$pkg ${TOPBUILDDIR}/RPMS/${ar}/$pv${suf}.${ar}.rpm"
+		spkg="$spkg ${TOPBUILDDIR}/SRPMS/$pv${suf}.src.rpm"
+	fi
+done
+
+echo "Packages delivery to ${ACCOUNT}:${DSTDIR}/${ddir}/${dver}"
+ssh ${ACCOUNT} "mkdir -p ${DSTDIR}/${ddir}/${dver}"
+scp ${pkg} ${spkg} ${ACCOUNT}:${DSTDIR}/${ddir}/${dver}

@@ -91,7 +91,7 @@ EOF
 
 EOF
 			cat $log >> $dest/distributions/$ddir/$p.changelog.new
-			m4 /tmp/mondorescue.mc $dest/distributions/$ddir/$p.changelog.new > $dest/distributions/$ddir/$p.changelog
+			m4 /tmp/mondorescue.mc $dest/distributions/$ddir/$p.changelog.new >> $dest/distributions/$ddir/$p.spec
 			rm -f $dest/distributions/$ddir/$p.changelog.new
 
 		elif [ "$dtype" = "ebuild" ]; then

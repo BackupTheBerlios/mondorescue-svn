@@ -1,0 +1,12 @@
+#!/bin/bash
+#
+# Environmeent for ftp
+#
+# $Id$
+#
+
+# BerliOS FTP/SSH setup
+export ACCOUNT=bruno@ftp.mondorescue.org
+export DSTDIR=/mondo/ftp
+export FTPSERV="ftp.berlios.de"
+export FTPDIR="/incoming"

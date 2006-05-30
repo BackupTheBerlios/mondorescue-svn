@@ -39,7 +39,8 @@ Install packages manquant pour mondo:
 	afio buffer
 
 Créer compte bruno avec répertoires nécéssaires + env necessaire
-useradd bruno
+mkdir /users
+useradd bruno -d /users/bruno
 passwd bruno
 
 su - bruno

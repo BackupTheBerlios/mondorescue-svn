@@ -51,7 +51,6 @@ if [ -f /usr/local/sbin/mindi ]; then
 fi
 
 %files
-%config(noreplace) %{_sysconfdir}/mindi
 %config(noreplace) %{_sysconfdir}/mindi/deplist.txt 
 %config(noreplace) %{_sysconfdir}/mindi/deplist.d/* 
 %config(noreplace) %{_sysconfdir}/mindi/mindi.conf

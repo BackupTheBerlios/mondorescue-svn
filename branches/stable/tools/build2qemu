@@ -80,12 +80,14 @@ for m in $VMS; do
 		sleep 300
 	fi
 	scp -P $sp $TMP/mkmondo.tar.gz bruno@localhost:
-	ssh -p $sp bruno@localhost "cd / ; tar xfz ~bruno/mkmondo.tar.gz ; $TMP/mkmondo " | tee $TMP/mkvm.log
+	rdate=`date "+%m%d%H%M"`
+	ssh -p $sp root@localhost "date $rdate"
+	ssh -p $sp bruno@localhost "cd / ; rm -rf ~bruno/mondo ~bruno/RPMS/BUILD/* ~bruno/RPMS/tmp/* /tmp/* ; tar xfz ~bruno/mkmondo.tar.gz ; $TMP/mkmondo " | tee $TMP/mkvm.log
 	#ssh -p $sp bruno@localhost "cd / ; tar xfz ~bruno/mkmondo.tar.gz ; $TMP/mkmondo ; rm -f $TMP" | tee $TMP/mkvm.log
 	if [ $vmp -eq 1 ]; then
 		ssh -p $sp root@localhost "halt -p"
 		sleep 300
-		proces=`ps auxww | grep qemu | grep -v grep | grep -q /users/qemu/$m.qemu | awk '{print $2}'`
+		proces=`ps auxww | grep qemu | grep -v grep | grep /users/qemu/$m.qemu | awk '{print $2}'`
 		if [ "$proces" != "" ]; then
 			kill $proces
 		fi

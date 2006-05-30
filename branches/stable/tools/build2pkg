@@ -79,15 +79,13 @@ for p in $c; do
 		tar xfz $src $pv/distributions/${ddir}-$dver/$p.spec
 		mv $pv/distributions/${ddir}-$dver/$p.spec .
 		rm -rf $pv
-		rm -rf ${TOPBUILDDIR}/RPMS/${ar}/*
-		rm -rf ${TOPBUILDDIR}/SRPMS/*
 
 		rpmbuild -ba $p.spec 2> $log 1> $log
-		egrep '^Wrote:' $log
 		if [ $? != 0 ]; then 
 			cat $log
 			status=-1
 		fi
+		egrep '^Wrote:' $log
 		rm -rf ${TOPBUILDDIR}/BUILD/*
 		cd ..
 	elif [  _"$dtype" = _"ebuild" ]; then

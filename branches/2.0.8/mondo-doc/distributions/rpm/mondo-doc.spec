@@ -4,7 +4,7 @@
 
 # if mandriva official build (rpm --with is_official)
 %{?is_official:%define rel %{mkrel} %{mrel}}%{!?is_official:%define rel %{mrel}}
-%define rel		RRR
+%define mrel	RRR
 %define tag		TTT
 
 Summary:	Documentation for Mondo Rescue
@@ -12,7 +12,7 @@ Summary(fr):	Documentation pour Mondo Rescue
 
 Name:		mondo-doc
 Version:	VVV
-Release:	%{rel}
+Release:	%{mrel}
 License:	GPL
 Group:		GRP
 Url:		http://www.mondorescue.org

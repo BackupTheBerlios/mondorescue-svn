@@ -62,14 +62,13 @@ for p in $ppkg ; do
 	# Use mkrel for mdv
 	perl -pi -e 's/define mrel[ \t]+([0-9]+)\..*/define mrel	%mkrel \$1/' rpm/SPECS/\$s
 	rpmbuild -ba rpm/SPECS/\$s 2>&1 | tee -a /tmp/mondorescue.log
-	#ftpcontrib 
 done
 apkg=\`egrep "^Wrote:" /tmp/mondorescue.log | grep -v debug | cut -d: -f2\`
-#sudo ftpcontrib \$apkg
-#rm -f $ppkg
+sudo ftpcontrib \$apkg
+rm -f $ppkg
 EOF
 chmod 755 /tmp/mkmondo
-#scp -p ${spkg} /tmp/mkmondo ${ACCOUNT}:
+scp -p ${spkg} /tmp/mkmondo ${ACCOUNT}:
 scp -p /tmp/mkmondo ${ACCOUNT}:
 echo "Packages rebuild on ${DSTNODE}"
 ssh ${ACCOUNT} ${DSTNODE} "./mkmondo"

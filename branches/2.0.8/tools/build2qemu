@@ -80,8 +80,10 @@ for m in $VMS; do
 		sleep 300
 	fi
 	ssh -p $sp root@localhost "perl -pi -e 's|/home/bruno|/users/bruno|' /etc/passwd /home/bruno/.rpmmacros ; mv /home /users; rpm -e tetex tetex-latex passivetex jadetex texinfo xmltex linuxdoc-tools xmlto docbook-utils-pdf subversion tetex-context tetex-dvips docbook-utils"
+	rdate=`date "+%m%d%H%M"`
+	ssh -p $sp root@localhost "date $rdate"
 	scp -P $sp $TMP/mkmondo.tar.gz bruno@localhost:
-	ssh -p $sp bruno@localhost "cd / ; rm -rf ~bruno/mondo ~bruno/RPMS/BUILD/* ~bruno/RPMS/tmp/* ; tar xfz ~bruno/mkmondo.tar.gz ; $TMP/mkmondo " | tee $TMP/mkvm.log
+	ssh -p $sp bruno@localhost "cd / ; rm -rf ~bruno/mondo ~bruno/RPMS/BUILD/* ~bruno/RPMS/tmp/* /tmp/* ; tar xfz ~bruno/mkmondo.tar.gz ; $TMP/mkmondo " | tee $TMP/mkvm.log
 	#ssh -p $sp bruno@localhost "cd / ; tar xfz ~bruno/mkmondo.tar.gz ; $TMP/mkmondo ; rm -f $TMP" | tee $TMP/mkvm.log
 	if [ $vmp -eq 1 ]; then
 		ssh -p $sp root@localhost "halt -p"

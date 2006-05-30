@@ -69,7 +69,7 @@ sudo ftpcontrib \$apkg
 rm -f $ppkg
 EOF
 chmod 755 /tmp/mkmondo
-#scp -p ${spkg} /tmp/mkmondo ${ACCOUNT}:
+scp -p ${spkg} /tmp/mkmondo ${ACCOUNT}:
 scp -p /tmp/mkmondo ${ACCOUNT}:
 echo "Packages rebuild on ${DSTNODE}"
 ssh ${ACCOUNT} ${DSTNODE} "./mkmondo"

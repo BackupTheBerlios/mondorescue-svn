@@ -38,8 +38,10 @@ echo "Working on ${VER}-$TAG"
 
 if [ _"$1" == _"" ]; then
 	export VMS=`cat ${TOOLHOME}/DISTROS` 
+	single=0
 else
-	export VMS="$1"
+	export VMS="$*"
+	single=1
 fi
 
 mkdir -p $TMP
@@ -51,12 +53,14 @@ export LANGUAGE="C"
 export LC_ALL="C"
 export TOOLHOME=$TOOLHOME
 
-$TOOLHOME/build2pkg $LAST
-$TOOLHOME/pkg2ftp
+$TOOLHOME/build2pkg $LAST < /dev/null
+$TOOLHOME/pkg2ftp $LAST
 EOF
 chmod 755 $TMP/mkmondo
 
-$TOOLHOME/files2ftp
+if [ $single -eq 0 ]; then
+	$TOOLHOME/file2ftp
+fi
 cd $TOOLHOME/..
 tar cfz $TMP/mkmondo.tar.gz $TOOLHOME $TMP/mkmondo $TOPDIR/${VER}-$TAG
 
@@ -67,8 +71,8 @@ for m in $VMS; do
 			rm -rf $TMP
 			exit -1
 	fi
-	ps auxww | grep qemu | grep -v grep | grep -q /users/qemu/$m.qemu
 	export sp=2222
+	ps auxww | grep qemu | grep -v grep | grep -q /users/qemu/$m.qemu
 	if [ $? -ne 0 ]; then
 		# Virtual machine alreday started
 		vmp=1

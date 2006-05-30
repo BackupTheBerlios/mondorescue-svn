@@ -61,7 +61,7 @@ define(\`VVV', ${v})dnl
 define(\`DDD', ${ddd})dnl
 EOF
 
-		mkdir -p $dest/distributions/$ddir
+		mkdir -p $dest/distributions/$ddir $dest/distributions/${ddir}-$dver
 		if [ "$dtype" = "rpm" ]; then
 			if [ -f $dest/distributions/$ddir/spec.m4 ]; then
 				inc=$dest/distributions/$ddir/spec.m4
@@ -72,7 +72,7 @@ EOF
 				exit -1
 			fi
 			echo "Using $inc customization to build SPEC file"
-			m4 /tmp/mondorescue.mc $inc $dest/distributions/rpm/$p.spec > $dest/distributions/$ddir/$p.spec
+			m4 /tmp/mondorescue.mc $inc $dest/distributions/rpm/$p.spec > $dest/distributions/${ddir}-$dver/$p.spec
 
 			if [ -f $dest/distributions/$ddir/changelog ]; then
 				log=$dest/distributions/$ddir/changelog
@@ -85,17 +85,17 @@ EOF
 
 			echo "Using $log customization to build changelog file"
 			ddate=`LANG=C ; date "+%a %b %d %Y"`
-			cat > $dest/distributions/$ddir/$p.changelog.new << EOF
+			cat > $dest/distributions/${ddir}-$dver/$p.changelog.new << EOF
 * $ddate Bruno Cornec <bruno@mondorescue.org> VVV-RRR
 - Updated to VVV-r${REVISION}
 
 EOF
-			cat $log >> $dest/distributions/$ddir/$p.changelog.new
-			m4 /tmp/mondorescue.mc $dest/distributions/$ddir/$p.changelog.new >> $dest/distributions/$ddir/$p.spec
-			rm -f $dest/distributions/$ddir/$p.changelog.new
+			cat $log >> $dest/distributions/${ddir}-$dver/$p.changelog.new
+			m4 /tmp/mondorescue.mc $dest/distributions/${ddir}-$dver/$p.changelog.new >> $dest/distributions/${ddir}-${dver}/$p.spec
+			rm -f $dest/distributions/${ddir}-$dver/$p.changelog.new
 
 		elif [ "$dtype" = "ebuild" ]; then
-			m4 /tmp/mondorescue.mc $dest/distributions/$dfam/$p.ebuild > $dest/distributions/$ddir/$p-$v-r$TAG.ebuild
+			m4 /tmp/mondorescue.mc $dest/distributions/$dfam/$p.ebuild > $dest/distributions/${ddir}-$dver/$p-$v-r$TAG.ebuild
 		elif [ "$dtype" = "deb" ]; then
 			# To be developped
 			m4 /tmp/mondorescue.mc $dest/distributions/$dfam/$p > /dev/null

@@ -76,27 +76,31 @@ for p in $c; do
 		fi
 		echo "Generating $p RPMS"
 		cd SPECS
-		tar xfz $src $pv/distributions/$ddir/$p.spec
-		mv $pv/distributions/$ddir/$p.spec .
+		tar xfz $src $pv/distributions/${ddir}-$dver/$p.spec
+		mv $pv/distributions/${ddir}-$dver/$p.spec .
 		rm -rf $pv
+		rm -rf ${TOPBUILDDIR}/RPMS/${ar}/*
+		rm -rf ${TOPBUILDDIR}/SRPMS/*
 
 		rpmbuild -ba $p.spec 2> $log 1> $log
+		egrep '^Wrote:' $log
 		if [ $? != 0 ]; then 
 			cat $log
 			status=-1
 		fi
+		rm -rf ${TOPBUILDDIR}/BUILD/*
 		cd ..
 	elif [  _"$dtype" = _"ebuild" ]; then
 		log=/tmp/$p-gentoo.log
 		ln -sf $src .
-		tar xfz $src $pv/distributions/$ddir/$p-${VER}-r$TAG.ebuild
+		tar xfz $src $pv/distributions/${ddir}-$dver/$p-${VER}-r$TAG.ebuild
 		if [ _"`grep $TOPBUILDDIR/portage /etc/make.conf`" = _"" ]; then
 			echo "Adding $TOPBUILDDIR/portage to /etc/make.conf"
 			echo "PORTDIR_OVERLAY=\"$TOPBUILDDIR/portage\"" >> /etc/make.conf
 		fi
 
 		mkdir -p ${TOPBUILDDIR}/portage/sys-apps/$p
-		mv $pv/distributions/$ddir/$p-${VER}-r$TAG.ebuild ${TOPBUILDDIR}/portage/sys-apps/$p
+		mv $pv/distributions/${ddir}-$dver/$p-${VER}-r$TAG.ebuild ${TOPBUILDDIR}/portage/sys-apps/$p
 		rm -rf $pv
 
 		cd ${TOPBUILDDIR}/portage/sys-apps/$p

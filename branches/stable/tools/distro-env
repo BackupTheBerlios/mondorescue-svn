@@ -86,13 +86,13 @@ elif [ $ddir = "sles" -o $ddir = "suse" ]; then
 elif [ $ddir = "fedora" -o $ddir = "redhat" -o $ddir = "rhel" ]; then
 	dfam="redhat"
 	dtype="rpm"
-	dver=`echo ${dver} | sed "s/\.//"`
+	dver1=`echo ${dver} | sed "s/\.//"`
 	if [ $ddir = "fedora" ]; then
-		suf=".fc${dver}"
+		suf=".fc${dver1}"
 	elif [ $ddir = "redhat" ]; then
-		suf=".rh${dver}"
+		suf=".rh${dver1}"
 	else
-		suf=".rhel${dver}"
+		suf=".rhel${dver1}"
 	fi
 	BUILDDIR=${TOPDIR}/SPECS 
 elif [ $ddir = "mandrake" -o $ddir = "mandriva" ]; then

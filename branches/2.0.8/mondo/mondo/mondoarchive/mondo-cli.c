@@ -682,8 +682,8 @@ process_switches(struct s_bkpinfo *bkpinfo,
 			strcat(bkpinfo->exclude_paths, " ");
 		}
 		asprintf(&tmp1, flag_val['E']);
-		char *p = tmp1;
-		char *q = tmp1;
+		p = tmp1;
+		q = tmp1;
 
 		/* Cut the flag_val['E'] in parts containing all paths to test them */
 		while (p != NULL) {

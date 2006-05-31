@@ -71,7 +71,7 @@ for m in $VMS; do
 			rm -rf $TMP
 			exit -1
 	fi
-	export sp=2222
+	export sp=2223
 	ps auxww | grep qemu | grep -v grep | grep -q /users/qemu/$m.qemu
 	if [ $? -ne 0 ]; then
 		# Virtual machine alreday started

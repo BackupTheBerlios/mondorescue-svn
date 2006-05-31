@@ -91,6 +91,7 @@ for m in $VMS; do
 		proces=`ps auxww | grep qemu | grep -v grep | grep /users/qemu/$m.qemu | awk '{print $2}'`
 		if [ "$proces" != "" ]; then
 			kill $proces
+			sleep 10
 		fi
 	fi
 done

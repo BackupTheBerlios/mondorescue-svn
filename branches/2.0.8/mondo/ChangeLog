@@ -2,7 +2,11 @@
 
 MONDO CHANGES
 
-2.0.8 (2006-05-25)
+2.0.8-2 (2006-06-02)
+- PXE mode now supports change of NIC for redeployment
+  (Bruno Cornec)
+
+2.0.8-1 (2006-05-25)
 - new build process (Bruno Cornec)
 - Fix a bug in .spec for RPM build (%attr now unused)
   (Bruno Cornec)

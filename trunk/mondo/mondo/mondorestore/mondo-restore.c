@@ -3159,7 +3159,7 @@ void welcome_to_mondorestore()
 	log_msg(0,
 			"to the Mondo mailing list when you are seeking technical    ");
 	log_msg(0,
-			"support. Without it, we can't help you.               - Hugo");
+			"support. Without it, we can't help you.            - DevTeam");
 	log_msg(0,
 			"------------------------------------------------------------");
 	log_msg(0,

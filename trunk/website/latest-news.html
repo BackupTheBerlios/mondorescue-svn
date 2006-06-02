@@ -1,3 +1,105 @@
+<p><B>2006-05-31 </B>Mondo 2.0.8 / Mindi 1.0.8 available</p>
+<p>
+I'm happy to announce the availability of a newest version of
+mondo 2.0.8-1 / mindi 1.0.8-1. Enjoy it !
+</p>
+
+<p>
+Now available at <a href="ftp://ftp.mondorescue.org/">ftp://ftp.mondorescue.org/</a>
+</p>
+
+<p>
+fedora/4/mondo-2.0.8-1.fc4.i386.rpm
+fedora/4/mindi-1.0.8-1.fc4.i386.rpm
+fedora/5/mindi-1.0.8-1.fc5.i386.rpm
+fedora/5/mondo-2.0.8-1.fc5.i386.rpm
+mandrake/10.2/mindi-1.0.8-1.102mdk.i386.rpm
+mandrake/10.2/mondo-2.0.8-1.102mdk.i386.rpm
+mandrake/10.1/mindi-1.0.8-1.101mdk.i386.rpm
+mandrake/10.1/mondo-2.0.8-1.101mdk.i386.rpm
+mandriva/2006.0/mindi-1.0.8-1.20060mdk.i586.rpm
+mandriva/2006.0/mondo-2.0.8-1.20060mdk.i586.rpm
+redhat/7.3/mindi-1.0.8-1.rh73.i386.rpm
+redhat/7.3/mondo-2.0.8-1.rh73.i386.rpm
+redhat/9/mindi-1.0.8-1.rh9.i386.rpm
+redhat/9/mondo-2.0.8-1.rh9.i386.rpm
+rhel/3/mindi-1.0.8-1.rhel3.i386.rpm
+rhel/3/mondo-2.0.8-1.rhel3.i386.rpm
+rhel/4/mindi-1.0.8-1.rhel4.i386.rpm
+rhel/4/mondo-2.0.8-1.rhel4.i386.rpm
+sles/9/mindi-1.0.8-1.sles9.i386.rpm
+sles/9/mondo-2.0.8-1.sles9.i386.rpm
+suse/10.0/mindi-1.0.8-1.suse10.0.i386.rpm
+suse/10.0/mondo-2.0.8-1.suse10.0.i386.rpm
+src/mondo-doc-2.0.8-1.tar.gz
+src/mindi-1.0.8-1.tar.gz
+src/mondo-2.0.8-1.tar.gz
+</p>
+
+<p>As usual src.rpm packages are also available in the same directory. Also a new mondo-doc package is produced for most distributions containing all the formats of mondo's documentation. Only there for completion, as mondo's package already contains the required doc files.
+</p>
+
+<p>
+This version should fix most of latest bugs reported for mindi. the 2.0.x branch should now enter in a bug fix only mode. All new features will be introduced in 2.2.x on which we will now work (internationalization, memory management, configuration files, ...)
+</p>
+
+<p>
+Changes are :
+</p>
+
+<p>
+MONDO:
+</p>
+
+<p>
+- new build process (Bruno Cornec)<br>
+- Fix a bug in .spec for RPM build (%attr now unused)
+(Bruno Cornec)<br>
+- Support of dm and LVM v2 (Andree Leidenfrost)<br>
+- New mr_strtok functionn added and used for dm support (Andree Leidenfrost)<br>
+- Complete doc is now a separate package. mondo still contains the
+  man pages and howto in minimal useful formats
+  (Bruno Cornec)<br>
+  - HOWTO now contains a new chapter on unattended support for mondo<br>
+  - Increase size (4 times) of include|exclude variables<br>
+  - Fix a bug on -I and -E not working with multiple parameters<br>
+- Fix a bug in verify for NFS by swapping nfs_remote_dir and isodir when
+  assembling name for image file to verify
+  (Andree Leidenfrost)<br>
+- Fix mondo when restoring filenames containing blanks
+  (still a problem for filenames with ')
+  (Bruno Cornec)<br>
+- Fix a RPM generation bug for rh7.3 (i386-redhat-linux prefix for binaries)
+(Bruno Cornec)<br>
+</p>
+
+<p>
+MINDI:
+</p>
+
+<p>
+- new build process (Bruno Cornec)<br>
+- Fix a bug when a disk less than 2.8 MB can be built, to
+  include enough modules to support SCSI cds
+  (Bruno Cornec)<br>
+- Fix a bug in .spec for RPM build (%attr now unused)
+(Bruno Cornec)<br>
+- Add support for LABEL on swap partitions
+(Michel Loiseleur + Julien Pinon)<br>
+- Attempt to fix bug 6827 (addition of a script for
+  busybox udhcpc to support pxe/dhcp restore)
+  (Bruno Cornec)<br>
+  - support of dm and LVM v2 (Andree Leidenfrost)<br>
+  - analyze-my-lvm is under $MINDI_LIB (Andree Leidenfrost)<br>
+- Fix a bug introduced by trying to avoid an error
+  message when modprobe.d doesn't exist
+  (Johannes Franken)<br>
+- Fix for Bug #6975 (/net is now excluded from kernel search location)
+(Bruno Cornec)<br>
+- Allow 5670 MB fllopy disks for lilo as well (Bruno Cornec)<br>
+- Add missing net modules (Klaus Ade Johnstad)<br>
+</p>
+
 <p><B>2006-04-08 </B>Mondo 2.0.7 / Mindi 1.0.7 updated to r460</p>
 <p>
 I'm happy to announce the availability of a newest version of
@@ -55,87 +157,3 @@ analyze-my-lvm is under $MINDI_SBIN (not _LIB)
 Usage of Epoch for RPMs to ease update
 </p>
 
-<p><B>2006-03-20 </B>Mondo 2.0.7 / Mindi 1.0.7 are out</p>
-<p>
-I'm happy to announce the availability of the latest and greatest
-version of mondo 2.0.7 / mindi 1.0.7. Version numbers have changed of
-format to be more in line with what is done generally (x.y.z)
-</p>
-<p>
-Now available at ftp://ftp.mondorescue.org :
-</p>
-
-<p>
-mandrake/10.1/mindi-1.0.7-447.101mdk.i386.rpm<br>
-mandrake/10.1/mondo-2.0.7-447.101mdk.i386.rpm<br>
-mandrake/10.2/mindi-1.0.7-447.102mdk.i386.rpm<br>
-mandrake/10.2/mondo-2.0.7-447.102mdk.i386.rpm<br>
-mandriva/2006.0/mindi-1.0.7-447.20060mdk.i386.rpm<br>
-mandriva/2006.0/mondo-2.0.7-447.20060mdk.i386.rpm<br>
-src/mindi-1.0.7-r447.tgz<br>
-src/mondo-2.0.7-r447.tgz<br>
-</p>
-
-<p>
-Other distributions will follow asap (should be able to produce soon
-redhat 7.3, fedora core 4, and only after rhel3/4 and sles9) due to the
-change in the virtual machines I have to do (now using qemu + more tools
-to generate RPMs)
-</p>
-
-<p>
-The focus on this version has been more around the new website and
-documentation, and a bit less on code. So some persistant bugs are still
-not corrected (some dvd burning issues and dm/lvm2 support mainly) and
-will be hopefully in 2.0.8.
-</p>
-
-<p>
-MONDO CHANGES
-</p>
-
-<p>
-v2.07 (2006-02-23)<br>
-- useless cat, sort|uniq commands removed (Bruno Cornec/Sébastien Aperghis-Tramoni)<br>
-- Doc cleanup (Andree Leidenfrost)<br>
-- Add the actual format to messages after calls to function is_this_a_valid_disk_format() about unsupported formats.  (Andree Leidenfrost)<br>
-- Abort|Warn when one of the include|exclude dirs (-I|-E) does not exist (Bruno Cornec/Jeffs)<br>
-- Replaced partimagehack with ntfsclone from ntfsprogs package. (Andree Leidenfrost)<br>
-- use df -P everywhere (Bruno Cornec)<br>
-- Paypal incitations removed (Andree Leidenfrost)<br>
-- mondo now uses /usr/share for the restore-scripts (Bruno Cornec)<br>
-- rpmlint cleanups (Bruno Cornec)<br>
-- no shared librairies and no X11 anymore (were useless) (Bruno Cornec)<br>
-- files > 2GB are now really supported (Andree Leidenfrost)<br>
-- new SGML based Mondo Rescue documentation + new Web site (Bruno Cornec/Andree Leidenfrost)<br>
-- mondoarchive aborts when 'mindi --findkernel' gives a fatal error (See also Debian bug #352323.) (Andree Leidenfrost)<br>
-- /tmp not excluded anymore from backup (Bruno Cornec)<br>
-- New RPM Build environement (Bruno Cornec)<br>
-</p>
-
-<p>
-MINDI CHANGES
-</p>
-
-<p>
-1.07 (2006-02-23)<br>
-- stop creating further size of floppy disks if the smaller one succeeds (Bruno Cornec)<br>
-- init revamped (removed unnecessary second general module loading phase, start NFS appropriately depending on PXE or simple NFS) (Andree Leidenfrost)<br>
-  - Changed module 'nfsacl' to 'nfs_acl' (Andree Leidenfrost)<br>
-  - Mindi/DiskSize is gone (Bruno Cornec)<br>
-- useless cat, sort|uniq commands removed (Bruno Cornec/Sébastien Aperghis-Tramoni)<br>
-- Doc cleanup (Andree Leidenfrost)<br>
-- Bug fix for chown in install.sh (JeffS)<br>
-- CHANGES renamed also in install.sh now (Bruno Cornec)<br>
-- rpmlint cleanups<br>
-- Get mindi to look for analyze-my-lvm in it's library directory MINDI_LIB (See also Debian bug #351446.)<br>
-- mindi only deletes freshly created 1440kb images in case of error (See also Debian Bug #348966.) (Andree Leidenfrost)<br>
-- try standard grub-install in grub-MR restore script before trying anything fancy (Andree Leidenfrost)<br>
-- busybox mount should be called with -o ro for PXE (Make RHEL 3 works in PXE with a 2.6 failsafe kernel now available) (Bruno Cornec)<br>
-- Fix mindi for 2.6 Failsafe support (Bruno Cornec)<br>
-- mindi now depends on grep >= 2.5 (for -m option) (Marco Puggelli/Bruno Cornec)<br>
-- Fix a bug in LVM context for RHEL4 in GetValueFromField (Rémi Bondoin/Bruno Cornec)<br>
-- New RPM Build environement (Bruno Cornec)<br>
-- mindi now supports x86_64 natively (Bruno Cornec)<br>
-- stop creating further size of floppy disks if the smaller one succeeds (Bruno Cornec)<br>
-</p>

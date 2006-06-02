@@ -2,7 +2,7 @@
 
 MONDO CHANGES
 
-v2.2.0 (2006-05-01) 
+v2.2.0 (2006-06-02) 
 - indent on source files
 - asprintf used instead of malloc_string + sprintf/strcpy/strcat without 
   verifications. Optimisations on memory consumption (allocate only size
@@ -10,7 +10,11 @@ v2.2.0 (2006-05-01)
 - Internationalization (A huge thank to rene-marc dolhen
   <rmd_at_mecreant.org> who achieved that big task)
 
-2.0.8 (2006-05-25)
+2.0.8-2 (2006-06-02)
+- PXE mode now supports change of NIC for redeployment
+  (Bruno Cornec)
+
+2.0.8-1 (2006-05-25)
 - new build process (Bruno Cornec)
 - Fix a bug in .spec for RPM build (%attr now unused)
   (Bruno Cornec)

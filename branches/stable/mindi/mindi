@@ -1341,27 +1341,27 @@ absolute_partition old_partition_fmt
 
 		# This part tries to retrieve the correct device from a LABEL line in /etc/fstab
 		# current_partition contains only first column of /etc/fstab
-		if [ "`echo "$current_partition" | /bin/grep -i "LABEL="`" != "" ] ; then
+		if [ "`echo "$current_partition" | /bin/grep -i "LABEL="`" != "" ]; then
 			str_to_find_fmt_with=$current_partition
 			redhat_label=`echo "$current_partition" | /bin/cut -d'=' -f2`
 			actual_dev=""
 	
 		# 1st try : blkid, the good way
-		if [ -x "/sbin/blkid" ] ; then
+		if [ -x "/sbin/blkid" ]; then
 			actual_dev=`/sbin/blkid | /bin/grep "$current_partition" | /bin/cut -d':' -f1`
 		fi
 
 		# 2nd try, which works on a standard partition (ext2/3), but not on swap
-		if [ "x$actual_dev" = "x" ] ; then
+		if [ "x$actual_dev" = "x" ]; then
 			actual_dev=`/bin/mount -l | /bin/grep "\[$redhat_label\]" | /bin/cut -d' ' -f1`
 		fi
 
 		# 3rd try, with vol_id (which works with swap)
-		if [ "x$actual_dev" = "x" -a -x "/sbin/vol_id" ] ; then
+		if [ "x$actual_dev" = "x" -a -x "/sbin/vol_id" ]; then
 				list_swaps=`cat /proc/swaps | /bin/grep "/dev/" | /bin/awk '{ print $1 }' `
 				for dev_swap in $list_swaps ; do
 					dev_exists=`/sbin/vol_id $dev_swap | /bin/grep "$redhat_label"`
-					if [ "x$dev_exists" != "x" ] ; then
+					if [ "x$dev_exists" != "x" ]; then
 						actual_dev=$dev_swap
 						break;
 					fi
@@ -1369,7 +1369,7 @@ absolute_partition old_partition_fmt
 		fi
 
 		# 4th try : pre-formated LABEL. Format is : LABEL=SWAP-mydevice. e.g. : LABEL=SWAP-hda5
-		if [ "x$actual_dev" = "x" -a  "`echo "$current_partition" | /bin/grep -i "LABEL=SWAP"`" != ""] ; then
+		if [ "x$actual_dev" = "x" -a  _"`echo $current_partition | /bin/grep -i 'LABEL=SWAP'`" != _"" ]; then
 				try_dev="`echo "$redhat_label" | /bin/cut -d '-' -f2`"
 				present_dev="`/bin/cat /proc/swaps | /bin/grep -w /dev/$try_dev`"
 				if [ "x$present_dev" != "x" ] ; then
@@ -1378,7 +1378,7 @@ absolute_partition old_partition_fmt
 		fi
 
 		# Check if one of all those tries has known success
-		if [ "x$actual_dev" != "x" ] ; then
+		if [ "x$actual_dev" != "x" ]; then
 				current_partition=$actual_dev
 		else
 			Die "Your system uses a labelled swap partition, but you lack the tool to support it.\nPlease replace swap labels with their correct devices in /etc/fstab\n"
@@ -1388,9 +1388,9 @@ absolute_partition old_partition_fmt
 	fi
 
 	partition_format=`$AWK '$1 == "'"$str_to_find_fmt_with"'" {print $3}' $MY_FSTAB`
-	if [ -d "/proc/lvm" ] && [ "`lvdisplay $current_partition 2> /dev/null`" ] ; then
+	if [ -d "/proc/lvm" ] && [ "`lvdisplay $current_partition 2> /dev/null`" ]; then
 		partition_size="lvm"
-	elif [ -d "/dev/mapper" ] && [ "`lvm lvdisplay $current_partition 2> /dev/null`" ] ; then
+	elif [ -d "/dev/mapper" ] && [ "`lvm lvdisplay $current_partition 2> /dev/null`" ]; then
 		partition_size="lvm"
 	else
 		partition_size=`SizeOfPartition $current_partition`

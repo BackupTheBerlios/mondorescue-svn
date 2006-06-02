@@ -37,5 +37,5 @@ nb=`svn diff $TOOLHOME/.. | wc -l`
 if [ $nb -gt 0 ]; then
 	echo "You'll have to check in order to to update the TAG"
 else
-	(cd $TOOLHOME/.. ; svn ci -m "Automatic update of TAG to $TAG")
+	(cd $TOOLHOME/.. ; svn ci -m "Automatic update of TAG to $TAG" ; svn up)
 fi

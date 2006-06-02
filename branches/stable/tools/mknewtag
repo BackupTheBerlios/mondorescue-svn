@@ -1,0 +1,42 @@
+#!/bin/bash
+#
+# Prepare a new delivery of the same version by changing TAG
+#
+# $Id$
+#
+# Syntax: mknewtag
+#
+
+umask 022
+dname=`dirname $0`
+prem=`echo $dname |cut -c1`
+if [ ${prem} == "/" ]; then
+	export TOOLHOME=$dname
+else
+	export TOOLHOME=${PWD}/$dname
+fi
+
+. $TOOLHOME/common-env
+. $TOOLHOME/distro-env
+
+# We need to get $VER and $TAG
+if [ "$1" = "" ]; then
+	LAST=`cat ${TOPDIR}/LAST`
+else
+	LAST=$1
+	shift
+fi
+VER=`echo $LAST | cut -d- -f1`
+
+TAG=`echo $LAST | cut -d- -f2`
+echo -n "Changing TAG of version $VER value from $TAG to "
+((TAG=$TAG+1))
+echo "$TAG"
+nb=`svn diff $TOOLHOME/.. | wc -l`
+if [ $nb -gt 0 ]; then
+	echo "You'll have to check in order before updating the TAG"
+	echo "$TAG" > $TOOLHOME/TAG
+else
+	echo "$TAG" > $TOOLHOME/TAG
+	(cd $TOOLHOME/.. ; svn ci -m "Automatic update of TAG to $TAG" ; svn up)
+fi

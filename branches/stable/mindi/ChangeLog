@@ -2,7 +2,13 @@
 
 MINDI CHANGES
 
-1.0.8 (2006-05-25)
+1.0.8-2 (2006-06-02)
+- Fix bugs in the swap+LABEL code found on rhel4
+  (Peter Naber/Bruno Cornec)
+- PXE mode now supports change of NIC for redeployment
+  (Bruno Cornec)
+
+1.0.8-1 (2006-05-25)
 - new build process (Bruno Cornec)
 - Fix a bug when a disk less than 2.8 MB can be built, to
   include enough modules to support SCSI cds 

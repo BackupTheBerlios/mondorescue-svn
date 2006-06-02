@@ -1313,8 +1313,8 @@ absolute_partition old_partition_fmt
 	all_partitions=""
 	
 	if [ -d "/proc/lvm" ] || [ -d "/dev/mapper" ]; then
-	echo -en "\rAnalyzing LVM...\r"
-	all_partitions=`$MINDI_LIB/analyze-my-lvm | fgrep ">>>" | cut -d' ' -f2-32`
+		echo -en "\rAnalyzing LVM...\r"
+		all_partitions=`$MINDI_LIB/analyze-my-lvm | fgrep ">>>" | cut -d' ' -f2-32`
 	fi
 	all_partitions="$all_partitions `ListAllPartitions 2> /dev/null`"
 #    echo "all partitions = $all_partitions" > /dev/stderr
@@ -1325,27 +1325,27 @@ absolute_partition old_partition_fmt
 	printf "        %-15s %-15s %-15s %-15s\n" DEVICE MOUNTPOINT FORMAT "SIZE (MB)"
 	for c_p in $all_partitions ; do
 #        echo "c_p = $c_p" > /dev/stderr
-	[ "`echo "/dev/floppy /dev/fd0h1440 /dev/fd0H1440 /dev/cdrom /dev/cdrom/cdrom /dev/cdrom/cdrom1 /dev/cdrom/cdrom2 /dev/cdrom0 /dev/cdrom1 /dev/cdrom2 /dev/cdrom3 /dev/cdrw" | fgrep "$c_p"`" != "" ] || [ "`echo "$c_p" | fgrep "/dev/scd"`" != "" ] || [ "`echo "$c_p" | fgrep "/dev/ram"`" != "" ] || [ "`echo "$c_p" | grep ":"`" != "" ] || [ "`echo "$c_p" | fgrep ":/"`" != "" ] && continue
+		[ "`echo "/dev/floppy /dev/fd0h1440 /dev/fd0H1440 /dev/cdrom /dev/cdrom/cdrom /dev/cdrom/cdrom1 /dev/cdrom/cdrom2 /dev/cdrom0 /dev/cdrom1 /dev/cdrom2 /dev/cdrom3 /dev/cdrw" | fgrep "$c_p"`" != "" ] || [ "`echo "$c_p" | fgrep "/dev/scd"`" != "" ] || [ "`echo "$c_p" | fgrep "/dev/ram"`" != "" ] || [ "`echo "$c_p" | grep ":"`" != "" ] || [ "`echo "$c_p" | fgrep ":/"`" != "" ] && continue
 		[ "`echo "/dev/scd0 /dev/scd1 /dev/sr0 /dev/sr1 /dev/cdrom /dev/cdrom1" | fgrep "$c_p"`" ] && continue
-	[ "`echo "$c_p" | grep -x "/dev/cdroms.*"`" ] && continue
-	if [ -h "$c_p" ] && [ "`echo "$c_p" | fgrep "/dev/hd"`" = "" ] && [ "`echo "$c_p" | fgrep "/dev/sd"`" = "" ] && [ "`echo "$c_p" | fgrep "/dev/md"`" = "" ] ; then
-		current_partition=`ResolveSoftlink $c_p`
-		[ "`echo "$current_partition" | fgrep "/dev/mapper"`" != "" ] && current_partition="$c_p"
-		[ "`echo "/dev/scd0 /dev/scd1 /dev/sr0 /dev/sr1 /dev/cdrom /dev/cdrom1" | fgrep "$current_partition"`" ] && continue
-	else
-		current_partition="$c_p"
-	fi
-	[ "$c_p" = "none" ] && continue
-	absolute_partition=`ResolveSoftlink $c_p`
-	partition_mountpt=`tr -s '\t' ' ' < $MY_FSTAB | /bin/grep -w "$current_partition" | /bin/grep -vx " *#.*" | $AWK '{print $2}' | head -n1`
+		[ "`echo "$c_p" | grep -x "/dev/cdroms.*"`" ] && continue
+		if [ -h "$c_p" ] && [ "`echo "$c_p" | fgrep "/dev/hd"`" = "" ] && [ "`echo "$c_p" | fgrep "/dev/sd"`" = "" ] && [ "`echo "$c_p" | fgrep "/dev/md"`" = "" ] ; then
+			current_partition=`ResolveSoftlink $c_p`
+			[ "`echo "$current_partition" | fgrep "/dev/mapper"`" != "" ] && current_partition="$c_p"
+			[ "`echo "/dev/scd0 /dev/scd1 /dev/sr0 /dev/sr1 /dev/cdrom /dev/cdrom1" | fgrep "$current_partition"`" ] && continue
+		else
+			current_partition="$c_p"
+		fi
+		[ "$c_p" = "none" ] && continue
+		absolute_partition=`ResolveSoftlink $c_p`
+		partition_mountpt=`tr -s '\t' ' ' < $MY_FSTAB | /bin/grep -w "$current_partition" | /bin/grep -vx " *#.*" | $AWK '{print $2}' | head -n1`
 
-	# This part tries to retrieve the correct device from a LABEL line in /etc/fstab
-	# current_partition contains only first column of /etc/fstab
-	if [ "`echo "$current_partition" | /bin/grep -f -i "LABEL="`" != "" ] ; then
-		str_to_find_fmt_with=$current_partition
-		redhat_label=`echo "$current_partition" | /bin/cut -d'=' -f2`
-		actual_dev=""
-
+		# This part tries to retrieve the correct device from a LABEL line in /etc/fstab
+		# current_partition contains only first column of /etc/fstab
+		if [ "`echo "$current_partition" | /bin/grep -i "LABEL="`" != "" ] ; then
+			str_to_find_fmt_with=$current_partition
+			redhat_label=`echo "$current_partition" | /bin/cut -d'=' -f2`
+			actual_dev=""
+	
 		# 1st try : blkid, the good way
 		if [ -x "/sbin/blkid" ] ; then
 			actual_dev=`/sbin/blkid | /bin/grep "$current_partition" | /bin/cut -d':' -f1`
@@ -1353,7 +1353,7 @@ absolute_partition old_partition_fmt
 
 		# 2nd try, which works on a standard partition (ext2/3), but not on swap
 		if [ "x$actual_dev" = "x" ] ; then
-			actual_dev=`/bin/mount -l | /bin/grep " [$redhat_label]" | /bin/cut -d' ' -f1`
+			actual_dev=`/bin/mount -l | /bin/grep "\[$redhat_label\]" | /bin/cut -d' ' -f1`
 		fi
 
 		# 3rd try, with vol_id (which works with swap)

@@ -32,10 +32,11 @@ TAG=`echo $LAST | cut -d- -f2`
 echo -n "Changing TAG of version $VER value from $TAG to "
 ((TAG=$TAG+1))
 echo "$TAG"
-echo "$TAG" > $TOOLHOME/TAG
 nb=`svn diff $TOOLHOME/.. | wc -l`
 if [ $nb -gt 0 ]; then
-	echo "You'll have to check in order to to update the TAG"
+	echo "You'll have to check in order before updating the TAG"
+	echo "$TAG" > $TOOLHOME/TAG
 else
+	echo "$TAG" > $TOOLHOME/TAG
 	(cd $TOOLHOME/.. ; svn ci -m "Automatic update of TAG to $TAG" ; svn up)
 fi

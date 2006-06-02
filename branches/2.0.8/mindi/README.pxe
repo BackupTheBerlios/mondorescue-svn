@@ -1,3 +1,5 @@
+$Id$
+
 README for mondo/mindi usage with PXE
 
 mondorescue now supports the possibility to deploy mondo-images using the Pre eXecution Environment (PXE) standard.
@@ -8,7 +10,14 @@ To use it, please do the following on your deployment server:
 Add the following line to your default file:
 label mondo
         kernel vmlinuz-mondo
-        append initrd=initrd-mondo load_ramdisk=1 prompt_ramdisk=0 ramdisk_size=36864 rw root=/dev/ram iso_mode acpi=off apm=off devfs=nomount exec-shield=0 pxe [prefix="machine"] [ipconf=(ipadr:netmask:broadcast:gateway|dhcp)] [ping=#] ...
+        append initrd=initrd-mondo load_ramdisk=1 prompt_ramdisk=0 ramdisk_size=36864 rw root=/dev/ram iso_mode acpi=off apm=off devfs=nomount exec-shield=0 pxe [prefix="machine"] [ipconf=(ipdev:ipadr:netmask:broadcast:gateway|ipdev:dhcp)] [ping=#] ...
+
+ipdev is the device name (e.g. eth2)
+ipadr is the IP Address (e.g. 192.168.1.1)
+netmask is the Netmask (e.g. 255.255.255.0)
+broadcast is the Network broadcast (e.g. 192.168.1.255)
+gateway is the default gateway (e.g. 192.168.1.254)
+dhcp is a keyword. Using it will provide all the previous 4 values to activate the LAN interface.
 
 The initrd and kernel file come rom the first bootable media 
 created by mondoarchive. To get them, please issue:
@@ -24,9 +33,10 @@ Thus the PXE ROM will boot mondo's kernel and mondo's initrd in memory and will 
 If you used the -p option of mondoarchive, you may specify the real name of mondo images to use during restore. To do that use prefix=machine on the initrd line, after the pxe keyword, to load the ISO images saved with -p machine.
 Without prefix keyword, the name of the images used during archiving with the -p option will be used (they may differ). If -p wasn't used then the name mondorescue-1.iso, ... will be used.
 
-During boot mondorestore will start your NFS configuration and mount mondo's content from the network rather than from a physical media. You may alter the IP configuration stored from the original machine by passing the ipconf option describing respectively the IP address, netmask, broadcast and default gateway you want to setup for the machine, separated by ':'. Or alternatively, you may specify the dhcp keyword so that a DhCP request is made to get those information. On some configurations, you may also want to increase the number of ping queries made before the NFS mount, which is of 3 by default, using the ping option and give the number you want.
+During boot mondorestore will start your NFS configuration and mount mondo's content from the network rather than from a physical media. You may alter the IP configuration stored from the original machine by passing the ipconf option describing respectively the IP address, netmask, broadcast and default gateway you want to setup for the machine, separated by ':'. Or alternatively, you may specify the dhcp keyword so that a DHCP request is made to get those information. In the 2 cases, you have to mention on which physical interface those parameters should apply. On some configurations, you may also want to increase the number of ping queries made before the NFS mount, which is of 3 by default, using the ping option and give the number you want.
 
 Please report any problem around that tool to bruno@mondorescue.org
 
+2006-06-02 ipdev added to allow redeployment on another interface
 2005-12-18 new ipconf and ping option
 2005-12-14 detailed explanations on where to find initrd and kernel

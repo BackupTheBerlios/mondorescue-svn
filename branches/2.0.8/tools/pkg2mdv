@@ -61,11 +61,20 @@ for p in $ppkg ; do
 	s=\`rpm -qlp \$p | egrep '\.spec'\`
 	# Use mkrel for mdv
 	perl -pi -e 's/define mrel[ \t]+([0-9]+)\..*/define mrel	%mkrel \$1/' rpm/SPECS/\$s
+	perl -pi -e 's/ Bruno Cornec <bruno@mondorescue.org> ([0-9]+.*)/ Bruno Cornec <bcornec@mandriva.org> %{version}-%{release}/' rpm/SPECS/\$s
+	rm -rf rpm/BUILD/*
 	rpmbuild -ba rpm/SPECS/\$s 2>&1 | tee -a /tmp/mondorescue.log
 done
 apkg=\`egrep "^Wrote:" /tmp/mondorescue.log | grep -v debug | cut -d: -f2\`
-sudo ftpcontrib \$apkg
-rm -f $ppkg
+aspkg=\`echo \$apkg | egrep "\.src.rpm"\`
+for d in 2006 200664; do
+	scp -p \$aspkg chroot\${d}:
+	ssh chroot\${d} "for p in $aspkg; do rpm -ivh \`basename \$p\` ; rpmbuild -ba rpm/SPECS/\$s | tee -a /tmp/mondorescue.log ; done ; sudo ftp\${d}contrib \`egrep '^Wrote:' /tmp/mondorescue.log | grep -v debug | cut -d: -f2\`"
+done
+for p in \$apkg; do
+	sudo ftpcontrib \$p
+done
+rm -f \$ppkg
 EOF
 chmod 755 /tmp/mkmondo
 scp -p ${spkg} /tmp/mkmondo ${ACCOUNT}:

@@ -34,9 +34,16 @@ echo -n "Changing TAG of version $VER value from $TAG to "
 echo "$TAG"
 nb=`svn diff $TOOLHOME/.. | wc -l`
 if [ $nb -gt 0 ]; then
-	echo "You'll have to check in order before updating the TAG"
+	echo "You'll have to check in before updating the TAG"
 	echo "$TAG" > $TOOLHOME/TAG
 else
+	for p in mindi mondo; do
+		grep -q "${VER}-${TAG}" $TOOLHOME/../$p/Changelog
+		if [ $? -ne 0 ]; then
+			echo "You'll have to document in ${p}'s Changelog for ${VER}-${TAG} related modifications"
+			exit -1
+		fi
+	done
 	echo "$TAG" > $TOOLHOME/TAG
 	(cd $TOOLHOME/.. ; svn ci -m "Automatic update of TAG to $TAG" ; svn up)
 fi

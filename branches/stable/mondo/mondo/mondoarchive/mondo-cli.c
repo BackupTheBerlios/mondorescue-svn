@@ -453,11 +453,11 @@ process_switches(struct s_bkpinfo *bkpinfo,
 			q = strchr(p, ' ');
 			if (q != NULL) {
 				*q = '\0';
-				p = q+1 ;
 				if (stat(p, &buf) != 0) {
 					log_msg(1, "ERROR ! %s doesn't exist", p);
 					fatal_error("ERROR ! You specified a directory to include which doesn't exist");
 				}
+				p = q+1 ;
 			} else {
 				if (stat(p, &buf) != 0) {
 					log_msg(1, "ERROR ! %s doesn't exist", p);
@@ -690,10 +690,10 @@ process_switches(struct s_bkpinfo *bkpinfo,
 			q = strchr(p, ' ');
 			if (q != NULL) {
 				*q = '\0';
-				p = q+1 ;
 				if (stat(p, &buf) != 0) {
 					log_msg(1, "WARNING ! %s doesn't exist", p);
 				}
+				p = q+1 ;
 			} else {
 				if (stat(p, &buf) != 0) {
 					log_msg(1, "WARNING ! %s doesn't exist", p);

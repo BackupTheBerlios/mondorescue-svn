@@ -62,15 +62,15 @@ while (<INPUT>) {
 	$ndate = UnixDate($date,"%a", "%b", "%d", "%Y");
 	#print "**$ndate**\n";
 	if ($dtype eq "rpm") {
-		printf OUTPUT "* $ndate Bruno Cornec <bruno\@mondorescue.org> $ver\n";
-		printf OUTPUT "- Updated to $ver\n";
+		print OUTPUT "* $ndate Bruno Cornec <bruno\@mondorescue.org> $ver\n";
+		print OUTPUT "- Updated to $ver\n";
 
 		$tmp = <INPUT>;	
 		while ($tmp !~ /^$/) {
-			printf OUTPUT $tmp;
+			print OUTPUT $tmp;
 			$tmp = <INPUT>;	
 		}
-		printf OUTPUT "\n";
+		print OUTPUT "\n";
 	}
 }
 close(OUTPUT);

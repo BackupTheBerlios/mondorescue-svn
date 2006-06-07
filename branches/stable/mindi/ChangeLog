@@ -2,6 +2,16 @@
 
 MINDI CHANGES
 
+1.0.8-3 (2006-06-07)
+- exec-shield removed for mindi
+  (Bruno Cornec)
+- Fix a bug for ia64 build in mindi where locallib was undefined
+  (Bruno Cornec)
+- Fix a bug for SuSE and Debian where $dfam was used in install.sh
+  (Bruno Cornec)
+- Make the init script mdadm-aware
+  (Andree Leidenfrost)
+
 1.0.8-2 (2006-06-02)
 - Fix bugs in the swap+LABEL code found on rhel4
   (Peter Naber/Bruno Cornec)

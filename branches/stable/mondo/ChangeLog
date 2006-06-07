@@ -2,6 +2,16 @@
 
 MONDO CHANGES
 
+2.0.8-3 (2006-06-07)
+- Fix a bug in -I and -E handling !!
+  (Paolo Bernardoni <bernardoni_at_sysnet.it>/Bruno Cornec)
+- Fix permissions for autorun
+  (Bruno Cornec)
+- Fox delivery problems for tar files with too restrictive umask
+  (Bruno Cornec)
+- Fix parsing of DHCP information in start-nfs script
+  (Andree Leidenfrost)
+
 2.0.8-2 (2006-06-02)
 - PXE mode now supports change of NIC for redeployment
   (Bruno Cornec)

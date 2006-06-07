@@ -30,6 +30,8 @@ die "Syntax : mkchangelog dtype package-name output-file"
 		(not (defined $pkg)) || ($pkg eq "") || 
 		(not (defined $outfile)) || ($outfile eq ""));
 
+die "TOOLHOME doesn't exist" if (not (defined $TOOLHOME));
+
 if (-f "$TOOLHOME/../$pkg/ChangeLog") {
 	$chglog = "$TOOLHOME/../$pkg/ChangeLog";
 	}
@@ -68,14 +70,11 @@ while (<INPUT>) {
 		$tmp = <INPUT>;	
 		while ($tmp !~ /^$/) {
 			print OUTPUT $tmp;
-			if (<INPUT>) {
-				$tmp = $_;	
-			}
-			else {
-				last;
-			}
+			last if (eof(INPUT));
+			$tmp = <INPUT>;
 		}
 		print OUTPUT "\n";
+		last if (eof(INPUT));
 	}
 }
 close(OUTPUT);

@@ -550,7 +550,7 @@ v0.50-4 (2011-12-19)
 v0.50-2 (2001-12-15)
 	- support for newer features in Mondo v1.3x
 
-v0.50-1
+v0.50-1 (2001-12-14)
 	- correctly lists RAID constituent partitions in mountlist
 	- breaks compatibility with Mondo v1.2x
 	- if user's fstab has weird line(s) then ignore; don't abort
@@ -558,7 +558,7 @@ v0.50-1
 	  hardware setup
 	- cleaned up /sbin/init and /sbin/post-init a bit
 
-v0.48-2
+v0.48-2 (2001-12-09)
 	- when insmod'g modules from ramdisk's root dir, use 'ls /*.o*'
 	  (was 'ls /*.*') to find them
 	- if RAID controller(s) are detected then pause for 10s to let them
@@ -570,7 +570,7 @@ v0.48-2
 	- chopsize is now 64KB; was 128KB
 	- cleaned up mindi's logging
 
-v0.48-1
+v0.48-1 (2001-12-08)
 	- better logging of find-and-mount-cdrom's progress (to
           /tmp/mondo-restore.log)
 	- somehow, lilo was re-enabled in deplist.txt; DISABLED (again *g*)
@@ -583,7 +583,7 @@ v0.48-1
 	- added fix to make sure /root/images/mindi is created (Charlie Root)
 	- aware of 'iso' boot mode, for future expansion
 
-v0.47
+v0.47 (2001-12-04)
 	- added /dev/cdrom/cdrom[1-4] to the devices automatically excluded
 	  from mountlist.txt
 	- added '-f-' to the end of most tar commands, to see if it fixes a
@@ -595,7 +595,7 @@ v0.47
 	  and its dependencies (mondo-restore is now a dynamic executable)
 	- finally gotten klogd to squelch echoing of kernel msgs to console
 
-v0.46
+v0.46 (2001-11-29)
 	- finally fixed that 'lib/modules/2.4.12-xfs not found' bug! :-D
 	- cosmetic changes and minor bugfixes
 	- excluded lilo.conf and lilo from deplist.txt; use user's copy instead
@@ -605,7 +605,7 @@ v0.46
 	- include and run (sys)klogd to try to pipe kernel msgs to logfile
 	- call hdparm to speed up access to CD-ROM drive
 
-v0.45
+v0.45 (2001-11-15)
 	- disabled fsck.* in deplist.txt
 	- include /etc/fstab in logfile
 	- removed lzop.* from aux-tools; should come from user's distro anyway
@@ -636,14 +636,14 @@ v0.45
 	- Red Hat 7.2 uses a weird /etc/issue.net; I've worked around it...
 	- tested with Linux-Mandrake 8.0 and Red Hat 7.2
 
-v0.44
+v0.44 (2001-10-28)
 	- at boot-time, activate LV's if they exist
 	- restructured deplist.txt a bit (cosmetic change)
 	- re-enabled fsck.* in deplist.txt
 	- analyze-my-lvm fails gracefully if you're not using LVM but inserted
 	  the module anyway
 
-v0.43
+v0.43 (2001-10-21)
 	- made Mindi work with Red Hat 6.2 and 2.2.19 kernel
 	- if mkisofs is not found, say so; don't just say, 'an error occurred
 	  while I was trying to make an ISO image'
@@ -671,7 +671,7 @@ v0.43
 	  and stores them so that at boot-time you can do SCSI, RAID, etc.
 	- removed gawk, printf from deplist.txt
 
-v0.42
+v0.42 (2001-10-10)
 	- make sure lvm-mod, raid0, raid1 and raid5 modules are backed up
 	- added 'you need a ramdisk' to FAQ
 	- changed the slice size from 20KB to 64KB; speeds up Mindi by 25%
@@ -732,7 +732,7 @@ v0.42
           to the ramdisk, whether the user's kernel or the failsafe kernel
           is being used
 
-v0.41
+v0.41 (2001-09-28)
 	- excluded *.old from the 'boot.b' list when searching for boot.b
 	- updated Mindi's own failsafe kernel+modules to v2.4.10
 	- added umount to deplist again
@@ -772,7 +772,7 @@ v0.41
 	- strip chaff from binaries; strip comments from bash scripts; strip
           comments from /etc/termcap
 
-v0.40
+v0.40 (2001-09-16)
 	- if you use a softlink to your CD dev, e.g. /dev/cdrecorder->scd0,
           then Mindi should handle it properly now (i.e. not bomb out)
 	- if you have a large kernel & lots of modules loaded, Mindi will only
@@ -795,7 +795,7 @@ v0.40
 	- added code to copy your fstab, lilo.conf, etc. to a tarball which, in
           the event of an error, Mindi will ask the user to e-mail me
 
-v0.39
+v0.39 (2001-09-08)
 	- plays nicely with devfs, so long as your old /dev/hdX, /dev/sdX
 	  softlinks are still there :-)
 	- if your swap partition isn't mounted, Mindi will decide that it is
@@ -838,7 +838,7 @@ v0.39
         - use mkfs.dos if mkfs.vfat does not exist
 	- moved some scripts from rootfs.tgz to Mondo's restore-scripts.tgz
 
-v0.38                                                              08/18/2001
+v0.38 (2001-08-18)
         - clarified the 'more than one kernel found' comment
 	- updated the README to emphasize that the scripts are deprecated
 	- when displaying mountlist on screen, make it easier to read
@@ -847,7 +847,7 @@ v0.38                                                              08/18/2001
 	- user can now use a stock 2.4.7 kernel (which comes with Mindi)
           if the user's distro's kernel isn't right for a boot disk
 
-v0.37                                                              08/12/2001
+v0.37 (2001-08-11)
       	- changed the boot screen a little bit
 	- changed the "cannot boot from CD-ROM" message (more informative now)
 	- if an 'insmod'ed module cannot be found, warn but don't abort
@@ -865,7 +865,7 @@ v0.37                                                              08/12/2001
 	  number of erroneous error reports that I receive from users
 	- working on implementing Cuckoo Mode again
 
-v0.36                                                              08/03/2001
+v0.36 (2001-08-03)
 	- testing it with LM8, RH71 and Slack8
 	- explicitily exluding /mnt/floppy and /floppy from mountlist.txt
 	- warn if afio not found (Mondo needs afio)
@@ -877,7 +877,7 @@ v0.36                                                              08/03/2001
 	- specifically exclude /dev/fd0h1440 and /dev/fd0H1440 from mountlist
 	- removed silly "was CD inserted?" message
 
-v0.35
+v0.35 (2001-07-31)
 	- if LILO fails, it writes its errors to the screen
 	- use user's boot.b and LILO instead of Mindi's
 	- tarball/RPM no longer includes boot.b or lilo
@@ -885,13 +885,13 @@ v0.35
 	- doubled the -N inode allocations and removed some of the -i inode
 	  fiddles, just in case they are making Red Hat 7.1 choke
 
-v0.34
+v0.34 (2001-07-25)
 	- includes patch to rid Mindi of its dependence on /dev/loop devices
  	  (Bill Davidsen)
 	- includes patch from 0ystein Skalsem, to fix a disk-formatting problem
 	- warns if kernel is 2.4.0-2.4.5; encourages user to upgrade
 
-v0.33
+v0.33 (2001-07-20)
 	- excludes all devices containing ':/' (i.e. NFS mountlists)
 	- the FORMAT/SYS replacement, "format-and-kludge-vfat" now writes
 	  its logfile to /tmp/format-and-kludge-vfat.log
@@ -907,7 +907,7 @@ v0.33
 	- sped up the process of spreading data files across data disks
 	  by approx 20%
 
-v0.32
+v0.32 (2001-07-18)
 	- software RAID is now supported
 	- added the 'raidtools' binaries to deplist.txt
 	- add /etc/fstab and /etc/raidtab to deplist.txt
@@ -922,16 +922,16 @@ v0.32
 	  dummy modprobe before installing data from datadisk(s)
 	- mkdir -p $outdir at the beginning, just in case...
 
-v0.31
+v0.31 (2001-07-16)
      	- included DoJ's patch to make Mindi play more nicely with devfs
 	- slightly better install.sh and README
 
-v0.30
+v0.30 (2001-07-15)
         - added klogd and syslogd to deplist.txt
 	- can now cope with Red Hat's "LABEL=" entries in /etc/fstab
 	- should ignore NFS-mounted partitions now
 
-v0.29
+v0.29 (2001-07-14)
 	- stopped the 'modprobe' errors that used to occur at the beginning;
 	  they didn't mean anything but they did worry some novice users
         - removed losetup from rootfs.tgz (wasn't doing anything useful)
@@ -947,7 +947,7 @@ v0.29
 	  if you really want to exhaust your primaries, well hey, your life)
 	- the 'outstring sucks!' message is now more informative
 
-v0.28
+v0.28 (2001-07-07)
         - if AddFileToDir() is called with a file that does not exist, Mindi
           warns but does not abort
 	- should work with gzipped modules (which end in '.o.gz') and
@@ -972,7 +972,7 @@ v0.28
 	- when restoring selectively, log the archives that have matches
           & the number of matches (inc. if zero)
 
-v0.26
+v0.26 (2001-07-05)
 	- has been tested with XFS, JFS, ReiserFS, ext2 and vfat
 	- compatible (but not tested) with ext3
 	- better at finding your kernel, even if you have several kernels
@@ -985,7 +985,7 @@ v0.26
 	- fixed some silly multi-CD bugs that would stop big files from being
 	  restored if they were spread across CD's
 
-v0.25
+v0.25 (2001-07-04)
 	- uses its own copy of lilo
         - removed all "~" (backup copies) from rootfs.tgz
         - updated the rootfs's README - stablilo-me, not hack-me
@@ -1006,7 +1006,7 @@ v0.25
 	- pipe kernel's msgs to /var/log/messages
 	- make sure /etc/lilo.conf is 600 (RW by root only)
 
-v0.24
+v0.24 (2001-07-03)
 	- can accommodate a kernel >900KB in size
         - generates lilo.conf on-the-fly; no default/template file anymore
 	- copies io.sys and msdos.sys to the CD (if you have them)
@@ -1022,7 +1022,7 @@ v0.24
 	- don't quibble over resizing partitions if <2MB difference
 	- fixed silly InsistOnCD bug
 
-v0.23
+v0.23 (2001-07-02)
         - don't copy *.mdsg to boot floppy image
 	- fixed erroneous 'cannot make ISO image' error message
 	- can accommodate a kernel as large as 890K
@@ -1033,7 +1033,7 @@ v0.23
         - if called by Mondo, doesn't list images or offer to copy to FDD/CDRw
         - includes the distro's name and kernel version in LILO's message
 
-v0.22
+v0.22 (2001-07-01)
         - don't add a ramdisk; use rootfs & that's it
         - dependency-calculator runs approx. twice as fast as in v0.20
         - tested with Linux Mandrake 8.0; works well, if you recompile
@@ -1050,7 +1050,7 @@ v0.22
         - in boot.msg, XXXXX is part 1 of the 2nd line, YYYYY is part 2 of
           the 2nd line, and ZZZZZ is Mindi's version# (in the 1st line)
 
-v0.21
+v0.21 (2001-06-30)
         - df, du, find, lsmod, rmmod have been removed from rootfs.tgz
         - at boot-time, inserts kernel modules w/user's original parameters
         - deletes the slices after recombining them & restoring the files

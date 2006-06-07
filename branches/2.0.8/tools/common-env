@@ -11,3 +11,5 @@ export TOPDIR=${BASE}/build
 mkdir -p ${TOPDIR}
 export TMPDIR=
 export TMP=`mktemp -d -p /tmp`
+
+umask 022

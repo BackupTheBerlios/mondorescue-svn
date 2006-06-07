@@ -58,9 +58,9 @@ while (<INPUT>) {
 	($ver, $date) = split(/ /);
 	chomp($date);
 	$date =~ s/\(([0-9-]+)\)/$1/;
-	print "**$date**\n";
+	#print "**$date**\n";
 	$ndate = UnixDate($date,"%a", "%b", "%d", "%Y");
-	print "**$ndate**\n";
+	#print "**$ndate**\n";
 	if ($dtype eq "rpm") {
 		printf OUTPUT "* $ndate Bruno Cornec <bruno\@mondorescue.org> $ver\n";
 		printf OUTPUT "- Updated to $ver\n";

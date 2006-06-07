@@ -73,18 +73,13 @@ EOF
 			echo "Using $inc customization to build SPEC file"
 			m4 /tmp/mondorescue.mc $inc $dest/distributions/rpm/$p.spec > $dest/distributions/${ddir}-$dver/$p.spec
 
-			$TOOLHOME/mkchangelog.pl $dtype $p $dest/distributions/${ddir}-$dver/$p.spec
+			$TOOLHOME/mkchangelog.pl $dtype $p /tmp/$p.spec
 			if [ $? -ne 0 ]; then
 				echo "Unable to create changelog for ${ddir}-$dver/$p.spec"
 				exit -1
 			fi
-
-			ddate=`LANG=C ; date "+%a %b %d %Y"`
-			cat > $dest/distributions/${ddir}-$dver/$p.changelog.new << EOF
-* $ddate Bruno Cornec <bruno@mondorescue.org> VVV-RRR
-- Updated to VVV-r${REVISION}
-
-EOF
+			cat /tmp/$p.spec >> $dest/distributions/${ddir}-$dver/$p.spec
+			rm -f /tmp/$p.spec
 		elif [ "$dtype" = "ebuild" ]; then
 			m4 /tmp/mondorescue.mc $dest/distributions/$dfam/$p.ebuild > $dest/distributions/${ddir}-$dver/$p-$v-r$TAG.ebuild
 		elif [ "$dtype" = "deb" ]; then

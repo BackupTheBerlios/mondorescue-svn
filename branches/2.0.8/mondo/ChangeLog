@@ -2,6 +2,16 @@
 
 MONDO CHANGES
 
+2.0.8-3 (2006-06-07)
+- Fix a bug in -I and -E handling !!
+  (Paolo Bernardoni <bernardoni_at_sysnet.it>/Bruno Cornec)
+- Fix permissions for autorun
+  (Bruno Cornec)
+- Fox delivery problems for tar files with too restrictive umask
+  (Bruno Cornec)
+- Fix parsing of DHCP information in start-nfs script
+  (Andree Leidenfrost)
+
 2.0.8-2 (2006-06-02)
 - PXE mode now supports change of NIC for redeployment
   (Bruno Cornec)
@@ -89,7 +99,7 @@ v2.05 (2005-11-19)
 - delivery process to BerliOS improved (Bruno Cornec)
 - now handles cifs correctly (Bruno Cornec)
 
-v2.04_berlios
+v2.04_berlios (2005-10-30)
 - Add -p option to generate ISO images file names with prefix. The new default
   name for ISO images is mondorescue-1.iso, ... For PXE environment, you have
   to use the prefix option on the command line (read README.pxe) 
@@ -99,17 +109,15 @@ v2.04_berlios
 - mondorestore shouldn't now ask final questions with -H 
   (this is an unattended mode) (Bruno Cornec)
 
-v2.04
+v2.04 (2005-05-03)
 - made mondo more clever about finding its home. Avoids mondo considering
   directories like '/usr/share/doc/momdo' as its home.
 
-	
-v2.03
+v2.03 (2004-09-29)
 - better SLES8 support
 - test user-specified temp dir's sanity
 
-
-v2.02
+v2.02 (2004-07-21)
 - instead of using 'dd' to erase partition table, delete existing
   partitions w/ the same call to fdisk that is used to create the
   new partitions; this should avoids locking up the partition table
@@ -120,16 +128,14 @@ v2.02
 - better star, ACL support
 - added ACL, xattr support for afio users
 
-
-v2.01
+v2.01 (2004-06-21)
 - fixed cvs for SuSE systems
 - fixed NTFS backup/restore bug relating to partimagehack
   log file overflow and NTFS v non-NTFS differentiation
 - more reliable extraction of config info from CDs, floppies
 - better support of ISO dirs at restore-time (Conor Daly)
 
-
-v2.00
+v2.00 (2004-06-18)
 - first 2.0 release
 - updated grub-install.patched to support SuSE and Red Hat
 - added kdelibs as xmondo dependency (Joshua Oreman)
@@ -163,8 +169,7 @@ v2.00
 - added '-b' to specify block size
 - added '-R' for star support
 
-
-v1.75
+v1.75 (2004-03-29)
 - fixed chmod/chown bug (Jens Richter)
 - ask user to confirm NFS mountpoint in Interactive Mode
 - rewritten format_everything() to make sure LVMs, RAIDs and
@@ -196,9 +201,8 @@ v1.75
 - fixed bug which stopped boot/compare-time changelist from popping up
 - replaced mondo-makefilelist with C code - faster, cleaner
 - tweaked GUI - better feedback
-
 	
-1.74
+1.74 (2003-09-24)
 - fixed biggiefile atime/ctime restoration bug 73
 - fixed 'default boot loader' detection bug (Joshua Oreman)
 - use single-threaded make_afioballs_and_images() if FreeBSD
@@ -216,8 +220,7 @@ v1.75
 - reject -E /
 - added partimagehack to the mix
 	
-	
-1.73
+1.73 (2003-05-04)
 - mark relevant partitions as bootable _after_ unmounting them
 - resolve boot device (-f) if softlink
 - post_param_configuration() --- store iso-dev and isodir
@@ -252,9 +255,8 @@ v1.75
 - fixed "Can't backup if ramdisk not mounted" bug
 - try to work around eccentricities of multi-CD drive PCs
 - misc clean-ups (Steve Hindle)
-	
 
-v1.72
+v1.72 (2003-04-23)
 - LVM/RAID bugs fixed (Brian Borgeson)
 - major clean-up of code (Stan Benoit)
 - make-me-bootable fix (Juraj Ziegler)
@@ -284,8 +286,7 @@ v1.72
 - updated documentation
 - fixed fstab-hacking scripts
 
-
-v1.71
+v1.71 (2003-04-04)
 - log newt, slang, ncurses info
 - updated man page
 - handle %% chars in issue.net properly (Heiko Schlittermann)
@@ -309,11 +310,10 @@ v1.71
 - updated manpage
 - added -e support
 
-v1.70
+v1.70 (2003-04-04)
 - new devel branch opened
 
-
-v1.52
+v1.52 (2002-12-08)
 - fixed bug in multithreading
 - use new grub-MR instead of grub-install
 - wipe only the partition table (not MBR) when repartitioning drives
@@ -334,8 +334,7 @@ v1.52
 - made mondorestore CD bootable for ArkLinux users
 - if user runs as 'su' not 'su -' then work around
 
-
-v1.51
+v1.51 (2002-11-17)
 - pop-up list of changed files, at end of verification phase
 - better handling of changed.files list at restore-time
 - lots of CD-related fixes
@@ -372,10 +371,7 @@ v1.51
   use it when initializing boot sector with run_grub()
 - fixed bug in mondo-makefilelist
 
-
-09/08/2002
-""""""""""
-v1.50
+v1.50 (2002-09-08)
 - if restoring, don't try to find SCSI node of CD-ROM drive; find /dev entry
 - during selective restore, skip filesets which don't contain relevant archives
 - set /dev/null's perms to 777, just in case devfs-enabled kernel mangles it
@@ -445,10 +441,7 @@ v1.50
 - added '-o' flag to let user choose LILO as CD/floppy's boot loader
 - fixed bug in --mbr
 
-
-06-04-2002
-""""""""""
-v1.43-7 (STABLE)
+v1.43-7 (2002-06-04)
 - afio uses 16MB buffer when restoring, instead of 8MB buffer
 - mondorestore makes /var/run/console in case user excluded it
 - the -s switch now accepts multiple sizes, one per tape/CD
@@ -468,17 +461,11 @@ v1.43-7 (STABLE)
 - now shows the CDR(W)'s progress properly - 20%, 30%, etc.
 - changed lockfiles from static to random filenames
 
-
-04-12-2002
-""""""""""
-v1.42-3 (STABLE)
+v1.42-3 (2002-04-12)
 - minor cosmetic enhancements
 - improved homedir-locating code
 
-
-04-07-2002
-""""""""""
-v1.42-1 (STABLE)
+v1.42-1 (2002-04-07)
 - mondorestore may now be run on live filesystem, i.e. user does not
   have to reboot in order to restore data; works for CD's and tapes;
   NFS and ISO restores will be supported at a later date
@@ -494,16 +481,10 @@ v1.42-1 (STABLE)
 - numerous cosmetic enhancements
 - added '-m' (manual CD tray) flag
 	
-
-03-21-2002
-""""""""""
-v1.41-1 (STABLE)
+v1.41-1 (2002-03-21)
 - record hostname (Krzysztof Dubowik)
 
-
-03-10-2002
-""""""""""
-v1.40-7 (STABLE)
+v1.40-7 (2002-03-10)
 - if '-L' then test for lzop; abort if not present
 - if Mondo cannot figure out which boot loader the user is using,
   tell the user to read the manual and mention -l, -f switches
@@ -512,10 +493,7 @@ v1.40-7 (STABLE)
 - support multiple -I params (Mikael Hultgren+Randy Delfs)
 - mkreiserfs -ff instead of -q (Andy Glass)
 
-
-03-03-2002
-""""""""""
-v1.40-6 (STABLE)
+v1.40-6 (2002-03-03)
 - incorporated new config.guess, config.sub (H�tor Garc� �varez)
 - updated manual to explain tmpfs needs to be in kernel (Mikael Hultgren)
 - don't let non-root users run mondoarchive
@@ -524,10 +502,7 @@ v1.40-6 (STABLE)
 - make mondo-makefilelist more SUN-friendly, re: fstab (Andy Glass)
 - modified 'Sliced bigfile #n' log entry to say '..#(n+1)'
 
-
-02-24-2002
-""""""""""
-v1.40-5 (STABLE)
+v1.40-5 (2002-02-24)
 - improved the way Mondo installs itself (Mikael Hultgren)
 - updated manpage
 - touch /mnt/RESTORING/var/log/pacct after restoring
@@ -540,10 +515,7 @@ v1.40-5 (STABLE)
 - run post-nuke script if it exists
 - put (char*)(&buf) instead of &buf when reading/writing biggiefiles' info
 	
-
-02-17-2002
-""""""""""
-v1.40-3 (STABLE)
+v1.40-3 (2002-02-17)
 - let user exclude devices from mountlist with (e.g.) -E /dev/hda1
 - handle one-letter dirs properly (Ian Kent)
 - when making ext3 fs, don't specify journal size (Cafeole)
@@ -553,10 +525,7 @@ v1.40-3 (STABLE)
 - exclude .journal files properly
 - Italian patch (Michael Baldessari)
 
-
-02-11-2002
-""""""""""
-v1.40-2 (STABLE)
+v1.40-2 (2002-02-11)
 - fixed typo in manpage (Mikael Hultgren)
 - exclude "#"*"#" and *~ from tarball and source RPM
 - updated manual (Randy Delfs)
@@ -565,10 +534,7 @@ v1.40-2 (STABLE)
 - fix serious restore-time bug in tape/afio-handling code
 - cdrecord is only required if burning CD's
 
-
-02-10-2002
-""""""""""
-v1.40-1 (STABLE)
+v1.40-1 (2002-02-10)
 - set partition(s) bootable w/fdisk if appropriate
 - cosmetic bugfixes
 - changed get_phys_size_of_drive() to read value from fdisk, not dmesg
@@ -580,19 +546,13 @@ v1.40-1 (STABLE)
 - changed many tempfilenames from mojo-jojo* to sensible, random names
 - exclude win386.swp from backup (Cafeole)
 
-	
-02-07-2002
-""""""""""
-v1.38-2 (DEVELOPMENT)
+v1.38-2 (2002-02-07)
 - minor improvements to the NFS-handling code
 - mondo-restore now records Mondo's version# in log
 - fixed silly bug that makes 'current filelist #' progress form inaccurate
 - fix typo in '10 seconds to abort' line; also, made 20 seconds
 
-
-02-06-2002
-""""""""""
-v1.38-1 (DEVELOPMENT)
+v1.38-1 (2002-02-06)
 - source code has been beautified (Stan Benoit)
 - makefile, Config implemented (Stan Benoit)
 - use /tmp/mondo-restore.cfg instead of all kinds of silly /tmp files
@@ -607,10 +567,7 @@ v1.38-1 (DEVELOPMENT)
 - changed 'retval+=load_raidtab()' to 'load_raidtab()'
 - records+restores biggiefiles' permissions+ownership properly
 
-
-01-25-2002
-""""""""""
-v1.37-1 (DEVELOPMENT)
+v1.37-1 (2002-01-25)
 - proper 'selective restore' interface implemented
 - if the user specifies boot loader or device, record those settings
 - fixed cdrecord-related bug in .spec file
@@ -627,10 +584,7 @@ v1.37-1 (DEVELOPMENT)
 - added --skip-floppies switch
 - abort if PC has <32MB of RAM at backup-time; warn if <64MB
 
-
-01-20-2002
-""""""""""
-v1.36-1 (DEVELOPMENT)
+v1.36-1 (2002-01-20)
 - fixed v.minor bug in MakeFilelist()
 - in mondo-archive, replaced calls to Die() with calls to FatalError()
 - include .spec file in tarball
@@ -648,10 +602,7 @@ v1.36-1 (DEVELOPMENT)
 - (rudimentary) selective formatting
 - log versions of afio, bzip2, etc.
 
-
-01-10-2002
-""""""""""
-v1.35-1 (DEVELOPMENT)
+v1.35-1 (2002-01-10)
 - NFS backup+restore support
 - exclude Win2K hiberation file (Paul Rensing)
 - fixed filelist.full/filelist.blah typo (Paul Rensing)
@@ -675,10 +626,7 @@ v1.35-1 (DEVELOPMENT)
 - --exclude-paths now drops the trailing '/' from param(s) if present
 - tab-align /etc/fstab after hacking it
 
-
-12-25-2001
-""""""""""
-v1.34-1 (DEVELOPMENT)
+v1.34-1 (2001-12-25)
 - if /sbin or /usr/sbin are not in PATH then add them temporarily
 - if --broken-bios then force LILO to run in backward-compatible mode
 - tape users can boot from a single floppy now
@@ -688,10 +636,7 @@ v1.34-1 (DEVELOPMENT)
 - no longer run compare_a_biggiefile() right after restore_a_biggiefile(),
   as it can upset the restoration of biggiefiles which are spread across CD's
 
-
-12-19-2001
-""""""""""
-v1.33-8 (DEVELOPMENT)
+v1.33-8 (2001-12-19)
 - implemented --image-devs <dev> (<...>) switch
 - improved --verify switch's code
 - exclude Windows' win386.swp file, if found
@@ -706,24 +651,15 @@ v1.33-8 (DEVELOPMENT)
 - archive bigfiles one slice at a time; much less wasteful of space
 - abort if user tries to backup a mounted partition as an _image_
 
-
-12-15-2001
-""""""""""
-v1.33-6 (DEVELOPMENT)
+v1.33-6 (2001-12-15)
 - misc bugfixes
 
-
-12-14-2001
-""""""""""
-v1.33-5 (DEVELOPMENT)
+v1.33-5 (2001-12-14)
 - improved error-reporting in the event of boot loader detection failure
 - improved tape verification code
 - experimental support for backing up and restoring devices as images
 
-
-12-13-2001
-""""""""""
-v1.33-4 (DEVELOPMENT)
+v1.33-4 (2001-12-13)
 - updated FAQ
 - experimental GRUB support
 - when calculating checksums, tell user %done and time remaining
@@ -731,17 +667,12 @@ v1.33-4 (DEVELOPMENT)
 - compile mondo-filelistchop and mondo-checksum with -O2 optimization
 - when writing floppies, ask specifically for floppy #x (Randy Delfs)
 
-
-12-12-2001
-""""""""""
-v1.33-3 (DEVELOPMENT)
+v1.33-3 (2001-12-12)
 - supports --boot-loader and --boot-device to let user specify them
 - fixed CDRW node autodetection bug
 - MONDO_PATH was misconfigured; is now "/usr/share/mondo"
 
-12-12-2001
-""""""""""
-v1.33-1 (DEVELOPMENT)
+v1.33-1 (2001-12-12)
 - if user changes a partition's device, change it in raidtab too
 - don't extrapolate from /etc/raidtab to /tmp/mountlist; editor does it already
 - don't backup /tmp (somewhere in the v1.3x series, I stopped excluding /tmp)
@@ -756,10 +687,7 @@ v1.33-1 (DEVELOPMENT)
 - implemented a _real_ --differential switch, to backup all files changed
   or added since the last complete backup
 
-
-12-09-2001
-""""""""""
-v1.32-2 (DEVELOPMENT)
+v1.32-2 (2001-12-09)
 - if no RAID devices after editing mountlist then delete raidtab
 - don't try to mount RAID partitions (components of RAID dev)
 - don't add partitions to mountlist when extrapolating from mountlist
@@ -767,10 +695,7 @@ v1.32-2 (DEVELOPMENT)
 - don't format partitions if partitioning failed
 - when user selects RAID level, establish whether said level is available
 
-
-12-09-2001
-""""""""""
-v1.32 (DEVELOPMENT)
+v1.32 (2001-12-09)
 - if user creates ISO images, the default dest dir is /root/images/mondo now
 - log_it() makes sure it only writes one \n on the end of each logged line
 - detects if user is using GRUB/LILO/other; abort if neither LILO nor GRUB
@@ -788,10 +713,7 @@ v1.32 (DEVELOPMENT)
 - cleaned up compare + restore logging
 - scratchdir is now [path]/mondo.scratch.$$; was just [path]/mondo.scratch
 
-
-12-04-2001
-""""""""""
-v1.31 (DEVELOPMENT)
+v1.31 (2001-12-04)
 - turned on '-Wall' to find cruft; found lots of it; cleaned it up
 - exclude each device's lost+found directory
 - mountlist editor now permits advanced editing of RAID devices
@@ -822,10 +744,7 @@ v1.31 (DEVELOPMENT)
   mounted; if it's not mounted, say so but don't try to unmount it: you'll 
   just end up looking very silly :)
 
-
-11-28-2001
-""""""""""
-v1.30 (DEVELOPMENT)
+v1.30 (2001-11-28)
 - I have reorganized the C code, sorted the subroutines alphabetically, and
   re-jigged Mondo's installation routines (inc. the RPM spec file) to reflect
   the changes
@@ -845,10 +764,7 @@ v1.30 (DEVELOPMENT)
 - at backup-time, run mondo-restore in test mode to make sure that the
   executable is sane & will run OK at restore-time
 
-
-11-14-2001
-""""""""""
-v1.19
+v1.19 (2001-11-14)
 - tested on Linux-Mandrake 8.0 and Red Hat 7.2; backup,wipe,restore went OK
 - fixed a bug in is_this_device_mounted()
 - at restore-time, always check for presence of decompressor; abort if notfound
@@ -871,17 +787,11 @@ v1.19
 - C code is now compiled 'O0' (without optimizations)
 - each CD's slices were being listed to screen; now, piped to /dev/null
 
-
-10-28-2001
-""""""""""
-v1.18
+v1.18 (2001-10-28)
 - changed minor error in documentation (mondo-archive's --help output)
 - improved Mondo's compare phase for tape users
 
-
-10-20-2001
-""""""""""
-v1.17
+v1.17 (2001-10-20)
 - the deprecated scripts now work with LZO
 - if mondo-restore cannot mount all devices, it will _unmount_ whatever it did
   mount, before it returns an error
@@ -900,10 +810,7 @@ v1.17
 - scripts will no longer function unless gawk and printf are included in
   Mindi's deplist.txt; add them if you want to use the scripts
 
-
-10-10-2001
-""""""""""
-v1.16
+v1.16 (2001-10-10)
 - default scratchdir is `pwd`/mondo.scratch.$$ (was mondo.scratch)
 - when asking user to send me a log file, warn them that the log file may
   contain information which they do not want me to see but point out that I
@@ -931,10 +838,7 @@ v1.16
 - if user tries to make a bootable rescue CD with the '--no-bkpath' switch then
   politely direct them to Mindi :-)
 
-
-09-28-2001
-""""""""""
-v1.15
+v1.15 (2001-09-28)
 - serialized the call to mondo-filelistchop.c; helps to improve visual feedback
   (yeah, sounds weird but it's true)
 - the switches --differential and --exclude-paths should play nicely now
@@ -952,10 +856,7 @@ v1.15
 - Mindi v0.41 is very different from v0.40, internally anyway; so, I had to do
   a lot of testing to make sure Mondo would play nicely with the new Mindi
 
-
-09-18-2001
-""""""""""
-v1.14
+v1.14 (2001-09-18)
 - if verify is enabled then verify each CD/ISO after writing it
 - fixed a quasi-bug in mondo/mount-me; this script used 'sort +1' which is
   not supported by busybox; I've changed it to just plain old 'sort'
@@ -991,10 +892,7 @@ v1.14
 - fixed the weird 'segfault on finish() after archiving' bug
 - modularized the install.sh and mondo-1.14-x.i386.rpm compilation sections
 
-
-09-01-2001
-""""""""""
-v1.13
+v1.13 (2001-09-01)
 - fixed some compiler warnings in mondo-newt.c; rearranged some code
 - mondo-tarme now uses -M 16m -t 4k in its call to afio, to improve performance
 - fixed mondo-restore.c's mkreiserfs call; ditto, prep-me's mkreiserfs call
@@ -1033,10 +931,7 @@ v1.13
 - added a user-friendly mountlist editor to mondo-restore.c
 - added lots of sanity-checking to mountlist editor
 
-
-08-18-2001
-""""""""""
-v1.12
+v1.12 (2001-08-18)
 - changed cdrecord's FIFO size to 8MB
 - removed -pad and -sort from the call to mkisofs
 - amended the .spec file to be saner when building RPM's
@@ -1060,10 +955,7 @@ v1.12
 - make+chop filelist _after_ calling Mindi
 - updated the FAQ
 
-
-08-12-2001
-""""""""""
-v1.10
+v1.10 (2001-08-12)
 - changed cdrecord's FIFO size back to 4MB
 - added -pad -sort to the call to mkisofs
 - stop saying, "N files differ so far" after comparing each tarball
@@ -1083,27 +975,18 @@ v1.10
 - updated the FAQ
 - working on Cuckoo Mode...
 
-
-08-02-2001
-""""""""""
-v1.09
+v1.09 (2001-08-02)
 - default compression level is now 3 (was 2)
 - retry/fail/abort loop bug fixed
 - calls mindi with "--custom $TMP $scratchdir/images" to force mindi to use
   my temp dir and to put the images in my 'images' folder
 
-
-07-28-2001
-""""""""""
-v1.08
+v1.08 (2001-07-28)
 - offer to Retry/Fail/Abort if an error occurs when Mondo tries to burn a CD-R
 - warn if kernel is 2.4.[0-5] (could have buggy loopfs code)
 - tested with RAID-5 --- works fine :-)
 
-
-07-22-2001
-""""""""""
-v1.07
+v1.07 (2001-07-22)
 - fixed cosmetic mistake in an error msg in mondo-tarme ('continue'-related)
 - hack-fstab now uses "defaults 0 0" instead of "default 1 3" when making
   a new entry in /etc/fstab
@@ -1122,10 +1005,7 @@ v1.07
   in case some programs (besides mondo-restore.c) need the NCURSES library
 - mondo-restore.c is now compiled statically
 
-
-07-19-2001
-""""""""""
-v1.06
+v1.06 (2001-07-19)
 - now software-RAID compatible
 - install.sh only compiles mondo-restore.c once now
 - if scratchdir or isodir contain more than one path (each), abort
@@ -1134,27 +1014,18 @@ v1.06
   even if the mountlist has some gaps
 - for each /dev/md* device in the mountlist, run raidstop before mkraid
 
-
-07-16-2001
-""""""""""
-v1.05
+v1.05 (2001-07-16)
 - patch from DoJ to make install.sh compile with -O2, not -O
 - cosmetic changes to the biggiefile-slicing code
 - fixed install.sh
 
-
-07-15-2001
-""""""""""
-v1.04
+v1.04 (2001-07-15)
 - make-me-bootable only "boot-makes" each partition ONCE now
 - cosmetic changes to mondo-restore's logfile output
 - mondo-restore.c makes /mnt/RESTORING/tmp if necessary
 - should be able to cope with Red Hat's "LABEL=" messages in /etc/fstab
 
-
-07-14-2001
-""""""""""
-v1.03
+v1.03 (2001-07-14)
 - looks for /etc/lilo.conf; aborts if it cannot locate it
 - abort if burning CD's & verify level>=2 (must be 1 or 0 if burning CD's)
 - catch errors in MakeIsoFS, if any
@@ -1171,10 +1042,7 @@ v1.03
 - added '--differential' option, to backup the files changed during the 
   last N days (N specified by user)
 
-
-07-07-2001
-""""""""""
-v1.02
+v1.02 (2001-07-07)
 - retract the CD tray after asking user to enter 'continue' (PauseAndAskForCDR)
 - uses C program instead of bash loop for PauseAndAskForCDR; some bash versions
   go into an infinite loop for no reason; hopefully, outsourcing to C will help
@@ -1189,9 +1057,7 @@ v1.02
 - delete $TMP at end; don't just delete $TMP/*
 - can accept multiple parameters in the '--bkpath' switch
 
-07-04-2001
-""""""""""
-v1.00
+v1.00 (2001-07-04)
 - thanks to recent changes to Mindi, Mondo is now compatible with the 
   filesystem formats JFS, ext3, ReiserFS, XFS and ext2 (if your own kernel is)
 - CDs [2-N] do not have boot floppy images on them; only CD#1 does (although
@@ -1213,10 +1079,7 @@ v1.00
 - fill CD/image up to 1MB less than its max size; was being filled up to about
   8MB less than its max size, which wasted 8-10MB of storage space per disk
 
-
-03-15-2001
-""""""""""
-v0.99
+v0.99 (2001-03-15)
 - /proc and /tmp removed --- i.e. added to exclude list :)
 - Mondo now uses 2.4-series kernel and modules (Bruno Cornec)
 - minor typos fixed (Bruno Cornec)
@@ -1224,32 +1087,22 @@ v0.99
 - better RPM spec file (Bruno Cornec)
 - incorporated Mondo v0.977's restore scripts' bugfixes (Maciej Kulasa)
 
-
-03-06-2001
-""""""""""
-v0.981
+v0.981 (2001-03-06)
 - put 'dd' in coolstuff.tgz (Art Wells)
 
-
-02-26-2001
-""""""""""
-v0.98
+v0.98 (2001-02-28)
 - INSTALL script renamed to install.sh
 - tarball cleaned up and re-tarred (Art Wells)
 - trailing CR/LF's cleaned from scripts (Art Wells)
 - work is underway to make Mondo compatible with the Linux kernel's 2.4 series
 
-02-28-2001
-""""""""""
-v0.977
+v0.977 (2001-02-26)
 - based on v0.976
 - missing subs and silly typos fixed in restore scripts (Maciej Kulasa)
 - fstab files containing NFS mounts are handled properly (Petre Scheie)
 - Mondo is being actively developed again (yippee!)
 
-09-01-2000
-""""""""""
-v0.976
+v0.976 (2000-09-01)
 - technical changes
   - 12MB ramdisk
   - repackaged: now, Mondo comes in big tarball/RPM with all overhead-files
@@ -1272,9 +1125,7 @@ v0.976
     is configured to execute /tmp/mondo-tarme
   - changed lots of 'grep " $string "' to 'grep -w "$string"' (thanks, Matija)
 
-07-03-2000
-""""""""""
-v0.975 published
+v0.975 (2000-07-03)
 - made mondo-tarme use 'ask-me-a-question' to pause for new, blank CD-Rs
 - don't deeply search isodir for ISO files to wipe: maxdepth should be 1
 - 386-compatible kernel and modules (should be, anyway...)
@@ -1287,23 +1138,17 @@ v0.975 published
 - mondo-compare runs check-mountlist-sanity before mounting partitions
 - ramdisk is now 14MB
 
-06-16-2000
-""""""""""
-v0.972 published
+v0.972 (2000-06-16)
 - auto-archive, mondo-archive and mondo-tarme updated to make them more
   friendly towards mult-disk sets
 - if multiple CDRW drives, user is asked which mondo-archive should use
 
-06-14-2000
-""""""""""
-v0.971 published
+v0.971 (2000-06-14)
 - auto-archive now passes CD size to mondo-archive
 - mondo-tarme, in conjunction with auto-archive, now handles CDRW boot/burn
   sharing much better than before
 
-06-10-2000
-""""""""""
-v0.970 published
+v0.970 (2000-06-10)
 - kernel now creates 12MB ramdrive (was 16MB)
 - lots of silly bugs & overhead problems fixed; 2nd floppy closer to working
 - restore scripts all log to /var/log/mondo-restore.log
@@ -1320,17 +1165,13 @@ v0.970 published
 - selective restore is finally fixed
 - nicer help screens on boot floppy
 
-06-03-2000
-""""""""""
-v0.965 released
+v0.965 (2000-06-03)
 - 2MB of space left empty at end of every CD (e.g. 650MB is only 648MB full)
 - Suzhe & Lonius's SmartBootManager (sbminst) is used instead of Win98's MBR
 - Mondo may now resize Windows-only backups when restoring
 - silly bugs in prep-me... fixed
 
-06-02-2000
-""""""""""
-v0.964 released
+v0.964 (2000-06-02)
 - VFAT partitions >8GB handled OK now
 - 2nd floppy (optionally) created for SCSI users <--- not working yet
 - better calc-disk-size algorithm (thanks, Doug Nordwall)
@@ -1338,9 +1179,7 @@ v0.964 released
 - silly prep-me and format-and-kludge-vfat bugs fixed
 - 'resize hack' retitled as 'vacuum-pack'
 
-05-31-2000
-""""""""""
-v0.963 released
+v0.963 (2000-05-31)
 - ISO images are no longer padded
 - all currently-loaded modules are backed up to custom hboot.img & installed
   at restore-time before CD is accessed
@@ -1358,9 +1197,7 @@ v0.963 released
 - with a little coaxing, Mondo will backup Windows-only PCs (as well as
   Lin/Win and Linux-only PCs)
 
-05-25-2000
-""""""""""
-v0.962 released
+v0.962 (2000-05-25)
 - silly bug in mondo-checksum fixed
 - stale tmp dirs are now definitely deleted (bug fixed)
 - "Job is %d complete. hh:ss to go." --- much better 'progress' string
@@ -1374,9 +1211,7 @@ v0.962 released
 - mondo-archive now includes a copy of 'buffer' for future use
 - Mondo will now archive and restore Linux AND LinWin systems ok. W00H00! :-)
 
-05-23-2000
-""""""""""
-v0.961 released
+v0.961 (2000-05-23)
 - mondo-checksum ignores files <2k in length
 - default compression level is 4
 - default verify level is 2
@@ -1385,9 +1220,7 @@ v0.961 released
 - bs-me is disabled in mondo-restore
 - fixed bug in 'hack-fstab' which stopped processing fstab if blank line found
 
-05-22-2000
-""""""""""
-v0.960 released
+v0.960 (2000-05-22)
 - mondo-vfat-1.0 package released, to provide kludging for VFAT bootables
 - logfile now saved at /var/log/mondo-archive.log (not `pwd`/mondo-archive.log)
 - pid registered/checked _after_ command line processed... so you can do --help
@@ -1399,14 +1232,3 @@ v0.960 released
 - fixed hack-lilo to ignore blank lines
 - really ugly boot kludge has been implemented, using embleer files
   to make newly-formatted VFAT partitions bootable
-
-[snip]
-...see CHANGES.pre-v0.96 for the rest (if you can find it)
-
-
-
-
-
-
-
-

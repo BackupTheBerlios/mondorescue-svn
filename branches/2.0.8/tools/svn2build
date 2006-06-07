@@ -5,7 +5,6 @@
 # $Id$
 #
 
-umask 022
 dname=`dirname $0`
 prem=`echo $dname |cut -c1`
 if [ ${prem} == "/" ]; then
@@ -74,26 +73,18 @@ EOF
 			echo "Using $inc customization to build SPEC file"
 			m4 /tmp/mondorescue.mc $inc $dest/distributions/rpm/$p.spec > $dest/distributions/${ddir}-$dver/$p.spec
 
-			if [ -f $dest/distributions/$ddir/changelog ]; then
-				log=$dest/distributions/$ddir/changelog
-			elif [ -f $dest/distributions/$dfam/changelog ]; then
-				log=$dest/distributions/$dfam/changelog
-			else
-				echo "Unable to build RPM changelog for this distro. Please report to authors"
+			$TOOLHOME/mkchangelog.pl $dtype $p $dest/distributions/${ddir}-$dver/$p.spec
+			if [ $? -ne 0 ]; then
+				echo "Unable to create changelog for ${ddir}-$dver/$p.spec"
 				exit -1
 			fi
 
-			echo "Using $log customization to build changelog file"
 			ddate=`LANG=C ; date "+%a %b %d %Y"`
 			cat > $dest/distributions/${ddir}-$dver/$p.changelog.new << EOF
 * $ddate Bruno Cornec <bruno@mondorescue.org> VVV-RRR
 - Updated to VVV-r${REVISION}
 
 EOF
-			cat $log >> $dest/distributions/${ddir}-$dver/$p.changelog.new
-			m4 /tmp/mondorescue.mc $dest/distributions/${ddir}-$dver/$p.changelog.new >> $dest/distributions/${ddir}-${dver}/$p.spec
-			rm -f $dest/distributions/${ddir}-$dver/$p.changelog.new
-
 		elif [ "$dtype" = "ebuild" ]; then
 			m4 /tmp/mondorescue.mc $dest/distributions/$dfam/$p.ebuild > $dest/distributions/${ddir}-$dver/$p-$v-r$TAG.ebuild
 		elif [ "$dtype" = "deb" ]; then

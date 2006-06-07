@@ -38,9 +38,9 @@ if [ $nb -gt 0 ]; then
 	echo "$TAG" > $TOOLHOME/TAG
 else
 	for p in mindi mondo; do
-		grep -q "${VER}-${TAG}" $TOOLHOME/../$p/Changelog
+		grep -q "${VER}-${TAG}" $TOOLHOME/../$p/ChangeLog
 		if [ $? -ne 0 ]; then
-			echo "You'll have to document in ${p}'s Changelog for ${VER}-${TAG} related modifications"
+			echo "You'll have to document in ${p}'s ChangeLog for ${VER}-${TAG} related modifications"
 			exit -1
 		fi
 	done

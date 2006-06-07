@@ -127,7 +127,7 @@ with a 2.6 failsafe kernel now available)
   - 'rootfs/etc/ld.so.cache'
   - 'rootfs/root/.profile'
 
-1.03 (
+1.03 (2004-09-29)
 - better support of SLES 8
 
 1.02 (2004-07-21)
@@ -136,12 +136,12 @@ with a 2.6 failsafe kernel now available)
 - fixed obscure bug which occasionally stopped mindi from correctly finding
   and documenting all LVM2 LVM-on-RAID volumes
   
-1.01
+1.01 (2004-06-21)
 - added ide_tape and other modules to mindi's config detection
 - unmount errant ramdisk ($mtpt) if fail to create boot floppy
 - better support of ISO dirs at restore-time (Conor Daly)
 
-1.00
+1.00 (2004-06-18)
 - first 1.0x release
 - catch Ctrl-Alt-Del; trigger soft reset
 - better support of SuSE 9.1
@@ -164,7 +164,7 @@ with a 2.6 failsafe kernel now available)
 - record names of unsaved modules for future reference
 - enlarged ramdisk by 8MB
 
-v0.95
+v0.95 (2004-03-25)
 - changed some '==' to '=' --- now more RH6-friendly
 - allow absolute pathnames again in deplist
 - disable multifunc cd thing
@@ -179,7 +179,7 @@ v0.95
 - better Debian+LVM support (Ralph Grewe)
 - updated analyze-my-lvm to handle floating-point gigabyte -L values
 
-v0.94
+v0.94 (2003-09-24)
 - altered rootfs's /dev entry to stop cvs from becoming confused
 - tweaked MAX_COMPRESSED_SIZE
 - added multi-function CD support to mindi and sbin/post-init
@@ -189,7 +189,7 @@ v0.94
 - added symlinks.tgz
 - suppress erroneous error messages re: failsafe kernel
 
-v0.93
+v0.93 (2003-06-04)
 - added cciss.o to SCSI_MODS
 - if format type is (e.g.) ext3,ext2 then use 1st entry
 - re-enabled fsck*
@@ -213,7 +213,7 @@ v0.93
 - change grep -m1 to grep | head -n1, for Debian users
 - moved lib.tar.bz2 and vmlinuz to mindi-kernel tarball/rpm
 
-v0.92
+v0.92 (2003-05-04)
 - fixed LVM/RAID bugs (Brian Borgeson)
 - if bad lilo, give more verbose error before quitting
 - added mt and perl to deplist.txt
@@ -230,7 +230,7 @@ v0.92
 - disabled code which would make Mindi use sfdisk instead of fdisk
   if it looked as if Debian's fdisk would misbehave
 
-v0.91
+v0.91 (2003-04-04)
 - updated ResolveSoftlinks() to work better with b0rkn Gentoo devfs /dev
 - patched analyze-my-lvm (Benjamin Mampaey)
 - detect built-in boot.b files in lilo

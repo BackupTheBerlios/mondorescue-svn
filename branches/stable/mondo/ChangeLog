@@ -99,7 +99,7 @@ v2.05 (2005-11-19)
 - delivery process to BerliOS improved (Bruno Cornec)
 - now handles cifs correctly (Bruno Cornec)
 
-v2.04_berlios
+v2.04_berlios (2005-10-30)
 - Add -p option to generate ISO images file names with prefix. The new default
   name for ISO images is mondorescue-1.iso, ... For PXE environment, you have
   to use the prefix option on the command line (read README.pxe) 
@@ -109,15 +109,15 @@ v2.04_berlios
 - mondorestore shouldn't now ask final questions with -H 
   (this is an unattended mode) (Bruno Cornec)
 
-v2.04
+v2.04 (2005-05-03)
 - made mondo more clever about finding its home. Avoids mondo considering
   directories like '/usr/share/doc/momdo' as its home.
 
-v2.03
+v2.03 (2004-09-29)
 - better SLES8 support
 - test user-specified temp dir's sanity
 
-v2.02
+v2.02 (2004-07-21)
 - instead of using 'dd' to erase partition table, delete existing
   partitions w/ the same call to fdisk that is used to create the
   new partitions; this should avoids locking up the partition table
@@ -128,14 +128,14 @@ v2.02
 - better star, ACL support
 - added ACL, xattr support for afio users
 
-v2.01
+v2.01 (2004-06-21)
 - fixed cvs for SuSE systems
 - fixed NTFS backup/restore bug relating to partimagehack
   log file overflow and NTFS v non-NTFS differentiation
 - more reliable extraction of config info from CDs, floppies
 - better support of ISO dirs at restore-time (Conor Daly)
 
-v2.00
+v2.00 (2004-06-18)
 - first 2.0 release
 - updated grub-install.patched to support SuSE and Red Hat
 - added kdelibs as xmondo dependency (Joshua Oreman)
@@ -169,7 +169,7 @@ v2.00
 - added '-b' to specify block size
 - added '-R' for star support
 
-v1.75
+v1.75 (2004-03-29)
 - fixed chmod/chown bug (Jens Richter)
 - ask user to confirm NFS mountpoint in Interactive Mode
 - rewritten format_everything() to make sure LVMs, RAIDs and
@@ -202,7 +202,7 @@ v1.75
 - replaced mondo-makefilelist with C code - faster, cleaner
 - tweaked GUI - better feedback
 	
-1.74
+1.74 (2003-09-24)
 - fixed biggiefile atime/ctime restoration bug 73
 - fixed 'default boot loader' detection bug (Joshua Oreman)
 - use single-threaded make_afioballs_and_images() if FreeBSD
@@ -220,7 +220,7 @@ v1.75
 - reject -E /
 - added partimagehack to the mix
 	
-1.73
+1.73 (2003-05-04)
 - mark relevant partitions as bootable _after_ unmounting them
 - resolve boot device (-f) if softlink
 - post_param_configuration() --- store iso-dev and isodir
@@ -256,7 +256,7 @@ v1.75
 - try to work around eccentricities of multi-CD drive PCs
 - misc clean-ups (Steve Hindle)
 
-v1.72
+v1.72 (2003-04-23)
 - LVM/RAID bugs fixed (Brian Borgeson)
 - major clean-up of code (Stan Benoit)
 - make-me-bootable fix (Juraj Ziegler)
@@ -286,7 +286,7 @@ v1.72
 - updated documentation
 - fixed fstab-hacking scripts
 
-v1.71
+v1.71 (2003-04-04)
 - log newt, slang, ncurses info
 - updated man page
 - handle %% chars in issue.net properly (Heiko Schlittermann)
@@ -310,10 +310,10 @@ v1.71
 - updated manpage
 - added -e support
 
-v1.70
+v1.70 (2003-04-04)
 - new devel branch opened
 
-v1.52
+v1.52 (2002-12-08)
 - fixed bug in multithreading
 - use new grub-MR instead of grub-install
 - wipe only the partition table (not MBR) when repartitioning drives
@@ -334,7 +334,7 @@ v1.52
 - made mondorestore CD bootable for ArkLinux users
 - if user runs as 'su' not 'su -' then work around
 
-v1.51
+v1.51 (2002-11-17)
 - pop-up list of changed files, at end of verification phase
 - better handling of changed.files list at restore-time
 - lots of CD-related fixes

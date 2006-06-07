@@ -68,7 +68,12 @@ while (<INPUT>) {
 		$tmp = <INPUT>;	
 		while ($tmp !~ /^$/) {
 			print OUTPUT $tmp;
-			$tmp = <INPUT>;	
+			if (<INPUT>) {
+				$tmp = $_;	
+			}
+			else {
+				last;
+			}
 		}
 		print OUTPUT "\n";
 	}

@@ -393,7 +393,6 @@ v0.58-r6 (2002-03-03)
 - call /usr/bin/logger, not 'logger', in LogIt()
 - run chmod 755 `which start-nfs` before running start-nfs
 
-
 v0.58-r5 (2002-02-24)
 - pathname problem fixed (Fred Feirtag)
 - patch to Debianize mindi a bit (H�tor Garc� �varez)

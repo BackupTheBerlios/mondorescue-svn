@@ -53,7 +53,7 @@ for p in $c; do
 		mkdir -p ${BUILDDIR}
 
 		ddd=`LANG=C ; date '+%Y-%m-%d'`
-		cat > /tmp/mondorescue.mc << EOF
+		cat > $TMP/mondorescue.mc << EOF
 define(\`TTT', ${TAG})dnl
 define(\`RRR', ${TAG}${suf})dnl
 define(\`VVV', ${v})dnl
@@ -71,25 +71,20 @@ EOF
 				exit -1
 			fi
 			echo "Using $inc customization to build SPEC file"
-			m4 /tmp/mondorescue.mc $inc $dest/distributions/rpm/$p.spec > $dest/distributions/${ddir}-$dver/$p.spec
+			m4 $TMP/mondorescue.mc $inc $dest/distributions/rpm/$p.spec > $dest/distributions/${ddir}-$dver/$p.spec
 
-			$TOOLHOME/mkchangelog.pl $dtype $p $dest/distributions/${ddir}-$dver/$p.spec
+			$TOOLHOME/mkchangelog.pl $dtype $p $TMP/$p.spec
 			if [ $? -ne 0 ]; then
 				echo "Unable to create changelog for ${ddir}-$dver/$p.spec"
 				exit -1
 			fi
-
-			ddate=`LANG=C ; date "+%a %b %d %Y"`
-			cat > $dest/distributions/${ddir}-$dver/$p.changelog.new << EOF
-* $ddate Bruno Cornec <bruno@mondorescue.org> VVV-RRR
-- Updated to VVV-r${REVISION}
-
-EOF
+			cat $TMP/$p.spec >> $dest/distributions/${ddir}-$dver/$p.spec
+			rm -f $TMP/$p.spec
 		elif [ "$dtype" = "ebuild" ]; then
-			m4 /tmp/mondorescue.mc $dest/distributions/$dfam/$p.ebuild > $dest/distributions/${ddir}-$dver/$p-$v-r$TAG.ebuild
+			m4 $TMP/mondorescue.mc $dest/distributions/$dfam/$p.ebuild > $dest/distributions/${ddir}-$dver/$p-$v-r$TAG.ebuild
 		elif [ "$dtype" = "deb" ]; then
 			# To be developped
-			m4 /tmp/mondorescue.mc $dest/distributions/$dfam/$p > /dev/null
+			m4 $TMP/mondorescue.mc $dest/distributions/$dfam/$p > /dev/null
 		else
 			echo "Unknown Build"
 		fi
@@ -98,7 +93,7 @@ EOF
 	if [ _"`echo $p | grep mondo-doc`" != _"" ]; then
 		cd $dest
 		for f in mondorescue-howto.sgml *8; do
-			m4 /tmp/mondorescue.mc $f > ${f}.new
+			m4 $TMP/mondorescue.mc $f > ${f}.new
 			mv ${f}.new $f
 		done
 		make -f Makefile.howto
@@ -138,7 +133,7 @@ EOF
 	#tar cfhj ${DEST}/$p-$v-$TAG.tar.bz2 $dest
 done
 
-rm -f /tmp/mondorescue.mc
+rm -f $TMP/mondorescue.mc
 
 echo "Version delivered :"
 echo "-------------------"

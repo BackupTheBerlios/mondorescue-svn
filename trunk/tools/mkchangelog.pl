@@ -9,13 +9,14 @@
 
 use strict;
 use Date::Manip;
+use File::Basename;
+use English;
 
 my $log = "";
 my $dtype = $ARGV[0];
 my $pkg = $ARGV[1];
 my $pkg2;
 my $outfile = $ARGV[2];
-my $TOOLHOME = $ENV{TOOLHOME};
 my $chglog = "";
 my $ndate = "";
 my $tmp = "";
@@ -29,6 +30,17 @@ die "Syntax : mkchangelog dtype package-name output-file"
 	if ((not (defined $dtype)) || ($dtype eq "") || 
 		(not (defined $pkg)) || ($pkg eq "") || 
 		(not (defined $outfile)) || ($outfile eq ""));
+
+my $TOOLHOME;
+$tmp = dirname($PROGRAM_NAME);
+if ($tmp =~ /^\//) {
+	$TOOLHOME = $tmp;
+	}
+else {
+	$TOOLHOME = "$ENV{PWD}/$tmp";
+	}
+
+die "TOOLHOME doesn't exist" if (not (defined $TOOLHOME));
 
 if (-f "$TOOLHOME/../$pkg/ChangeLog") {
 	$chglog = "$TOOLHOME/../$pkg/ChangeLog";
@@ -51,27 +63,36 @@ open(OUTPUT,"> $outfile") || die "Unable to open $outfile (write)";
 $tmp = <INPUT>;
 $tmp = <INPUT>;
 $tmp = <INPUT>;
+if ($dtype eq "announce") {
+	print OUTPUT $tmp;
+}
 $tmp = <INPUT>;
+if ($dtype eq "announce") {
+	print OUTPUT $tmp;
+}
 
 # Handle each block separated by newline
 while (<INPUT>) {
 	($ver, $date) = split(/ /);
 	chomp($date);
 	$date =~ s/\(([0-9-]+)\)/$1/;
-	print "**$date**\n";
+	#print "**$date**\n";
 	$ndate = UnixDate($date,"%a", "%b", "%d", "%Y");
-	print "**$ndate**\n";
+	#print "**$ndate**\n";
 	if ($dtype eq "rpm") {
-		printf OUTPUT "* $ndate Bruno Cornec <bruno\@mondorescue.org> $ver\n";
-		printf OUTPUT "- Updated to $ver\n";
-
-		$tmp = <INPUT>;	
-		while ($tmp !~ /^$/) {
-			printf OUTPUT $tmp;
-			$tmp = <INPUT>;	
+		print OUTPUT "* $ndate Bruno Cornec <bruno\@mondorescue.org> $ver\n";
+		print OUTPUT "- Updated to $ver\n";
 		}
-		printf OUTPUT "\n";
+
+	$tmp = <INPUT>;	
+	while ($tmp !~ /^$/) {
+		print OUTPUT $tmp;
+		last if (eof(INPUT));
+		$tmp = <INPUT>;
 	}
+	print OUTPUT "\n";
+	last if (eof(INPUT));
+	last if ($dtype eq "announce");
 }
 close(OUTPUT);
 close(INPUT);

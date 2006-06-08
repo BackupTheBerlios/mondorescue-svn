@@ -1,0 +1,69 @@
+#!/bin/bash
+#
+# Prepare a new announce concerning mondorescue
+#
+# $Id$
+#
+# Syntax: mkannounce [ver-tag]
+#
+
+dname=`dirname $0`
+prem=`echo $dname |cut -c1`
+if [ ${prem} == "/" ]; then
+	export TOOLHOME=$dname
+else
+	export TOOLHOME=${PWD}/$dname
+fi
+
+. $TOOLHOME/common-env
+. $TOOLHOME/distro-env
+. $TOOLHOME/ftp-env
+
+# We need to get $VER and $TAG
+if [ "$1" = "" ]; then
+	LAST=`cat ${TOPDIR}/LAST`
+else
+	LAST=$1
+	shift
+fi
+VER=`echo $LAST | cut -d- -f1`
+TAG=`echo $LAST | cut -d- -f2`
+
+SEARCH=`echo $LAST | cut -c2-`
+
+rm -f $TMP/announce.tmp
+cat > $TMP/announce.tmp << EOF
+MondoRescue $LAST is now available</p>
+
+<p>I'm happy to announce the availability of a newest version of mondoescue $LAST. Enjoy it as usual!</p>
+<p>
+Now available at <a href="ftp://ftp.mondorescue.org/">ftp://ftp.mondorescue.org/
+</a>
+</p>
+<p>
+EOF
+ssh ${ACCOUNT} "cd $DSTDIR ; find . -name 'm[oi]nd[io]-[0-9]$SEARCH*'" | grep -v 'src.rpm' >> $TMP/announce.tmp
+cat >> $TMP/announce.tmp << EOF
+</p>
+
+<p>As usual src.rpm packages are also available in the same directory.</p>
+
+<p>
+Changes are :
+</p>
+EOF
+
+# Generating log files
+$TOOLHOME/mkchangelog.pl announce mindi $TMP/mindi.ann
+$TOOLHOME/mkchangelog.pl announce mondo $TMP/mondo.ann
+echo "<p>" >> $TMP/announce.tmp
+sed 's/$/<br>/' $TMP/mindi.ann >> $TMP/announce.tmp
+echo "</p><p>" >> $TMP/announce.tmp
+sed 's/$/<br>/' $TMP/mondo.ann >> $TMP/announce.tmp
+echo "</p>" >> $TMP/announce.tmp
+rm -f $TMP/mindi.ann $TMP/mondo.ann
+
+# Store it in DB for Web pages generation
+$TOOLHOME/mkannounce.pl $TMP/announce.tmp
+# Then deliver it on the Web
+#$TOOLHOME/livwww www

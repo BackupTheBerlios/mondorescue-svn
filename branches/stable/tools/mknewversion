@@ -1,0 +1,69 @@
+#!/bin/bash
+#
+# Prepare a delivery of a new version by changing VERSION/TAG from stable
+#
+# $Id$
+#
+# Syntax: mknewversion
+#
+
+umask 022
+dname=`dirname $0`
+prem=`echo $dname |cut -c1`
+if [ ${prem} == "/" ]; then
+	export TOOLHOME=$dname
+else
+	export TOOLHOME=${PWD}/$dname
+fi
+
+. $TOOLHOME/common-env
+. $TOOLHOME/distro-env
+
+# We need to get $VER
+if [ "$1" = "" ]; then
+	LAST=`cat ${TOPDIR}/LAST`
+else
+	LAST=$1
+	shift
+fi
+VER=`echo $LAST | cut -d- -f1`
+MAJVER=`echo $VER | cut -d. -f1-2`
+MINDIMAJVER=`echo $VER | cut -d. -f1`
+MINDIMINVER=`echo $VER | cut -d. -f2`
+((MINDIMAJVER=$MINDIMAJVER-1))
+MINVER=`echo $VER | cut -d. -f3`
+TAG=1
+((MINVER=$MINVER+1))
+VER=${MAJVER}.${MINVER}
+echo "Changing Version $LAST to ${VER}-${TAG}"
+grep -q stable $TOOLHOME/../mondo/VERSION
+if [ $? -ne 0 ]; then
+	echo "A new version can only be made from stable"
+	exit -1
+fi
+nb=`svn diff $TOOLHOME/.. | wc -l`
+if [ $nb -gt 0 ]; then
+	echo "You'll have to check in before changing version"
+else
+	svn copy $SVN_M/branches/stable $SVN_M/branches/${VER}
+	cd $TOOLHOME/../..
+	svn co $SVN_M/branches/${VER} ${VER}
+	cd ${VER}
+	echo "$TAG" > tools/TAG
+	for p in mindi mondo mondo-doc mindi-kernel; do
+		v=${VER}
+		if [ $p == "mindi" ]; then
+			v=${MINDIMAJVER}.${MINDIMINVER}.${MINVER}
+		fi
+		echo "$v" > $p/VERSION
+		if [ -f $p/ChangeLog ]; then
+			grep -q "${v}-${TAG}" $p/ChangeLog
+			if [ $? -ne 0 ]; then
+				echo "You'll have to document in ${p}'s ChangeLog for ${v}-${TAG} related modifications"
+				exit -1
+			fi
+		fi
+	done
+	svn ci -m "Creation of ${VER}-$TAG"
+	svn up
+fi

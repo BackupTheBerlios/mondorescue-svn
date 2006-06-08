@@ -3,7 +3,7 @@ qemu-img create -f qcow image.qemu 3G
 qemu -cdrom /dev/hdc -m 256 -boot d image.qemu
 
 # RPM based : urpmi, yum install, yast2
-	neon newt-devel slang-devel autoconf automake subversion libtool gcc rpm-build wget vim-X11 gcc-c++ docbook-utils-pdf ImageMagick man docbook-dtd41-sgml groff lynx
+	neon newt-devel slang-devel autoconf automake libtool gcc rpm-build wget vim-X11 gcc-c++ docbook-utils-pdf ImageMagick man patch
 
 # gentoo
 Cf: http://wiki.xensource.com/xenwiki/QEMUGentoo
@@ -46,7 +46,7 @@ passwd bruno
 su - bruno
 mkdir -p mondo/tmp build
 cat > ~bruno/.rpmmacros << EOF
-%_topdir    /home/bruno/build
+%_topdir    /users/bruno/build
 %_tmppath   %{_topdir}/tmp
 %packager   Bruno Cornec <bruno@mondorescue.org>
 EOF
@@ -71,10 +71,11 @@ rebuild paquets necessaires mondo:
 wget ftp://ftp.mondorescue.org/src/afio-2.4.7-1.src.rpm 
 wget ftp://ftp.mondorescue.org/src/buffer-1.19-1.src.rpm
 rpm -ivh afio-2.4.7-1.src.rpm buffer-1.19-1.src.rpm
-rpmbuild -ba RPMS/SPECS/afio.spec
-rpmbuild -ba RPMS/SPECS/buffer.spec
-chmod 644 RPMS/RPMS/i386/*
-scp -p RPMS/RPMS/i386/afio-[0-9]* RPMS/RPMS/i386/buffer-[0-9]* ftp.mondorescue.org:/mondo/ftp/rhel/3/
+mkdir -p build/BUILD build/RPMS/i386
+rpmbuild -ba build/SPECS/afio.spec
+rpmbuild -ba build/SPECS/buffer.spec
+chmod 644 build/RPMS/i386/*
+scp -p build/RPMS/i386/afio-[0-9]* build/RPMS/i386/buffer-[0-9]* ftp.mondorescue.org:/mondo/ftp/rhel/3/
 
 
 root:

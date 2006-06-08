@@ -37,6 +37,7 @@ ARCH=`/bin/arch`
 echo $ARCH | grep -x "i[0-9]86" &> /dev/null && ARCH=i386 && locallib=$local/lib
 # For the moment, we don't build specific x86_64 busybox binaries
 echo $ARCH | grep -x "x86_64" &> /dev/null && ARCH=i386 && locallib=$local/lib64
+echo $ARCH | grep -x "ia64" &> /dev/null && locallib=$local/lib
 export ARCH
 
 echo "Creating target directories ..."
@@ -113,12 +114,12 @@ if [ "$RPMBUILDMINDI" != "true" ]; then
 fi
 
 # Special case for SuSE family where doc is put elsewhere in the RPM
-if [ _"$dfam" = _"suse" ]; then
+if [ -e /etc/SuSE-release ]; then
 	rm -rf $DOCDIR
 fi
 
 # Special case for Debian family where doc is put elsewhere in the DEB
-if [ _"$dfam" = _"debian" ]; then
+if [ -e /etc/debian_version ]; then
 	rm -rf $DOCDIR
 fi
 

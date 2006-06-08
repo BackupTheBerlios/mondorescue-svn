@@ -481,17 +481,23 @@ StartNfs() {
 
 StartRaids() {
     local raid_devices i
-    raid_devices=`grep /dev/md /tmp/mountlist.txt | cut -d' ' -f1`
-    for i in $raid_devices ; do
-        if grep `basename $i` /proc/mdstat > /dev/null 2> /dev/null ; then
-            LogIt "$i is started already; no need to run 'raidstart $i'" 1
-        else
-	    LogIt "Running 'raidstart $i'" 1
-	    raidstart $i
-        fi
-#        sleep 1
-    done
-#    [ "$raid_devices" != "" ] && PauseForRaid
+	if which raidstart > /dev/null 2> /dev/null ; then
+    	raid_devices=`grep /dev/md /tmp/mountlist.txt | cut -d' ' -f1`
+    	for i in $raid_devices ; do
+        	if grep `basename $i` /proc/mdstat > /dev/null 2> /dev/null ; then
+            	LogIt "$i is started already; no need to run 'raidstart $i'" 1
+        	else
+	    		LogIt "Running 'raidstart $i'" 1
+	    		raidstart $i
+        	fi
+    	done
+	elif which mdrun > /dev/null 2> /dev/null ; then
+		LogIt "Running 'mdrun'" 1
+		mdrun
+	else
+		LogIt "Warning: Neither 'raidstart' nor 'mdrun''found. RAID devices may not have started." 1
+	fi
+
 }
 
 

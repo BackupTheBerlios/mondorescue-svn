@@ -1290,6 +1290,7 @@ void store_nfs_config(struct s_bkpinfo *bkpinfo)
     fprintf(fout, "echo \"$ipconf\" | grep -q \"dhcp\"\n");
     fprintf(fout, "if [ $? = 0 ]; then\n");
     fprintf(fout, "    ipdev=`echo $ipconf | cut -d: -f1`\n");
+    fprintf(fout, "    udhcpc -i $ipdev\n");
     fprintf(fout, "else\n");
     fprintf(fout, "    if [ \"$ipconf\" != \"\" ]; then\n");
     fprintf(fout, "        ipdev=`echo $ipconf | cut -d: -f1`\n");

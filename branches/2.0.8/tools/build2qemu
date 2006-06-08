@@ -79,7 +79,6 @@ for m in $VMS; do
 		$TOOLHOME/mkqemu $m &
 		sleep 300
 	fi
-	ssh -p $sp root@localhost "perl -pi -e 's|/home/bruno|/users/bruno|' /etc/passwd /home/bruno/.rpmmacros ; mv /home /users; rpm -e tetex tetex-latex passivetex jadetex texinfo xmltex linuxdoc-tools xmlto docbook-utils-pdf subversion tetex-context tetex-dvips docbook-utils"
 	rdate=`date "+%m%d%H%M"`
 	ssh -p $sp root@localhost "date $rdate"
 	scp -P $sp $TMP/mkmondo.tar.gz bruno@localhost:

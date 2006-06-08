@@ -85,12 +85,12 @@ EOF
 		elif [ "$dtype" = "deb" ]; then
 			# To be developped
 			#m4 $TMP/mondorescue.mc $dest/distributions/$dfam/$p > /dev/null
-			$TOOLHOME/mkchangelog.pl $dtype $p $TMP/$p.chg
+			cp -a $dest/distributions/$ddir/* $dest/distributions/${ddir}-$dver
+			$TOOLHOME/mkchangelog.pl $dtype $p $dest/distributions/${ddir}-$dver/changelog
 			if [ $? -ne 0 ]; then
-				echo "Unable to create changelog for ${ddir}-$dver/$p.chg"
+				echo "Unable to create changelog for ${ddir}-$dver/changelog"
 				exit -1
 			fi
-			mv $TMP/$p.chg $dest/distributions/${ddir}-$dver/changelog
 		else
 			echo "Unknown Build"
 		fi

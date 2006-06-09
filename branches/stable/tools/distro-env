@@ -123,6 +123,9 @@ if [ _"$dtype" = _"rpm" ]; then
 		export TOPBUILDDIR=${BASE}/build
 	fi
 	mkdir -p ${TOPBUILDDIR}/{RPMS,SRPMS,SPECS,SOURCES,BUILD}
+elif [ _"$dtype" = _"deb" ]; then
+	export TOPBUILDDIR=${BASE}/build
+	mkdir -p ${TOPBUILDDIR}
 elif [ _"$dtype" = _"ebuild" ]; then
 	export TOPBUILDDIR=${BASE}/build
 	mkdir -p ${TOPBUILDDIR}/portage

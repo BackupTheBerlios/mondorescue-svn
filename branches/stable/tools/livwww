@@ -91,6 +91,9 @@ cd $LOCALDIR
 ln -sf /var/www/html/mediawiki .
 ln -sf /var/www/html/admin .
 
+# Compute News
+$TOOLHOME/mknewshtml.pl $LOCALDIR
+
 if [ _"$1" == _"" ]; then
 		exit 0
 else

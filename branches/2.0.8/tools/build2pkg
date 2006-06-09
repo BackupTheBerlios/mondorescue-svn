@@ -137,6 +137,8 @@ for p in $c; do
 done
 echo "Packages handled : $pkg"
 
+rm -rf $TMP
+
 if [ $status = 0 ]; then
 	if [  _"$dtype" = _"rpm" ]; then
 		echo "Installing RPMS as root"

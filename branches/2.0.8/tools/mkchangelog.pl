@@ -92,7 +92,12 @@ while (<INPUT>) {
 
 	$tmp = <INPUT>;	
 	while ($tmp !~ /^$/) {
-		print OUTPUT "  * $tmp";
+		if ($dtype eq "deb") {
+			print OUTPUT "  * $tmp";
+		}
+		else {
+			print OUTPUT "$tmp";
+		}
 		last if (eof(INPUT));
 		$tmp = <INPUT>;
 	}

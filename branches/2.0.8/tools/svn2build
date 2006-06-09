@@ -139,7 +139,7 @@ EOF
 	#tar cfhj ${DEST}/$p-$v-$TAG.tar.bz2 $dest
 done
 
-rm -f $TMP/mondorescue.mc
+rm -rf $TMP
 
 echo "Version delivered :"
 echo "-------------------"

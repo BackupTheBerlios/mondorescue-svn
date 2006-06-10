@@ -1284,9 +1284,12 @@ void store_nfs_config(struct s_bkpinfo *bkpinfo)
 	fprintf(fout, "ipbroadcast=%s\n", nfs_client_broadcast);
 	fprintf(fout, "ipgateway=%s\n", nfs_client_defgw);
 	fprintf(fout, "ipconf=\n");
+	fprintf(fout, "nfsmount=%s\n", bkpinfo->nfs_mount);
     fprintf(fout, "for i in `cat /proc/cmdline` ; do\n");
     fprintf(fout, "    echo $i | grep -qi ipconf= && ipconf=`echo $i | cut -d= -f2`\n");
+    fprintf(fout, "    echo $i | grep -qi nfsmount= && nfsmount=`echo $i | cut -d= -f2`\n");
     fprintf(fout, "done\n");
+	fprintf(fout, "nfs_server_ipaddr=`echo $nfsmount | cut -d: -f1`\n");
     fprintf(fout, "echo \"$ipconf\" | grep -q \"dhcp\"\n");
     fprintf(fout, "if [ $? -eq 0 ]; then\n");
     fprintf(fout, "    ipdev=`echo $ipconf | cut -d: -f1`\n");
@@ -1303,9 +1306,8 @@ void store_nfs_config(struct s_bkpinfo *bkpinfo)
 	fprintf(fout, "    ifconfig $ipdev $ipaddress netmask $ipnetmask broadcast $ipbroadcast\n");
 	fprintf(fout, "    route add default gw $ipgateway\n");
     fprintf(fout, "fi\n");
-	fprintf(fout, "ping -c $ipcount %s	# ping server\n", nfs_server_ipaddr);
-	fprintf(fout, "mount -t nfs -o nolock %s /tmp/isodir\n",
-			bkpinfo->nfs_mount);
+	fprintf(fout, "ping -c $ipcount	$nfs_server_ipaddr # ping server\n");
+	fprintf(fout, "mount -t nfs -o nolock $nfsmount /tmp/isodir\n");
 	paranoid_fclose(fout);
 	chmod(outfile, 0777);
 	make_hole_for_dir("/var/cache/mondo-archive");

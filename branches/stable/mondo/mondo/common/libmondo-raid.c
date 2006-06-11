@@ -1040,7 +1040,7 @@ int parse_mdstat(struct raidlist_itself *raidlist, char *device_prefix) {
     if (res <= 0) break;
     // trim leading spaces
     pos = string;
-    while (*pos == ' ') *pos++;
+    while (*pos == ' ') pos += 1;
     asprintf(&strtmp, pos);
     strcpy(string, strtmp);
     paranoid_free(strtmp);
@@ -1198,7 +1198,7 @@ int parse_mdstat(struct raidlist_itself *raidlist, char *device_prefix) {
 	  raidlist->el[raidlist->entries].chunk_size = -1;
 	} else {
 	  while (*pos != ' ') {
-	    *pos--;
+	    pos -= 1;
 	    if (pos < string) {
 	      log_it("String underflow!\n");
 	      paranoid_free(string);
@@ -1223,7 +1223,7 @@ int parse_mdstat(struct raidlist_itself *raidlist, char *device_prefix) {
 	  }
 	} else {
 	  while (*pos != ' ') {
-	    *pos--;
+	    pos -= 1;
 	    if (pos < string) {
 	      printf("ERROR: String underflow!\n");
 	      paranoid_free(string);

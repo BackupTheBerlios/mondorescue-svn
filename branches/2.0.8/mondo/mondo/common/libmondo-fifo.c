@@ -214,7 +214,6 @@ FILE *open_device_via_buffer(char *device, char direction,
 		log_msg(2, "Warning - I think I failed to open tape, actually.");
 	}
 	g_tape_buffer_size_MB = bufsize;
-	strcmp(tmp, g_sz_call_to_buffer);
 	tmp[30] = '\0';
 	sprintf(command, "ps wwax | grep buffer | grep -v grep");
 	if (run_program_and_log_output(command, 1)) {

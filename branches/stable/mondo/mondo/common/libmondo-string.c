@@ -1178,6 +1178,7 @@ strptr += pos2;
 pos1 = strcspn(strptr, delims);
 token = malloc(sizeof(*token)*(pos1+1));
 strncpy(token, strptr, pos1);
+token[pos1] = '\0';
 *lastpos = *lastpos + pos1 + pos2 + 1;
 
 return token;

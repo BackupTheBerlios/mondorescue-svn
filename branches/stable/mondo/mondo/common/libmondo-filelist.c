@@ -1437,14 +1437,6 @@ int prepare_filelist(struct s_bkpinfo *bkpinfo)
 
 	/*@ int **************************************************** */
 	int res = 0;
-// patch by Herman Kuster
-// end patch
-	int *p_res = &res;
-
-	/*@ buffers ************************************************ */
-//  char command[MAX_STR_LEN*2];
-
-	/*@ i don't have any idea ********************************** */
 
 	assert(bkpinfo != NULL);
 	log_it("tmpdir=%s; scratchdir=%s", bkpinfo->tmpdir,
@@ -1474,7 +1466,6 @@ int prepare_filelist(struct s_bkpinfo *bkpinfo)
 
 	if (res) {
 		log_OS_error("Call to mondo-makefilelist failed");
-		*p_res++;
 		mvaddstr_and_log_it(g_currentY++, 74, "Failed.");
 	} else {
 		mvaddstr_and_log_it(g_currentY++, 74, "Done.");

@@ -505,7 +505,7 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 			fatal_error("Please install either cdrecord or dvdrecord.");
 		}
 		if (bkpinfo->nonbootable_backup) {
-			asprintf(&mondo_mkisofs_sz, MONDO_MKISOFS_NONBOOT);
+			asprintf(&mondo_mkisofs_sz, "%s -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL_Version -V _CD#_", mrconf->mondo_iso_creation_cmd);
 		} else if
 #ifdef __FreeBSD__
 			(TRUE)

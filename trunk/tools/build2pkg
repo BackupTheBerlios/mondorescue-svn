@@ -66,7 +66,7 @@ for p in $c; do
 
 		pkg="$pkg $pkg1"
 
-		log=/tmp/$p-rpm.log
+		log=$TMP/$p-rpm.log
 
 		if [ "$dfam" = "mandriva" ]; then
 			echo "Generating bzip2 files (mandriva)"
@@ -89,7 +89,7 @@ for p in $c; do
 		rm -rf ${TOPBUILDDIR}/BUILD/*
 		cd ..
 	elif [  _"$dtype" = _"ebuild" ]; then
-		log=/tmp/$p-gentoo.log
+		log=$TMP/$p-gentoo.log
 		ln -sf $src .
 		tar xfz $src $pv/distributions/${ddir}-$dver/$p-${VER}-r$TAG.ebuild
 		if [ _"`grep $TOPBUILDDIR/portage /etc/make.conf`" = _"" ]; then
@@ -123,19 +123,21 @@ for p in $c; do
 			status=-1
 		fi
 	elif [  _"$dtype" = _"deb" ]; then
-		log=/tmp/$p-deb.log
+		log=$TMP/$p-deb.log
 		cd $TOPBUILDDIR
 		tar xfz $src
 		cd ${pv}*
-		ln -s distributions/debian debian
-		# update debian/changelog
-		pkg-buildpackage -us -uc -rfakeroot
+		# point to the right debian conf
+		ln -s distributions/${ddir}-$dver debian
+		dpkg-buildpackage -us -uc -rfakeroot
 		# Et voila !
 	else
 		echo "Unknown"
 	fi
 done
 echo "Packages handled : $pkg"
+
+rm -rf $TMP
 
 if [ $status = 0 ]; then
 	if [  _"$dtype" = _"rpm" ]; then

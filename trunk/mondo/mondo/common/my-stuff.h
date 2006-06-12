@@ -209,19 +209,19 @@ extern void _mondo_assert_fail(const char *file, const char *function,
  * @c mkisofs command to generate a bootable CD using isolinux, except for -o option and the directory to image.
  */
 #define MONDO_MKISOFS_REGULAR_SYSLINUX	"mkisofs -J -boot-info-table -no-emul-boot -b isolinux.bin -c boot.cat -boot-load-size 4 -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL_Version -V _CD#_"
+#define MONDO_MKISOFS_REGULAR_LILO      "mkisofs -J -boot-info-table -no-emul-boot -b isolinux.bin -c boot.cat -boot-load-size 4 -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL -V _CD#_"
+#define MONDO_MKISOFS_REGULAR_ELILO     "mkisofs -no-emul-boot -b images/mindi-bootroot.8192.img -c boot.cat -J -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL -V _CD#_"
 
 /**
  * @c mkisofs command to generate a bootable CD using LILO, except for -o option and the directory to image.
  */
 // -b images/mindi-boot.2880.img
-#define MONDO_MKISOFS_REGULAR_LILO      "mkisofs -boot-info-table -no-emul-boot -b isolinux.bin -c boot.cat -boot-load-size 4 -J -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL -V _CD#_"
 
 /**
  * @c mkisofs command to generate a bootable CD using ELILO, except for -o option and the directory to image.
  */
 // -b images/mindi-boot.2880.img
 // Should replace 8192 by IA64_BOOT_SIZE
-#define MONDO_MKISOFS_REGULAR_ELILO      "mkisofs -no-emul-boot -b images/mindi-bootroot.8192.img -c boot.cat -J -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL -V _CD#_"
 
 /**
  * The stub name of the temporary ISO image to create, burn, and remove.

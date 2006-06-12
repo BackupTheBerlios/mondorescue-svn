@@ -19,6 +19,7 @@ my $pkg2;
 my $outfile = $ARGV[2];
 my $chglog = "";
 my $ndate = "";
+my $n2date = "";
 my $tmp = "";
 my $ver = "";
 my $date = "";
@@ -78,19 +79,35 @@ while (<INPUT>) {
 	$date =~ s/\(([0-9-]+)\)/$1/;
 	#print "**$date**\n";
 	$ndate = UnixDate($date,"%a", "%b", "%d", "%Y");
+	$n2date = &UnixDate($date,"%a, %d %b %Y %H:%M:%S %z");
 	#print "**$ndate**\n";
 	if ($dtype eq "rpm") {
 		print OUTPUT "* $ndate Bruno Cornec <bruno\@mondorescue.org> $ver\n";
 		print OUTPUT "- Updated to $ver\n";
 		}
+	if ($dtype eq "deb") {
+		print OUTPUT "$pkg ($ver) unstable; urgency=low\n";
+		print OUTPUT "\n";
+		}
 
 	$tmp = <INPUT>;	
 	while ($tmp !~ /^$/) {
-		print OUTPUT $tmp;
+		if ($dtype eq "deb") {
+			print OUTPUT "  * $tmp";
+		}
+		else {
+			print OUTPUT "$tmp";
+		}
 		last if (eof(INPUT));
 		$tmp = <INPUT>;
 	}
 	print OUTPUT "\n";
+
+	if ($dtype eq "deb") {
+		print OUTPUT " -- Bruno Cornec <bruno\@mondorescue.org>  $n2date\n\n";
+		print OUTPUT "\n";
+		}
+
 	last if (eof(INPUT));
 	last if ($dtype eq "announce");
 }

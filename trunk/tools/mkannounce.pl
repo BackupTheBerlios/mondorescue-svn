@@ -27,7 +27,7 @@ else {
 	$TOOLHOME = "$ENV{PWD}/$tmp";
 	}
 
-my $db="$TOOLHOME/../website/announces.sql";
+my $db="$TOOLHOME/../website/announces3.sql";
 
 my $dbh = DBI->connect("dbi:SQLite:dbname=$db","","",
 			{ RaiseError => 1, AutoCommit => 1 }) 
@@ -39,10 +39,15 @@ my $date = &UnixDate("today","%Y-%m-%d");
 local $/;
 open(ANNOUNCE,$ARGV[0]) || die "Unable to open $ARGV[0] (read)";
 my $announce = <ANNOUNCE>;
-$announce =~ s/\"/\"\"/g;
+#$announce =~ s/\"/\"\"/g;
+#$announce =~ s/!//g;
 close(ANNOUNCE);
 
 print "INSERT INTO announces VALUES (NULL, $date, $announce)\n";
-#$dbh->do("INSERT INTO announces VALUES (NULL, $date, $announce)") 
+my $sth = $dbh->prepare(qq{INSERT INTO announces VALUES (NULL,?,?)}) 
+		|| die "Unable to insert into $db";
+$sth->execute($date, $announce);
+#$dbh->do(qq(INSERT INTO announces VALUES (NULL, '$date', '$announce'))) 
 #|| die "Unable to insert into $db";
+
 $dbh->disconnect;

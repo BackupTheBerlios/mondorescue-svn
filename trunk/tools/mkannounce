@@ -63,7 +63,27 @@ sed 's/$/<br>/' $TMP/mondo.ann >> $TMP/announce.tmp
 echo "</p>" >> $TMP/announce.tmp
 rm -f $TMP/mindi.ann $TMP/mondo.ann
 
+vi $TMP/announce.tmp
 # Store it in DB for Web pages generation
 $TOOLHOME/mkannounce.pl $TMP/announce.tmp
 # Then deliver it on the Web
-#$TOOLHOME/livwww www
+$TOOLHOME/livwww www
+cat > $TMP/announce.hdr << EOF
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/x html1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" xml:lang="en" lang="en">
+  <head>
+  </head>
+  <body>
+  <p>
+EOF
+cat > $TMP/announce.ftr << EOF
+</body>
+</html>
+EOF
+# Mail it to mr ML
+cat $TMP/announce.hdr $TMP/announce.tmp $TMP/announce.ftr | w3m -dump -T text/html > $TMP/mondo.ann.txt
+export EMAIL="bruno@mondorescue.org"
+export TMPDIR=$TMP
+cat $TMP/mondo.ann.txt | mutt -s "`head -1 $TMP/mondo.ann.txt`" mondo-devel@lists.sourceforge.net -c mondorescue-announce@lists.berlios.de
+rm -rf $TMP

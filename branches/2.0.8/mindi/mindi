@@ -1290,7 +1290,7 @@ MakeMountlist() {
 	local scratchdir mountlist all_partitions current_partition \
 partition_size partition_format outstring partition_number \
 partition_mountpt c_p lwm_info psz lvm_dev unofficial_outstring \
-absolute_partition old_partition_fmt
+absolute_partition old_partition_fmt current_lvolume
 
 	echo "Your raw fstab file looks like this:-" >> $LOGFILE
 	cat $MY_FSTAB >> $LOGFILE
@@ -1388,9 +1388,24 @@ absolute_partition old_partition_fmt
 	fi
 
 	partition_format=`$AWK '$1 == "'"$str_to_find_fmt_with"'" {print $3}' $MY_FSTAB`
-	if [ -d "/proc/lvm" ] && [ "`lvdisplay $current_partition 2> /dev/null`" ]; then
+	# Some distributions such as Debian do not put /dev/<VG>/<LV> in fstab
+	# for LVM partitions but use /dev/mapper/<VG>-<LV> instead. Fortunately,
+	# the former is then a link to the latter, so we test whether
+	# $current_partition is actually such a link or not and set
+	# $current_lvolume accordingly. Note that $current_lvolume may well be an
+	# ordinary device. It is just to make sure that we feed the right value
+	# into any of the LVM tools if possible.
+	if [ -d "/dev/mapper" ] && [ -z "`lvm lvdisplay $current_partition 2> /dev/null`" ]; then
+	    partition_stub="`echo "$current_partition" | sed "s|^/dev/mapper/|/dev/|" | cut -d"-" -f1`"
+	    current_lvolume="`find /dev -lname "$current_partition" | grep "^$partition_stub"`"
+	fi
+	if [ -z "$current_lvolume" ]; then
+	    current_lvolume="$current_partition"
+	fi
+	# End of LVM device style variation code (other than $current_lvolume).
+	if [ -d "/proc/lvm" ] && [ "`lvdisplay $current_lvolume 2> /dev/null`" ]; then
 		partition_size="lvm"
-	elif [ -d "/dev/mapper" ] && [ "`lvm lvdisplay $current_partition 2> /dev/null`" ]; then
+	elif [ -d "/dev/mapper" ] && [ "`lvm lvdisplay $current_lvolume 2> /dev/null`" ]; then
 		partition_size="lvm"
 	else
 		partition_size=`SizeOfPartition $current_partition`
@@ -1416,12 +1431,12 @@ absolute_partition old_partition_fmt
 	[ "$partition_mountpt" = "swap" ] && partition_format="swap"
 	[ "$partition_format" = "swap" ] && partition_mountpt="swap"
 	if [ "$partition_mountpt" = "" ] ; then
-		if [ "`pvdisplay $current_partition 2> /dev/null`" != "" ] || [ "`lvm pvdisplay $current_partition 2> /dev/null`" != "" ] ; then
+		if [ "`pvdisplay $current_lvolume 2> /dev/null`" != "" ] || [ "`lvm pvdisplay $current_lvolume 2> /dev/null`" != "" ] ; then
 		if  [ "`fgrep device /etc/raidtab 2> /dev/null | grep -w $current_partition`" ] ; then
 		    partition_mountpt="raid"
 		    partition_format="raid"
 		else
-#		    lvm_dev="`pvdisplay $current_partition | grep -i "VG N" | head -n1 | tr -s ' ' ' ' | cut -d' ' -f3`"
+#		    lvm_dev="`pvdisplay $current_lvolume | grep -i "VG N" | head -n1 | tr -s ' ' ' ' | cut -d' ' -f3`"
 		    partition_mountpt="lvm"
 		    partition_format="lvm"
 		fi

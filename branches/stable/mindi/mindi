@@ -776,12 +776,25 @@ GenerateGiantDependencyList() {
 		filelist=`GenerateListForFile "$incoming"`
 		for tool in $filelist ; do
 		    lvmresolved=`ResolveSoftlink $tool`
-		    if echo "$lvmresolved" | grep "lvmiopversion" &> /dev/null ; then
+		    if [ "$tool" == "$lvmresolved" ]; then
+			echo "$tool" >> $tempfile
+		    elif echo "$lvmresolved" | grep "lvmiopversion" &> /dev/null ; then
 		    if [ "$lvmversion" = "" ] ; then
 			lvmversion=`$lvmresolved`
 			echo "$lvmresolved" >> $tempfile
 		    fi
 		    toolstripped=`echo $tool | $AWK -F / '{print $NF;}'`
+		    if [ "$lvmversion" == "200" ]; then
+			# pvdata and lvmcreate_initrd don't exist in LVM2
+			case "$toolstripped" in
+			    "pvdata")
+				continue
+				;;
+			    "lvmcreate_initrd")
+				continue
+				;;
+			esac
+		    fi
 		    toolpath="/sbin/lvm-"$lvmversion"/"$toolstripped
 		    if [ -e "$toolpath" ] ; then
 			echo "$toolpath" >> $tempfile

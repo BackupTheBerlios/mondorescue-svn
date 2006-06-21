@@ -1976,7 +1976,7 @@ restore_a_tarball_from_CD(char *tarball_fname,
 		log_msg(2, "There are _zero_ files in filelist '%s'",
 				filelist_name);
 		log_msg(2,
-				"This is a bit silly (ask dev-team to fix mondo-makefilelist, please)");
+				"This is a bit silly (ask dev-team to fix mondo_makefilelist, please)");
 		log_msg(2,
 				"but it's non-critical. It's cosmetic. Don't worry about it.");
 		retval = 0;

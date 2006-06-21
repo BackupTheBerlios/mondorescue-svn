@@ -1465,7 +1465,7 @@ int prepare_filelist(struct s_bkpinfo *bkpinfo)
 	}
 
 	if (res) {
-		log_OS_error("Call to mondo-makefilelist failed");
+		log_OS_error("Call to mondo_makefilelist failed");
 		mvaddstr_and_log_it(g_currentY++, 74, "Failed.");
 	} else {
 		mvaddstr_and_log_it(g_currentY++, 74, "Done.");

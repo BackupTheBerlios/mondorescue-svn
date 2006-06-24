@@ -604,6 +604,7 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 		make_hole_for_dir(bkpinfo->isodir);
 
 	run_program_and_log_output("uname -a", 5);
+	run_program_and_log_output("cat /etc/*-release", 5);
 	run_program_and_log_output("cat /etc/*issue*", 5);
 	sprintf(g_tmpfs_mountpt, "%s/tmpfs", bkpinfo->tmpdir);
 	sprintf(command, "mkdir -p %s", g_tmpfs_mountpt);

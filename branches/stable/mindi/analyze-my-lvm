@@ -168,7 +168,7 @@ ListAllVolumeGroups() {
 
 
 ListLvmDrivesAndPartitions() {
-	$LVMCMD vgdisplay -v |grep "PV Name" | awk '{print $3}'
+	$LVMCMD vgdisplay -v |grep "PV Name" | sed 's/(#)//' | awk '{print $3}'
 }
 
 

@@ -503,7 +503,7 @@ extern void _mondo_assert_fail(const char *file, const char *function,
 #define ARCH_THREADS 2			///< The number of simultaneous threads running afio in the background.
 #define ARCH_BUFFER_NUM (ARCH_THREADS*4)	// Number of permissible queued afio files
 #define FORTY_SPACES "                                         "	///< 40 spaces.
-#define PPCFG_RAMDISK_SIZE 250	///< Size of the tmpfs, in megabytes, to attempt to mount (to speed up Mondo).
+#define PPCFG_RAMDISK_SIZE 350	///< Size of the tmpfs, in megabytes, to attempt to mount (to speed up Mondo).
 
 #define DO_MBR_PLEASE "/tmp/DO-MBR-PLEASE"
 

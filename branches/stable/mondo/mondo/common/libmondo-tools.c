@@ -1129,10 +1129,10 @@ int some_basic_system_sanity_checks()
 
 	// abort if Windows partition but no ms-sys and parted
 	if (!run_program_and_log_output
-		("mount | grep -w vfat | grep -v /dev/fd | grep -v nexdisk", 0)
+		("mount | grep -w vfat | grep -vE \"/dev/fd|nexdisk\"", 0)
 		||
 		!run_program_and_log_output
-		("mount | grep -w dos | grep -v /dev/fd | grep -v nexdisk", 0)) {
+		("mount | grep -w dos | grep -vE \"/dev/fd|nexdisk\"", 0)) {
 		log_to_screen("I think you have a Windows 9x partition.");
 		retval += whine_if_not_found("parted");
 #ifndef __IA64__

@@ -17,7 +17,7 @@ root_drv=""
 root_part=""
 
 HAVE_ACTIVE="false"
-for i in `cat $1 | tr -s '\t' ' ' | cut -d' ' -f1 | grep -v "/dev/fd" | grep -v "none" | grep -v "#"` ; do
+for i in `cat $1 | tr -s '\t' ' ' | cut -d' ' -f1 | grep -vE "/dev/fd|none|#"` ; do
     mountpt=`grep "$i " $1 | tr -s '\t' ' ' | cut -d' ' -f2`
     format=`grep "$i " $1 | tr -s '\t' ' ' | cut -d' ' -f3`
     drive=`echo $i | sed -e 's/[0-9]*$//' -e 's/\([0-9]\)p$/\1/'`

@@ -519,7 +519,7 @@ int grab_percentage_from_last_line_of_file(char *filename)
 		 && !strstr(err_log_lines[i], "% done"); i--);
 	if (i < 0) {
 		sprintf(command,
-				"tail -n3 %s | fgrep -i \"%c\" | tail -n1 | awk '{print $0;}'",
+				"tail -n3 %s | grep -Fi \"%c\" | tail -n1 | awk '{print $0;}'",
 				filename, '%');
 		strcpy(lastline,
 			   call_program_and_get_last_line_of_output(command));

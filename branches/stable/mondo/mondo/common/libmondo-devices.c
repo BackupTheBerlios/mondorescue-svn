@@ -524,7 +524,7 @@ bool does_nonMS_partition_exist(void)
 #else
 	return
 		!system
-		("parted2fdisk -l 2>/dev/null | grep '^/dev/' | egrep -qv '(MS|DOS|FAT|NTFS)'");
+		("parted2fdisk -l 2>/dev/null | grep '^/dev/' | grep -Eqv '(MS|DOS|FAT|NTFS)'");
 #endif
 }
 

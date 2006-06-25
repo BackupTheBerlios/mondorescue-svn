@@ -1896,7 +1896,7 @@ int make_iso_fs(struct s_bkpinfo *bkpinfo, char *destfile)
 			} else {
 				log_to_screen("%s...OK", message_to_screen);
 				if (!run_program_and_log_output
-					("tail -n10 /var/log/mondo-archive.log | fgrep ':-('",
+					("tail -n10 /var/log/mondo-archive.log | grep -F ':-('",
 					 1)) {
 					log_to_screen
 						("Despite nonfatal errors, growisofs confirms the write was successful.");

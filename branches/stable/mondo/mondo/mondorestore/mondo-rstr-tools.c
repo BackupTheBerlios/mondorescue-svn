@@ -719,7 +719,7 @@ int mount_cdrom(struct s_bkpinfo *bkpinfo)
 		return 0;
 	}
 
-	if (!run_program_and_log_output("mount | fgrep " MNT_CDROM, FALSE)) {
+	if (!run_program_and_log_output("mount | grep -F " MNT_CDROM, FALSE)) {
 		log_msg(2, "mount_cdrom() - CD already mounted. Fair enough.");
 		paranoid_free(mount_cmd);
 		return (0);

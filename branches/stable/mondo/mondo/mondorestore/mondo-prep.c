@@ -1818,7 +1818,7 @@ int partition_drive(struct mountlist_itself *mountlist, char *drivename)
 		system(tmp);
 		log_msg(0,
 				"------------------- end of fdisk.log... word! ------------------");
-		sprintf(tmp, "tail -n6 %s | fgrep \"16: \"", FDISK_LOG);
+		sprintf(tmp, "tail -n6 %s | grep -F \"16: \"", FDISK_LOG);
 		if (!run_program_and_log_output(tmp, 5)) {
 			g_partition_table_locked_up++;
 			log_to_screen

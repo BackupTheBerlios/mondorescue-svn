@@ -1545,7 +1545,7 @@ int open_and_list_dir(char *dir, char *sth, FILE * fout,
 	} else if (depth <= MAX_SKEL_DEPTH)	// update evalcall form if appropriate
 	{
 		sprintf(find_skeleton_marker,
-				"fgrep -v \"%s\" %s > %s.new 2> /dev/null", dir,
+				"grep -Fv \"%s\" %s > %s.new 2> /dev/null", dir,
 				g_skeleton_filelist, g_skeleton_filelist);
 //    log_msg(0, "fsm = %s", find_skeleton_marker);
 		if (!system(find_skeleton_marker)) {

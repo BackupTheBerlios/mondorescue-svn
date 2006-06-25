@@ -2,8 +2,15 @@
 
 MONDO CHANGES
 
-2.0.8-4 (2006-06-10)
+2.0.9 (2006-06-26)
 - nfsmount option added to allow redeployment from another NFS server (Bruno Cornec)
+- Replaced all occurrences of egrep with 'grep -E' and of fgrep with 'grep -F' (Andree Leidenfrost)
+- Optimize grep usage - fixes Debian bug #222052 (Andree Leidenfrost)
+- Avoid false alerts about growisofs not running under sudo (Andree Leidenfrost)
+- Increase PPCFG_RAMDISK_SIZE to 350 MB (Thomas Börkel/Bruno Cornec)
+- Removed useless mondo-makefilelist (Andree Leidenfrost)
+- Fix a segmentation fault in parse_mdstat() (Andree Leidenfrost)
+- Fix gcc 4.1.2 warnings (Andree Leidenfrost)
 
 2.0.8-3 (2006-06-07)
 - Fix a bug in -I and -E handling !!  (Paolo Bernardoni <bernardoni_at_sysnet.it>/Bruno Cornec)

@@ -35,7 +35,7 @@ extern bool get_isodir_info(char *, char *, char *, bool);
 extern void fatal_error(char *);
 extern void initialize_raid_record(struct raid_device_record *);
 extern bool is_this_device_mounted(char *);
-extern long long length_of_file(char *);
+extern off_t length_of_file(char *);
 extern char *last_line_of_file(char *);
 extern struct s_node *load_filelist(char *);
 extern void log_tape_pos(void);

@@ -38,7 +38,7 @@ extern bool is_this_device_mounted(char *);
 extern int does_partition_exist(const char *device, int partno);
 extern int strcmp_inc_numbers(char *, char *);
 extern long count_lines_in_file(char *);
-extern long long length_of_file(char *);
+extern off_t length_of_file(char *);
 extern long noof_lines_that_match_wildcard(char *, char *);
 //extern char *slice_fname (long, long, bool, char *);
 extern char *last_line_of_file(char *);

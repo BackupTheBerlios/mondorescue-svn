@@ -18,7 +18,7 @@ char *find_home_of_exe(char *fname);
 int get_trackno_from_logfile(char *logfile);
 int grab_percentage_from_last_line_of_file(char *filename);
 char *last_line_of_file(char *filename);
-long long length_of_file(char *filename);
+off_t length_of_file(char *filename);
 int make_checksum_list_file(char *filelist, char *cksumlist,
 							char *comppath);
 int make_hole_for_file(char *outfile_fname);

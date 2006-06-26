@@ -615,7 +615,7 @@ int copy_from_src_to_dest(FILE * f_orig, FILE * f_archived, char direction)
 				log_msg(1, "bytes_read_in = %ld", bytes_read_in);
 //      if (bytes_read_in!=128+64) { fatal_error("Can't read the terminating block"); }
 				fwrite(tmp, 1, bytes_read_in, ftmp);
-				sprintf(tmp, "I am here - %ld", ftell(fin));
+				sprintf(tmp, "I am here - %llu", ftello(fin));
 //    log_msg(0, tmp);
 				fread(tmp, 1, 512, fin);
 				log_msg(0, "tmp = '%s'", tmp);

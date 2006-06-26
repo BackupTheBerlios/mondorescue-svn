@@ -33,7 +33,7 @@ extern int get_last_filelist_number(struct s_bkpinfo *);
 extern long get_time(void);
 extern int grab_percentage_from_last_line_of_file(char *);
 extern char *last_line_of_file(char *);
-extern long long length_of_file(char *);
+extern off_t length_of_file(char *);
 extern void log_file_end_to_screen(char *, char *);
 extern void log_tape_pos(void);
 extern char *marker_to_string(int);

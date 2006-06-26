@@ -258,9 +258,9 @@ int closeout_tape(struct s_bkpinfo *bkpinfo)
 	sleep(1);
 	log_it("closeout_tape() -- entering");
 	retval +=
-		write_header_block_to_stream(0, "end-of-backup",
+		write_header_block_to_stream((off_t)0, "end-of-backup",
 									 BLK_END_OF_BACKUP);
-	retval += write_header_block_to_stream(0, "end-of-tape", BLK_END_OF_TAPE);	/* just in case */
+	retval += write_header_block_to_stream((off_t)0, "end-of-tape", BLK_END_OF_TAPE);	/* just in case */
 /* write 1MB of crap */
 	for (i = 0; i < 256 * 1024; i++) {
 		blk[i] = (int) (random() & 0xFF);
@@ -268,7 +268,7 @@ int closeout_tape(struct s_bkpinfo *bkpinfo)
 	for (i = 0; i < 4 * 8; i++) {
 		(void) fwrite(blk, 1, 256 * 1024, g_tape_stream);
 		if (should_we_write_to_next_tape
-			(bkpinfo->media_size[g_current_media_number], 256 * 1024)) {
+			(bkpinfo->media_size[g_current_media_number], (off_t)256 * 1024)) {
 			start_to_write_to_next_tape(bkpinfo);
 		}
 	}
@@ -489,12 +489,12 @@ int write_EXAT_files_to_tape(struct s_bkpinfo *bkpinfo, char *xattr_fname,
 	write_header_block_to_stream(length_of_file(xattr_fname), xattr_fname,
 								 BLK_START_EXAT_FILE);
 	write_file_to_stream_from_file(bkpinfo, xattr_fname);
-	write_header_block_to_stream(-1, xattr_fname, BLK_STOP_EXAT_FILE);
+	write_header_block_to_stream((off_t)-1, xattr_fname, BLK_STOP_EXAT_FILE);
 // acl
 	write_header_block_to_stream(length_of_file(acl_fname), acl_fname,
 								 BLK_START_EXAT_FILE);
 	write_file_to_stream_from_file(bkpinfo, acl_fname);
-	write_header_block_to_stream(-1, acl_fname, BLK_STOP_EXAT_FILE);
+	write_header_block_to_stream((off_t)-1, acl_fname, BLK_STOP_EXAT_FILE);
 	write_header_block_to_stream(length_of_file(xattr_fname), xattr_fname,
 								 BLK_STOP_EXTENDED_ATTRIBUTES);
 	return (res);
@@ -1195,9 +1195,11 @@ int register_in_tape_catalog(t_archtype type, int number, long aux,
  * @bug This seems like it'll only work for media_size != autodetect, but Mondo only allows
  * autodetecting the size. Huh?
  */
+
+/* BERLIOS: Should be reviewed for mediasize being a off_t ??? */
 bool
 should_we_write_to_next_tape(long mediasize,
-							 long long length_of_incoming_file)
+							 off_t length_of_incoming_file)
 {
 	/*@ bool's ***************************************************** */
 	bool we_need_a_new_tape = FALSE;
@@ -1433,8 +1435,8 @@ int start_to_write_to_next_tape(struct s_bkpinfo *bkpinfo)
 	}
 	g_tape_posK = 0;
 	g_sigpipe = FALSE;
-	res += write_header_block_to_stream(0, "start-of-tape", BLK_START_OF_TAPE);	/* just in case */
-	res += write_header_block_to_stream(0, "start-of-backup", BLK_START_OF_BACKUP);	/* just in case */
+	res += write_header_block_to_stream((off_t)0, "start-of-tape", BLK_START_OF_TAPE);	/* just in case */
+	res += write_header_block_to_stream((off_t)0, "start-of-backup", BLK_START_OF_BACKUP);	/* just in case */
 	return (res);
 }
 
@@ -1476,7 +1478,7 @@ int write_backcatalog_to_tape(struct s_bkpinfo *bkpinfo)
 				log_msg(2, "%s failed", fname);
 			}
 			if (i != last) {
-				write_header_block_to_stream(0,
+				write_header_block_to_stream((off_t)0,
 											 "stop-backcatalog-afio-or-slice",
 											 BLK_STOP_AN_AFIO_OR_SLICE);
 			}
@@ -1581,8 +1583,7 @@ int write_file_to_stream_from_file(struct s_bkpinfo *bkpinfo, char *infile)
 	long bytes_to_read = 0;
 	long i;
 
-	/*@ long long ************************************************** */
-	long long filesize;
+	off_t filesize;
 
 #ifdef EXTRA_TAPE_CHECKSUMS
 	int ch;
@@ -1657,7 +1658,8 @@ int write_file_to_stream_from_file(struct s_bkpinfo *bkpinfo, char *infile)
 	}
 	paranoid_fclose(fin);
 	sprintf(checksum, "%04x%04x", crc16, crctt);
-	write_header_block_to_stream(g_current_media_number, checksum,
+	/* BERLIOS: what does it do ??? */
+	write_header_block_to_stream((off_t)g_current_media_number, checksum,
 								 BLK_STOP_FILE);
 //  log_it("File '%s' written to tape.", infile);
 	return (retval);
@@ -1679,7 +1681,7 @@ int write_file_to_stream_from_file(struct s_bkpinfo *bkpinfo, char *infile)
  * @return 0 for success, nonzero for failure.
  */
 int
-write_header_block_to_stream(long long length_of_incoming_file,
+write_header_block_to_stream(off_t length_of_incoming_file,
 							 char *filename, int control_char)
 {
 	/*@ buffers **************************************************** */
@@ -1690,8 +1692,7 @@ write_header_block_to_stream(long long length_of_incoming_file,
 	/*@ int ******************************************************** */
 	int i;
 
-	/*@ long long ************************************************** */
-	long long olen;
+	off_t olen;
 
 	/*@ end vars *************************************************** */
 
@@ -1714,7 +1715,7 @@ write_header_block_to_stream(long long length_of_incoming_file,
 	sprintf(tempblock + 6000 + control_char, "Mondolicious, baby");
 	tempblock[7000] = control_char;
 /*  for(i=0;i<8;i++) {tempblock[7001+i]=olen&0xff; olen>>=8;} */
-	memcpy(tempblock + 7001, (char *) &olen, sizeof(long long));
+	memcpy(tempblock + 7001, (char *) &olen, sizeof(off_t));
 /*  if (length_of_incoming_file) {memcpy(tempblock+7001,(char*)&length_of_incoming_file,sizeof(long long));} */
 	strcpy(tempblock + 1000, filename);
 /*  strcpy(tempblock+5555,cksum); */

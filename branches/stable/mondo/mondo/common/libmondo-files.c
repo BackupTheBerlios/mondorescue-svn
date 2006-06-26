@@ -595,13 +595,13 @@ char *last_line_of_file(char *filename)
  * @param filename The file to get the length of.
  * @return The length of the file, or -1 for error.
  */
-long long length_of_file(char *filename)
+off_t length_of_file(char *filename)
 {
 	/*@ pointers *************************************************** */
 	FILE *fin;
 
 	/*@ long long ************************************************* */
-	long long length;
+	off_t length;
 
 	fin = fopen(filename, "r");
 	if (!fin) {
@@ -610,7 +610,7 @@ long long length_of_file(char *filename)
 		return (-1);
 	}
 	fseeko(fin, 0, SEEK_END);
-	length = ftell(fin);
+	length = ftello(fin);
 	paranoid_fclose(fin);
 	return (length);
 }
@@ -640,8 +640,8 @@ make_checksum_list_file(char *filelist, char *cksumlist, char *comppath)
 	char tmp[1000];
 
 	/*@ long [long] ************************************************* */
-	long long filelist_length;
-	long curr_pos;
+	off_t filelist_length;
+	off_t curr_pos;
 	long start_time;
 	long current_time;
 	long time_taken;
@@ -679,7 +679,7 @@ make_checksum_list_file(char *filelist, char *cksumlist, char *comppath)
 			current_time = get_time();
 			counter = 0;
 			curr_fname[37] = '\0';
-			curr_pos = ftell(fin) / 1024;
+			curr_pos = ftello(fin) / 1024;
 			percentage = (int) (curr_pos * 100 / filelist_length);
 			time_taken = current_time - start_time;
 			if (percentage == 0) {
@@ -920,6 +920,7 @@ long size_of_all_biggiefiles_K(struct s_bkpinfo *bkpinfo)
 					file_len_K = get_phys_size_of_drive(fname) * 1024L;
 				}
 			} else {
+				/* BERLIOS: more than long here ??? */
 				file_len_K = (long) (length_of_file(fname) / 1024);
 			}
 			if (file_len_K > 0) {

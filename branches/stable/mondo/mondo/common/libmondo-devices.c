@@ -1878,10 +1878,12 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 	case cdrw:
 	case dvd:
 		if (archiving_to_media) {
-			if (ask_me_yes_or_no
-				("Is your computer a laptop, or does the CD writer incorporate BurnProof technology?"))
-			{
-				bkpinfo->manual_cd_tray = TRUE;
+			if (bkpinfo->backup_media_type != dvd) {
+				if (ask_me_yes_or_no
+					("Is your computer a laptop, or does the CD writer incorporate BurnProof technology?"))
+				{
+					bkpinfo->manual_cd_tray = TRUE;
+				}
 			}
 			if ((bkpinfo->compression_level =
 				 which_compression_level()) == -1) {

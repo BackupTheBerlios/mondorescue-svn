@@ -585,7 +585,7 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 	malloc_string(iso_tmp);
 	malloc_string(iso_path);
 	bkpinfo->optimal_set_size =
-		(IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type) ? 4 : 8) *
+		(IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type) ? 16 : 16) *
 		1024;
 
 	log_msg(1, "Foo");

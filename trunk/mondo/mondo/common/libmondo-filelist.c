@@ -1299,7 +1299,7 @@ int prepare_filelist(struct s_bkpinfo *bkpinfo)
 	}
 
 	if (res) {
-		log_OS_error("Call to mondo-makefilelist failed");
+		log_OS_error("Call to mondo_makefilelist failed");
 		mvaddstr_and_log_it(g_currentY++, 74, _("Failed."));
 	} else {
 		mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
@@ -1377,7 +1377,7 @@ int open_and_list_dir(char *dir, char *sth, FILE * fout,
 	} else if (depth <= MAX_SKEL_DEPTH)	// update evalcall form if appropriate
 	{
 		sprintf(find_skeleton_marker,
-				"fgrep -v \"%s\" %s > %s.new 2> /dev/null", dir,
+				"grep -Fv \"%s\" %s > %s.new 2> /dev/null", dir,
 				skeleton_filelist, skeleton_filelist);
 //    log_msg(0, "fsm = %s", find_skeleton_marker);
 		if (!system(find_skeleton_marker)) {

@@ -361,7 +361,7 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 
 	assert(bkpinfo != NULL);
 	bkpinfo->optimal_set_size =
-		(IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type) ? 4 : 8) *
+		(IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type) ? 16 : 16) *
 		1024;
 
 	log_msg(1, "Foo");
@@ -381,6 +381,7 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 		make_hole_for_dir(bkpinfo->isodir);
 
 	run_program_and_log_output("uname -a", 5);
+	run_program_and_log_output("cat /etc/*-release", 5);
 	run_program_and_log_output("cat /etc/*issue*", 5);
 	asprintf(&g_tmpfs_mountpt, "%s/tmpfs", bkpinfo->tmpdir);
 	asprintf(&command, "mkdir -p %s", g_tmpfs_mountpt);
@@ -474,9 +475,13 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 		}
 		paranoid_free(mondo_mkisofs_sz);
 
-		if (getenv("SUDO_COMMAND")) {
-			fatal_error
-				("Can't write DVDs as sudo because growisofs doesn't support this - please see the growisofs manpage for details.");
+		if (getenv ("SUDO_COMMAND")) {
+			asprintf(&command, "strings `which growisofs` | grep -c SUDO_COMMAND");
+			if (!strcmp(call_program_and_get_last_line_of_output(command), "1")) {
+				popup_and_OK("Fatal Error: Can't write DVDs as sudo because growisofs doesn't support this - see the growisofs manpage for details.");
+				fatal_error("Can't write DVDs as sudo because growisofs doesn't support this - see the growisofs manpage for details.");
+			}		
+			paranoid_free(command);
 		}
 		log_msg(2, "call_make_iso (DVD res) is ... %s",
 				bkpinfo->call_make_iso);
@@ -893,10 +898,10 @@ int some_basic_system_sanity_checks()
 
 	// abort if Windows partition but no ms-sys and parted
 	if (!run_program_and_log_output
-		("mount | grep -w vfat | grep -v /dev/fd | grep -v nexdisk", 0)
+		("mount | grep -w vfat | grep -vE \"/dev/fd|nexdisk\"", 0)
 		||
 		!run_program_and_log_output
-		("mount | grep -w dos | grep -v /dev/fd | grep -v nexdisk", 0)) {
+		("mount | grep -w dos | grep -vE \"/dev/fd|nexdisk\"", 0)) {
 		log_to_screen(_("I think you have a Windows 9x partition."));
 		retval += whine_if_not_found("parted");
 #ifndef __IA64__

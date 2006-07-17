@@ -205,7 +205,7 @@ AbortIfYourDistroIsAPieceOfStercus() {
 
 
 AbortIfMkfsVfatMissing() {
-	#if fgrep "vfat" /etc/fstab &> /dev/null ; then
+	#if grep -F "vfat" /etc/fstab &> /dev/null ; then
 		if ! which mkfs.vfat &> /dev/null ; then
 		    Die "mkfs.vfat missing from your filesystem - please install your dosfstools RPM or DEB package. Perhaps your PATH environmental variable is broken, too?"
 		fi
@@ -302,15 +302,15 @@ AddKeyboardMappingFile() {
 
 	mkdir -p $bigdir/etc
 	cp --parents -pRdf $mappath $bigdir || LogIt "AKMF -- Could not copy $mappath to $bigdir\n"
-	if [ "`echo $mappath | fgrep ".gz"`" ] ; then
-		included_list=`gzip -dc $mappath | fgrep -i include | sed s/'"'// | sed s/'"'// | cut -d' ' -f2`
+	if [ "`echo $mappath | grep -F ".gz"`" ] ; then
+		included_list=`gzip -dc $mappath | grep -Fi include | sed s/'"'// | sed s/'"'// | cut -d' ' -f2`
 	else
-		included_list=`fgrep -i include $mappath | sed s/'"'// | sed s/'"'// | cut -d' ' -f2`
+		included_list=`grep -Fi include $mappath | sed s/'"'// | sed s/'"'// | cut -d' ' -f2`
 	fi
 	for included_item in $included_list ; do
 	if [ ! -e "$included_item" ] ; then
-		    sss=`find $KEYDIR/keymaps | fgrep "${included_item}.inc"`
-		[ "$sss" = "" ] && sss=`find $KEYDIR/keymaps | fgrep "$included_item"`
+		    sss=`find $KEYDIR/keymaps | grep -F "${included_item}.inc"`
+		[ "$sss" = "" ] && sss=`find $KEYDIR/keymaps | grep -F "$included_item"`
 		for ii in $sss ; do
 		        [ -e "$ii" ] && AddKeyboardMappingFile $ii
 		done
@@ -339,9 +339,9 @@ ChopUpAndCopyFile() {
 	sliceno=0
 	scratchfile=$TMP_ROOT/blah.$$.dat
 	cp -f $filename $scratchfile || Die "CUACF -- cannot copy $filename to $scratchfile - did you run out of disk space?"
-	[ "`head $scratchfile -n1 | fgrep "bin/sh"`" != "" ] && StripComments $scratchfile "-$filename-"
-	[ "`echo "$filename" | fgrep "etc/termcap"`" != "" ] && StripComments $scratchfile "-$filename-"
-	if [ "`echo "$filename" | fgrep "lib/modules/" | grep "\.*o\.gz"`" != "" ] ; then
+	[ "`head $scratchfile -n1 | grep -F "bin/sh"`" != "" ] && StripComments $scratchfile "-$filename-"
+	[ "`echo "$filename" | grep -F "etc/termcap"`" != "" ] && StripComments $scratchfile "-$filename-"
+	if [ "`echo "$filename" | grep -F "lib/modules/" | grep "\.*o\.gz"`" != "" ] ; then
 	mv $scratchfile $scratchfile.gz
 	gunzip -f $scratchfile || LogIt "Cannot gunzip $scratchfile.gz\n"
 	filename=`echo "$filename" | tr '.' '#' | sed s/#o#gz/#o/ | sed s/#ko#gz/#ko/ | tr '#' '.'`
@@ -522,7 +522,7 @@ DidMondoCallMe() {
 	local res
 
 	res=0
-	[ "`ps ax | fgrep "mondoarchive" | grep -v "grep"`" ] && res=$(($res+1))
+	[ "`ps ax | grep -F "mondoarchive" | grep -v "grep"`" ] && res=$(($res+1))
 	[ -f "/var/run/monitas-mondo.pid" ] && res=$(($res+1))
 	[ "$res" -gt "1" ] && echo "yes"
 }
@@ -541,7 +541,7 @@ Die() {
 	sync
 	cd /
 
-	my_partitions=`mount | fgrep $$ | cut -f1 -d' '`
+	my_partitions=`mount | grep -F $$ | cut -f1 -d' '`
 	[ "$my_partitions" != "" ] && umount $my_partitions
 	# BCO : Too Dangerous !!!
 	#[ "$TMP_ROOT" != "/tmp" ] && rm -Rf $TMP_ROOT
@@ -588,7 +588,7 @@ DropOptimizedLibraries() {
 	rmdir $outdir$optimized_lib_name > /dev/null 2> /dev/null
 	ln -sf $vanilla_lib_name $outdir$optimized_lib_name
 	echo "Excluding $optimized_lib_name" >> $LOGFILE
-	fgrep -vx "$optimized_lib_name $filelist" > $filelist.tmp
+	grep -Fvx "$optimized_lib_name $filelist" > $filelist.tmp
 	echo "Replacing it with $vanilla_lib_name" >> $LOGFILE
 	echo "$vanilla_lib_name" >> $filelist.tmp
 	mv -f $filelist.tmp $filelist
@@ -646,10 +646,10 @@ FindAndAddUserKeyboardMappingFile() {
 		return
 	fi
 	echo "keyfile=$keyfile" >> $LOGFILE
-	locale=`fgrep KEYTABLE "$keyfile" | tr -d '"' |cut -d'=' -f2`
+	locale=`grep -F KEYTABLE "$keyfile" | tr -d '"' |cut -d'=' -f2`
 	[ ! "$locale" ] && locale=`grep '.map$' "$keyfile" | sed 's/^.* //'`		# Slackware
 	echo "locale=$locale" >> $LOGFILE
-	mp=`find $KEYDIR/keymaps | grep "i[3-8]86" | fgrep "${locale}." | grep -vx " *#.*"`
+	mp=`find $KEYDIR/keymaps | grep "i[3-8]86" | grep -F "${locale}." | grep -vx " *#.*"`
 	[ ! "$mp" ] && mp=`find $KEYDIR/keymaps | grep "i[3-8]86" | grep "$locale[^r][^/]" | grep -vx " *#.*"`
 	for i in $mp ; do
 		mappath=$i
@@ -710,7 +710,7 @@ FindLiloBinary() {
 	else
 		LILO_EXE=lilo
 	fi
-	$LILO_EXE -V | fgrep "21.6" > /dev/null && Die "Please upgrade LILO. Your verison has a serious bug. If you're not _using_ LILO, fine, uninstall it. :)"
+	$LILO_EXE -V | grep -F "21.6" > /dev/null && Die "Please upgrade LILO. Your verison has a serious bug. If you're not _using_ LILO, fine, uninstall it. :)"
 	else
 	LILO_EXE=`which false`
 	fi
@@ -831,12 +831,25 @@ GenerateGiantDependencyList() {
 		filelist=`GenerateListForFile "$incoming"`
 		for tool in $filelist ; do
 		    lvmresolved=`ResolveSoftlink $tool`
-		    if echo "$lvmresolved" | grep "lvmiopversion" &> /dev/null ; then
+		    if [ "$tool" == "$lvmresolved" ]; then
+			echo "$tool" >> $tempfile
+		    elif echo "$lvmresolved" | grep "lvmiopversion" &> /dev/null ; then
 		    if [ "$lvmversion" = "" ] ; then
 			lvmversion=`$lvmresolved`
 			echo "$lvmresolved" >> $tempfile
 		    fi
 		    toolstripped=`echo $tool | $AWK -F / '{print $NF;}'`
+		    if [ "$lvmversion" == "200" ]; then
+			# pvdata and lvmcreate_initrd don't exist in LVM2
+			case "$toolstripped" in
+			    "pvdata")
+				continue
+				;;
+			    "lvmcreate_initrd")
+				continue
+				;;
+			esac
+		    fi
 		    toolpath="/sbin/lvm-"$lvmversion"/"$toolstripped
 		    if [ -e "$toolpath" ] ; then
 			echo "$toolpath" >> $tempfile
@@ -922,7 +935,7 @@ GenerateGiantDependencyList() {
 		done
 	fi
 	fi
-	 tr ' ' '\n' < $outfile.pre | tr -s '/' '/' | fgrep -vx "" | sort -u | egrep -v "/libX11|/libXext|/libXi|/libgtk|/libgdk" > $outfile
+	 tr ' ' '\n' < $outfile.pre | tr -s '/' '/' | grep -Fvx "" | sort -u | grep -Ev "/libX11|/libXext|/libXi|/libgtk|/libgdk" > $outfile
 	rm -f $tempfile $outfile.pre
 	[ "$res" -eq "0" ] && echo -e "\r\t\t\t\t\t\t\t\t$DONE" || echo "\nFailed."
 	return $res
@@ -1019,7 +1032,7 @@ res partition swapsize
 	rm -Rf $outfile
 	> $outfile
 	partlist=$(mount | cut -d' ' -f1,3,5 \
-	| egrep -v "((none|/tmp|/ISOs|/proc|/dev/root) )|/mnt/" \
+	| grep -Ev "((none|/tmp|/ISOs|/proc|/dev/root) )|/mnt/" \
 	| tr ' ' '|')
 
 	echo -n "Modifying mountlist..."
@@ -1073,7 +1086,7 @@ ListImagesForUser() {
 	local path fname
 	path=$1
 	echo -en "In the directory '$path' you will find the images:-\n"
-	for fname in `ls $path | fgrep mindi-` ; do
+	for fname in `ls $path | grep -F mindi-` ; do
 		printf "%19s " $fname
 	done
 	echo " "
@@ -1102,7 +1115,7 @@ ListKernelModulePaths() {
 		r=`find /lib/modules/$kern -type f | grep "/${module}\..*o" | tail -n1`
 		echo "module $module --> $r" >> $LOGFILE
 		[ "$r" ] && echo "$r"
-		[ -f "$oss" ] && find $oss | fgrep $module
+		[ -f "$oss" ] && find $oss | grep -F $module
 	done
 	find /lib/modules/$kern/modules.* -type f 2> /dev/null
 	[ -f "$oss" ] && find $oss.* 2> /dev/null
@@ -1176,7 +1189,7 @@ LocateFile() {
 	[ ! -d "$path" ] && continue
 	location=`echo "$path/$fname_to_find" | tr -s '/' '/'`
 	if echo "$location" | grep "lib/lib" 2> /dev/null ; then
-		loclist=`find $path -maxdepth 1 | fgrep "$fname_to_find"`
+		loclist=`find $path -maxdepth 1 | grep -F "$fname_to_find"`
 	else
 		loclist=$location
 	fi
@@ -1190,7 +1203,7 @@ LocateFile() {
 		        output="$location $output"
 		    done
 #		resolved=`file $location | $AWK '{print $NF;}'`
-#		if [ "`echo "$resolved" | fgrep "/"`" = "" ] ; then
+#		if [ "`echo "$resolved" | grep -F "/"`" = "" ] ; then
 #		    stub=`dirname $location`
 #		    output="/$stub/$resolved $output"
 #		fi
@@ -1342,7 +1355,7 @@ MakeMountlist() {
 	local scratchdir mountlist all_partitions current_partition \
 partition_size partition_format outstring partition_number \
 partition_mountpt c_p lwm_info psz lvm_dev unofficial_outstring \
-absolute_partition old_partition_fmt
+absolute_partition old_partition_fmt current_lvolume
 
 	echo "Your raw fstab file looks like this:-" >> $LOGFILE
 	cat $MY_FSTAB >> $LOGFILE
@@ -1366,24 +1379,24 @@ absolute_partition old_partition_fmt
 	
 	if [ -d "/proc/lvm" ] || [ -d "/dev/mapper" ]; then
 		echo -en "\rAnalyzing LVM...\r"
-		all_partitions=`$MINDI_LIB/analyze-my-lvm | fgrep ">>>" | cut -d' ' -f2-32`
+		all_partitions=`$MINDI_LIB/analyze-my-lvm | grep -F ">>>" | cut -d' ' -f2-32`
 	fi
 	all_partitions="$all_partitions `ListAllPartitions 2> /dev/null`"
 #    echo "all partitions = $all_partitions" > /dev/stderr
 	for i in $IMAGE_DEVS ; do
-		mount | fgrep "$i " > /dev/null 2> /dev/null && Die "Sorry, $i is already mounted! CANNOT DO IMAGEDEV on it if it's mounted."
+		mount | grep -F "$i " > /dev/null 2> /dev/null && Die "Sorry, $i is already mounted! CANNOT DO IMAGEDEV on it if it's mounted."
 	done
 	[ "$IMAGE_DEVS" != "" ] && all_partitions="`echo "$all_partitions $IMAGE_DEVS" | tr ' ' '\n' | sort -u | tr '\n ' ' '`"
 	printf "        %-15s %-15s %-15s %-15s\n" DEVICE MOUNTPOINT FORMAT "SIZE (MB)"
 	for c_p in $all_partitions ; do
 #        echo "c_p = $c_p" > /dev/stderr
-		[ "`echo "/dev/floppy /dev/fd0h1440 /dev/fd0H1440 /dev/cdrom /dev/cdrom/cdrom /dev/cdrom/cdrom1 /dev/cdrom/cdrom2 /dev/cdrom0 /dev/cdrom1 /dev/cdrom2 /dev/cdrom3 /dev/cdrw" | fgrep "$c_p"`" != "" ] || [ "`echo "$c_p" | fgrep "/dev/scd"`" != "" ] || [ "`echo "$c_p" | fgrep "/dev/ram"`" != "" ] || [ "`echo "$c_p" | grep ":"`" != "" ] || [ "`echo "$c_p" | fgrep ":/"`" != "" ] && continue
-		[ "`echo "/dev/scd0 /dev/scd1 /dev/sr0 /dev/sr1 /dev/cdrom /dev/cdrom1" | fgrep "$c_p"`" ] && continue
+		[ "`echo "/dev/floppy /dev/fd0h1440 /dev/fd0H1440 /dev/cdrom /dev/cdrom/cdrom /dev/cdrom/cdrom1 /dev/cdrom/cdrom2 /dev/cdrom0 /dev/cdrom1 /dev/cdrom2 /dev/cdrom3 /dev/cdrw" | grep -F "$c_p"`" != "" ] || [ "`echo "$c_p" | grep -F "/dev/scd"`" != "" ] || [ "`echo "$c_p" | grep -F "/dev/ram"`" != "" ] || [ "`echo "$c_p" | grep ":"`" != "" ] || [ "`echo "$c_p" | grep -F ":/"`" != "" ] && continue
+		[ "`echo "/dev/scd0 /dev/scd1 /dev/sr0 /dev/sr1 /dev/cdrom /dev/cdrom1" | grep -F "$c_p"`" ] && continue
 		[ "`echo "$c_p" | grep -x "/dev/cdroms.*"`" ] && continue
-		if [ -h "$c_p" ] && [ "`echo "$c_p" | fgrep "/dev/hd"`" = "" ] && [ "`echo "$c_p" | fgrep "/dev/sd"`" = "" ] && [ "`echo "$c_p" | fgrep "/dev/md"`" = "" ] ; then
+		if [ -h "$c_p" ] && [ "`echo "$c_p" | grep -F "/dev/hd"`" = "" ] && [ "`echo "$c_p" | grep -F "/dev/sd"`" = "" ] && [ "`echo "$c_p" | grep -F "/dev/md"`" = "" ] ; then
 			current_partition=`ResolveSoftlink $c_p`
-			[ "`echo "$current_partition" | fgrep "/dev/mapper"`" != "" ] && current_partition="$c_p"
-			[ "`echo "/dev/scd0 /dev/scd1 /dev/sr0 /dev/sr1 /dev/cdrom /dev/cdrom1" | fgrep "$current_partition"`" ] && continue
+			[ "`echo "$current_partition" | grep -F "/dev/mapper"`" != "" ] && current_partition="$c_p"
+			[ "`echo "/dev/scd0 /dev/scd1 /dev/sr0 /dev/sr1 /dev/cdrom /dev/cdrom1" | grep -F "$current_partition"`" ] && continue
 		else
 			current_partition="$c_p"
 		fi
@@ -1440,22 +1453,37 @@ absolute_partition old_partition_fmt
 	fi
 
 	partition_format=`$AWK '$1 == "'"$str_to_find_fmt_with"'" {print $3}' $MY_FSTAB`
-	if [ -d "/proc/lvm" ] && [ "`lvdisplay $current_partition 2> /dev/null`" ]; then
+	# Some distributions such as Debian do not put /dev/<VG>/<LV> in fstab
+	# for LVM partitions but use /dev/mapper/<VG>-<LV> instead. Fortunately,
+	# the former is then a link to the latter, so we test whether
+	# $current_partition is actually such a link or not and set
+	# $current_lvolume accordingly. Note that $current_lvolume may well be an
+	# ordinary device. It is just to make sure that we feed the right value
+	# into any of the LVM tools if possible.
+	if [ -d "/dev/mapper" ] && [ -z "`lvm lvdisplay $current_partition 2> /dev/null`" ]; then
+	    partition_stub="`echo "$current_partition" | sed "s|^/dev/mapper/|/dev/|" | cut -d"-" -f1`"
+	    current_lvolume="`find /dev -lname "$current_partition" | grep "^$partition_stub"`"
+	fi
+	if [ -z "$current_lvolume" ]; then
+	    current_lvolume="$current_partition"
+	fi
+	# End of LVM device style variation code (other than $current_lvolume).
+	if [ -d "/proc/lvm" ] && [ "`lvdisplay $current_lvolume 2> /dev/null`" ]; then
 		partition_size="lvm"
-	elif [ -d "/dev/mapper" ] && [ "`lvm lvdisplay $current_partition 2> /dev/null`" ]; then
+	elif [ -d "/dev/mapper" ] && [ "`lvm lvdisplay $current_lvolume 2> /dev/null`" ]; then
 		partition_size="lvm"
 	else
 		partition_size=`SizeOfPartition $current_partition`
 		[ "`echo "$current_partition" | grep "[0-9]"`" = "" ] && continue
 		[ "`echo "$current_partition" | grep -c "^/"`" -ne "1" ] && continue
 		if [ "$partition_format" = "swap" ] || [ "$partition_mountpt" = "swap" ] ; then
-		partition_size=`fgrep -v "Priority" /proc/swaps | tr -s '\t' ' ' | fgrep "$current_partition" | $AWK '{print $3}'`
+		partition_size=`grep -Fv "Priority" /proc/swaps | tr -s '\t' ' ' | grep -F "$current_partition" | $AWK '{print $3}'`
 		[ "$partition_mountpt" != "swap" ] && partition_mountpt="swap"
 		        [ "$partition_format" != "swap" ] && partition_format="swap"
 		if [ "$partition_size" = "" ] ; then
 		    totalsize=0
 		    items=0
-		    for i in `tr -s ' ' '\t' < /proc/swaps | fgrep -v "Filename" | cut -f3` ; do
+		    for i in `tr -s ' ' '\t' < /proc/swaps | grep -Fv "Filename" | cut -f3` ; do
 			totalsize=$(($totalsize+$i))
 			items=$(($items+1))
 		    done
@@ -1468,12 +1496,12 @@ absolute_partition old_partition_fmt
 	[ "$partition_mountpt" = "swap" ] && partition_format="swap"
 	[ "$partition_format" = "swap" ] && partition_mountpt="swap"
 	if [ "$partition_mountpt" = "" ] ; then
-		if [ "`pvdisplay $current_partition 2> /dev/null`" != "" ] || [ "`lvm pvdisplay $current_partition 2> /dev/null`" != "" ] ; then
-		if  [ "`fgrep device /etc/raidtab 2> /dev/null | grep -w $current_partition`" ] ; then
+		if [ "`pvdisplay $current_lvolume 2> /dev/null`" != "" ] || [ "`lvm pvdisplay $current_lvolume 2> /dev/null`" != "" ] ; then
+		if  [ "`grep -F device /etc/raidtab 2> /dev/null | grep -w $current_partition`" ] ; then
 		    partition_mountpt="raid"
 		    partition_format="raid"
 		else
-#		    lvm_dev="`pvdisplay $current_partition | grep -i "VG N" | head -n1 | tr -s ' ' ' ' | cut -d' ' -f3`"
+#		    lvm_dev="`pvdisplay $current_lvolume | grep -i "VG N" | head -n1 | tr -s ' ' ' ' | cut -d' ' -f3`"
 		    partition_mountpt="lvm"
 		    partition_format="lvm"
 		fi
@@ -1482,7 +1510,7 @@ absolute_partition old_partition_fmt
 	psz=$partition_size
 	echo "Examining $current_partition (mount=$partition_mountpt fmt=$partition_format psz=$psz)" >> $LOGFILE
 	[ "$psz" != "lvm" ] && psz=$(($psz/1024))
-	if [ "`echo " $IMAGE_DEVS " | fgrep " $current_partition "`" != "" ] ; then
+	if [ "`echo " $IMAGE_DEVS " | grep -F " $current_partition "`" != "" ] ; then
 		partition_mountpt="image"
 		    old_partition_fmt=$partition_format
 #	    partition_format="`$FDISK -l 2>> $LOGFILE | tr -s '\t' ' ' | grep -w "$absolute_partition" | $AWK 'x=$(NF-1}'`"
@@ -1497,7 +1525,7 @@ absolute_partition old_partition_fmt
 		        partition_format=$old_partition_fmt
 		    fi
 	fi
-		if [ "$EXCLUDE_DEVS" ] && [ "`echo " $EXCLUDE_DEVS " | fgrep " $current_partition "`" ] || [ "`echo " $EXCLUDE_DEVS " | grep " $current_partition "`" ] ; then
+		if [ "$EXCLUDE_DEVS" ] && [ "`echo " $EXCLUDE_DEVS " | grep -F " $current_partition "`" ] || [ "`echo " $EXCLUDE_DEVS " | grep " $current_partition "`" ] ; then
 		    echo "Excluding $current_partition from mountlist" >> $LOGFILE
 		    continue
 		fi
@@ -1511,7 +1539,7 @@ absolute_partition old_partition_fmt
 		done
 		if [ "$partition_format" = "Compaq diagnostics" ] ; then
 		partition_format="compaq"
-		elif [ ! "`fgrep device /etc/raidtab 2> /dev/null | grep -w $current_partition`" ] ; then
+		elif [ ! "`grep -F device /etc/raidtab 2> /dev/null | grep -w $current_partition`" ] ; then
 		LogIt "Unable to find mountpoint of $current_partition - ignoring\n"
 		continue
 		fi
@@ -1522,7 +1550,7 @@ absolute_partition old_partition_fmt
 	if [ "$current_partition" = "" ] ; then
 		echo "Unknown partition (outstring = $unofficial_outstring)" >> $LOGFILE
 	elif [ "$partition_mountpt" = "" ] && [ -f "/etc/raidtab" ] ; then
-		if [ "`fgrep device /etc/raidtab 2>/dev/null | fgrep $current_partition`" ] ; then
+		if [ "`grep -F device /etc/raidtab 2>/dev/null | grep -F $current_partition`" ] ; then
 		partition_mountpt=raid
 		partition_format=raid
 		    printf "\t%-15s %-15s %-15s %7s %-15s\n" $current_partition $partition_mountpt $partition_format $psz "$redhat_label"
@@ -1568,7 +1596,7 @@ MakeSyslinuxMessageFile() {
 	mkdir -p $1
 	rmdir $1
 	echo -en "  " > $1
-	if [ "`fgrep -i "debian" /etc/issue.net 2> /dev/null`" ] ; then
+	if [ "`grep -Fi "debian" /etc/issue.net 2> /dev/null`" ] ; then
 		sed s/ZZZZZ/$MINDI_VERSION/ $MINDI_LIB/msg-txt | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s%DDDDD%"Debian GNU\/`uname -s` `cut -d ' ' -f 3 /etc/issue.net` `hostname`"% | sed s/KKKKK/"Kernel `uname  -r` on a `uname -m`"/ | sed s/TTTTT/"`LC_TIME=C date`"/ >> $1.tmp
 	else
 		sed s/ZZZZZ/$MINDI_VERSION/ $MINDI_LIB/msg-txt | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s/DDDDD/"`grep -i "linux" /etc/issue.net | head -n1 | tr -s ' ' ' '`"/ | sed s/KKKKK/"`grep -i "kernel" /etc/issue.net | head -n1 | tr -s ' ' ' '`"/ | sed s/TTTTT/"`LC_TIME=C date`"/ | sed s/' '\\r' 'on' 'an' '\/' '`uname -r`' 'on' 'an' '`uname -m`/ >> $1.tmp
@@ -1622,9 +1650,6 @@ MoveHyperlinkSensibly() {
 	done
 	return 1
 }
-
-
-
 
 
 OfferToMakeBootableISO() {
@@ -1708,7 +1733,7 @@ PluralOrNot() {
 MakeMessageFile() {
 	local disksize
 	disksize=$1
-	if [ "`fgrep -i "debian" /etc/issue.net 2> /dev/null`" ] ; then
+	if [ "`grep -Fi "debian" /etc/issue.net 2> /dev/null`" ] ; then
 		sed s/ZZZZZ/$MINDI_VERSION/ $MINDI_LIB/msg-txt | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s%DDDDD%"Debian GNU\/`uname -s` `cut -d ' ' -f 3 /etc/issue.net` `hostname`"% | sed s/KKKKK/"Kernel `uname  -r` on a `uname -m`"/ | sed s/TTTTT/"`LC_TIME=C date`"/
 	else
 		sed s/ZZZZZ/$MINDI_VERSION/ $MINDI_LIB/msg-txt | sed s/YYYYY/"Mondo Rescue"/ | sed s/XXXXX/"a cousin of"/ | sed s/DDDDD/"`grep -i "linux" /etc/issue.net | head -n1 | tr -s ' ' ' '`"/ | sed s/KKKKK/"`grep -i "kernel" /etc/issue.net | head -n1 | tr -s ' ' ' '`"/ | sed s/TTTTT/"`LC_TIME=C date`"/ | sed s/' 'r' 'on' 'an' 'm/' '`uname -r`' 'on' 'an' '`uname -m`/
@@ -1999,7 +2024,7 @@ Sorry, your kernel is too big for a boot/root floppy.\nI'll try the new boot/roo
 	echo "Not running LILO. It's not that kind of disk." >> $LOGFILE
 	fi
 	if [ $? -ne "0" ] ; then
-	if [ "`fgrep "/tmp/dev.0" $LOGFILE`" ] ; then
+	if [ "`grep -F "/tmp/dev.0" $LOGFILE`" ] ; then
 		LogIt "The '/tmp/dev.0' error is NOT Mindi's fault. It is LILO's.\n"
 		LogIt "Please reboot your PC as a workaround.\n"
 		Die "LILO sneezed and Mindi caught a cold. Please read the README / FAQ.\n"
@@ -2453,7 +2478,7 @@ ScanCDandTape() {
 SizeOfPartition() {
 	local devpath drive res stub
 	device=$1
-	if [ "`echo "$device" | fgrep "/dev/md"`" != "" ] ; then
+	if [ "`echo "$device" | grep -F "/dev/md"`" != "" ] ; then
 	res=`SizeOfRaidPartition $device`
 	[ "$res" = "" ] && Die "Cannot find $device's size - is your /etc/raidtab sane?"
 	echo "$res"
@@ -2466,7 +2491,7 @@ SizeOfPartition() {
 	cat $FDISKLOG >> $LOGFILE
 	echo "------- $FDISK log end ------------" >> $LOGFILE
 # end patch
-	[ "$res" = "" ] && res=`df -k -P -x supermount | tr -s '\t' ' ' | fgrep "$device " | cut -d' ' -f2`
+	[ "$res" = "" ] && res=`df -k -P -x supermount | tr -s '\t' ' ' | grep -F "$device " | cut -d' ' -f2`
 	[ "$res" = "" ] && res="-1"
 	echo $res
 	return 0
@@ -2578,7 +2603,7 @@ TryToFindKernelPath() {
 	else
 	   root="/"
 	fi
-	for fname in `find $root -maxdepth 2 -type f | fgrep lin | egrep -v '^/proc/|^/net/'` ; do
+	for fname in `find $root -maxdepth 2 -type f | grep -F lin | grep -Ev '^/proc/|^/net/'` ; do
 	[ ! -e "$fname" ] && continue
 		[ "$fname" = "/boot/vmlinuz.shipped" ] && [ -f "/boot/vmlinuz" ] && continue; # ignore SuSE's extra kernel
 	file $fname | grep -q gzip
@@ -2590,26 +2615,26 @@ TryToFindKernelPath() {
 	fi
 		[ "$fkern_ver" = "" ] && continue
 #	echo "$fname --> $fkern_ver (but we want $we_want_version)" >> /dev/stderr
-		[ "`echo "$fkern_ver" |fgrep "$we_want_version "`" = "" ] && continue
+		[ "`echo "$fkern_ver" |grep -F "$we_want_version "`" = "" ] && continue
 	[ -f "$fname" ] || continue
 	[ -h "$fname" ] && continue
 	kdate=`uname -v | $AWK '{for(i=1;i<NF;i++){if(index($i,":")){print $i;};};}' | $AWK '{print $NF;}'`
 	file $fname | grep -q gzip
 	if [ "$?" -eq "0" ] ; then
 		# Used by ia64
-		if [ "`gzip -cd $fname | strings 2> /dev/null | fgrep "$kdate"`" = "" ] ; then
+		if [ "`gzip -cd $fname | strings 2> /dev/null | grep -F "$kdate"`" = "" ] ; then
 		    LogIt "Have you recompiled your kernel \"$fname\" w/o rebooting? Naughty but I'll allow it...\n"
 		    duff_kernels="$fname $duff_kernels"
 		else
-		        [ "`echo "$fname" | fgrep "vmlinux"`" ] && continue
+		        [ "`echo "$fname" | grep -F "vmlinux"`" ] && continue
 		        possible_kernels="$fname $possible_kernels"
 		fi
 	else
-		if [ "`strings $fname 2> /dev/null | fgrep "$kdate"`" = "" ] ; then
+		if [ "`strings $fname 2> /dev/null | grep -F "$kdate"`" = "" ] ; then
 		    LogIt "Have you recompiled your kernel \"$fname\" w/o rebooting?\n Naughty but I'll allow it...\n"
 		    duff_kernels="$fname $duff_kernels"
 		else
-		        [ "`echo "$fname" | fgrep "vmlinux"`" ] && continue
+		        [ "`echo "$fname" | grep -F "vmlinux"`" ] && continue
 		        possible_kernels="$fname $possible_kernels"
 		fi
 	fi
@@ -2650,7 +2675,7 @@ TryToFindKernelPath() {
 		return
 		fi
 		done
-	if echo " $possible_kernels " | fgrep "/boot/vmlinuz " &> /dev/null ; then
+	if echo " $possible_kernels " | grep -F "/boot/vmlinuz " &> /dev/null ; then
 		output=/boot/vmlinuz
 		echo "Schlomo, this one's for you." >> $LOGFILE
 	else
@@ -2679,7 +2704,7 @@ TryToFitDataIntoSeveralDirs() {
 	echo -en "\r                                                                            \rDividing data into several groups..."
 	old_pwd=`pwd`
 	cd $bigdir
-	list_of_files=`GetFileSizeList . | sort -nr | cut -f2 | fgrep -v "/dev/"`
+	list_of_files=`GetFileSizeList . | sort -nr | cut -f2 | grep -Fv "/dev/"`
 	progress=0
 	total_files=`CountItemsIn "$list_of_files"`
 	if [ "`echo "$filename" | grep -x "/dev/.*"`" ] ; then
@@ -2826,7 +2851,7 @@ TurnTgzIntoRdz() {
 		[ "$YOUR_KERNEL_SUCKS" ] && i=$TMP_ROOT/$i
 		echo "Adding $i ($s KB) to the rootfs" >> $LOGFILE
 		cp -df $i $mountpoint/ || LogIt "Unable to copy $i to $mountpoint\n"
-		[ "`echo "$i" | fgrep ".gz"`" ] && gunzip -f $mountpoint/`basename $i`
+		[ "`echo "$i" | grep -F ".gz"`" ] && gunzip -f $mountpoint/`basename $i`
 	done
 #    if [ -e "/dev/.devfsd" ] ; then
 #	echo "Copying devfs stuff to ramdisk" >> $LOGFILE
@@ -2876,9 +2901,9 @@ TurnTgzIntoRdz() {
 
 WhichOfTheseModulesAreLoaded() {
 	local modname loaded_modules
-	loaded_modules=" `lsmod | tr -s ' ' '\t' | cut -f1 | fgrep -vx "Modules" | tr '\n' ' '` "
+	loaded_modules=" `lsmod | tr -s ' ' '\t' | cut -f1 | grep -Fvx "Modules" | tr '\n' ' '` "
 	for modname in $1 ; do
-	[ "`echo "$loaded_modules" | fgrep " $modname "`" ] && echo "$modname"
+	[ "`echo "$loaded_modules" | grep -F " $modname "`" ] && echo "$modname"
 	done
 }
 
@@ -2990,7 +3015,7 @@ else
   [ ! -e "/etc/modules.conf" ] && Die "/etc/modules.conf not found; you may have to create a softlink from /etc/conf.modules to /etc/modules.conf; of course, all good distros use modules.conf anyway..."
 fi
 FixPathIfBroken
-[ -f "$MINDI_LIB/vmlinuz" ] && FAILSAFE_KVER=`strings $MINDI_LIB/vmlinuz 2> /dev/null | egrep "2\.[46]" | cut -d' ' -f1`
+[ -f "$MINDI_LIB/vmlinuz" ] && FAILSAFE_KVER=`strings $MINDI_LIB/vmlinuz 2> /dev/null | grep -E "2\.[46]" | cut -d' ' -f1`
 AbortIfMkfsVfatMissing
 ### BCO
 ### Fix as it's not mandatory on ia64
@@ -3000,7 +3025,7 @@ else
 	FindIsolinuxBinary
 	FindLiloBinary
 fi
-fgrep " $TMP_ROOT " /proc/mounts | fgrep tmpfs > /dev/null 2> /dev/null && TMP_ROOT=/home && LogIt "Changing TMP_ROOT to $TMP_ROOT because you're using tmpfs for /tmp\n" ; # tmpfs doesn't like Mindi and /tmp, for some reason
+grep -F " $TMP_ROOT " /proc/mounts | grep -F tmpfs > /dev/null 2> /dev/null && TMP_ROOT=/home && LogIt "Changing TMP_ROOT to $TMP_ROOT because you're using tmpfs for /tmp\n" ; # tmpfs doesn't like Mindi and /tmp, for some reason
 rm -f /tmp/mindi_lo
 trap "Aborted" SIGTERM
 DONE="\r\t\t\t\t\t\t\t\tDone.         "

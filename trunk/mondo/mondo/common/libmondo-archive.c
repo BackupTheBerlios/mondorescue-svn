@@ -1216,9 +1216,9 @@ hexdump | tr -s ' ' '0' | head -n1"));
 	wipe_archives(bkpinfo->scratchdir);
 	mvaddstr_and_log_it(g_currentY++, 74, "Done.");
 	if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
-		write_header_block_to_stream(0, "start-of-tape",
+		write_header_block_to_stream((off_t)0, "start-of-tape",
 									 BLK_START_OF_TAPE);
-		write_header_block_to_stream(0, "start-of-backup",
+		write_header_block_to_stream((off_t)0, "start-of-backup",
 									 BLK_START_OF_BACKUP);
 	}
 	return (retval);
@@ -1712,7 +1712,7 @@ int make_iso_fs(struct s_bkpinfo *bkpinfo, struct s_mrconf *mrconf, char *destfi
 			} else {
 				log_to_screen("%s...OK", message_to_screen);
 				if (!run_program_and_log_output
-					("tail -n10 /var/log/mondo-archive.log | fgrep ':-('",
+					("tail -n10 /var/log/mondo-archive.log | grep -F ':-('",
 					 1)) {
 					log_to_screen
 						("Despite nonfatal errors, growisofs confirms the write was successful.");
@@ -1980,8 +1980,7 @@ make_slices_and_images(struct s_bkpinfo *bkpinfo, struct s_mrconf *mrconf, char 
 	FILE *ftmp = NULL;
 	bool delete_when_done;
 	bool use_ntfsprog;
-	/*@ long long ****************************************** */
-	long long biggie_fsize;
+	off_t biggie_fsize;
 
 	assert(bkpinfo != NULL);
 	assert_string_is_neither_NULL_nor_zerolength(biggielist_fname);
@@ -2080,7 +2079,7 @@ make_slices_and_images(struct s_bkpinfo *bkpinfo, struct s_mrconf *mrconf, char 
 								  noof_biggie_files, use_ntfsprog);
 			if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
 				tmp = calc_checksum_of_file(bigfile_fname);
-				write_header_block_to_stream(0, tmp, BLK_STOP_A_BIGGIE);
+				write_header_block_to_stream((off_t)0, tmp, BLK_STOP_A_BIGGIE);
 				paranoid_free(tmp);
 			}
 			retval += res;
@@ -2258,7 +2257,7 @@ int make_those_afios_phase(struct s_bkpinfo *bkpinfo, struct s_mrconf *mrconf)
 						"Archiving regular files to media          ");
 
 	if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
-		write_header_block_to_stream(0, "start-of-afioballs",
+		write_header_block_to_stream((off_t)0, "start-of-afioballs",
 									 BLK_START_AFIOBALLS);
 #if __FreeBSD__ == 5
 		log_msg(1,
@@ -2267,7 +2266,7 @@ int make_those_afios_phase(struct s_bkpinfo *bkpinfo, struct s_mrconf *mrconf)
 #else
 		res = make_afioballs_and_images_OLD(bkpinfo, mrconf);
 #endif
-		write_header_block_to_stream(0, "stop-afioballs",
+		write_header_block_to_stream((off_t)0, "stop-afioballs",
 									 BLK_STOP_AFIOBALLS);
 	} else {
 		res = make_afioballs_and_images(bkpinfo, mrconf);
@@ -2343,7 +2342,7 @@ int make_those_slices_phase(struct s_bkpinfo *bkpinfo)
 	if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
 		res += write_EXAT_files_to_tape(bkpinfo, xattr_fname, acl_fname);
 		asprintf(&blah, "%ld", count_lines_in_file(biggielist));
-		write_header_block_to_stream(0, blah, BLK_START_BIGGIEFILES);
+		write_header_block_to_stream((off_t)0, blah, BLK_START_BIGGIEFILES);
 		paranoid_free(blah);
 	}
 	paranoid_free(xattr_fname);
@@ -2353,7 +2352,7 @@ int make_those_slices_phase(struct s_bkpinfo *bkpinfo)
 	paranoid_free(biggielist);
 
 	if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
-		write_header_block_to_stream(0, "end-of-biggiefiles",
+		write_header_block_to_stream((off_t)0, "end-of-biggiefiles",
 									 BLK_STOP_BIGGIEFILES);
 	}
 	retval += res;
@@ -2719,7 +2718,7 @@ _move_files_to_stream(struct s_bkpinfo *bkpinfo, char *files_to_add, ...)
 	char stop_chr;
 	char *curr_file, *cf;
 	/*@ long long ****************************************************** */
-	long long length_of_incoming_file = 0;
+	off_t length_of_incoming_file = (off_t)0;
 	t_archtype type;
 	va_list ap;
 
@@ -2754,7 +2753,7 @@ _move_files_to_stream(struct s_bkpinfo *bkpinfo, char *files_to_add, ...)
 		unlink(curr_file);
 		paranoid_free(curr_file);
 		/* write closing header */
-		write_header_block_to_stream(0, "finished-writing-file", stop_chr);
+		write_header_block_to_stream((off_t)0, "finished-writing-file", stop_chr);
 	}
 	va_end(ap);
 
@@ -3034,9 +3033,9 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, struct s_mrconf *mrconf, char *bigg
 	char *suffix;				// for compressed slices
 
 	/*@ long long ************************************************** */
-	long long totalread = 0;
-	long long totallength = 0;
-	long long length;
+	off_t totalread = (off_t)0;
+	off_t totallength = (off_t)0;
+	off_t length;
 
 	/*@ int ******************************************************** */
 	int retval = 0;
@@ -3079,7 +3078,7 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, struct s_mrconf *mrconf, char *bigg
 		log_it("command = %s", command);
 		strcpy (tmp, call_program_and_get_last_line_of_output(command));
 		log_it("res of it = %s", tmp); 
-		totallength = atoll(tmp);
+		totallength = (off_t)atoll(tmp);
 	} else {
 		file_to_openin = biggie_filename;
 		asprintf(&command, "md5sum '%s'", biggie_filename);

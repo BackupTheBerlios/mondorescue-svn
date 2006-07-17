@@ -15,7 +15,7 @@ extern char *find_home_of_exe(char *fname);
 extern int get_trackno_from_logfile(char *logfile);
 extern int grab_percentage_from_last_line_of_file(char *filename);
 extern char *last_line_of_file(char *filename);
-extern long long length_of_file(char *filename);
+extern off_t length_of_file(char *filename);
 extern int make_hole_for_file(char *outfile_fname);
 extern void make_list_of_files_to_ignore(char *ignorefiles_fname,
 										 char *filelist_fname,

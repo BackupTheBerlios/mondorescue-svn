@@ -25,7 +25,7 @@ int read_header_block_from_stream(long long *plen, char *filename,
 int register_in_tape_catalog(t_archtype type, int number, long aux,
 							 char *fn);
 bool should_we_write_to_next_tape(long mediasize,
-								  long long length_of_incoming_file);
+								  off_t length_of_incoming_file);
 int skip_incoming_files_until_we_find_this_one(char
 											   *the_file_I_was_reading);
 int start_to_read_from_next_tape(struct s_bkpinfo *bkpinfo);
@@ -34,7 +34,7 @@ int write_backcatalog_to_tape(struct s_bkpinfo *bkpinfo);
 int write_data_disks_to_stream(char *fname);
 int write_file_to_stream_from_file(struct s_bkpinfo *bkpinfo,
 								   char *infile);
-int write_header_block_to_stream(long long length_of_incoming_file,
+int write_header_block_to_stream(off_t length_of_incoming_file,
 								 char *filename, int control_char);
 void wrong_marker(int should_be, int it_is);
 int closein_cdstream(struct s_bkpinfo *bkpinfo);

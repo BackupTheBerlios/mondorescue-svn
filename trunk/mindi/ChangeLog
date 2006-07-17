@@ -2,8 +2,13 @@
 
 MINDI CHANGES
 
-1.0.8-4 (2006-06-10)
+1.0.9 (2006-06-26)
 - nfsmount option added to allow redeployment from another NFS server (Bruno Cornec)
+- Replaced all occurrences of egrep with 'grep -E' and of fgrep with 'grep -F' (Andree Leidenfrost)
+- Fix a bug in analyze-my-lvm for RHEL3 where vgdisplay prints an additional
+field sometimes (#) (severine.lombardo_at_acoss.fr/Bruno Cornec)
+- Deal properly with LVM tool lvmiopversion and with lvmcreate_initrd and pvdata - fixes Debian bug #351687 (Andree Leidenfrost)
+- Handle the format /dev/mapper/<VG>-<LV> for LVM devices - fix for Debian bug #362926 (Andree Leidenfrost)
 
 1.0.8-3 (2006-06-07)
 - exec-shield removed for mindi (Bruno Cornec)

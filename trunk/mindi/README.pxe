@@ -21,7 +21,7 @@ dhcp is a keyword. Using it will provide all the previous 4 values to activate t
 server is the ip addr of the NFS server
 mountpoint is the mount point on the NFS server to use (should be in /etc/exports of the NFS server)
 
-The initrd and kernel file come rom the first bootable media 
+The initrd and kernel file come from the first bootable media 
 created by mondoarchive. To get them, please issue:
 
 # mount /path/to/mondorescue-1.iso /mnt/cdrom -o loop

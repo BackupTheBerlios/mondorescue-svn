@@ -1979,7 +1979,7 @@ restore_a_tarball_from_CD(char *tarball_fname,
 		log_msg(2, "There are _zero_ files in filelist '%s'",
 				filelist_name);
 		log_msg(2,
-				"This is a bit silly (ask dev-team to fix mondo-makefilelist, please)");
+				"This is a bit silly (ask dev-team to fix mondo_makefilelist, please)");
 		log_msg(2,
 				"but it's non-critical. It's cosmetic. Don't worry about it.");
 		retval = 0;
@@ -1987,7 +1987,7 @@ restore_a_tarball_from_CD(char *tarball_fname,
 	}
 	if (count_lines_in_file(filelist_name) <= 0
 		|| length_of_file(tarball_fname) <= 0) {
-		log_msg(3, "length_of_file(%s) = %ld", tarball_fname,
+		log_msg(3, "length_of_file(%s) = %llu", tarball_fname,
 				length_of_file(tarball_fname));
 		sprintf(tmp, "Unable to restore fileset #%ld (CD I/O error)",
 				current_tarball_number);

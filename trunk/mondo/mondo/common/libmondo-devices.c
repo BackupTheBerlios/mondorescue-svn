@@ -303,7 +303,7 @@ bool does_nonMS_partition_exist(void)
 #else
 	return
 		!system
-		("parted2fdisk -l 2>/dev/null | grep '^/dev/' | egrep -qv '(MS|DOS|FAT|NTFS)'");
+		("parted2fdisk -l 2>/dev/null | grep '^/dev/' | grep -Eqv '(MS|DOS|FAT|NTFS)'");
 #endif
 }
 
@@ -1464,10 +1464,12 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 	case cdrw:
 	case dvd:
 		if (archiving_to_media) {
-			if (ask_me_yes_or_no
-				(_("Is your computer a laptop, or does the CD writer incorporate BurnProof technology?")))
-			{
-				bkpinfo->manual_cd_tray = TRUE;
+			if (bkpinfo->backup_media_type != dvd) {
+				if (ask_me_yes_or_no
+					(_("Is your computer a laptop, or does the CD writer incorporate BurnProof technology?")))
+				{
+					bkpinfo->manual_cd_tray = TRUE;
+				}
 			}
 			if ((bkpinfo->compression_level =
 				 which_compression_level()) == -1) {
@@ -2064,11 +2066,11 @@ void sensibly_set_tmpdir_and_scratchdir(struct s_bkpinfo *bkpinfo)
 #ifdef __FreeBSD__
 	asprintf(&tmp,
 		   call_program_and_get_last_line_of_output
-		   ("df -m -P -t nonfs,msdosfs,ntfs,smbfs,smb,cifs | tr -s '\t' ' ' | grep -v none | grep -v Filesystem | awk '{printf \"%s %s\\n\", $4, $6;}' | sort -n | tail -n1 | awk '{print $NF;}'"));
+		   ("df -m -P -t nonfs,msdosfs,ntfs,smbfs,smb,cifs | tr -s '\t' ' ' | grep -vE \"none|Filesystem\" | awk '{printf \"%s %s\\n\", $4, $6;}' | sort -n | tail -n1 | awk '{print $NF;}'"));
 #else
 	asprintf(&tmp,
 		   call_program_and_get_last_line_of_output
-		   ("df -m -P -x nfs -x vfat -x ntfs -x smbfs -x smb -x cifs | sed 's/                  /devdev/' | tr -s '\t' ' ' | grep -v none | grep -v Filesystem | grep -v /dev/shm | awk '{printf \"%s %s\\n\", $4, $6;}' | sort -n | tail -n1 | awk '{print $NF;}'"));
+		   ("df -m -P -x nfs -x vfat -x ntfs -x smbfs -x smb -x cifs | sed 's/                  /devdev/' | tr -s '\t' ' ' | grep -vE \"none|Filesystem|/dev/shm\" | awk '{printf \"%s %s\\n\", $4, $6;}' | sort -n | tail -n1 | awk '{print $NF;}'"));
 #endif
 
 	if (tmp[0] != '/') {

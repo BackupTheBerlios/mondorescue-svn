@@ -146,7 +146,7 @@ extern void _mondo_assert_fail(const char *file, const char *function,
 #define SCREEN_LENGTH 25		///< The default size of the screen.
 #define NOOF_ERR_LINES 6		///< The number of lines of log output to keep at the bottom of the screen.
 #define ARBITRARY_MAXIMUM 2000	///< The maximum number of items showing at once in the mountlist or filelist editor.
-#define MAX_TAPECATALOG_ENTRIES 4096	///< The maximum number of entries in the tape catalog.
+#define MAX_TAPECATALOG_ENTRIES 8192	///< The maximum number of entries in the tape catalog.
 #define MAX_STR_LEN 380			///< The maximum length of almost all @p char buffers in Mondo.
 #define MAXIMUM_RAID_DEVS 32	///< The maximum number of RAID devices in the raidlist.
 #define MAXIMUM_ADDITIONAL_RAID_VARS 32	///< The maximum number of additional RAID variables per RAID device in the raidlist.
@@ -382,7 +382,7 @@ extern void _mondo_assert_fail(const char *file, const char *function,
 #define ARCH_THREADS 2			///< The number of simultaneous threads running afio in the background.
 #define ARCH_BUFFER_NUM (ARCH_THREADS*4)	// Number of permissible queued afio files
 #define FORTY_SPACES "                                         "	///< 40 spaces.
-#define PPCFG_RAMDISK_SIZE 250	///< Size of the tmpfs, in megabytes, to attempt to mount (to speed up Mondo).
+#define PPCFG_RAMDISK_SIZE 350	///< Size of the tmpfs, in megabytes, to attempt to mount (to speed up Mondo).
 
 #define DO_MBR_PLEASE "/tmp/DO-MBR-PLEASE"
 

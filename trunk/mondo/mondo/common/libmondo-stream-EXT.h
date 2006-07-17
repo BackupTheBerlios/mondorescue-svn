@@ -27,7 +27,7 @@ extern int register_in_tape_catalog(t_archtype type, int number, long aux,
 									char *fn);
 #endif
 extern bool should_we_write_to_next_tape(long mediasize,
-										 long long
+										 off_t
 										 length_of_incoming_file);
 extern int skip_incoming_files_until_we_find_this_one(char
 													  *the_file_I_was_reading);
@@ -37,7 +37,7 @@ extern int write_backcatalog_to_tape(struct s_bkpinfo *bkpinfo);
 extern int write_data_disks_to_stream(char *fname);
 extern int write_file_to_stream_from_file(struct s_bkpinfo *bkpinfo,
 										  char *infile);
-extern int write_header_block_to_stream(long long length_of_incoming_file,
+extern int write_header_block_to_stream(off_t length_of_incoming_file,
 										char *filename, int control_char);
 extern void wrong_marker(int should_be, int it_is);
 extern int closein_cdstream(struct s_bkpinfo *bkpinfo);

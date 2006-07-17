@@ -598,6 +598,10 @@ int copy_from_src_to_dest(FILE * f_orig, FILE * f_archived, char direction)
 				if (!(tmp = malloc(512))) {
 					fatal_error("Failed to malloc() tmp");
 				}
+				/* BERLIOS : strange ???
+				sprintf(tmp, "I am here - %llu", ftello(fin));
+      log_msg(0, tmp);
+*/
 				fread(tmp, 1, 512, fin);
 				log_msg(0, "tmp = '%s'", tmp);
 				fwrite(tmp, 1, 512, ftmp);

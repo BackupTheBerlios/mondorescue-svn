@@ -161,8 +161,8 @@ void kill_buffer()
 
 	paranoid_system("sync");
 	asprintf(&command,
-			 "ps wwax | fgrep \"%s\" | fgrep -v grep | awk '{print $1;}' | grep -v PID | tr -s '\n' ' ' | awk '{ print $1; }'",
-			 g_sz_call_to_buffer);
+			"ps wwax | grep -F \"%s\" | grep -Fv grep | awk '{print $1;}' | grep -v PID | tr -s '\n' ' ' | awk '{ print $1; }'",
+			g_sz_call_to_buffer);
 	paranoid_free(g_sz_call_to_buffer);
 	log_msg(2, "kill_buffer() --- command = %s", command);
 

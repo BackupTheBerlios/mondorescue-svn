@@ -347,17 +347,17 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 {
 	char *extra_cdrom_params = NULL;
 	char *mondo_mkisofs_sz = NULL;
-	char *command;
-	char *hostname, *ip_address;
+	char *command = NULL;
+	char *hostname = NULL, *ip_address = NULL;
 	int retval = 0;
 	long avm = 0;
-	char *colon;
-	char *cdr_exe;
-	char *tmp;
-	char *tmp1;
+	char *colon = NULL;
+	char *cdr_exe = NULL;
+	char *tmp = NULL;
+	char *tmp1 = NULL;
 	char call_before_iso_user[MAX_STR_LEN] = "\0";
 	int rdsiz_MB;
-	char *iso_path;
+	char *iso_path = NULL;
 
 	assert(bkpinfo != NULL);
 	bkpinfo->optimal_set_size =
@@ -438,9 +438,12 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 // DVD
 
 	if (bkpinfo->backup_media_type == dvd) {
-		if (!(find_home_of_exe("growisofs"))) {
+		tmp = find_home_of_exe("growisofs");
+		if (!tmp) {
 			fatal_error("Please install growisofs.");
 		}
+		paranoid_free(tmp);
+
 		if (bkpinfo->nonbootable_backup) {
 			asprintf(&mondo_mkisofs_sz, MONDO_GROWISOFS_NONBOOT);
 		} else if
@@ -501,13 +504,18 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 				asprintf(&extra_cdrom_params, "blank=fast ");
 			}
 		}
-		if (find_home_of_exe("cdrecord")) {
+		tmp = find_home_of_exe("cdrecord");
+		tmp1 = find_home_of_exe("dvdrecord");
+		if (tmp) {
 			asprintf(&cdr_exe, "cdrecord");
-		} else if (find_home_of_exe("dvdrecord")) {
+		} else if (tmp1) {
 			asprintf(&cdr_exe, "dvdrecord");
 		} else {
 			fatal_error("Please install either cdrecord or dvdrecord.");
 		}
+		paranoid_free(tmp);
+		paranoid_free(tmp1);
+
 		if (bkpinfo->nonbootable_backup) {
 			asprintf(&mondo_mkisofs_sz, "%s -r -p MondoRescue -publisher www.mondorescue.org -A Mondo_Rescue_GPL_Version -V _CD#_", mrconf->mondo_iso_creation_cmd);
 		} else if
@@ -828,7 +836,7 @@ int some_basic_system_sanity_checks()
 {
 
 	/*@ buffers ************ */
-	char *tmp;
+	char *tmp = NULL;
 
 	/*@ int's *************** */
 	int retval = 0;
@@ -912,24 +920,20 @@ int some_basic_system_sanity_checks()
 #ifndef __IA64__
 		/* IA64 always has one vfat partition for EFI even without Windows */
 		// retval += 
-		if (!find_home_of_exe("ms-sys")) {
+		tmp = find_home_of_exe("ms-sys");
+		if (!tmp) {
 			log_to_screen(_("Please install ms-sys just in case."));
 		}
+		paranoid_free(tmp);
 #endif
 	}
 
-	if (!find_home_of_exe("cmp")) {
-		if (!find_home_of_exe("true")) {
-			whine_if_not_found("cmp");
-		} else {
-			log_to_screen
-				(_("Your system lacks the 'cmp' binary. I'll create a dummy cmp for you."));
-			if (run_program_and_log_output
-				("cp -f `which true` /usr/bin/cmp", 0)) {
-				fatal_error("Failed to create dummy 'cmp' file.");
-			}
-		}
+	tmp = find_home_of_exe("cmp");
+	if (!tmp) {
+		whine_if_not_found("cmp");
 	}
+	paranoid_free(tmp);
+
 	run_program_and_log_output
 		("umount `mount | grep cdr | cut -d' ' -f3 | tr '\n' ' '`", 5);
 	tmp = call_program_and_get_last_line_of_output("mount | grep -E \"cdr(om|w)\"");

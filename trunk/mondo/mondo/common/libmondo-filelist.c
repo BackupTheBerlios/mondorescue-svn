@@ -478,14 +478,16 @@ int gen_aux_list(char *filelist, char *syscall_sprintf,
 
 int get_acl_list(char *filelist, char *facl_fname)
 {
-	char *command;
+	char *command = NULL;
+	char *tmp = NULL;
 	int retval = 0;
 
 	asprintf(&command, "touch %s", facl_fname);
 	run_program_and_log_output(command, 8);
 	paranoid_free(command);
 
-	if (find_home_of_exe("getfacl")) {
+	tmp = find_home_of_exe("getfacl");
+	if (tmp) {
 //      sort_file(filelist); // FIXME - filelist chopper sorts, so this isn't necessary
 		asprintf(&command,
 				 "getfacl --all-effective -P %s 2>> %s | gzip -c1 > %s 2>> %s",
@@ -494,25 +496,29 @@ int get_acl_list(char *filelist, char *facl_fname)
 		retval = system(command);
 		paranoid_free(command);
 	}
+	paranoid_free(tmp);
 	return (retval);
 }
 
 
 int get_fattr_list(char *filelist, char *fattr_fname)
 {
-	char *command;
+	char *command = NULL;
+	char *tmp = NULL;
 	int retval = 0;
 
 	asprintf(&command, "touch %s", fattr_fname);
 	run_program_and_log_output(command, 8);
 	paranoid_free(command);
 
-	if (find_home_of_exe("getfattr")) {
+	tmp = find_home_of_exe("getfattr");
+	if (tmp) {
 //      sort_file(filelist); // FIXME - filelist chopper sorts, so this isn't necessary
 		retval =
 			gen_aux_list(filelist, "getfattr --en=hex -P -d \"%s\"",
 						 fattr_fname);
 	}
+	paranoid_free(tmp);
 	return (retval);
 }
 

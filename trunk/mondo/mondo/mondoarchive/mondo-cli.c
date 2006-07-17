@@ -215,11 +215,11 @@ process_switches(struct s_bkpinfo *bkpinfo,
 	int percent = 0;
 
 	/*@ buffers ** */
-	char *tmp;
-	char *tmp1;
-	char *psz;
-	char *p;
-	char *q;
+	char *tmp = NULL;
+	char *tmp1 = NULL;
+	char *psz = NULL;
+	char *p = NULL;
+	char *q = NULL;
 
 	long itbs;
 
@@ -262,8 +262,10 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		log_to_screen(_("-E switch is ignored if just verifying"));
 	}
 
-	if (!find_home_of_exe("afio")) {
-		if (find_home_of_exe("star")) {
+	tmp = find_home_of_exe("afio");
+	tmp1 = find_home_of_exe("star");
+	if (!tmp) {
+		if (tmp1) {
 			flag_set['R'] = TRUE;
 			log_msg(1, "Using star instead of afio");
 		} else {
@@ -271,17 +273,20 @@ process_switches(struct s_bkpinfo *bkpinfo,
 				("Neither afio nor star is installed. Please install at least one.");
 		}
 	}
+	paranoid_free(tmp);
 
 	if (flag_set['R']) {
 		bkpinfo->use_star = TRUE;
 		if (flag_set['L']) {
 			fatal_error("You may not use star and lzop at the same time.");
 		}
-		if (!find_home_of_exe("star")) {
+		if (!tmp1) {
 			fatal_error
 				("Please install 'star' RPM or tarball if you are going to use -R. Thanks.");
 		}
 	}
+	paranoid_free(tmp1);
+
 	if (flag_set['W']) {
 		bkpinfo->nonbootable_backup = TRUE;
 		log_to_screen("Warning - you have opted for non-bootable backup");
@@ -431,14 +436,20 @@ process_switches(struct s_bkpinfo *bkpinfo,
 				log_to_screen(_("I guess DVD drive is at %s"), flag_val['d']);
 			}
 		}
-		if (!find_home_of_exe("growisofs")) {
+		tmp = find_home_of_exe("growisofs");
+		if (!tmp) {
 			fatal_error
 				("Please install growisofs (probably part of dvd+rw-tools). If you want DVD support, you need it.");
 		}
-		if (!find_home_of_exe("dvd+rw-format")) {
+		paranoid_free(tmp);
+
+		tmp = find_home_of_exe("dvd+rw-format");
+		if (!tmp) {
 			fatal_error
 				("Please install dvd+rw-format (probably part of dvd+rw-tools). If you want DVD support, you need it.");
 		}
+		paranoid_free(tmp);
+
 		if (strchr(flag_val['d'], ',')) {
 			fatal_error
 				("Please don't give a SCSI node. Give a _device_, preferably a /dev entry, for the parameter of the -d flag.");

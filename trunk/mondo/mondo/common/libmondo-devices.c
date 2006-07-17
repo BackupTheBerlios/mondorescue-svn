@@ -494,12 +494,12 @@ bool find_and_mount_actual_cd(struct s_bkpinfo *bkpinfo, char *mountpoint)
  */
 char *find_cdrw_device(void)
 {
-	/*@ buffers ************************ */
-	char *comment;
-	char *tmp;
-	char *cdr_exe;
-	char *command;
-	char *cdrw_device;
+	char *comment = NULL;
+	char *tmp = NULL;
+	char *tmp1 = NULL;
+	char *cdr_exe = NULL;
+	char *command = NULL;
+	char *cdrw_device = NULL;
 
 	if (g_cdrw_drive_is_here != NULL) {
 		asprintf(&cdrw_device, g_cdrw_drive_is_here);
@@ -512,12 +512,16 @@ char *find_cdrw_device(void)
 		return(NULL);
 	}
 	run_program_and_log_output("insmod ide-scsi", -1);
-	if (find_home_of_exe("cdrecord")) {
+	tmp = find_home_of_exe("cdrecord");
+	if (tmp) {
 		asprintf(&cdr_exe, "cdrecord");
 	} else {
 		asprintf(&cdr_exe, "dvdrecord");
 	}
-	if (find_home_of_exe(cdr_exe)) {
+	paranoid_free(tmp);
+
+	tmp1 = find_home_of_exe(cdr_exe);
+	if (tmp1) {
 		asprintf(&command,
 				"%s -scanbus 2> /dev/null | tr -s '\t' ' ' | grep \"[0-9]*,[0-9]*,[0-9]*\" | grep -v \"[0-9]*) \\*\" | grep CD | cut -d' ' -f2 | head -n1",
 				cdr_exe);
@@ -526,6 +530,7 @@ char *find_cdrw_device(void)
 	} else {
 		asprintf(&tmp, " ");
 	}
+	paranoid_free(tmp1);
 	paranoid_free(cdr_exe);
 
 	if (strlen(tmp) < 2) {
@@ -593,12 +598,16 @@ char *find_cdrom_device(bool try_to_mount)
 		return(output);
 	}
 
-	if (find_home_of_exe("cdrecord")) {
+	tmp = find_home_of_exe("cdrecord");
+	if (tmp) {
 		asprintf(&cdr_exe, "cdrecord");
 	} else {
 		asprintf(&cdr_exe, "dvdrecord");
 	}
-	if (!find_home_of_exe(cdr_exe)) {
+	paranoid_free(tmp);
+
+	tmp = find_home_of_exe(cdr_exe);
+	if (!tmp) {
 		asprintf(&output, "/dev/cdrom");
 		log_msg(4, "Can't find cdrecord; assuming %s", output);
 		if (!does_device_exist(output)) {
@@ -611,6 +620,7 @@ char *find_cdrom_device(bool try_to_mount)
 			return(output);
 		}
 	}
+	paranoid_free(tmp);
 
 	asprintf(&command, "%s -scanbus 2> /dev/null", cdr_exe);
 	fin = popen(command, "r");

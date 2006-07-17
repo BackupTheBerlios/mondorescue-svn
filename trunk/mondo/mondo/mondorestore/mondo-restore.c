@@ -2048,13 +2048,17 @@ restore_all_biggiefiles_from_CD(struct s_bkpinfo *bkpinfo,
 		fclose(fbw);
 		asprintf(&acl_fname, ACL_BIGGLST_FNAME_RAW_SZ, ARCHIVES_PATH);
 		asprintf(&xattr_fname, XATTR_BIGGLST_FNAME_RAW_SZ, ARCHIVES_PATH);
-		if (length_of_file(acl_fname) > 0 && find_home_of_exe("setfacl")) {
+		tmp = find_home_of_exe("setfacl");
+		if (length_of_file(acl_fname) > 0 && tmp) {
 			set_acl_list(biggies_whose_EXATs_we_should_set, acl_fname);
 		}
-		if (length_of_file(xattr_fname) > 0
-			&& find_home_of_exe("setfattr")) {
+		paranoid_free(tmp);
+
+		tmp = find_home_of_exe("setfattr");
+		if (length_of_file(xattr_fname) > 0 && tmp) {
 			set_fattr_list(biggies_whose_EXATs_we_should_set, xattr_fname);
 		}
+		paranoid_free(tmp);
 		paranoid_free(acl_fname);
 		paranoid_free(xattr_fname);
 	}
@@ -2565,12 +2569,15 @@ int restore_everything(struct s_bkpinfo *bkpinfo, struct s_node *filelist)
 	getcwd(newpath, MAX_STR_LEN - 1);
 	log_msg(1, "path is now %s", newpath);
 	log_msg(1, "restoring everything");
-	if (!find_home_of_exe("petris") && !g_text_mode) {
+	tmp = find_home_of_exe("petris");
+	if (!tmp && !g_text_mode) {
 		newtDrawRootText(0, g_noof_rows - 2,
 						 _
 						 ("Press ALT-<left cursor> twice to play Petris :-) "));
 		newtRefresh();
 	}
+	paranoid_free(tmp);
+
 	mvaddstr_and_log_it(g_currentY, 0,
 						_("Preparing to read your archives"));
 	if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {

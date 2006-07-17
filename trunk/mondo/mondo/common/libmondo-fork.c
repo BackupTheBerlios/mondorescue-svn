@@ -509,18 +509,22 @@ int feed_into_ntfsprog(char *input_device, char *output_fname)
 {
 // BACKUP
 	int res = -1;
-	char*command;
+	char *command = NULL;
+	char *tmp = NULL;
 
 	if (!does_file_exist(input_device)) {
 		fatal_error("input device does not exist");
 	}
-	if ( !find_home_of_exe("ntfsclone")) {
+	tmp = find_home_of_exe("ntfsclone");
+	if (!tmp) {
 		fatal_error("ntfsclone not found");
 	}
-	malloc_string(command);
-	sprintf(command, "ntfsclone --force --save-image --overwrite %s %s", output_fname, input_device);
+	paranoid_free(tmp);
+
+	asprintf(&command, "ntfsclone --force --save-image --overwrite %s %s", output_fname, input_device);
 	res = run_program_and_log_output(command, 5);
 	paranoid_free(command);
+
 	unlink(output_fname);
 	return (res);
 }
@@ -677,11 +681,15 @@ int feed_outfrom_ntfsprog(char *output_device, char *input_fifo)
 {
 // RESTORE
 	int res = -1;
-	char *command;
+	char *command = NULL;
+	char *tmp = NULL;
 
-	if ( !find_home_of_exe("ntfsclone")) {
+	tmp = find_home_of_exe("ntfsclone");
+	if (!tmp) {
 		fatal_error("ntfsclone not found");
 	}
+	paranoid_free(tmp);
+
 	asprintf(&command, "ntfsclone --force --restore-image --overwrite %s %s", output_device, input_fifo);
 	res = run_program_and_log_output(command, 5);
 	paranoid_free(command);

@@ -221,11 +221,14 @@ int find_tape_device_and_size(char *dev, char *siz)
 	log_to_screen("I am looking for your tape streamer. Please wait.");
 	dev = NULL;
 	siz = NULL;
-	if (find_home_of_exe("cdrecord")) {
+	tmp = find_home_of_exe("cdrecord");
+	if (tmp) {
 		asprintf(&cdr_exe, "cdrecord");
 	} else {
 		asprintf(&cdr_exe, "dvdrecord");
 	}
+	paranoid_free(tmp);
+
 	asprintf(&command, "%s -scanbus 2> /dev/null | grep -i tape | wc -l",
 			 cdr_exe);
 	tmp = call_program_and_get_last_line_of_output(command);

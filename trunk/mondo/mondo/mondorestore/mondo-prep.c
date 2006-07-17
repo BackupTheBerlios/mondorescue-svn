@@ -202,7 +202,8 @@ int do_my_funky_lvm_stuff(bool just_erase_existing_volumes,
 
 	iamhere("STARTING");
 	log_msg(1, "OK, opened i-want-my-lvm. Shutting down LVM volumes...");
-	if (find_home_of_exe("lvm"))	// found it :) cool
+	tmp = find_home_of_exe("lvm");
+	if (tmp)	// found it :) cool
 	{
 		asprintf(&lvscan_sz, "lvm lvscan");
 		asprintf(&lvremove_sz, "lvm lvremove");
@@ -218,6 +219,8 @@ int do_my_funky_lvm_stuff(bool just_erase_existing_volumes,
 		asprintf(&vgchange_sz, "vgchange");
 		asprintf(&vgremove_sz, "vgremove");
 	}
+	paranoid_free(tmp);
+
 	asprintf(&command,
 			"for i in `%s | cut -d\"'\" -f2 | sort -r` ; do echo \"Shutting down lv $i\" >> "
 			MONDO_LOGFILE "; %s -f $i; done", lvscan_sz, lvremove_sz);

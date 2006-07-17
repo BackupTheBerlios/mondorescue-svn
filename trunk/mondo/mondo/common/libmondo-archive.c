@@ -432,15 +432,19 @@ int backup_data(struct s_bkpinfo *bkpinfo, struct s_mrconf *mrconf)
 	set_g_cdrom_and_g_dvd_to_bkpinfo_value(bkpinfo);
 	if (bkpinfo->backup_media_type == dvd) {
 #ifdef DVDRWFORMAT
-		if (!find_home_of_exe("dvd+rw-format")) {
+		tmp = find_home_of_exe("dvd+rw-format");
+		if (!tmp) {
 			fatal_error
 				("Cannot find dvd+rw-format. Please install it or fix your PATH.");
 		}
+		paranoid_free(tmp);
 #endif
-		if (!find_home_of_exe("growisofs")) {
+		tmp = find_home_of_exe("growisofs");
+		if (!tmp) {
 			fatal_error
 				("Cannot find growisofs. Please install it or fix your PATH.");
 		}
+		paranoid_free(tmp);
 	}
 
 	if ((res = prepare_filelist(bkpinfo))) {	/* generate scratchdir/filelist.full */
@@ -3055,12 +3059,17 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, struct s_mrconf *mrconf, char *bigg
 		log_msg(2,
 				"Not calculating checksum for %s: it would take too long",
 				biggie_filename);
-		if ( !find_home_of_exe("ntfsresize")) {
+		tmp = find_home_of_exe("ntfsresize");
+		if ( !tmp) {
 			fatal_error("ntfsresize not found");
 		}
-		sprintf(command, "ntfsresize --force --info %s|grep '^You might resize at '|cut -d' ' -f5", biggie_filename);
+		paranoid_free(tmp);
+
+		asprintf(&command, "ntfsresize --force --info %s|grep '^You might resize at '|cut -d' ' -f5", biggie_filename);
 		log_it("command = %s", command);
 		tmp = call_program_and_get_last_line_of_output(command);
+		paranoid_free(command);
+
 		log_it("res of it = %s", tmp); 
 		totallength = (off_t)atoll(tmp);
 		paranoid_free(tmp);

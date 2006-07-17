@@ -402,17 +402,14 @@ void save_raidrec_to_file(struct
  * @param value Where to put the line's value.
  * @return 0 if the line was read and stored successfully, 1 if we're at end of file.
  */
-int get_next_raidtab_line(FILE * fin, char *label, char *value)
+int get_next_raidtab_line(FILE *fin, char *label, char *value)
 {
 	char *incoming = NULL;
-	char *p;
+	char *p = NULL;
 	size_t n = 0;
 
 	assert(fin != NULL);
-	assert(label != NULL);
-	assert(value != NULL);
 
-	label[0] = value[0] = '\0';
 	if (feof(fin)) {
 		return (1);
 	}
@@ -428,9 +425,8 @@ int get_next_raidtab_line(FILE * fin, char *label, char *value)
 		while (*p == ' ') {
 			p++;
 		}
-		strcpy(label, incoming);
-		strcpy(value, p);
-		paranoid_free(incoming);
+		label = incoming;
+		value = p;
 		return (0);
 	}
 	paranoid_free(incoming);
@@ -575,9 +571,9 @@ int load_raidtab_into_raidlist(struct raidlist_itself *raidlist,
 int load_raidtab_into_raidlist(struct raidlist_itself *raidlist,
 							   char *fname)
 {
-	FILE *fin;
-	char *label;
-	char *value;
+	FILE *fin = NULL;
+	char *label = NULL;
+	char *value = NULL;
 	int items;
 	int v;
 
@@ -595,8 +591,6 @@ int load_raidtab_into_raidlist(struct raidlist_itself *raidlist,
 	}
 	items = 0;
 	log_it("Loading raidtab...");
-	malloc_string(label);
-	malloc_string(value);
 	get_next_raidtab_line(fin, label, value);
 	while (!feof(fin)) {
 		log_msg(1, "Looking for raid record #%d", items);
@@ -604,8 +598,8 @@ int load_raidtab_into_raidlist(struct raidlist_itself *raidlist,
 		v = 0;
 		/* find the 'raiddev' entry, indicating the start of the block of info */
 		while (!feof(fin) && strcmp(label, "raiddev")) {
-			strcpy(raidlist->el[items].additional_vars.el[v].label, label);
-			strcpy(raidlist->el[items].additional_vars.el[v].value, value);
+			raidlist->el[items].additional_vars.el[v].label = label;
+			raidlist->el[items].additional_vars.el[v].value = value;
 			v++;
 			get_next_raidtab_line(fin, label, value);
 		}
@@ -615,7 +609,7 @@ int load_raidtab_into_raidlist(struct raidlist_itself *raidlist,
 			continue;
 		}
 		log_msg(2, "Record #%d (%s) found", items, value);
-		strcpy(raidlist->el[items].raid_device, value);
+		raidlist->el[items].raid_device = value;
 		for (get_next_raidtab_line(fin, label, value);
 			 !feof(fin) && strcmp(label, "raiddev");
 			 get_next_raidtab_line(fin, label, value)) {
@@ -627,8 +621,6 @@ int load_raidtab_into_raidlist(struct raidlist_itself *raidlist,
 	raidlist->entries = items;
 	log_msg(1, "Raidtab loaded successfully.");
 	log_msg(1, "%d RAID devices in raidtab", items);
-	paranoid_free(label);
-	paranoid_free(value);
 	return (0);
 }
 #endif
@@ -643,22 +635,20 @@ int load_raidtab_into_raidlist(struct raidlist_itself *raidlist,
  * @param value Where to put the value processed.
  */
 void
-process_raidtab_line(FILE * fin,
+process_raidtab_line(FILE *fin,
 					 struct raid_device_record *raidrec,
 					 char *label, char *value)
 {
 
 	/*@ add mallocs * */
-	char *tmp;
-	char *labelB;
-	char *valueB;
+	char *tmp = NULL;
+	char *labelB = NULL;
+	char *valueB = NULL;
 
-	struct list_of_disks *disklist;
-	int index;
-	int v;
+	struct list_of_disks *disklist = NULL;
+	int index = 0;
+	int v = 0;
 
-	malloc_string(labelB);
-	malloc_string(valueB);
 	assert(fin != NULL);
 	assert(raidrec != NULL);
 	assert_string_is_neither_NULL_nor_zerolength(label);
@@ -715,14 +705,14 @@ process_raidtab_line(FILE * fin,
 			index = atoi(valueB);
 			add_disk_to_raid_device(disklist, value, index);
 		}
+		paranoid_free(labelB);
+		paranoid_free(valueB);
 	} else {
 		v = raidrec->additional_vars.entries;
-		strcpy(raidrec->additional_vars.el[v].label, label);
-		strcpy(raidrec->additional_vars.el[v].value, value);
+		raidrec->additional_vars.el[v].label = label;
+		raidrec->additional_vars.el[v].value = value;
 		raidrec->additional_vars.entries = ++v;
 	}
-	paranoid_free(labelB);
-	paranoid_free(valueB);
 }
 #endif
 

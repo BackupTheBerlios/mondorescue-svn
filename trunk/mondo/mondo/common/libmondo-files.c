@@ -737,9 +737,12 @@ long size_of_all_biggiefiles_K(struct s_bkpinfo *bkpinfo)
 			}
 			if (0 == strncmp(fname, "/dev/", 5)) {
 				if (is_dev_an_NTFS_dev(fname)) {
-					if ( !find_home_of_exe("ntfsresize")) {
+					tmp = find_home_of_exe("ntfsresize");
+					if (!tmp) {
 						fatal_error("ntfsresize not found");
 					}
+					paranoid_free(tmp);
+
 					asprintf(&command, "ntfsresize --force --info %s|grep '^You might resize at '|cut -d' ' -f5", fname);
 					log_it("command = %s", command);
 					tmp = call_program_and_get_last_line_of_output(command);

@@ -67,6 +67,8 @@ int compare_a_biggiefile(struct s_bkpinfo *bkpinfo, long bigfileno)
 		paranoid_free(tmp1);
 		return (1);
 	}
+	paranoid_free(tmp1);
+
 	fread((void *) &biggiestruct, 1, sizeof(biggiestruct), fin);
 	paranoid_fclose(fin);
 
@@ -250,9 +252,11 @@ int compare_a_tarball(char *tarball_fname, int current_tarball_number)
 	}
 
 	if (compressor_exe != NULL) {
-		if (!find_home_of_exe(compressor_exe)) {
+		tmp = find_home_of_exe(compressor_exe);
+		if (!tmp) {
 			fatal_error("(compare_a_tarball) Compression program missing");
 		}
+		paranoid_free(tmp);
 		if (use_star) {
 			if (strcmp(compressor_exe, "bzip2")) {
 				fatal_error

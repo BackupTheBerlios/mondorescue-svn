@@ -658,16 +658,22 @@ int mount_device(char *device, char *mpt, char *format, bool writeable)
 	} else {
 		asprintf(&p1, "-o ro");
 	}
-	if (find_home_of_exe("setfattr")) {
+	tmp = find_home_of_exe("setfattr");
+	if (tmp) {
 		asprintf(&p2, ",user_xattr");
 	} else {
 		asprintf(&p2, "");
 	}
-	if (find_home_of_exe("setfacl")) {
+	paranoid_free(tmp);
+
+	tmp = find_home_of_exe("setfacl");
+	if (tmp) {
 		asprintf(&p3, ",acl");
 	} else {
 		asprintf(&p3, "");
 	}
+	paranoid_free(tmp);
+
 	asprintf(&additional_parameters, "%s%s%s", p1, p2, p3);
 	paranoid_free(p1);
 	paranoid_free(p2);
@@ -1373,22 +1379,32 @@ int run_boot_loader(bool offer_to_hack_scripts)
 char *find_my_editor(void)
 {
 	char *output = NULL;
+	char *tmp = NULL;
 
 	/* BERLIOS: This should use $EDITOR + conf file rather first */
-	if (find_home_of_exe("pico")) {
+	tmp = find_home_of_exe("pico");
+	if (tmp) {
 		asprintf(&output, "pico");
-	} else if (find_home_of_exe("nano")) {
-		asprintf(&output, "nano");
-	} else if (find_home_of_exe("e3em")) {
-		asprintf(&output, "e3em");
-	} else if (find_home_of_exe("e3vi")) {
-		asprintf(&output, "e3vi");
 	} else {
-		asprintf(&output, "vi");
+		tmp = find_home_of_exe("nano");
+		if (tmp) {
+			asprintf(&output, "nano");
+		} else {
+			tmp = find_home_of_exe("vi");
+			if (tmp) {
+				asprintf(&output, "vi");
+			} else {
+				asprintf(&output, "emacs");
+			}
+		}
 	}
-	if (!find_home_of_exe(output)) {
+	paranoid_free(tmp);
+
+	tmp = find_home_of_exe(output);
+	if (!tmp) {
 		log_msg(2, " (find_my_editor) --- warning - %s not found", output);
 	}
+	paranoid_free(tmp);
 	return (output);
 }
 

@@ -1,151 +1,6 @@
 /***************************************************************************
-mondo-prep.c  -  description
------------------
-
-begin: Fri Apr 19 16:40:35 EDT 2002
-copyright : (C) 2002 Mondo  Hugo Rabson
-email     : Hugo Rabson <hugorabson@msn.com>
-edited by : by Stan Benoit 4/2002
-email     : troff@nakedsoul.org
-cvsid     : $Id$
-***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
-
-/* mondo-prep.c             Hugo Rabson
-
-
-
-07/20
-- when starting RAID, don't do it twice :)
-- moved Joshua's new get_phys_size_of_drive() code
-  from resize_drive... into get_phys_size_of_drive()
-
-06/29
-- make sure software RAID devices are formatted IF user says they're to be
-- drivelist is struct now, not char[][]
-
-06/26
-- drop make_relevant_partition_bootable(); do it yourself in C (mostly)
-- offer to reboot if partition table is locked up by the kernel
-
-06/22
-- be sure not to resize non-NTFS images when restoring
-- set non-NTFS images' partition types properly
-
-06/19
-- shut down all LVMs and VGs before prepping
-
-05/07
-- usage of parted2fdisk instead of fdisk alone (ia32/ia64 compatibility)
-  BCO
-
-03/31
-- rewrote partitioning and formatting code to call fdisk once per disk
-
-10/21/2003
-- suspend/resume Newt gui before/after calling do_my_funky_lvm_stuff()
-
-10/20
-- rewrote format_everything() - what a mess it was.
-  It now does things in three phases:-
-  - formats software RAID devices (/dev/md0, etc.)
-  - formats and configures LVM devices
-  - formats regular partitions (/dev/hda1, /dev/sdb2, etc.) 
-    and any LVMs recently prepped
-
-10/07
-- use strstr(format, "raid") instead of strcmp(format,"raid") to determin
-  if partition is a RAID component
-
-09/23
-- better comments
-
-09/18
-- better logging of RAID activity
-
-05/05
-- added Joshua Oreman's FreeBSD patches
-
-04/30
-- added textonly mode
-
-04/24
-- added lots of assert()'s and log_OS_error()'s
-
-04/21
-- format_everything() --- don't let bar go too far
-- mkfs -c to check for bad blocks when formatting
-
-04/04
-- misc clean-up (Tom Mortell)
-
-01/15/2003
-- added code for LVM and SW Raid (Brian Borgeson)
-
-12/10/2002
-- line 1238: friendlier output
-
-11/20
-- when wiping a given device in preparation for partitioning + formatting
-  it, don't wipe the MBR; just the partition table. That allows for
-  stupid-ass Compaq users who like to play with their MBR's.
-- disable mountlist.txt-->mountlist.txt.pre-resize copying (superfluous)
-
-09/09
-- run_program_and_log_output() now takes boolean operator to specify
-  whether it will log its activities in the event of _success_
-
-07/01 - 07/31
-- added hooks to libmondo
-- RAID enhancements (Philippe de Muyter)
-
-01/01 - 03/31
-- partition_device() will refuse to partition /dev/mdX now (cos it's a
-  virtual drive); however, it will return 0 (i.e. not an error)
-- make_list_of_drives() will exclude /dev/md* from list
-- mkreiserfs -ff instead of -q (Andy Glass)
-- don't resize drive if drive not found (or if its size cannot be det'd)
-- when generating list of drives from mountlist, skip the 'p' at the end
-  of drive name if /dev/ida/ or /dev/cciss/; just do it (Michael Eisenberg)
-- don't specify journal size when formatting ext3
-  (used to have -Jsize=10 in the call to mkfs)
-- handles files >2GB in size
-- format interactively, if Interactive Mode
-- removed reference to g_tape_size
-- when executing /tmp/i-want-my-lvm, only record the error# if the command
-  was _not_ an 'insmod' command
-- pass partition size to fdisk in Kilobytes now, not Megabytes
-- log fdisk's output to /tmp/mondo-restore.log if it fails
-- don't try to format partitions of type 'image'
-- don't type to set types of 'image' partitions
-- if format code is 1 or 2 chars then assume it is a hex string
-- took out all '/ /' comments
-- don't extrapolate/add partition from RAID dev to mountlist if it's already
-  present in mountlist
-- less repetitive logging in the event of vacuum-packing of last part'n
-- no extrapolation at all: RAID partitions should be listed in mountlist
-  already, thanks to either Mindi v0.5x or the mountlist editor itself
-- no longer say, 'and logging to...' when setting a partition's type
-- don't run mkfs on RAID partitions (/dev/hd*, /dev/sd*); just set type
-- the setting of a partition's type now takes place in a separate subroutine
-  from the subroutine that actually creates the partition
-- no need to set type if 83: 83 is the default (under fdisk)
-- turned on '-Wall'; cleaned up some cruft
-- if vacuum-packing partition (i.e. size=0MB --> max) then say, "(maximum)"
-  not, "(0 MB)"
-
-11/22/2001
-- preliminary code review
-- created on Nov 22nd, 2001
-*/
+ * $Id
+**/
 
 /**
  * @file
@@ -158,9 +13,11 @@ cvsid     : $Id$
 #include "mondoprep.h"
 #include "../common/libmondo.h"
 #include "mondo-rstr-tools-EXT.h"
+
 #include <sys/ioctl.h>
 #include <linux/hdreg.h>
 #include <math.h>
+#include <unistd.h>
 
 
 #define FDISK_LOG "/tmp/fdisk.log"
@@ -184,31 +41,16 @@ cvsid     : $Id$
 
 extern char *g_mountlist_fname;
 extern long g_current_progress, g_maximum_progress;
-
 extern bool g_text_mode;
-
 extern void pause_for_N_seconds(int, char *);
 
-
 FILE *g_fprep = NULL;
-
-
-
 int g_partition_table_locked_up = 0;
-
-
-
-
-
-
-
-
 
 
 void wipe_MBRs_and_reboot_if_necessary(struct mountlist_itself *mountlist)
 {
 	char *command;
-	char *tmp;
 	int lino;
 	int i;
 	FILE *fout;
@@ -217,32 +59,33 @@ void wipe_MBRs_and_reboot_if_necessary(struct mountlist_itself *mountlist)
 	struct list_of_disks *drivelist = NULL;
 // If LVMs are present and a zero-and-reboot wasn't recently undertaken
 // then zero & insist on reboot.
-	malloc_string(command);
-	malloc_string(tmp);
 	buf = malloc(blocksize);
 	if (does_file_exist("/tmp/i-want-my-lvm"))	// FIXME - cheating :)
 	{
 		drivelist = malloc(sizeof(struct list_of_disks));
 		make_list_of_drives_in_mountlist(mountlist, drivelist);
 		for (lino = 0; lino < drivelist->entries; lino++) {
-			sprintf(command,
-					"dd if=%s bs=512 count=1 2> /dev/null | grep \"%s\"",
-					drivelist->el[lino].device, MONDO_WAS_HERE);
+			asprintf(&command,
+					 "dd if=%s bs=512 count=1 2> /dev/null | grep \"%s\"",
+					 drivelist->el[lino].device, MONDO_WAS_HERE);
 			if (!run_program_and_log_output(command, 1)) {
 				log_msg(1, "Found MONDO_WAS_HERE marker on drive#%d (%s)",
 						lino, drivelist->el[lino].device);
+				paranoid_free(command);
 				break;
 			}
+			paranoid_free(command);
 		}
 
 		if (lino == drivelist->entries) {
 // zero & reboot
 			log_to_screen
-				(_("I am sorry for the inconvenience but I must ask you to reboot."));
-			log_to_screen
-				(_("I need to reset the Master Boot Record; in order to be"));
-			log_to_screen
-				(_("sure the kernel notices, I must reboot after doing it."));
+				(_
+				 ("I am sorry for the inconvenience but I must ask you to reboot."));
+			log_to_screen(_
+						  ("I need to reset the Master Boot Record; in order to be"));
+			log_to_screen(_
+						  ("sure the kernel notices, I must reboot after doing it."));
 			log_to_screen("Please hit 'Enter' to reboot.");
 			for (lino = 0; lino < drivelist->entries; lino++) {
 				for (i = 0; i < blocksize; i++) {
@@ -264,23 +107,18 @@ void wipe_MBRs_and_reboot_if_necessary(struct mountlist_itself *mountlist)
 					fclose(fout);
 				}
 			}
-			system("sync");
-			system("sync");
-			system("sync");
+			sync();
+			sync();
+			sync();
 			popup_and_OK
-				(_("I must now reboot. Please leave the boot media in the drive and repeat your actions - e.g. type 'nuke' - and it should work fine."));
+				(_
+				 ("I must reboot now. Please leave the boot media in the drive and repeat your actions - e.g. type 'nuke' - and it should work fine."));
 			system("reboot");
 		}
 	}
 // Still here? Cool!
-	paranoid_free(command);
-	paranoid_free(tmp);
 	log_msg(1, "Cool. I didn't have to wipe anything.");
 }
-
-
-
-
 
 
 int fput_string_one_char_at_a_time(FILE * fout, char *str)
@@ -312,14 +150,6 @@ int fput_string_one_char_at_a_time(FILE * fout, char *str)
 }
 
 
-
-
-
-
-
-
-
-
 /**
  * @addtogroup prepGroup
  * @{
@@ -329,35 +159,32 @@ int fput_string_one_char_at_a_time(FILE * fout, char *str)
  * These should probably be commands to set up LVM.
  * @return The number of errors encountered (0 for success).
  */
-
-
 int do_my_funky_lvm_stuff(bool just_erase_existing_volumes,
 						  bool vacuum_pack)
 {
-	/**  buffers **********************************************/
-	char *tmp;
-	char *incoming;
-	char *command;
-	char *lvscan_sz;
-	char *lvremove_sz;
-	char *pvscan_sz;
-	char *vgscan_sz;
-	char *vgcreate_sz;
-	char *vgchange_sz;
-	char *vgremove_sz;
-//  char *do_this_last;
-
 	/** char **************************************************/
-	char *p;
-	char *q;
+	char *tmp = NULL;
+	char *tmp1 = NULL;
+	char *incoming = NULL;
+	char *command = NULL;
+	char *lvscan_sz = NULL;
+	char *lvremove_sz = NULL;
+	char *pvscan_sz = NULL;
+	char *vgscan_sz = NULL;
+	char *vgchange_sz = NULL;
+	char *vgremove_sz = NULL;
+	char *p = NULL;
+	char *q = NULL;
 
 	/** int ***************************************************/
 	int retval = 0;
 	int res = 0;
-	int i;
+	int i = 0;
 	int lvmversion = 1;
 	long extents;
 	fpos_t orig_pos;
+	size_t n = 0;
+	size_t n1 = 0;
 
 	/** pointers **********************************************/
 	FILE *fin;
@@ -373,93 +200,99 @@ int do_my_funky_lvm_stuff(bool just_erase_existing_volumes,
 		return (1);
 	}
 
-	malloc_string(tmp);
-	malloc_string(incoming);
-	malloc_string(lvscan_sz);
-	malloc_string(lvremove_sz);
-	malloc_string(vgscan_sz);
-	malloc_string(pvscan_sz);
-	malloc_string(vgcreate_sz);
-	malloc_string(vgchange_sz);
-	malloc_string(vgremove_sz);
-//  malloc_string(do_this_last); // postpone lvcreate call if necessary
-	command = malloc(512);
-
-//  do_this_last[0] = '\0';
 	iamhere("STARTING");
 	log_msg(1, "OK, opened i-want-my-lvm. Shutting down LVM volumes...");
 	if (find_home_of_exe("lvm"))	// found it :) cool
 	{
-		strcpy(lvscan_sz, "lvm lvscan");
-		strcpy(lvremove_sz, "lvm lvremove");
-		strcpy(vgscan_sz, "lvm vgscan");
-		strcpy(pvscan_sz, "lvm pvscan");
-		strcpy(vgcreate_sz, "lvm vgcreate");
-		strcpy(vgchange_sz, "lvm vgchange");
-		strcpy(vgremove_sz, "lvm vgremove");
+		asprintf(&lvscan_sz, "lvm lvscan");
+		asprintf(&lvremove_sz, "lvm lvremove");
+		asprintf(&vgscan_sz, "lvm vgscan");
+		asprintf(&pvscan_sz, "lvm pvscan");
+		asprintf(&vgchange_sz, "lvm vgchange");
+		asprintf(&vgremove_sz, "lvm vgremove");
 	} else {
-		strcpy(lvscan_sz, "lvscan");
-		strcpy(lvremove_sz, "lvremove");
-		strcpy(vgscan_sz, "vgscan");
-		strcpy(pvscan_sz, "pvscan");
-		strcpy(vgcreate_sz, "vgcreate");
-		strcpy(vgchange_sz, "vgchange");
-		strcpy(vgremove_sz, "vgremove");
+		asprintf(&lvscan_sz, "lvscan");
+		asprintf(&lvremove_sz, "lvremove");
+		asprintf(&vgscan_sz, "vgscan");
+		asprintf(&pvscan_sz, "pvscan");
+		asprintf(&vgchange_sz, "vgchange");
+		asprintf(&vgremove_sz, "vgremove");
 	}
-	sprintf(command,
+	asprintf(&command,
 			"for i in `%s | cut -d\"'\" -f2 | sort -r` ; do echo \"Shutting down lv $i\" >> "
 			MONDO_LOGFILE "; %s -f $i; done", lvscan_sz, lvremove_sz);
+	paranoid_free(lvscan_sz);
+	paranoid_free(lvremove_sz);
+
 	run_program_and_log_output(command, 5);
+	paranoid_free(command);
+
 	sleep(1);
-	sprintf(command,
+	asprintf(&command,
 			"for i in `%s | grep -i lvm | cut -d'\"' -f2` ; do %s -a n $i ; %s $i; echo \"Shutting down vg $i\" >> "
-			MONDO_LOGFILE "; done; %s -a n", vgscan_sz, vgchange_sz,
-			vgremove_sz, vgremove_sz);
+			MONDO_LOGFILE "; done; %s -a n", vgscan_sz, vgchange_sz, vgremove_sz, vgremove_sz);
+	paranoid_free(vgchange_sz);
+	paranoid_free(vgremove_sz);
+
 	run_program_and_log_output(command, 5);
+	paranoid_free(command);
+
 	if (just_erase_existing_volumes) {
 		paranoid_fclose(fin);
 		log_msg(1, "Closed i-want-my-lvm. Finished erasing LVMs.");
-		retval = 0;
-		goto end_of_i_want_my_lvm;
+		sync();
+		sync();
+		sync();
+		sleep(1);
+		iamhere("ENDING");
+		log_msg(1, "Not many errors. Returning 0.");
+		return (0);
 	}
 
 	log_msg(1, "OK, rewound i-want-my-lvm. Doing funky stuff...");
 	rewind(fin);
-	for (fgets(incoming, 512, fin); !feof(fin); fgets(incoming, 512, fin)) {
+	for (getline(&incoming, &n1, fin); !feof(fin); getline(&incoming, &n1, fin)) {
 		fgetpos(fin, &orig_pos);
+		/* BERLIOS : Strange no ? */
 		if (incoming[0] != '#') {
 			continue;
 		}
 		if (res && strstr(command, "create") && vacuum_pack) {
 			sleep(2);
-			system("sync");
-			system("sync");
-			system("sync");
+			sync();
+			sync();
+			sync();
 		}
 		if ((p = strstr(incoming, "vgcreate"))) {
 // include next line(s) if they end in /dev (cos we've got a broken i-want-my-lvm)
-			for (fgets(tmp, 512, fin); !feof(fin); fgets(tmp, 512, fin)) {
+			for (getline(&tmp, &n, fin); !feof(fin); getline(&tmp, &n, fin)) {
 				if (tmp[0] == '#') {
 					fsetpos(fin, &orig_pos);
 					break;
 				} else {
 					fgetpos(fin, &orig_pos);
-					strcat(incoming, tmp);
+					asprintf(&tmp1, "%s%s", incoming, tmp);
+					paranoid_free(incoming);
+					incoming = tmp1;
 				}
 			}
+			paranoid_free(tmp);
+
 			for (q = incoming; *q != '\0'; q++) {
 				if (*q < 32) {
 					*q = ' ';
 				}
 			}
-			strcpy(tmp, p + strlen("vgcreate") + 1);
-			for (q = tmp; *q > 32; q++);
+			malloc_string(tmp1);
+			strcpy(tmp1, p + strlen("vgcreate") + 1);
+			for (q = tmp1; *q > 32; q++);
 			*q = '\0';
-			log_msg(1, "Deleting old entries at /dev/%s", tmp);
-//             sprintf(command, "%s -f %s", vgremove_sz, tmp);
-//             run_program_and_log_output(command, 1);
-			sprintf(command, "rm -Rf /dev/%s", tmp);
-			run_program_and_log_output(command, 1);
+			log_msg(1, "Deleting old entries at /dev/%s", tmp1);
+			asprintf(&tmp, "rm -Rf /dev/%s", tmp1);
+			paranoid_free(tmp1);
+			run_program_and_log_output(tmp, 1);
+			paranoid_free(tmp);
+
 			run_program_and_log_output(vgscan_sz, 1);
 			run_program_and_log_output(pvscan_sz, 1);
 			log_msg(3,
@@ -467,7 +300,8 @@ int do_my_funky_lvm_stuff(bool just_erase_existing_volumes,
 					incoming);
 		}
 		for (p = incoming + 1; *p == ' '; p++);
-		strcpy(command, p);
+		paranoid_free(command);
+		asprintf(&command, p);
 		for (p = command; *p != '\0'; p++);
 		for (; *(p - 1) < 32; p--);
 		*p = '\0';
@@ -484,17 +318,22 @@ int do_my_funky_lvm_stuff(bool just_erase_existing_volumes,
 			res = 0;
 			if (strstr(command, "lvm lvcreate"))
 				lvmversion = 2;
+			/* BERLIOS : this tmp may be uninitialized ?
 			log_it("%s... so I'll get creative.", tmp);
+			*/
 			if (lvmversion == 2) {
-				strcpy(tmp, call_program_and_get_last_line_of_output
-					   ("tail -n5 "MONDO_LOGFILE" | grep Insufficient | tail -n1"));
+				tmp = call_program_and_get_last_line_of_output
+						("tail -n5 " MONDO_LOGFILE
+						" | grep Insufficient | tail -n1");
 			} else {
-				strcpy(tmp, call_program_and_get_last_line_of_output
-					   ("tail -n5 "MONDO_LOGFILE" | grep lvcreate | tail -n1"));
+				tmp = call_program_and_get_last_line_of_output
+					   ("tail -n5 " MONDO_LOGFILE
+						" | grep lvcreate | tail -n1");
 			}
 			for (p = tmp; *p != '\0' && !isdigit(*p); p++);
 			extents = atol(p);
 			log_msg(5, "p='%s' --> extents=%ld", p, extents);
+			paranoid_free(tmp);
 			p = strstr(command, "-L");
 			if (!p) {
 				log_msg(0, "Fiddlesticks. '%s' returned %d", command, res);
@@ -542,27 +381,21 @@ int do_my_funky_lvm_stuff(bool just_erase_existing_volumes,
 		if (res != 0 && !strstr(command, "insmod")) {
 			retval++;
 		}
-		sprintf(tmp, "echo \"%s\" >> /tmp/out.sh", command);
+		asprintf(&tmp, "echo \"%s\" >> /tmp/out.sh", command);
 		system(tmp);
+		paranoid_free(tmp);
 		sleep(1);
 	}
 	paranoid_fclose(fin);
-	log_msg(1, "Closed i-want-my-lvm. Finished doing funky stuff.");
-  end_of_i_want_my_lvm:
-	paranoid_free(tmp);
-	paranoid_free(incoming);
-	paranoid_free(command);
-	paranoid_free(lvscan_sz);
-	paranoid_free(lvremove_sz);
 	paranoid_free(vgscan_sz);
 	paranoid_free(pvscan_sz);
-	paranoid_free(vgcreate_sz);
-	paranoid_free(vgchange_sz);
-	paranoid_free(vgremove_sz);
-//  paranoid_free(do_this_last);
-	system("sync");
-	system("sync");
-	system("sync");
+	paranoid_free(command);
+	paranoid_free(incoming);
+
+	log_msg(1, "Closed i-want-my-lvm. Finished doing funky stuff.");
+	sync();
+	sync();
+	sync();
 	sleep(1);
 	iamhere("ENDING");
 	if (retval > 2) {
@@ -588,33 +421,26 @@ int extrapolate_mountlist_to_include_raid_partitions(struct mountlist_itself
 													 *new_mountlist, struct mountlist_itself
 													 *old_mountlist)
 {
-	/** pointers *********************************************************/
-	FILE *fin;
-
-	/** int **************************************************************/
-	int lino;
-	int j;
-
-	/** buffers **********************************************************/
-	char *incoming;
-	char *tmp;
-
-	/** pointers *********************************************************/
-	char *p;
+	FILE *fin = NULL;
+	int lino = 0;
+	int j = 0;
+	char *incoming = NULL;
+	char *tmp = NULL;
+	char *p = NULL;
+	size_t n = 0;
 
 	/** init *************************************************************/
 	new_mountlist->entries = 0;
 
 	/** end **************************************************************/
 
-	malloc_string(incoming);
-	malloc_string(tmp);
 	assert(new_mountlist != NULL);
 	assert(old_mountlist != NULL);
 
 #ifdef __FreeBSD__
 	log_to_screen
-		(_("I don't know how to extrapolate the mountlist on FreeBSD. Sorry."));
+		(_
+		 ("I don't know how to extrapolate the mountlist on FreeBSD. Sorry."));
 	return (1);
 #endif
 
@@ -623,31 +449,36 @@ int extrapolate_mountlist_to_include_raid_partitions(struct mountlist_itself
 		{
 			if (!does_file_exist("/etc/raidtab")) {
 				log_to_screen
-					(_("Cannot find /etc/raidtab - cannot extrapolate the fdisk entries"));
+					(_
+					 ("Cannot find /etc/raidtab - cannot extrapolate the fdisk entries"));
 				finish(1);
 			}
 			if (!(fin = fopen("/etc/raidtab", "r"))) {
 				log_OS_error("Cannot open /etc/raidtab");
 				finish(1);
 			}
-			for (fgets(incoming, MAX_STR_LEN - 1, fin); !feof(fin)
+			for (getline(&incoming, &n, fin); !feof(fin)
 				 && !strstr(incoming, old_mountlist->el[lino].device);
-				 fgets(incoming, MAX_STR_LEN - 1, fin));
+				 getline(&incoming, &n, fin));
 			if (!feof(fin)) {
-				sprintf(tmp, "Investigating %s",
+				asprintf(&tmp, "Investigating %s",
 						old_mountlist->el[lino].device);
 				log_it(tmp);
-				for (fgets(incoming, MAX_STR_LEN - 1, fin); !feof(fin)
+				paranoid_free(tmp);
+
+				for (getline(&incoming, &n, fin); !feof(fin)
 					 && !strstr(incoming, "raiddev");
-					 fgets(incoming, MAX_STR_LEN - 1, fin)) {
+					 getline(&incoming, &n, fin)) {
 					if (strstr(incoming, OSSWAP("device", "drive"))
 						&& !strchr(incoming, '#')) {
 						for (p = incoming + strlen(incoming);
 							 *(p - 1) <= 32; p--);
 						*p = '\0';
 						for (p--; p > incoming && *(p - 1) > 32; p--);
-						sprintf(tmp, "Extrapolating %s", p);
+						asprintf(&tmp, "Extrapolating %s", p);
 						log_it(tmp);
+						paranoid_free(tmp);
+
 						for (j = 0;
 							 j < new_mountlist->entries
 							 && strcmp(new_mountlist->el[j].device, p);
@@ -665,14 +496,15 @@ int extrapolate_mountlist_to_include_raid_partitions(struct mountlist_itself
 								size = old_mountlist->el[lino].size;
 							new_mountlist->entries++;
 						} else {
-							sprintf(tmp,
-									"Not adding %s to mountlist: it's already there",
-									p);
+							asprintf(&tmp,
+									"Not adding %s to mountlist: it's already there", p);
 							log_it(tmp);
+							paranoid_free(tmp);
 						}
 					}
 				}
 			}
+			paranoid_free(incoming);
 			paranoid_fclose(fin);
 		} else {
 			strcpy(new_mountlist->el[new_mountlist->entries].device,
@@ -686,8 +518,6 @@ int extrapolate_mountlist_to_include_raid_partitions(struct mountlist_itself
 			new_mountlist->entries++;
 		}
 	}
-	paranoid_free(incoming);
-	paranoid_free(tmp);
 
 	return (0);
 }
@@ -701,114 +531,117 @@ int extrapolate_mountlist_to_include_raid_partitions(struct mountlist_itself
  * @param device The RAID device to create.
  * @return 0 for success, nonzero for failure.
  */
-int create_raid_device_via_mdadm(struct raidlist_itself *raidlist, char *device)
+int create_raid_device_via_mdadm(struct raidlist_itself *raidlist,
+								 char *device)
 {
   /** int **************************************************************/
-  int i   = 0;
-  int j   = 0;
-  int res = 0;
-  
+	int i = 0;
+	int j = 0;
+	int res = 0;
+
   /** buffers ***********************************************************/
-  char *devices = NULL;
-  char *strtmp  = NULL;
-  char *level   = NULL;
-  char *program = NULL;
-  
-  // leave straight away if raidlist is initial or has no entries
-  if (!raidlist || raidlist->entries == 0) {
-    log_msg(1, "No RAID arrays found.");
-    return 1;
-  } else {
-    log_msg(1, "%d RAID arrays found.", raidlist->entries);
-  }
-  // find raidlist entry for requested device
-  for (i = 0; i < raidlist->entries; i++) {
-    if (!strcmp(raidlist->el[i].raid_device, device)) break;
-  }
-  // check whether RAID device was found in raidlist
-  if (i == raidlist->entries) {
-    log_msg(1, "RAID device %s not found in list.", device);
-    return 1;
-  }
-  // create device list from normal disks followed by spare ones
-  asprintf(&devices, raidlist->el[i].data_disks.el[0].device);
-  for (j = 1; j < raidlist->el[i].data_disks.entries; j++) {
-    asprintf(&strtmp, "%s", devices);
-    paranoid_free(devices);
-    asprintf(&devices, "%s %s", strtmp,
-	     raidlist->el[i].data_disks.el[j].device);
-    paranoid_free(strtmp);
-  }
-  for (j = 0; j < raidlist->el[i].spare_disks.entries; j++) {
-    asprintf(&strtmp, "%s", devices);
-    paranoid_free(devices);
-    asprintf(&devices, "%s %s", strtmp,
-	     raidlist->el[i].spare_disks.el[j].device);
-    paranoid_free(strtmp);
-  }
-  // translate RAID level
-  if (raidlist->el[i].raid_level == -2) {
-    asprintf(&level, "multipath");
-  } else if (raidlist->el[i].raid_level == -1) {
-    asprintf(&level, "linear");
-  } else {
-    asprintf(&level, "raid%d", raidlist->el[i].raid_level);
-  }
-  // create RAID device:
-  // - RAID device, number of devices and devices mandatory
-  // - parity algorithm, chunk size and spare devices optional
-  // - faulty devices ignored
-  // - persistent superblock always used as this is recommended
-  asprintf(&program,
-	   "mdadm --create --force --run --auto=yes %s --level=%s --raid-devices=%d",
-	   raidlist->el[i].raid_device, level,
-	   raidlist->el[i].data_disks.entries);
-  if (raidlist->el[i].parity != -1) {
-    asprintf(&strtmp, "%s", program);
-    paranoid_free(program);
-    switch(raidlist->el[i].parity) {
-    case 0:
-      asprintf(&program, "%s --parity=%s", strtmp, "la");
-      break;
-    case 1:
-      asprintf(&program, "%s --parity=%s", strtmp, "ra");
-      break;
-    case 2:
-      asprintf(&program, "%s --parity=%s", strtmp, "ls");
-      break;
-    case 3:
-      asprintf(&program, "%s --parity=%s", strtmp, "rs");
-      break;
-    default:
-      fatal_error("Unknown RAID parity algorithm.");
-      break;
-    }
-    paranoid_free(strtmp);
-  }
-  if (raidlist->el[i].chunk_size != -1) {
-    asprintf(&strtmp, "%s", program);
-    paranoid_free(program);
-    asprintf(&program, "%s --chunk=%d", strtmp, raidlist->el[i].chunk_size);
-    paranoid_free(strtmp);
-  }
-  if (raidlist->el[i].spare_disks.entries > 0) {
-    asprintf(&strtmp, "%s", program);
-    paranoid_free(program);
-    asprintf(&program, "%s --spare-devices=%d", strtmp,
-	     raidlist->el[i].spare_disks.entries);
-    paranoid_free(strtmp);
-  }
-  asprintf(&strtmp, "%s", program);
-  paranoid_free(program);
-  asprintf(&program, "%s %s", strtmp, devices);
-  paranoid_free(strtmp);
-  res = run_program_and_log_output(program, 1);
-  // free memory
-  paranoid_free(devices);
-  paranoid_free(level);
-  paranoid_free(program);
-  // return to calling instance
-  return res;
+	char *devices = NULL;
+	char *strtmp = NULL;
+	char *level = NULL;
+	char *program = NULL;
+
+	// leave straight away if raidlist is initial or has no entries
+	if (!raidlist || raidlist->entries == 0) {
+		log_msg(1, "No RAID arrays found.");
+		return 1;
+	} else {
+		log_msg(1, "%d RAID arrays found.", raidlist->entries);
+	}
+	// find raidlist entry for requested device
+	for (i = 0; i < raidlist->entries; i++) {
+		if (!strcmp(raidlist->el[i].raid_device, device))
+			break;
+	}
+	// check whether RAID device was found in raidlist
+	if (i == raidlist->entries) {
+		log_msg(1, "RAID device %s not found in list.", device);
+		return 1;
+	}
+	// create device list from normal disks followed by spare ones
+	asprintf(&devices, raidlist->el[i].data_disks.el[0].device);
+	for (j = 1; j < raidlist->el[i].data_disks.entries; j++) {
+		asprintf(&strtmp, "%s", devices);
+		paranoid_free(devices);
+		asprintf(&devices, "%s %s", strtmp,
+				 raidlist->el[i].data_disks.el[j].device);
+		paranoid_free(strtmp);
+	}
+	for (j = 0; j < raidlist->el[i].spare_disks.entries; j++) {
+		asprintf(&strtmp, "%s", devices);
+		paranoid_free(devices);
+		asprintf(&devices, "%s %s", strtmp,
+				 raidlist->el[i].spare_disks.el[j].device);
+		paranoid_free(strtmp);
+	}
+	// translate RAID level
+	if (raidlist->el[i].raid_level == -2) {
+		asprintf(&level, "multipath");
+	} else if (raidlist->el[i].raid_level == -1) {
+		asprintf(&level, "linear");
+	} else {
+		asprintf(&level, "raid%d", raidlist->el[i].raid_level);
+	}
+	// create RAID device:
+	// - RAID device, number of devices and devices mandatory
+	// - parity algorithm, chunk size and spare devices optional
+	// - faulty devices ignored
+	// - persistent superblock always used as this is recommended
+	asprintf(&program,
+			 "mdadm --create --force --run --auto=yes %s --level=%s --raid-devices=%d",
+			 raidlist->el[i].raid_device, level,
+			 raidlist->el[i].data_disks.entries);
+	if (raidlist->el[i].parity != -1) {
+		asprintf(&strtmp, "%s", program);
+		paranoid_free(program);
+		switch (raidlist->el[i].parity) {
+		case 0:
+			asprintf(&program, "%s --parity=%s", strtmp, "la");
+			break;
+		case 1:
+			asprintf(&program, "%s --parity=%s", strtmp, "ra");
+			break;
+		case 2:
+			asprintf(&program, "%s --parity=%s", strtmp, "ls");
+			break;
+		case 3:
+			asprintf(&program, "%s --parity=%s", strtmp, "rs");
+			break;
+		default:
+			fatal_error("Unknown RAID parity algorithm.");
+			break;
+		}
+		paranoid_free(strtmp);
+	}
+	if (raidlist->el[i].chunk_size != -1) {
+		asprintf(&strtmp, "%s", program);
+		paranoid_free(program);
+		asprintf(&program, "%s --chunk=%d", strtmp,
+				 raidlist->el[i].chunk_size);
+		paranoid_free(strtmp);
+	}
+	if (raidlist->el[i].spare_disks.entries > 0) {
+		asprintf(&strtmp, "%s", program);
+		paranoid_free(program);
+		asprintf(&program, "%s --spare-devices=%d", strtmp,
+				 raidlist->el[i].spare_disks.entries);
+		paranoid_free(strtmp);
+	}
+	asprintf(&strtmp, "%s", program);
+	paranoid_free(program);
+	asprintf(&program, "%s %s", strtmp, devices);
+	paranoid_free(strtmp);
+	res = run_program_and_log_output(program, 1);
+	// free memory
+	paranoid_free(devices);
+	paranoid_free(level);
+	paranoid_free(program);
+	// return to calling instance
+	return res;
 }
 
 
@@ -822,54 +655,55 @@ int create_raid_device_via_mdadm(struct raidlist_itself *raidlist, char *device)
  * @param format The filesystem type to format it as.
  * @return 0 for success, nonzero for failure.
  */
-int format_device(char *device, char *format, struct raidlist_itself *raidlist)
+int format_device(char *device, char *format,
+				  struct raidlist_itself *raidlist)
 {
 	/** int **************************************************************/
-	int res;
+	int res = 0;
 	int retval = 0;
 #ifdef __FreeBSD__
 	static bool vinum_started_yet = FALSE;
 #endif
 
 	/** buffers ***********************************************************/
-	char *program;
-	char *tmp;
+	char *program = NULL;
+	char *tmp = NULL;
+	char *tmp1 = NULL;
+	char *line = NULL;
+	char *status = NULL;
+	FILE *pin;
+	FILE *fin;
+	size_t n = 0;
+	size_t n1 = 0;
 
 	/** end ****************************************************************/
 
-	malloc_string(program);
-	malloc_string(tmp);
 	assert_string_is_neither_NULL_nor_zerolength(device);
 	assert(format != NULL);
 
 	if (strstr(format, "raid")) {	// do not form RAID disks; do it to /dev/md* instead
-		sprintf(tmp, "Not formatting %s (it is a RAID disk)", device);
+		asprintf(&tmp, "Not formatting %s (it is a RAID disk)", device);
 		log_it(tmp);
-		paranoid_free(program);
 		paranoid_free(tmp);
 		return (0);
 	}
 #ifdef __FreeBSD__
 	if (strcmp(format, "swap") == 0) {
 		log_it("Not formatting %s - it's swap", device);
-		paranoid_free(program);
-		paranoid_free(tmp);
 		return (0);
 	}
 #endif
 	if (strlen(format) <= 2) {
-		sprintf(tmp,
+		asprintf(&tmp,
 				"%s has a really small format type ('%s') - this is probably a hexadecimal string, which would suggest the partition is an image --- I shouldn't format it",
 				device, format);
 		log_it(tmp);
-		paranoid_free(program);
 		paranoid_free(tmp);
 		return (0);
 	}
 	if (is_this_device_mounted(device)) {
-		sprintf(tmp, _("%s is mounted - cannot format it       "), device);
+		asprintf(&tmp, _("%s is mounted - cannot format it       "), device);
 		log_to_screen(tmp);
-		paranoid_free(program);
 		paranoid_free(tmp);
 		return (1);
 	}
@@ -879,7 +713,8 @@ int format_device(char *device, char *format, struct raidlist_itself *raidlist)
 		if (!vinum_started_yet) {
 			if (!does_file_exist("/tmp/raidconf.txt")) {
 				log_to_screen
-					(_("/tmp/raidconf.txt does not exist. I therefore cannot start Vinum."));
+					(_
+					 ("/tmp/raidconf.txt does not exist. I therefore cannot start Vinum."));
 			} else {
 				int res;
 				res =
@@ -887,7 +722,8 @@ int format_device(char *device, char *format, struct raidlist_itself *raidlist)
 					("vinum create /tmp/raidconf.txt", TRUE);
 				if (res) {
 					log_to_screen
-						(_("`vinum create /tmp/raidconf.txt' returned errors. Please fix them and re-run mondorestore."));
+						(_
+						 ("`vinum create /tmp/raidconf.txt' returned errors. Please fix them and re-run mondorestore."));
 					finish(1);
 				}
 				vinum_started_yet = TRUE;
@@ -895,37 +731,45 @@ int format_device(char *device, char *format, struct raidlist_itself *raidlist)
 		}
 
 		if (vinum_started_yet) {
-			FILE *fin;
-			char line[MAX_STR_LEN];
-			sprintf(tmp,
-					_("Initializing Vinum device %s (this may take a *long* time)"),
+			asprintf(&tmp,
+					_
+					("Initializing Vinum device %s (this may take a *long* time)"),
 					device);
 			log_to_screen(tmp);
+			paranoid_free(tmp);
+
 			/* format raid partition */
-			//      sprintf (program, "mkraid --really-force %s", device); --- disabled -- BB, 02/12/2003
-			sprintf(program,
+			asprintf(&program,
 					"for plex in `vinum lv -r %s | grep '^P' | tr '\t' ' ' | tr -s ' ' | cut -d' ' -f2`; do echo $plex; done > /tmp/plexes",
 					basename(device));
 			system(program);
+
 			if (g_fprep) {
 				fprintf(g_fprep, "%s\n", program);
 			}
+			paranoid_free(program);
+
 			fin = fopen("/tmp/plexes", "r");
-			while (fgets(line, MAX_STR_LEN - 1, fin)) {
+			while (getline(&line, &n, fin)) {
 				if (strchr(line, '\n'))
 					*(strchr(line, '\n')) = '\0';	// get rid of the \n on the end
 
-				sprintf(tmp, "Initializing plex: %s", line);
+				asprintf(&tmp, "Initializing plex: %s", line);
 				open_evalcall_form(tmp);
-				sprintf(tmp, "vinum init %s", line);
+				paranoid_free(tmp);
+
+				asprintf(&tmp, "vinum init %s", line);
 				system(tmp);
+				paranoid_free(tmp);
+
 				while (1) {
-					sprintf(tmp,
+					asprintf(&tmp,
 							"vinum lp -r %s | grep '^S' | head -1 | tr -s ' ' | cut -d: -f2 | cut -f1 | sed 's/^ //' | sed 's/I //' | sed 's/%%//'",
 							line);
-					FILE *pin = popen(tmp, "r");
-					char status[MAX_STR_LEN / 4];
-					fgets(status, MAX_STR_LEN / 4 - 1, pin);
+					pin = popen(tmp, "r");
+					paranoid_free(tmp);
+
+					getline(&status, &n1, pin);
 					pclose(pin);
 
 					if (!strcmp(status, "up")) {
@@ -933,51 +777,53 @@ int format_device(char *device, char *format, struct raidlist_itself *raidlist)
 					}
 					update_evalcall_form(atoi(status));
 					usleep(250000);
+					paranoid_free(status);
 				}
 				close_evalcall_form();
 			}
+			paranoid_free(line);
 			fclose(fin);
 			unlink("/tmp/plexes");
 			/* retval+=res; */
 		}
 #else
-		sprintf(tmp, _("Initializing RAID device %s"), device);
+		asprintf(&tmp, _("Initializing RAID device %s"), device);
 		log_to_screen(tmp);
+		paranoid_free(tmp);
 
 // Shouldn't be necessary.
 		log_to_screen(_("Stopping %s"), device);
 		stop_raid_device(device);
-		system("sync");
+		sync();
 		sleep(1);
+		/* BERLIOS: This code is wrong as program has not been initialized
 		if (g_fprep) {
 			fprintf(g_fprep, "%s\n", program);
 		}
+		*/
 
 		log_msg(1, "Making %s", device);
 		// use mkraid if it exists, otherwise use mdadm
-  		if (run_program_and_log_output("which mkraid", FALSE)) {
-  			res = create_raid_device_via_mdadm(raidlist, device);
-  			log_msg(1, "Creating RAID device %s via mdadm returned %d", device, res);
+		if (run_program_and_log_output("which mkraid", FALSE)) {
+			res = create_raid_device_via_mdadm(raidlist, device);
+			log_msg(1, "Creating RAID device %s via mdadm returned %d",
+					device, res);
 		} else {
-			sprintf(program, "mkraid --really-force %s", device);
+			asprintf(&program, "mkraid --really-force %s", device);
 			res = run_program_and_log_output(program, 1);
 			log_msg(1, "%s returned %d", program, res);
-			system("sync");
+			sync();
 			sleep(3);
 			start_raid_device(device);
 			if (g_fprep) {
 				fprintf(g_fprep, "%s\n", program);
 			}
+			paranoid_free(program);
 		}
-		system("sync");
+		sync();
 		sleep(2);
-//      log_to_screen("Starting %s", device);
-//      sprintf(program, "raidstart %s", device);
-//      res = run_program_and_log_output(program, 1);
-//      log_msg(1, "%s returned %d", program, res);
-//      system("sync"); sleep(1);
 #endif
-		system("sync");
+		sync();
 		sleep(1);
 		newtResume();
 	}
@@ -986,31 +832,37 @@ int format_device(char *device, char *format, struct raidlist_itself *raidlist)
 
 	if (!strcmp(format, "lvm")) {
 		log_msg(1, "Don't format %s - it's part of an lvm volume", device);
-		paranoid_free(program);
-		paranoid_free(tmp);
 		return (0);
 	}
+	/* This function allocates program */
 	res = which_format_command_do_i_need(format, program);
-	sprintf(tmp, "%s %s", program, device);
 	if (strstr(program, "kludge")) {
-		strcat(tmp, " /");
+		asprintf(&tmp, "%s %s /", program, device);
+	} else {
+		asprintf(&tmp, "%s %s", program, device);
 	}
-	sprintf(program, "sh -c 'echo -en \"y\\ny\\ny\\n\" | %s'", tmp);
-	sprintf(tmp, "Formatting %s as %s", device, format);
+	paranoid_free(program);
+
+	asprintf(&program, "sh -c 'echo -en \"y\\ny\\ny\\n\" | %s'", tmp);
+	paranoid_free(tmp);
+
+	asprintf(&tmp, "Formatting %s as %s", device, format);
 	update_progress_form(tmp);
+
 	res = run_program_and_log_output(program, FALSE);
 	if (res && strstr(program, "kludge")) {
-		sprintf(tmp, "Kludge failed; using regular mkfs.%s to format %s",
-				format, device);
 #ifdef __FreeBSD__
-		sprintf(program, "newfs_msdos -F 32 %s", device);
+		paranoid_free(program);
+		asprintf(&program, "newfs_msdos -F 32 %s", device);
 #else
 #ifdef __IA64__
 		/* For EFI partitions take fat16 
 		 * as we want to make small ones */
-		sprintf(program, "mkfs -t %s -F 16 %s", format, device);
+		paranoid_free(program);
+		asprintf(&program, "mkfs -t %s -F 16 %s", format, device);
 #else
-		sprintf(program, "mkfs -t %s -F 32 %s", format, device);
+		paranoid_free(program);
+		asprintf(&program, "mkfs -t %s -F 32 %s", format, device);
 #endif
 #endif
 		res = run_program_and_log_output(program, FALSE);
@@ -1018,23 +870,22 @@ int format_device(char *device, char *format, struct raidlist_itself *raidlist)
 			fprintf(g_fprep, "%s\n", program);
 		}
 	}
+	paranoid_free(program);
+
 	retval += res;
 	if (retval) {
-		strcat(tmp, _("...failed"));
+		asprintf(&tmp1, "%s%s",tmp, _("...failed"));
 	} else {
-		strcat(tmp, _("...OK"));
+		asprintf(&tmp1, "%s%s",tmp, _("...OK"));
 	}
-
-	log_to_screen(tmp);
-	paranoid_free(program);
 	paranoid_free(tmp);
-	system("sync");
+
+	log_to_screen(tmp1);
+	paranoid_free(tmp1);
+	sync();
 	sleep(1);
 	return (retval);
 }
-
-
-
 
 
 /**
@@ -1043,8 +894,8 @@ int format_device(char *device, char *format, struct raidlist_itself *raidlist)
  * @param interactively If TRUE, then prompt the user before each partition.
  * @return The number of errors encountered (0 for success).
  */
-int format_everything(struct mountlist_itself *mountlist, bool interactively,
-					      struct raidlist_itself *raidlist)
+int format_everything(struct mountlist_itself *mountlist,
+					  bool interactively, struct raidlist_itself *raidlist)
 {
 	/** int **************************************************************/
 	int retval = 0;
@@ -1067,10 +918,11 @@ int format_everything(struct mountlist_itself *mountlist, bool interactively,
 	/** end **************************************************************/
 
 	assert(mountlist != NULL);
-	malloc_string(tmp);
-	sprintf(tmp, "format_everything (mountlist, interactively = %s",
+	asprintf(&tmp, "format_everything (mountlist, interactively = %s",
 			(interactively) ? "true" : "false");
 	log_it(tmp);
+	paranoid_free(tmp);
+
 	mvaddstr_and_log_it(g_currentY, 0, _("Formatting partitions     "));
 	open_progress_form(_("Formatting partitions"),
 					   _("I am now formatting your hard disk partitions."),
@@ -1084,9 +936,9 @@ int format_everything(struct mountlist_itself *mountlist, bool interactively,
 // ...and for simplicity's sake, let's format them at the same time :)
 	log_msg(1, "Stopping all RAID devices");
 	stop_all_raid_devices(mountlist);
-	system("sync");
-	system("sync");
-	system("sync");
+	sync();
+	sync();
+	sync();
 	sleep(2);
 	log_msg(1, "Prepare soft-RAIDs");	// prep and format too
 	for (lino = 0; lino < mountlist->entries; lino++) {
@@ -1095,9 +947,10 @@ int format_everything(struct mountlist_itself *mountlist, bool interactively,
 		if (!strncmp(me->device, "/dev/md", 7)) {
 			if (interactively) {
 				// ask user if we should format the current device
-				sprintf(tmp, "Shall I format %s (%s) ?", me->device,
+				asprintf(&tmp, "Shall I format %s (%s) ?", me->device,
 						me->mountpoint);
 				do_it = ask_me_yes_or_no(tmp);
+				paranoid_free(tmp);
 			} else {
 				do_it = TRUE;
 			}
@@ -1108,9 +961,9 @@ int format_everything(struct mountlist_itself *mountlist, bool interactively,
 			g_current_progress += progress_step;
 		}
 	}
-	system("sync");
-	system("sync");
-	system("sync");
+	sync();
+	sync();
+	sync();
 	sleep(2);
 // This last step is probably necessary
 //  log_to_screen("Re-starting software RAIDs...");
@@ -1125,22 +978,7 @@ int format_everything(struct mountlist_itself *mountlist, bool interactively,
 		if (!g_text_mode) {
 			newtSuspend();
 		}
-/*
-		for(i=0; i<3; i++)
-		  {
-		    res = do_my_funky_lvm_stuff(FALSE, FALSE);
-		    if (!res) { break; }
-		    sleep(3);
-		    res = do_my_funky_lvm_stuff(TRUE, FALSE);
-		    sleep(3);
-		  }
-		if (res) {
-			log_msg(1, "Vacuum-packing...");
-*/
 		res = do_my_funky_lvm_stuff(FALSE, TRUE);
-/*
-		}
-*/
 		if (!g_text_mode) {
 			newtResume();
 		}
@@ -1149,7 +987,6 @@ int format_everything(struct mountlist_itself *mountlist, bool interactively,
 		} else {
 			log_to_screen("Failed to initialize LVM");
 		}
-		// retval += res;
 		if (res) {
 			retval++;
 		}
@@ -1161,36 +998,42 @@ int format_everything(struct mountlist_itself *mountlist, bool interactively,
 	for (lino = 0; lino < mountlist->entries; lino++) {
 		me = &mountlist->el[lino];	// the current mountlist entry
 		if (!strcmp(me->mountpoint, "image")) {
-			sprintf(tmp, "Not formatting %s - it's an image", me->device);
+			asprintf(&tmp, "Not formatting %s - it's an image", me->device);
 			log_it(tmp);
+			paranoid_free(tmp);
 		} else if (!strcmp(me->format, "raid")) {
-			sprintf(tmp, "Not formatting %s - it's a raid-let",
+			asprintf(&tmp, "Not formatting %s - it's a raid-let",
 					me->device);
 			log_it(tmp);
+			paranoid_free(tmp);
 			continue;
 		} else if (!strcmp(me->format, "lvm")) {
-			sprintf(tmp, "Not formatting %s - it's an LVM", me->device);
+			asprintf(&tmp, "Not formatting %s - it's an LVM", me->device);
 			log_it(tmp);
+			paranoid_free(tmp);
 			continue;
 		} else if (!strncmp(me->device, "/dev/md", 7)) {
-			sprintf(tmp, "Already formatted %s - it's a soft-RAID dev",
+			asprintf(&tmp, "Already formatted %s - it's a soft-RAID dev",
 					me->device);
 			log_it(tmp);
+			paranoid_free(tmp);
 			continue;
 		} else if (!does_file_exist(me->device)
 				   && strncmp(me->device, "/dev/hd", 7)
 				   && strncmp(me->device, "/dev/sd", 7)) {
-			sprintf(tmp,
+			asprintf(&tmp,
 					"Not formatting %s yet - doesn't exist - probably an LVM",
 					me->device);
 			log_it(tmp);
+			paranoid_free(tmp);
 			continue;
 		} else {
 			if (interactively) {
 				// ask user if we should format the current device
-				sprintf(tmp, "Shall I format %s (%s) ?", me->device,
+				asprintf(&tmp, "Shall I format %s (%s) ?", me->device,
 						me->mountpoint);
 				do_it = ask_me_yes_or_no(tmp);
+				paranoid_free(tmp);
 			} else {
 				do_it = TRUE;
 			}
@@ -1214,38 +1057,43 @@ int format_everything(struct mountlist_itself *mountlist, bool interactively,
 	if (retval) {
 		mvaddstr_and_log_it(g_currentY++, 74, _("Failed."));
 		log_to_screen
-			(_("Errors occurred during the formatting of your hard drives."));
+			(_
+			 ("Errors occurred during the formatting of your hard drives."));
 	} else {
 		mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 	}
 
-	sprintf(tmp, "format_everything () - %s",
+	asprintf(&tmp, "format_everything () - %s",
 			(retval) ? "failed!" : "finished successfully");
 	log_it(tmp);
+	paranoid_free(tmp);
 
 	if (g_partition_table_locked_up > 0) {
 		if (retval > 0 && !interactively) {
 //123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 
 			log_to_screen
-				(_("Partition table locked up %d times. At least one 'mkfs' (format) command"),
+				(_
+				 ("Partition table locked up %d times. At least one 'mkfs' (format) command"),
 				 g_partition_table_locked_up);
-			log_to_screen
-				(_("failed. I think these two events are related. Sometimes, fdisk's ioctl() call"));
-			log_to_screen
-				(_("to refresh its copy of the partition table causes the kernel to lock the "));
-			log_to_screen
-				(_("partition table. I believe this has just happened."));
+			log_to_screen(_
+						  ("failed. I think these two events are related. Sometimes, fdisk's ioctl() call"));
+			log_to_screen(_
+						  ("to refresh its copy of the partition table causes the kernel to lock the "));
+			log_to_screen(_
+						  ("partition table. I believe this has just happened."));
 			if (ask_me_yes_or_no
-				(_("Please choose 'yes' to reboot and try again; or 'no' to ignore this warning and continue.")))
+				(_
+				 ("Please choose 'yes' to reboot and try again; or 'no' to ignore this warning and continue.")))
 			{
-				system("sync");
-				system("sync");
-				system("sync");
+				sync();
+				sync();
+				sync();
 				system("reboot");
 			}
 		} else {
 			log_to_screen
-				(_("Partition table locked up %d time%c. However, disk formatting succeeded."),
+				(_
+				 ("Partition table locked up %d time%c. However, disk formatting succeeded."),
 				 g_partition_table_locked_up,
 				 (g_partition_table_locked_up == 1) ? '.' : 's');
 		}
@@ -1253,7 +1101,6 @@ int format_everything(struct mountlist_itself *mountlist, bool interactively,
 	newtSuspend();
 	system("clear");
 	newtResume();
-	paranoid_free(tmp);
 	return (retval);
 }
 
@@ -1280,12 +1127,13 @@ int make_dummy_partitions(FILE * pout_to_fdisk, char *drivename,
 
 	/** end **************************************************************/
 
-	malloc_string(tmp);
 	assert_string_is_neither_NULL_nor_zerolength(drivename);
 
 	if (devno_we_must_allow_for >= 5) {
-		sprintf(tmp, "Making dummy primary %s%d", drivename, 1);
+		asprintf(&tmp, "Making dummy primary %s%d", drivename, 1);
 		log_it(tmp);
+		paranoid_free(tmp);
+
 		g_maximum_progress++;
 		res =
 			partition_device(pout_to_fdisk, drivename, 1, 0, "ext2",
@@ -1298,9 +1146,11 @@ int make_dummy_partitions(FILE * pout_to_fdisk, char *drivename,
 		current_devno = 1;
 	}
 	for (; current_devno < devno_we_must_allow_for; current_devno++) {
-		sprintf(tmp, "Creating dummy partition %s%d", drivename,
+		asprintf(&tmp, "Creating dummy partition %s%d", drivename,
 				current_devno);
 		log_it(tmp);
+		paranoid_free(tmp);
+
 		g_maximum_progress++;
 		res =
 			partition_device(pout_to_fdisk, drivename, current_devno,
@@ -1308,7 +1158,6 @@ int make_dummy_partitions(FILE * pout_to_fdisk, char *drivename,
 		retval += res;
 		previous_devno = current_devno;
 	}
-	paranoid_free(tmp);
 	return (previous_devno);
 }
 
@@ -1339,6 +1188,7 @@ bool mountlist_contains_raid_devices(struct mountlist_itself * mountlist)
 		return (FALSE);
 	}
 }
+
 
 /* The following 2 functions are stolen from /usr/src/sbin/disklabel/disklabel.c */
 #ifdef __FreeBSD__
@@ -1441,16 +1291,18 @@ static struct disklabel *get_virgin_disklabel(char *dkname)
 {
 	static struct disklabel loclab;
 	struct partition *dp;
-	char lnamebuf[BBSIZE];
+	char *lnamebuf;
 	int f;
 	u_int secsize, u;
 	off_t mediasize;
 
-	(void) snprintf(lnamebuf, BBSIZE, "%s", dkname);
+	asprintf(&lnamebuf, "%s", dkname);
 	if ((f = open(lnamebuf, O_RDONLY)) == -1) {
 		warn("cannot open %s", lnamebuf);
+		paranoid_free(lnamebuf);
 		return (NULL);
 	}
+	paranoid_free(lnamebuf);
 
 	/* New world order */
 	if ((ioctl(f, DIOCGMEDIASIZE, &mediasize) != 0)
@@ -1521,8 +1373,8 @@ char *canonical_name(char *drivename)
 int label_drive_or_slice(struct mountlist_itself *mountlist,
 						 char *drivename, struct disklabel *ret)
 {
-	char subdev_str[MAX_STR_LEN];
-	char command[MAX_STR_LEN];
+	char *subdev_str;
+	char *command;
 	struct disklabel *lp;
 	int i, lo = 0;
 	int retval = 0;
@@ -1532,7 +1384,7 @@ int label_drive_or_slice(struct mountlist_itself *mountlist,
 	lp = get_virgin_disklabel(drivename);
 	for (c = 'a'; c <= 'z'; ++c) {
 		int idx;
-		sprintf(subdev_str, "%s%c", drivename, c);
+		asprintf(&subdev_str, "%s%c", drivename, c);
 		if ((idx = find_device_in_mountlist(mountlist, subdev_str)) < 0) {
 			lp->d_partitions[c - 'a'].p_size = 0;
 			lp->d_partitions[c - 'a'].p_fstype = FS_UNUSED;
@@ -1557,6 +1409,7 @@ int label_drive_or_slice(struct mountlist_itself *mountlist,
 			} else
 				lp->d_partitions[c - 'a'].p_fstype = FS_OTHER;
 		}
+		paranoid_free(subdev_str);
 	}
 
 	// fix up the offsets
@@ -1587,11 +1440,14 @@ int label_drive_or_slice(struct mountlist_itself *mountlist,
 	ftmp = fopen("/tmp/disklabel", "w");
 	display_disklabel(ftmp, lp);
 	fclose(ftmp);
-	sprintf(command, "disklabel -wr %s auto", canonical_name(drivename));
+	asprintf(&command, "disklabel -wr %s auto", canonical_name(drivename));
 	retval += run_program_and_log_output(command, TRUE);
-	sprintf(command, "disklabel -R %s /tmp/disklabel",
+	paranoid_free(command);
+
+	asprintf(&command, "disklabel -R %s /tmp/disklabel",
 			canonical_name(drivename));
 	retval += run_program_and_log_output(command, TRUE);
+	paranoid_free(command);
 	if (ret)
 		*ret = *lp;
 	return retval;
@@ -1608,55 +1464,54 @@ int label_drive_or_slice(struct mountlist_itself *mountlist,
 int partition_drive(struct mountlist_itself *mountlist, char *drivename)
 {
 	/** int *************************************************************/
-	int current_devno;
+	int current_devno = 0;
 	int previous_devno = 0;
-	int lino;
+	int lino = 0;
 	int retval = 0;
-	int i;
+	int i = 0;
 	FILE *pout_to_fdisk = NULL;
 
 #ifdef __FreeBSD__
 	bool fbsd_part = FALSE;
-	char subdev_str[MAX_STR_LEN];
+	char *subdev_str = NULL;
 #endif
 
 	/** long long *******************************************************/
 	long long partsize;
 
 	/** buffers *********************************************************/
-	char *device_str;
-	char *format;
-	char *tmp;
+	char *device_str = NULL;
+	char *format = NULL;
+	char *tmp = NULL;
+	char *tmp1 = NULL;
 
 	/** end *************************************************************/
 
 	assert(mountlist != NULL);
 	assert_string_is_neither_NULL_nor_zerolength(drivename);
 
-	malloc_string(device_str);
-	malloc_string(format);
-	malloc_string(tmp);
-
-	sprintf(tmp, "Partitioning drive %s", drivename);
+	asprintf(&tmp, "Partitioning drive %s", drivename);
 	log_it(tmp);
+	paranoid_free(tmp);
 
 #if __FreeBSD__
 	log_it("(Not opening fdisk now; that's the Linux guy's job)");
 	pout_to_fdisk = NULL;
 #else
 	make_hole_for_file(FDISK_LOG);
-	sprintf(tmp, "parted2fdisk %s >> %s 2>> %s", drivename, FDISK_LOG, FDISK_LOG);
+	asprintf(&tmp, "parted2fdisk %s >> %s 2>> %s", drivename, FDISK_LOG,
+			FDISK_LOG);
 	pout_to_fdisk = popen(tmp, "w");
+	paranoid_free(tmp);
+
 	if (!pout_to_fdisk) {
-		log_to_screen(_("Cannot call parted2fdisk to configure %s"), drivename);
-		paranoid_free(device_str);
-		paranoid_free(format);
-		paranoid_free(tmp);
+		log_to_screen(_("Cannot call parted2fdisk to configure %s"),
+					  drivename);
 		return (1);
 	}
 #endif
 	for (current_devno = 1; current_devno < 99; current_devno++) {
-		build_partition_name(device_str, drivename, current_devno);
+		device_str = build_partition_name(drivename, current_devno);
 		lino = find_device_in_mountlist(mountlist, device_str);
 
 		if (lino < 0) {
@@ -1669,11 +1524,11 @@ int partition_drive(struct mountlist_itself *mountlist, char *drivename)
 			if (current_devno == 1) {
 				// try DangerouslyDedicated mode
 				for (c = 'a'; c <= 'z'; c++) {
-					sprintf(subdev_str, "%s%c", drivename, c);
-					if (find_device_in_mountlist(mountlist, subdev_str) >
-						0) {
+					asprintf(&subdev_str, "%s%c", drivename, c);
+					if (find_device_in_mountlist(mountlist, subdev_str) > 0) {
 						fbsd_part = TRUE;
 					}
+					paranoid_free(subdev_str);
 				}
 				if (fbsd_part) {
 					int r = label_drive_or_slice(mountlist,
@@ -1684,29 +1539,32 @@ int partition_drive(struct mountlist_itself *mountlist, char *drivename)
 							basename(drivename));
 					if (system(command)) {
 						log_to_screen
-							(_("Warning! Unable to make the drive bootable."));
+							(_
+							 ("Warning! Unable to make the drive bootable."));
 					}
 					paranoid_free(device_str);
-					paranoid_free(format);
-					paranoid_free(tmp);
+
 					return r;
 				}
 			}
 			for (c = 'a'; c <= 'z'; c++) {
-				sprintf(subdev_str, "%s%c", device_str, c);
+				asprintf(&subdev_str, "%s%c", device_str, c);
 				if (find_device_in_mountlist(mountlist, subdev_str) > 0) {
 					fbsd_part = TRUE;
 				}
+				paranoid_free(subdev_str);
 			}
 			// Now we check the subpartitions of the current partition.
 			if (fbsd_part) {
 				int i, line;
 
-				strcpy(format, "ufs");
+				asprintf(&format, "ufs");
 				partsize = 0;
 				for (i = 'a'; i < 'z'; ++i) {
-					sprintf(subdev_str, "%s%c", device_str, i);
+					asprintf(&subdev_str, "%s%c", device_str, i);
 					line = find_device_in_mountlist(mountlist, subdev_str);
+					paranoid_free(subdev_str);
+
 					if (line > 0) {
 						// We found one! Add its size to the total size.
 						partsize += mountlist->el[line].size;
@@ -1729,32 +1587,30 @@ int partition_drive(struct mountlist_itself *mountlist, char *drivename)
 			log_it("Wiping %s's partition table", drivename);
 #if __FreeBSD__
 			// FreeBSD doesn't let you write to blk devices in <512byte chunks.
-//          sprintf(tmp, "dd if=/dev/zero of=%s count=1 bs=512", drivename);
-//          if (run_program_and_log_output(tmp, TRUE)) {
 			file = open(drivename, O_WRONLY);
 			if (!file) {
-				sprintf(tmp,
+				asprintf(&tmp,
 						_("Warning - unable to open %s for wiping it's partition table"),
 						drivename);
 				log_to_screen(tmp);
+ 				paranoid_free(tmp);
 			}
 
 			for (i = 0; i < 512; i++) {
 				if (!write(file, "\0", 1)) {
-					sprintf(tmp, _("Warning - unable to write to %s"),
+					asprintf(&tmp, _("Warning - unable to write to %s"),
 							drivename);
 					log_to_screen(tmp);
+ 					paranoid_free(tmp);
 				}
 			}
-			system("sync");
+			sync();
 #else
 			iamhere("New, kernel-friendly partition remover");
 			for (i = 20; i > 0; i--) {
 				fprintf(pout_to_fdisk, "d\n%d\n", i);
 				fflush(pout_to_fdisk);
 			}
-//          sprintf(tmp, "dd if=/dev/zero of=%s count=1 bs=512", drivename);
-//          run_program_and_log_output(tmp, 1);
 #endif
 			if (current_devno > 1) {
 				previous_devno =
@@ -1766,7 +1622,7 @@ int partition_drive(struct mountlist_itself *mountlist, char *drivename)
 		if (!fbsd_part) {
 #endif
 
-			strcpy(format, mountlist->el[lino].format);
+			asprintf(&format, mountlist->el[lino].format);
 			partsize = mountlist->el[lino].size;
 
 #ifdef __FreeBSD__
@@ -1775,10 +1631,11 @@ int partition_drive(struct mountlist_itself *mountlist, char *drivename)
 
 		if (current_devno == 5 && previous_devno == 4) {
 			log_to_screen
-				(_("You must leave at least one partition spare as the Extended partition."));
+				(_
+				 ("You must leave at least one partition spare as the Extended partition."));
 			paranoid_free(device_str);
 			paranoid_free(format);
-			paranoid_free(tmp);
+
 			return (1);
 		}
 
@@ -1788,46 +1645,55 @@ int partition_drive(struct mountlist_itself *mountlist, char *drivename)
 
 #ifdef __FreeBSD__
 		if ((current_devno <= 4) && fbsd_part) {
-			sprintf(tmp, "disklabel -B %s", basename(device_str));
+			asprintf(&tmp, "disklabel -B %s", basename(device_str));
 			retval += label_drive_or_slice(mountlist, device_str, 0);
 			if (system(tmp)) {
 				log_to_screen
 					(_("Warning! Unable to make the slice bootable."));
 			}
+			paranoid_free(tmp);
 		}
 #endif
 
 		previous_devno = current_devno;
 	}
+	paranoid_free(device_str);
+	paranoid_free(format);
 
 	if (pout_to_fdisk) {
-// mark relevant partition as bootable
-		sprintf(tmp, "a\n%s\n",
-				call_program_and_get_last_line_of_output
-				("make-me-bootable /tmp/mountlist.txt dummy"));
+		// mark relevant partition as bootable
+		tmp1 = call_program_and_get_last_line_of_output
+				("make-me-bootable /tmp/mountlist.txt dummy");
+		asprintf(&tmp, "a\n%s\n", tmp1);
+		paranoid_free(tmp1);
+
 		fput_string_one_char_at_a_time(pout_to_fdisk, tmp);
-// close fdisk
+		paranoid_free(tmp);
+
+		// close fdisk
 		fput_string_one_char_at_a_time(pout_to_fdisk, "w\n");
-		system("sync");
+		sync();
 		paranoid_pclose(pout_to_fdisk);
 		log_msg(0,
 				"------------------- fdisk.log looks like this ------------------");
-		sprintf(tmp, "cat %s >> %s", FDISK_LOG, MONDO_LOGFILE);
+		asprintf(&tmp, "cat %s >> %s", FDISK_LOG, MONDO_LOGFILE);
 		system(tmp);
+		paranoid_free(tmp);
+
 		log_msg(0,
 				"------------------- end of fdisk.log... word! ------------------");
-		sprintf(tmp, "tail -n6 %s | grep -F \"16: \"", FDISK_LOG);
+		asprintf(&tmp, "tail -n6 %s | grep -F \"16: \"", FDISK_LOG);
 		if (!run_program_and_log_output(tmp, 5)) {
 			g_partition_table_locked_up++;
 			log_to_screen
-				(_("A flaw in the Linux kernel has locked the partition table."));
+				(_
+				 ("A flaw in the Linux kernel has locked the partition table."));
 		}
+		paranoid_free(tmp);
 	}
-	paranoid_free(device_str);
-	paranoid_free(format);
-	paranoid_free(tmp);
 	return (retval);
 }
+
 
 /**
  * Create partition number @p partno on @p drive with @p fdisk.
@@ -1850,7 +1716,6 @@ int partition_device(FILE * pout_to_fdisk, const char *drive, int partno,
 	char *program;
 	char *partition_name;
 	char *tmp;
-	char *logfile;
 	char *output;
 
 	/** pointers **********************************************************/
@@ -1860,12 +1725,6 @@ int partition_device(FILE * pout_to_fdisk, const char *drive, int partno,
 
 	/** end ***************************************************************/
 
-	malloc_string(program);
-	malloc_string(partition_name);
-	malloc_string(tmp);
-	malloc_string(logfile);
-	malloc_string(output);
-
 	assert_string_is_neither_NULL_nor_zerolength(drive);
 	assert(format != NULL);
 
@@ -1873,96 +1732,91 @@ int partition_device(FILE * pout_to_fdisk, const char *drive, int partno,
 		   drive, partno, prev_partno, format, partsize);
 
 	if (!strncmp(drive, RAID_DEVICE_STUB, strlen(RAID_DEVICE_STUB))) {
-		sprintf(tmp, "Not partitioning %s - it is a virtual drive", drive);
+		asprintf(&tmp, "Not partitioning %s - it is a virtual drive", drive);
 		log_it(tmp);
-		paranoid_free(program);
-		paranoid_free(partition_name);
 		paranoid_free(tmp);
-		paranoid_free(logfile);
-		paranoid_free(output);
 		return (0);
 	}
-	build_partition_name(partition_name, drive, partno);
+	partition_name = build_partition_name(drive, partno);
 	if (partsize <= 0) {
-		sprintf(tmp, "Partitioning device %s (max size)", partition_name);
+		asprintf(&tmp, "Partitioning device %s (max size)", partition_name);
 	} else {
-		sprintf(tmp, "Partitioning device %s (%lld MB)", partition_name,
+		asprintf(&tmp, "Partitioning device %s (%lld MB)", partition_name,
 				(long long) partsize / 1024);
 	}
 	update_progress_form(tmp);
 	log_it(tmp);
+	paranoid_free(tmp);
 
 	if (is_this_device_mounted(partition_name)) {
-		sprintf(tmp, _("%s is mounted, and should not be partitioned"),
+		asprintf(&tmp, _("%s is mounted, and should not be partitioned"),
 				partition_name);
-		log_to_screen(tmp);
-		paranoid_free(program);
 		paranoid_free(partition_name);
-		paranoid_free(tmp);
-		paranoid_free(logfile);
-		paranoid_free(output);
-		return (1);
-/*
-	} else if (does_partition_exist(drive, partno)) {
-		sprintf(tmp, "%s already has a partition", partition_name);
+
 		log_to_screen(tmp);
+		paranoid_free(tmp);
 		return (1);
-*/
 	}
 
-
-	/*  sprintf(tmp,"Partitioning %s  ",partition_name); */
-	/*  mvaddstr_and_log_it(g_currentY+1,30,tmp); */
 	p = (char *) strrchr(partition_name, '/');
-	sprintf(logfile, "/tmp/fdisk.log.%s", ++p);
-	sprintf(program, "parted2fdisk %s >> %s 2>> %s", drive, MONDO_LOGFILE,
+	asprintf(&program, "parted2fdisk %s >> %s 2>> %s", drive, MONDO_LOGFILE,
 			MONDO_LOGFILE);
 
-	/* BERLIOS: shoould not be called each time */
+	/* BERLIOS: should not be called each time */
 	part_table_fmt = which_partition_format(drive);
-	output[0] = '\0';
 	/* make it a primary/extended/logical */
 	if (partno <= 4) {
-		sprintf(output + strlen(output), "n\np\n%d\n", partno);
+		asprintf(&output,"n\np\n%d\n", partno);
 	} else {
 		/* MBR needs an extended partition if more than 4 partitions */
 		if (strcmp(part_table_fmt, "MBR") == 0) {
 			if (partno == 5) {
 				if (prev_partno >= 4) {
 					log_to_screen
-						(_("You need to leave at least one partition free, for 'extended/logical'"));
-					paranoid_free(program);
+						(_
+						 ("You need to leave at least one partition free, for 'extended/logical'"));
 					paranoid_free(partition_name);
-					paranoid_free(tmp);
-					paranoid_free(logfile);
+					paranoid_free(program);
+
 					paranoid_free(output);
 					return (1);
 				} else {
-					sprintf(output + strlen(output), "n\ne\n%d\n\n\n",
-							prev_partno + 1);
+					asprintf(&output,"n\ne\n%d\n\n\n",prev_partno + 1);
 				}
 			}
-			strcat(output + strlen(output), "n\nl\n");
+			asprintf(&tmp,"%sn\nl\n",output);
+			paranoid_free(output);
+			output = tmp;
 		} else {
 			/* GPT allows more than 4 primary partitions */
-			sprintf(output + strlen(output), "n\np\n%d\n", partno);
+			asprintf(&output,"n\np\n%d\n",partno);
 		}
 	}
 	paranoid_free(part_table_fmt);
-	strcat(output + strlen(output), "\n");	/*start block (ENTER for next free blk */
+	/*start block (ENTER for next free blk */
+	asprintf(&tmp,"%s\n",output);
+	paranoid_free(output);
+	output = tmp;
+
 	if (partsize > 0) {
 		if (!strcmp(format, "7")) {
 			log_msg(1, "Adding 512K, just in case");
 			partsize += 512;
 		}
-		sprintf(output + strlen(output), "+%lldK", (long long) (partsize));
+		asprintf(&tmp,"%s+%lldK", output,  (long long) (partsize));
+		paranoid_free(output);
+		output = tmp;
 	}
-	strcat(output + strlen(output), "\n");
+	asprintf(&tmp,"%s\n",output);
+	paranoid_free(output);
+	output = tmp;
 #if 0
 /*
 #endif
-	sprintf(tmp,"PARTSIZE = +%ld",(long)partsize);
+	asprintf(&tmp,"PARTSIZE = +%ld",(long)partsize);
 	log_it(tmp);
+	paranoid_free(tmp);
+
 	log_it("---fdisk command---");
 	log_it(output);
 	log_it("---end of fdisk---");
@@ -1976,7 +1830,7 @@ int partition_device(FILE * pout_to_fdisk, const char *drive, int partno,
 		log_msg(1, "output = '%s'", output);
 		fput_string_one_char_at_a_time(pout_to_fdisk, output);
 		fput_string_one_char_at_a_time(pout_to_fdisk, "\n\np\n");
-		strcpy(tmp, last_line_of_file(FDISK_LOG));
+		tmp = last_line_of_file(FDISK_LOG);
 		if (strstr(tmp, " (m ")) {
 			log_msg(1, "Successfully created %s%d", drive, partno);
 		} else {
@@ -1984,6 +1838,8 @@ int partition_device(FILE * pout_to_fdisk, const char *drive, int partno,
 			log_msg(1, "Failed to create %s%d; sending 'Enter'...", drive,
 					partno);
 		}
+		paranoid_free(tmp);
+
 		if (!retval) {
 			log_msg(1, "Trying to set %s%d's partition type now", drive,
 					partno);
@@ -2001,7 +1857,10 @@ int partition_device(FILE * pout_to_fdisk, const char *drive, int partno,
 			log_msg(1, "...but failed to set type");
 		}
 	} else {
-		strcat(output, "w\n\n");
+		asprintf(&tmp,"%sw\n\n",output);
+		paranoid_free(output);
+		output = tmp;
+
 		if (g_fprep) {
 			fprintf(g_fprep, "echo \"%s\" | %s\n", output, program);
 		}
@@ -2019,8 +1878,10 @@ int partition_device(FILE * pout_to_fdisk, const char *drive, int partno,
 				partition_device(pout_to_fdisk, drive, partno, prev_partno,
 								 format, -1);
 			if (res) {
-				sprintf(tmp, "Failed to vacuum-pack %s", partition_name);
+				asprintf(&tmp, "Failed to vacuum-pack %s", partition_name);
 				log_it(tmp);
+				paranoid_free(tmp);
+
 				retval++;
 			} else {
 				retval = 0;
@@ -2031,38 +1892,38 @@ int partition_device(FILE * pout_to_fdisk, const char *drive, int partno,
 				set_partition_type(pout_to_fdisk, drive, partno, format,
 								   partsize);
 			if (retval) {
-				sprintf(tmp, "Partitioned %s but failed to set its type",
+				asprintf(&tmp, "Partitioned %s but failed to set its type",
 						partition_name);
 				log_it(tmp);
+				paranoid_free(tmp);
 			} else {
 				if (partsize > 0) {
-					sprintf(tmp, "Partition %s created+configured OK",
+					asprintf(&tmp, "Partition %s created+configured OK",
 							partition_name);
 					log_to_screen(tmp);
+					paranoid_free(tmp);
 				} else {
 					log_it("Returning from a successful vacuum-pack");
 				}
 			}
 		} else {
-			sprintf(tmp, "Failed to partition %s", partition_name);
+			asprintf(&tmp, "Failed to partition %s", partition_name);
 			if (partsize > 0) {
 				log_to_screen(tmp);
 			} else {
 				log_it(tmp);
 			}
+			paranoid_free(tmp);
 			retval++;
 		}
 	}
 	g_current_progress++;
 	log_it("partition_device() --- leaving");
-	paranoid_free(program);
 	paranoid_free(partition_name);
-	paranoid_free(tmp);
-	paranoid_free(logfile);
+	paranoid_free(program);
 	paranoid_free(output);
 	return (retval);
 }
-
 
 
 /**
@@ -2123,8 +1984,8 @@ int partition_everything(struct mountlist_itself *mountlist)
 
 	open_progress_form(_("Partitioning devices"),
 					   _("I am now going to partition all your drives."),
-					   _("This should not take more than five minutes."), "",
-					   mountlist->entries);
+					   _("This should not take more than five minutes."),
+					   "", mountlist->entries);
 
 	make_list_of_drives_in_mountlist(mountlist, drivelist);
 
@@ -2137,7 +1998,8 @@ int partition_everything(struct mountlist_itself *mountlist)
 	if (retval) {
 		mvaddstr_and_log_it(g_currentY++, 74, _("Failed."));
 		log_to_screen
-			(_("Errors occurred during the partitioning of your hard drives."));
+			(_
+			 ("Errors occurred during the partitioning of your hard drives."));
 	} else {
 		mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 		paranoid_system("rm -f /tmp/fdisk*.log 2> /dev/null");
@@ -2167,16 +2029,16 @@ int set_partition_type(FILE * pout_to_fdisk, const char *drive, int partno,
 					   const char *format, long long partsize)
 {
 	/** buffers *********************************************************/
-	char *partition;
-	char *command;
-	char *output;
-	char *tmp;
-	char *partcode;
-	char *logfile;
+	char *partition = NULL;
+	char *command = NULL;
+	char *output = NULL;
+	char *tmp = NULL;
+	char *tmp1 = NULL;
+	char *partcode = NULL;
 
 	/** pointers *********************************************************/
-	char *p;
-	FILE *fout;
+	char *p = NULL;
+	FILE *fout = NULL;
 
 	/** int **************************************************************/
 	int res = 0;
@@ -2186,90 +2048,94 @@ int set_partition_type(FILE * pout_to_fdisk, const char *drive, int partno,
 	assert_string_is_neither_NULL_nor_zerolength(drive);
 	assert(format != NULL);
 
-	malloc_string(partition);
-	malloc_string(command);
-	malloc_string(output);
-	malloc_string(tmp);
-	malloc_string(partcode);
-	malloc_string(logfile);
-
-	build_partition_name(partition, drive, partno);
+	partition = build_partition_name(drive, partno);
 	p = (char *) strrchr(partition, '/');
-	sprintf(logfile, "/tmp/fdisk-set-type.%s.log", ++p);
 	if (strcmp(format, "swap") == 0) {
-		strcpy(partcode, "82");
+		asprintf(&partcode, "82");
 	} else if (strcmp(format, "vfat") == 0) {
 		if (partsize / 1024 > 8192) {
-			strcpy(partcode, "c");
+			asprintf(&partcode, "c");
 		} else {
-			strcpy(partcode, "b");
+			asprintf(&partcode, "b");
 		}
 	} else if (strcmp(format, "ext2") == 0
 			   || strcmp(format, "reiserfs") == 0
 			   || strcmp(format, "ext3") == 0 || strcmp(format, "xfs") == 0
 			   || strcmp(format, "jfs") == 0) {
-		strcpy(partcode, "83");
+		asprintf(&partcode, "83");
 	} else if (strcmp(format, "minix") == 0) {
-		strcpy(partcode, "81");
+		asprintf(&partcode, "81");
 	} else if (strcmp(format, "raid") == 0) {
-		strcpy(partcode, "fd");
+		asprintf(&partcode, "fd");
 	} else if ((strcmp(format, "ufs") == 0)
 			   || (strcmp(format, "ffs") == 0)) {	/* raid autodetect */
-		strcpy(partcode, "a5");
+		asprintf(&partcode, "a5");
 	} else if (strcmp(format, "lvm") == 0) {
-		strcpy(partcode, "8e");
+		asprintf(&partcode, "8e");
 	} else if (format[0] == '\0') {	/* LVM physical partition */
-		partcode[0] = '\0';
+		asprintf(&partcode, "");
 	} else if (strlen(format) >= 1 && strlen(format) <= 2) {
-		strcpy(partcode, format);
+		asprintf(&partcode, format);
 	} else {
 		/* probably an image */
-		sprintf(tmp,
+		asprintf(&tmp,
 				"Unknown format ('%s') - using supplied string anyway",
 				format);
 		mvaddstr_and_log_it(g_currentY++, 0, tmp);
+		paranoid_free(tmp);
 #ifdef __FreeBSD__
-		strcpy(partcode, format);	// was a5
+		asprintf(&partcode, format);	// was a5
 #else
-		strcpy(partcode, format);	// was 83
+		asprintf(&partcode, format);	// was 83
 #endif
 	}
-	sprintf(tmp, "Setting %s's type to %s (%s)", partition, format,
+	asprintf(&tmp, "Setting %s's type to %s (%s)", partition, format,
 			partcode);
+	paranoid_free(partition);
+
 	log_msg(1, tmp);
+	paranoid_free(tmp);
 	if (partcode[0] != '\0' && strcmp(partcode, "83")) {	/* no need to set type if 83: 83 is default */
 
 		if (pout_to_fdisk) {
 			res = 0;
 			fput_string_one_char_at_a_time(pout_to_fdisk, "t\n");
+			tmp1 = last_line_of_file(FDISK_LOG);
 			if (partno > 1
-				|| strstr(last_line_of_file(FDISK_LOG), " (1-4)")) {
+				|| strstr(tmp1, " (1-4)")) {
 				log_msg(5, "Specifying partno (%d) - yay", partno);
-				sprintf(tmp, "%d\n", partno);
+				asprintf(&tmp, "%d\n", partno);
 				fput_string_one_char_at_a_time(pout_to_fdisk, tmp);
-				log_msg(5, "A - last line = '%s'",
-						last_line_of_file(FDISK_LOG));
+				paranoid_free(tmp);
+				paranoid_free(tmp1);
+				tmp1 = last_line_of_file(FDISK_LOG);
+				log_msg(5, "A - last line = '%s'", tmp1);
 			}
+			paranoid_free(tmp1);
 
-			sprintf(tmp, "%s\n", partcode);
+			asprintf(&tmp, "%s\n", partcode);
 			fput_string_one_char_at_a_time(pout_to_fdisk, tmp);
-			log_msg(5, "B - last line = '%s'",
-					last_line_of_file(FDISK_LOG));
-			fput_string_one_char_at_a_time(pout_to_fdisk, "\n");
-			log_msg(5, "C - last line = '%s'",
-					last_line_of_file(FDISK_LOG));
+			paranoid_free(tmp);
+			tmp1 = last_line_of_file(FDISK_LOG);
+			log_msg(5, "B - last line = '%s'",tmp1);
+			paranoid_free(tmp1);
 
-			strcpy(tmp, last_line_of_file(FDISK_LOG));
+			fput_string_one_char_at_a_time(pout_to_fdisk, "\n");
+			tmp1 = last_line_of_file(FDISK_LOG);
+			log_msg(5, "C - last line = '%s'",tmp1);
+			paranoid_free(tmp1);
+
+			tmp = last_line_of_file(FDISK_LOG);
 			if (!strstr(tmp, " (m ")) {
 				log_msg(1, "last line = '%s'; part type set failed", tmp);
 				res++;
 				fput_string_one_char_at_a_time(pout_to_fdisk, "\n");
 			}
+			paranoid_free(tmp);
 			fput_string_one_char_at_a_time(pout_to_fdisk, "p\n");
 		} else {
-			sprintf(output, "t\n%d\n%s\n", partno, partcode);
-			strcat(output, "w\n");
-			sprintf(command, "parted2fdisk %s >> %s 2>> %s", drive,
+			asprintf(&output, "t\n%d\n%s\nw\n", partno, partcode);
+			asprintf(&command, "parted2fdisk %s >> %s 2>> %s", drive,
 					MONDO_LOGFILE, MONDO_LOGFILE);
 			log_msg(5, "output = '%s'", output);
 			log_msg(5, "partno=%d; partcode=%s", partno, partcode);
@@ -2283,18 +2149,17 @@ int set_partition_type(FILE * pout_to_fdisk, const char *drive, int partno,
 				fprintf(fout, output);
 				paranoid_pclose(fout);
 			}
+			paranoid_free(command);
+			paranoid_free(output);
 		}
+		/* BERLIOS: Useless as command not initialized in all cases
 		if (res) {
 			log_OS_error(command);
 		}
+		*/
 	}
-
-	paranoid_free(partition);
-	paranoid_free(command);
-	paranoid_free(output);
-	paranoid_free(tmp);
 	paranoid_free(partcode);
-	paranoid_free(logfile);
+
 
 	return (res);
 }
@@ -2312,16 +2177,15 @@ int start_raid_device(char *raid_device)
 	/** end *************************************************************/
 
 	assert_string_is_neither_NULL_nor_zerolength(raid_device);
-	malloc_string(program);
 
 #ifdef __FreeBSD__
 	if (is_this_device_mounted(raid_device)) {
 		log_it("Can't start %s when it's mounted!", raid_device);
 		return 1;
 	}
-	sprintf(program, "vinum start -f %s", raid_device);
+	asprintf(&program, "vinum start -f %s", raid_device);
 #else
-	sprintf(program, "raidstart %s", raid_device);
+	asprintf(&program, "raidstart %s", raid_device);
 //      sprintf (program, "raidstart " RAID_DEVICE_STUB "*");
 #endif
 	log_msg(1, "program = %s", program);
@@ -2329,6 +2193,8 @@ int start_raid_device(char *raid_device)
 	if (g_fprep) {
 		fprintf(g_fprep, "%s\n", program);
 	}
+	paranoid_free(program);
+
 	if (res) {
 		log_msg(1, "Warning - failed to start RAID device %s",
 				raid_device);
@@ -2337,7 +2203,6 @@ int start_raid_device(char *raid_device)
 	sleep(1);
 	return (retval);
 }
-
 
 
 /**
@@ -2357,20 +2222,19 @@ int stop_raid_device(char *raid_device)
 	/** end *************************************************************/
 
 	assert_string_is_neither_NULL_nor_zerolength(raid_device);
-	malloc_string(program);
 
 #ifdef __FreeBSD__
 	if (is_this_device_mounted(raid_device)) {
 		log_it("Can't stop %s when it's mounted!", raid_device);
 		return 1;
 	}
-	sprintf(program, "vinum stop -f %s", raid_device);
+	asprintf(&program, "vinum stop -f %s", raid_device);
 #else
-  	// use raidstop if it exists, otherwise use mdadm
-  	if (run_program_and_log_output("which raidstop", FALSE)) {
-		sprintf(program, "mdadm -S %s", raid_device);
+	// use raidstop if it exists, otherwise use mdadm
+	if (run_program_and_log_output("which raidstop", FALSE)) {
+		asprintf(&program, "mdadm -S %s", raid_device);
 	} else {
-		sprintf(program, "raidstop %s", raid_device);
+		asprintf(&program, "raidstop %s", raid_device);
 	}
 #endif
 	log_msg(1, "program = %s", program);
@@ -2378,6 +2242,8 @@ int stop_raid_device(char *raid_device)
 	if (g_fprep) {
 		fprintf(g_fprep, "%s\n", program);
 	}
+	paranoid_free(program);
+
 	if (res) {
 		log_msg(1, "Warning - failed to stop RAID device %s", raid_device);
 	}
@@ -2409,6 +2275,7 @@ int start_all_raid_devices(struct mountlist_itself *mountlist)
 	return (retval);
 }
 
+
 /**
  * Stop all software RAID devices listed in @p mountlist.
  * @param mountlist The mountlist to stop the RAID devices in.
@@ -2420,25 +2287,24 @@ int stop_all_raid_devices(struct mountlist_itself *mountlist)
 	/** int *************************************************************/
 	int retval = 0;
 #ifndef __FreeBSD__
-	int res;
+	int res = 0;
 #endif
 
 	/** char ************************************************************/
-	char *incoming;
+	char *incoming = NULL;
 #ifndef __FreeBSD__
-	char *dev;
+	char *dev = NULL;
 #endif
 	/** pointers ********************************************************/
 #ifndef __FreeBSD__
-	char *p;
+	char *p = NULL;
 #endif
-	FILE *fin;
-	int i;
+	FILE *fin = NULL;
+	int i = 0;
+	size_t n = 0;
 
 	/** end ****************************************************************/
 
-	malloc_string(dev);
-	malloc_string(incoming);
 	assert(mountlist != NULL);
 
 	for (i = 0; i < 3; i++) {
@@ -2448,49 +2314,45 @@ int stop_all_raid_devices(struct mountlist_itself *mountlist)
 			("vinum list | grep '^[PVS]' | sed 's/S/1/;s/P/2/;s/V/3/' | sort | cut -d' ' -f2",
 			 "r");
 		if (!fin) {
-			paranoid_free(dev);
-			paranoid_free(incoming);
 			return (1);
 		}
-		for (fgets(incoming, MAX_STR_LEN - 1, fin); !feof(fin);
-			 fgets(incoming, MAX_STR_LEN - 1, fin)) {
+		for (getline(&incoming, &n, fin); !feof(fin);
+			 getline(&incoming, &n, fin)) {
 			retval += stop_raid_device(incoming);
 		}
 #else
 		fin = fopen("/proc/mdstat", "r");
 		if (!fin) {
 			log_OS_error("/proc/mdstat");
-			paranoid_free(dev);
-			paranoid_free(incoming);
 			return (1);
 		}
-		for (fgets(incoming, MAX_STR_LEN - 1, fin); !feof(fin);
-			 fgets(incoming, MAX_STR_LEN - 1, fin)) {
+		for (getline(&incoming, &n, fin); !feof(fin);
+			 getline(&incoming, &n, fin)) {
 			for (p = incoming;
 				 *p != '\0' && (*p != 'm' || *(p + 1) != 'd'
 								|| !isdigit(*(p + 2))); p++);
 			if (*p != '\0') {
-				sprintf(dev, "/dev/%s", p);
+				asprintf(&dev, "/dev/%s", p);
+				/* BERLIOS : 32 Hard coded value */
 				for (p = dev; *p > 32; p++);
 				*p = '\0';
 				res = stop_raid_device(dev);
+				paranoid_free(dev);
 			}
 		}
 #endif
+		paranoid_free(incoming);
 	}
 	paranoid_fclose(fin);
 	if (retval) {
 		log_msg(1, "Warning - unable to stop some RAID devices");
 	}
-	paranoid_free(dev);
-	paranoid_free(incoming);
-	system("sync");
-	system("sync");
-	system("sync");
+	sync();
+	sync();
+	sync();
 	sleep(1);
 	return (retval);
 }
-
 
 
 /**
@@ -2509,7 +2371,6 @@ int which_format_command_do_i_need(char *format, char *program)
 
 	/** end ***************************************************************/
 
-	malloc_string(tmp);
 	assert_string_is_neither_NULL_nor_zerolength(format);
 	assert(program != NULL);
 
@@ -2541,12 +2402,12 @@ int which_format_command_do_i_need(char *format, char *program)
 #else
 		sprintf(program, "mkfs -t %s -c", format);	// -c checks for bad blocks
 #endif
-		sprintf(tmp, "Unknown format (%s) - assuming '%s' will do", format,
+		asprintf(&tmp, "Unknown format (%s) - assuming '%s' will do", format,
 				program);
 		log_it(tmp);
+		paranoid_free(tmp);
 		res = 0;
 	}
-	paranoid_free(tmp);
 	return (res);
 }
 
@@ -2572,7 +2433,6 @@ long calc_orig_size_of_drive_from_mountlist(struct mountlist_itself
 
 	/** end *************************************************************/
 
-	malloc_string(tmp);
 	assert(mountlist != NULL);
 	assert_string_is_neither_NULL_nor_zerolength(drive_name);
 
@@ -2583,12 +2443,12 @@ long calc_orig_size_of_drive_from_mountlist(struct mountlist_itself
 			 strlen(drive_name)) == 0) {
 			original_size_of_drive += mountlist->el[partno].size;
 		} else {
-			sprintf(tmp, "Skipping %s", mountlist->el[partno].device);
+			asprintf(&tmp, "Skipping %s", mountlist->el[partno].device);
 //                      log_to_screen(tmp);
+			paranoid_free(tmp);
 		}
 	}
 	original_size_of_drive = original_size_of_drive / 1024;
-	paranoid_free(tmp);
 	return (original_size_of_drive);
 }
 
@@ -2631,14 +2491,12 @@ void resize_drive_proportionately_to_suit_new_drives(struct mountlist_itself
 
 	/** end **************************************************************/
 
-	malloc_string(tmp);
 	assert(mountlist != NULL);
 	assert_string_is_neither_NULL_nor_zerolength(drive_name);
 
 	if (strlen(drive_name) >= strlen(RAID_DEVICE_STUB)) {
 		if (strncmp(drive_name, RAID_DEVICE_STUB, strlen(RAID_DEVICE_STUB))
 			== 0) {
-			paranoid_free(tmp);
 			return;
 		}
 	}
@@ -2652,12 +2510,12 @@ void resize_drive_proportionately_to_suit_new_drives(struct mountlist_itself
 
 	if (current_size_of_drive <= 0) {
 		log_it("Not resizing to match %s - can't find drive", drive_name);
-		paranoid_free(tmp);
 		return;
 	}
-	sprintf(tmp, _("Expanding entries to suit drive %s (%ld MB)"), drive_name,
-			current_size_of_drive);
+	asprintf(&tmp, _("Expanding entries to suit drive %s (%ld MB)"),
+			drive_name, current_size_of_drive);
 	log_to_screen(tmp);
+	paranoid_free(tmp);
 
 	drivemntlist = malloc(sizeof(struct mountlist_reference));
 	drivemntlist->el =
@@ -2674,7 +2532,7 @@ void resize_drive_proportionately_to_suit_new_drives(struct mountlist_itself
 	original_size_of_drive = original_size_of_drive / 1024;
 
 	if (original_size_of_drive <= 0) {
-		sprintf(tmp, _("Cannot resize %s's entries. Drive not found."),
+		asprintf(&tmp, _("Cannot resize %s's entries. Drive not found."),
 				drive_name);
 		log_to_screen(tmp);
 		paranoid_free(tmp);
@@ -2682,10 +2540,11 @@ void resize_drive_proportionately_to_suit_new_drives(struct mountlist_itself
 	}
 	factor =
 		(float) (current_size_of_drive) / (float) (original_size_of_drive);
-	sprintf(tmp, "Disk %s was %ld MB; is now %ld MB; factor = %f",
+	asprintf(&tmp, "Disk %s was %ld MB; is now %ld MB; factor = %f",
 			drive_name, original_size_of_drive, current_size_of_drive,
 			factor);
 	log_to_screen(tmp);
+	paranoid_free(tmp);
 
 	lastpart = drivemntlist->entries - 1;
 	for (partno = 0; partno < drivemntlist->entries; partno++) {
@@ -2704,14 +2563,15 @@ void resize_drive_proportionately_to_suit_new_drives(struct mountlist_itself
 		} else {
 			newsizL = (long) new_size;
 		}
-		sprintf(tmp, _("Changing %s from %lld KB to %ld KB"),
+		asprintf(&tmp, _("Changing %s from %lld KB to %ld KB"),
 				drivemntlist->el[partno]->device,
 				drivemntlist->el[partno]->size, newsizL);
 		log_to_screen(tmp);
+		paranoid_free(tmp);
 		drivemntlist->el[partno]->size = newsizL;
 	}
 	final_size = get_phys_size_of_drive(drive_name);
-	sprintf(tmp, _("final_size = %ld MB"), final_size);
+	asprintf(&tmp, _("final_size = %ld MB"), final_size);
 	log_to_screen(tmp);
 	paranoid_free(tmp);
 }
@@ -2777,7 +2637,7 @@ void create_mountlist_for_drive(struct mountlist_itself *mountlist,
 
 	log_msg(1, "Creating list of partitions for drive %s", drive_name);
 
-	tmp_drive_name = strdup(drive_name);
+	asprintf(&tmp_drive_name,drive_name);
 	if (!tmp_drive_name)
 		fatal_error("Out of memory");
 
@@ -2797,8 +2657,7 @@ void create_mountlist_for_drive(struct mountlist_itself *mountlist,
 			drivemntlist->entries++;
 		}
 	}
-	if (tmp_drive_name)
-		free(tmp_drive_name);
+	paranoid_free(tmp_drive_name);
 }
 
 /* @} - end of prepGroup */

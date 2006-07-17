@@ -846,25 +846,18 @@ int add_string_at_node(struct s_node *startnode, char *string_to_add)
 struct s_node *load_filelist(char *filelist_fname)
 {
 
-	/*@ structures ************************************************* */
-	struct s_node *filelist;
-
-	/*@ pointers *************************************************** */
-	FILE *pin;
-
-	/*@ buffers **************************************************** */
-	char *command_to_open_fname;
+	struct s_node *filelist = NULL;
+	FILE *pin = NULL;
+	char *command_to_open_fname = NULL;
 	char *fname = NULL;
-	char *tmp;
-	int pos_in_fname;
+	char *tmp = NULL;
+	char *tmp1 = NULL;
+	int pos_in_fname = 0;
 	size_t n = 0;
-	/*@ int ******************************************************** */
-	int percentage;
+	int percentage = 0;
 
-	/*@ long ******************************************************* */
-	long lines_in_filelist;
-	long lino = 0;
-	/*@ end vars *************************************************** */
+	long lines_in_filelist = 0L;
+	long lino = 0L;
 
 	assert_string_is_neither_NULL_nor_zerolength(filelist_fname);
 
@@ -875,9 +868,11 @@ struct s_node *load_filelist(char *filelist_fname)
 	asprintf(&command_to_open_fname, "gzip -dc %s", filelist_fname);
 	asprintf(&tmp, "zcat %s | wc -l", filelist_fname);
 	log_msg(6, "tmp = %s", tmp);
-	lines_in_filelist =
-		atol(call_program_and_get_last_line_of_output(tmp));
+	tmp1 = call_program_and_get_last_line_of_output(tmp);
 	paranoid_free(tmp);
+
+	lines_in_filelist = atol(tmp1);
+	paranoid_free(tmp1);
 
 	if (lines_in_filelist < 3) {
 		log_to_screen(_("Warning - surprisingly short filelist."));
@@ -1321,21 +1316,22 @@ int open_and_list_dir(char *dir, char *sth, FILE * fout,
 					  time_t time_of_last_full_backup,
 					  char *skeleton_filelist)
 {
-	DIR *dip;
-	struct dirent *dit;
+	DIR *dip = NULL;
+	struct dirent *dit = NULL;
 	struct stat statbuf;
-	char *new;
-	char *tmp;
+	char *new = NULL;
+	char *tmp = NULL;
+	char *tmp1 = NULL;
 	static int percentage = 0;
-	char *skip_these;
-	char *new_with_spaces;
-	static char *name_of_evalcall_form;
-	int i;
+	char *skip_these = NULL;
+	char *new_with_spaces = NULL;
+	static char *name_of_evalcall_form = NULL;
+	int i = 0;
 	static int depth = 0;
-	char *p;
+	char *p = NULL;
 	static int counter = 0;
 	static int uberctr = 0;
-	static char *find_skeleton_marker;
+	static char *find_skeleton_marker = NULL;
 	static long skeleton_lino = 0;
 	static time_t last_time = 0;
 	time_t this_time;
@@ -1364,9 +1360,11 @@ int open_and_list_dir(char *dir, char *sth, FILE * fout,
 		paranoid_free(tmp);
 
 		asprintf(&tmp, "wc -l %s | awk '{print $1;}'", skeleton_filelist);
-		g_skeleton_entries =
-			1 + atol(call_program_and_get_last_line_of_output(tmp));
+		tmp1 = call_program_and_get_last_line_of_output(tmp);
 		paranoid_free(tmp);
+
+		g_skeleton_entries = 1 + atol(tmp1);
+		paranoid_free(tmp1);
 
 		asprintf(&name_of_evalcall_form, "Making catalog of %s", dir);
 		open_evalcall_form(name_of_evalcall_form);
@@ -1533,17 +1531,22 @@ int mondo_makefilelist(char *logfile, char *tmpdir, char *scratchdir,
 					   char *userdef_filelist)
 {
 	char sz_datefile_wildcard[] = "/var/cache/mondo/difflevel.%d";
-	char *p, *q;
+	char *p = NULL;
+   	char *q = NULL;
+   	char *tmp = NULL;
+   	char *tmp1 = NULL;
+   	char *tmp2 = NULL;
 	char *sz_datefile;
-	char *sz_filelist, *exclude_paths;
-	int i;
-	FILE *fout;
-	char *command;
+	char *sz_filelist = NULL;
+   	char *exclude_paths = NULL;
+	int i = 0;
+	FILE *fout = NULL;
+	char *command = NULL;
 	time_t time_of_last_full_backup = 0;
 	struct stat statbuf;
-	char *skeleton_filelist;
-	// The pathname to the skeleton filelist, used to give better progress reporting for mondo_makefilelist().
+	char *skeleton_filelist = NULL;
 
+	// The pathname to the skeleton filelist, used to give better progress reporting for mondo_makefilelist().
 	asprintf(&sz_datefile, sz_datefile_wildcard, 0);
 	if (!include_paths && !userdef_filelist) {
 		fatal_error
@@ -1572,9 +1575,9 @@ int mondo_makefilelist(char *logfile, char *tmpdir, char *scratchdir,
 			paranoid_free(command);
 		}
 		make_hole_for_file(sz_datefile);
-		write_one_liner_data_file(sz_datefile,
-								  call_program_and_get_last_line_of_output
-								  ("date +%s"));
+		tmp = call_program_and_get_last_line_of_output("date +%s");
+		write_one_liner_data_file(sz_datefile, tmp);
+		paranoid_free(tmp);
 	} else if (lstat(sz_datefile, &statbuf)) {
 		log_msg(2,
 				"Warning - unable to find date of previous backup. Full backup instead.");
@@ -1599,9 +1602,15 @@ int mondo_makefilelist(char *logfile, char *tmpdir, char *scratchdir,
 	} else {
 		log_msg(2, "include_paths = '%s'", include_paths);
 		log_msg(1, "Calculating filelist");
+		tmp = call_program_and_get_last_line_of_output("locate /win386.swp 2> /dev/null");
+		tmp1 = call_program_and_get_last_line_of_output("locate /hiberfil.sys 2> /dev/null");
+		tmp2 = call_program_and_get_last_line_of_output("locate /pagefile.sys 2> /dev/null");
 		asprintf(&exclude_paths, " %s %s %s %s %s %s . .. \
 " MNT_CDROM " " MNT_FLOPPY " /media/cdrom /media/cdrecorder \
-/proc /sys /tmp /var/cache/mondo /var/cache/mindi", excp, call_program_and_get_last_line_of_output("locate /win386.swp 2> /dev/null"), call_program_and_get_last_line_of_output("locate /hiberfil.sys 2> /dev/null"), call_program_and_get_last_line_of_output("locate /pagefile.sys 2> /dev/null"), (tmpdir[0] == '/' && tmpdir[1] == '/') ? (tmpdir + 1) : tmpdir, (scratchdir[0] == '/' && scratchdir[1] == '/') ? (scratchdir + 1) : scratchdir);
+/proc /sys /tmp /var/cache/mondo /var/cache/mindi", excp, tmp, tmp1, tmp2, (tmpdir[0] == '/' && tmpdir[1] == '/') ? (tmpdir + 1) : tmpdir, (scratchdir[0] == '/' && scratchdir[1] == '/') ? (scratchdir + 1) : scratchdir);
+		paranoid_free(tmp);
+		paranoid_free(tmp1);
+		paranoid_free(tmp2);
 
 		log_msg(2, "Excluding paths = '%s'", exclude_paths);
 		log_msg(2,

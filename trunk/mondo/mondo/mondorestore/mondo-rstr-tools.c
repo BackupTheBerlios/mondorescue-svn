@@ -1,14 +1,13 @@
 /*
  * $Id$
-*/
+**/
 
+#include <unistd.h>
 
 #include "../common/my-stuff.h"
 #include "../common/mondostructures.h"
 #include "../common/libmondo.h"
 #include "mr-externs.h"
-//#include "mondo-restore.h"
-//#include "mondo-rstr-compare-EXT.h"
 #include "mondo-rstr-tools.h"
 #ifndef S_SPLINT_S
 #include <pthread.h>
@@ -54,7 +53,6 @@ void free_MR_global_filenames()
 	paranoid_free(g_biggielist_txt);
 	paranoid_free(g_filelist_full);
 	paranoid_free(g_filelist_imagedevs);
-//  paranoid_free (g_imagedevs_pot );
 	paranoid_free(g_imagedevs_restthese);
 	paranoid_free(g_mondo_cfg_file);
 	paranoid_free(g_mountlist_fname);
@@ -66,7 +64,6 @@ void free_MR_global_filenames()
 }
 
 
-
 /**
  * Ask the user which imagedevs from the list contained in @p infname should
  * actually be restored.
@@ -76,13 +73,13 @@ void free_MR_global_filenames()
  */
 void ask_about_these_imagedevs(char *infname, char *outfname)
 {
-	FILE *fin;
-	FILE *fout;
+	FILE *fin = NULL;
+	FILE *fout = NULL;
   /************************************************************************
    * allocate memory regions. test and set  -sab 16 feb 2003              *
    ************************************************************************/
-	char *incoming;
-	char *question;
+	char *incoming = NULL;
+	char *question = NULL;
 
 	size_t n = 0;
 
@@ -104,17 +101,16 @@ void ask_about_these_imagedevs(char *infname, char *outfname)
 		}
 
 		asprintf(&question,
-				_("Should I restore the image of %s ?", incoming));
+				 _("Should I restore the image of %s ?"), incoming);
 
 		if (ask_me_yes_or_no(question)) {
 			fprintf(fout, "%s\n", incoming);
 		}
+		paranoid_free(question);
 	}
 
   /*** free memory ***********/
 	paranoid_free(incoming);
-	paranoid_free(question);
-
 
 	paranoid_fclose(fout);
 	paranoid_fclose(fin);
@@ -123,12 +119,6 @@ void ask_about_these_imagedevs(char *infname, char *outfname)
 /**************************************************************************
  *ASK_ABOUT_THESE_IMAGEDEVS                                               *
  **************************************************************************/
-
-
-
-
-
-
 
 
 /**
@@ -146,49 +136,55 @@ extract_config_file_from_ramdisk(struct s_bkpinfo *bkpinfo,
 								 char *output_cfg_file,
 								 char *output_mountlist_file)
 {
-	char *mountpt;
-	char *command;
-	char *orig_fname;
+	char *mountpt = NULL;
+	char *command = NULL;
+	char *orig_fname = NULL;
 	int retval = 0;
 
 	assert(bkpinfo != NULL);
-	malloc_string(mountpt);
-	malloc_string(command);
-	malloc_string(orig_fname);
 	assert_string_is_neither_NULL_nor_zerolength(ramdisk_fname);
 	assert_string_is_neither_NULL_nor_zerolength(output_cfg_file);
 	assert_string_is_neither_NULL_nor_zerolength(output_mountlist_file);
-	sprintf(mountpt, "%s/mount.bootdisk", bkpinfo->tmpdir);
-	sprintf(command, "mkdir -p %s", mountpt);
+	asprintf(&mountpt, "%s/mount.bootdisk", bkpinfo->tmpdir);
+	asprintf(&command, "mkdir -p %s", mountpt);
 	run_program_and_log_output(command, FALSE);
-	sprintf(command, "gzip -dc %s > %s/mindi.rd 2> /dev/null",
+	paranoid_free(command);
+
+	asprintf(&command, "gzip -dc %s > %s/mindi.rd 2> /dev/null",
 			ramdisk_fname, bkpinfo->tmpdir);
-
 	run_program_and_log_output(command, FALSE);
-	sprintf(command, "umount %s", mountpt);
+	paranoid_free(command);
 
+	asprintf(&command, "umount %s", mountpt);
 	run_program_and_log_output(command, FALSE);
+	paranoid_free(command);
 
-	sprintf(command, "mount -o loop %s/mindi.rd -t ext2 %s",
+	asprintf(&command, "mount -o loop %s/mindi.rd -t ext2 %s",
 			bkpinfo->tmpdir, mountpt);
-
 	run_program_and_log_output(command, FALSE);
+	paranoid_free(command);
 
-	sprintf(command, "mkdir -p %s/tmp", bkpinfo->tmpdir);
-
+	asprintf(&command, "mkdir -p %s/tmp", bkpinfo->tmpdir);
 	run_program_and_log_output(command, FALSE);
+	paranoid_free(command);
 
-	sprintf(command, "cp -f %s/%s %s",	// %s/%s becomes {mountpt}/tmp/m*ndo-restore.cfg
+	asprintf(&command, "cp -f %s/%s %s",	// %s/%s becomes {mountpt}/tmp/m*ndo-restore.cfg
 			mountpt, g_mondo_cfg_file, output_cfg_file);
 	run_program_and_log_output(command, FALSE);
+	paranoid_free(command);
 
-	sprintf(orig_fname, "%s/%s", mountpt, g_mountlist_fname);
+	asprintf(&orig_fname, "%s/%s", mountpt, g_mountlist_fname);
 	if (does_file_exist(orig_fname)) {
-		sprintf(command, "cp -f %s %s", orig_fname, output_mountlist_file);
+		asprintf(&command, "cp -f %s %s", orig_fname, output_mountlist_file);
 		run_program_and_log_output(command, FALSE);
+		paranoid_free(command);
 	}
-	sprintf(command, "umount %s", mountpt);
+	asprintf(&command, "umount %s", mountpt);
+	paranoid_free(mountpt);
+
 	run_program_and_log_output(command, FALSE);
+	paranoid_free(command);
+
 	if (!does_file_exist(output_cfg_file)
 		|| (!does_file_exist(output_mountlist_file)
 			&& does_file_exist(orig_fname))) {
@@ -198,14 +194,9 @@ extract_config_file_from_ramdisk(struct s_bkpinfo *bkpinfo,
 	} else {
 		retval = 0;
 	}
-	paranoid_free(mountpt);
-	paranoid_free(command);
 	paranoid_free(orig_fname);
 	return (retval);
-
 }
-
-
 
 
 /**
@@ -216,7 +207,8 @@ void get_cfg_file_from_archive_or_bust(struct s_bkpinfo *bkpinfo)
 {
 	while (get_cfg_file_from_archive(bkpinfo)) {
 		if (!ask_me_yes_or_no
-			(_("Failed to find config file/archives. Choose another source?")))
+			(_
+			 ("Failed to find config file/archives. Choose another source?")))
 		{
 			fatal_error("Could not find config file/archives. Aborting.");
 		}
@@ -236,47 +228,46 @@ bool is_file_in_list(char *f, char *list_fname, char *preamble)
 {
 
   /** needs malloc **/
-	char *command;
-	char *file;
-	char *tmp;
-	int res;
+	char *command = NULL;
+	char *file = NULL;
+	char *tmp = NULL;
+	int res = 0;
 
-	malloc_string(command);
-	malloc_string(file);
-	malloc_string(tmp);
 	assert_string_is_neither_NULL_nor_zerolength(f);
 	assert_string_is_neither_NULL_nor_zerolength(list_fname);
 	assert(preamble != NULL);
 
 	if (strncmp(preamble, f, strlen(preamble)) == 0) {
-		strcpy(file, f + strlen(preamble));
+		asprintf(&file, f + strlen(preamble));
 	} else {
-		strcpy(file, f);
+		asprintf(&file, f);
 	}
 	if (file[0] == '/' && file[1] == '/') {
-		strcpy(tmp, file);
-		strcpy(file, tmp + 1);
+		asprintf(&tmp, file);
+		paranoid_free(file);
+		asprintf(&file, tmp + 1);
+		paranoid_free(tmp);
 	}
-	sprintf(tmp,
+	asprintf(&tmp,
 			"Checking to see if f=%s, file=%s, is in the list of biggiefiles",
 			f, file);
 	log_msg(2, tmp);
-	sprintf(command, "grep -x \"%s\" %s", file, list_fname);
+	paranoid_free(tmp);
+
+	asprintf(&command, "grep -x \"%s\" %s", file, list_fname);
+	paranoid_free(file);
+
 	res = run_program_and_log_output(command, FALSE);
 	paranoid_free(command);
-	paranoid_free(file);
-	paranoid_free(tmp);
 	if (res) {
 		return (FALSE);
 	} else {
 		return (TRUE);
 	}
 }
-
 /**************************************************************************
  *END_IS_FILE_IN_LIST                                                     *
  **************************************************************************/
-
 
 
 /**
@@ -290,14 +281,13 @@ bool is_file_in_list(char *f, char *list_fname, char *preamble)
  */
 int iso_fiddly_bits(struct s_bkpinfo *bkpinfo, bool nuke_me_please)
 {
-	char *mount_isodir_command, *tmp, *command;
-	int retval = 0, i;
+	char *mount_isodir_command = NULL;
+	char *tmp = NULL;
+	char *command = NULL;
+	int retval = 0, i = 0;
 	bool already_mounted = FALSE;
 
 	assert(bkpinfo != NULL);
-	malloc_string(mount_isodir_command);
-	malloc_string(tmp);
-	malloc_string(command);
 	g_ISO_restore_mode = TRUE;
 	read_cfg_var(g_mondo_cfg_file, "iso-dev", g_isodir_device);
 	if (bkpinfo->disaster_recovery) {
@@ -307,8 +297,9 @@ int iso_fiddly_bits(struct s_bkpinfo *bkpinfo, bool nuke_me_please)
 			strcpy(bkpinfo->isodir, "/tmp/isodir");
 		}
 /* End patch */
-		sprintf(command, "mkdir -p %s", bkpinfo->isodir);
+		asprintf(&command, "mkdir -p %s", bkpinfo->isodir);
 		run_program_and_log_output(command, 5);
+		paranoid_free(command);
 		log_msg(2, "Setting isodir to %s", bkpinfo->isodir);
 	}
 
@@ -323,33 +314,39 @@ int iso_fiddly_bits(struct s_bkpinfo *bkpinfo, bool nuke_me_please)
 		log_to_screen(_("WARNING - isodir is already mounted"));
 		already_mounted = TRUE;
 	} else {
-		sprintf(mount_isodir_command, "mount %s", g_isodir_device);
-		if (strlen(g_isodir_format) > 1) {
-			sprintf(mount_isodir_command + strlen(mount_isodir_command),
-					" -t %s", g_isodir_format);
+		if (g_isodir_format != NULL) {
+			asprintf(&mount_isodir_command, "mount %s -t %s -o ro %s", g_isodir_device, g_isodir_format, bkpinfo->isodir);
+		} else {
+			asprintf(&mount_isodir_command, "mount %s -o ro %s", g_isodir_device, bkpinfo->isodir);
 		}
-		strcat(mount_isodir_command, " -o ro ");
-		strcat(mount_isodir_command, bkpinfo->isodir);
 		run_program_and_log_output("df -P -m", FALSE);
-		sprintf(tmp,
+		asprintf(&tmp,
 				"The 'mount' command is '%s'. PLEASE report this command to be if you have problems, ok?",
 				mount_isodir_command);
 		log_msg(1, tmp);
+		paranoid_free(tmp);
+
 		if (run_program_and_log_output(mount_isodir_command, FALSE)) {
 			popup_and_OK
-				(_("Cannot mount the device where the ISO files are stored."));
+				(_
+				 ("Cannot mount the device where the ISO files are stored."));
+			paranoid_free(mount_isodir_command);
 			return (1);
 		}
+		paranoid_free(mount_isodir_command);
 		log_to_screen
-			(_("I have mounted the device where the ISO files are stored."));
+			(_
+			 ("I have mounted the device where the ISO files are stored."));
 	}
 	if (!IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
 		mount_cdrom(bkpinfo);
 	}
 	i = what_number_cd_is_this(bkpinfo);	/* has the side-effect of calling mount_cdrom() */
-	sprintf(tmp, "%s #%d has been mounted via loopback mount",
+	asprintf(&tmp, "%s #%d has been mounted via loopback mount",
 			media_descriptor_string(bkpinfo->backup_media_type), i);
 	log_msg(1, tmp);
+	paranoid_free(tmp);
+
 	if (i < 0) {
 		popup_and_OK
 			(_("Cannot find ISO images in the directory you specified."));
@@ -357,13 +354,8 @@ int iso_fiddly_bits(struct s_bkpinfo *bkpinfo, bool nuke_me_please)
 	}
 	log_msg(2, "%ld: bkpinfo->isodir is now %s", __LINE__,
 			bkpinfo->isodir);
-	paranoid_free(mount_isodir_command);
-	paranoid_free(tmp);
-	paranoid_free(command);
 	return (retval);
 }
-
-
 
 
 /**
@@ -372,8 +364,7 @@ int iso_fiddly_bits(struct s_bkpinfo *bkpinfo, bool nuke_me_please)
 void kill_petris(void)
 {
 	char *command;
-	malloc_string(command);
-	sprintf(command,
+	asprintf(&command,
 			"kill `ps wax 2> /dev/null | grep petris 2> /dev/null | grep -v grep | cut -d' ' -f2` 2> /dev/null");
 	paranoid_system(command);
 	paranoid_free(command);
@@ -385,75 +376,6 @@ void kill_petris(void)
 
 
 /**
- * (Disabled) Modify rc.local to fix some things on first boot.
- * This function currently doesn't do anything except make sure /tmp has the
- * right permissions.
- * @param path The path to /etc on the user's filesystem.
- * @return 0 for success, nonzero for failure.
- */
-int modify_rclocal_one_time(char *path)
-{
-  /** malloc **/
-	char *rclocal_fname;
-	char *newfile_fname;
-	char *tmp;
-
-	malloc_string(rclocal_fname);
-	malloc_string(newfile_fname);
-	malloc_string(tmp);
-	assert_string_is_neither_NULL_nor_zerolength(path);
-
-	sprintf(rclocal_fname, "%s/rc.local", path);
-
-//  sprintf(tmp, "chmod 1777 %s/tmp", MNT_RESTORING);
-//  run_program_and_log_output( tmp, FALSE );
-	return (0);					/* remove this line to open the floodgates... */
-
-	if (!does_file_exist(rclocal_fname)) {
-		sprintf(rclocal_fname, "%s/rc.d/rc.local", path);
-	}
-	if (!does_file_exist(rclocal_fname)) {
-		paranoid_free(rclocal_fname);
-		paranoid_free(newfile_fname);
-		paranoid_free(tmp);
-		return (1);
-	}
-	sprintf(newfile_fname, "%s/rc.local.mondorescue", path);
-	sprintf(tmp, "grep mondorescue %s > /dev/null 2> /dev/null",
-			rclocal_fname);
-	if (system(tmp)) {
-		sprintf(tmp, "echo \"[ -e %s ] && %s\n\" >> %s",
-				newfile_fname, newfile_fname, rclocal_fname);
-
-		paranoid_system(tmp);
-	}
-	sprintf(tmp, "echo -en \"#!/bin/sh\
-\\n\
-\\n\
-grep -v mondorescue %s > %s\\n\
-rm -f /var/lock/subsys/*xfs*\\n\
-rm -f /var/run/xfs.*\\n\
-killall xfs\\n\
-service xfs start\\n\
-yes | rm -f %s\\n\
-\" > %s", rclocal_fname, rclocal_fname, newfile_fname, newfile_fname);
-	sprintf(tmp, "chmod +x \"%s\"", newfile_fname);
-	run_program_and_log_output(tmp, FALSE);
-	paranoid_free(rclocal_fname);
-	paranoid_free(newfile_fname);
-	paranoid_free(tmp);
-	return (0);
-}
-
-/**************************************************************************
- *END_ MODIFY_RCLOCAL_ONE_TIME                                            *
- **************************************************************************/
-
-
-
-
-
-/**
  * Mount all devices in @p p_external_copy_of_mountlist on @p MNT_RESTORING.
  * @param p_external_copy_of_mountlist The mountlist containing devices to be mounted.
  * @param writeable If TRUE, then mount read-write; if FALSE mount read-only.
@@ -462,21 +384,19 @@ yes | rm -f %s\\n\
 int mount_all_devices(struct mountlist_itself
 					  *p_external_copy_of_mountlist, bool writeable)
 {
-	int retval = 0, lino, res;
-	char *tmp, *these_failed, *format;
-	struct mountlist_itself *mountlist;
+	int retval = 0;
+   	int lino = 0;
+   	int res = 0;
+	char *tmp = NULL;
+   	char *these_failed = NULL;
+   	char *format = NULL;
+	struct mountlist_itself *mountlist = NULL;
 
-	malloc_string(tmp);
-	malloc_string(format);
-	malloc_string(these_failed);
 	assert(p_external_copy_of_mountlist != NULL);
 	mountlist = malloc(sizeof(struct mountlist_itself));
 	memcpy((void *) mountlist, (void *) p_external_copy_of_mountlist,
 		   sizeof(struct mountlist_itself));
 	sort_mountlist_by_mountpoint(mountlist, 0);
-
-  /** menset **/
-	these_failed[0] = '\0';
 
 	mvaddstr_and_log_it(g_currentY, 0, _("Mounting devices         "));
 	open_progress_form(_("Mounting devices"),
@@ -489,27 +409,37 @@ int mount_all_devices(struct mountlist_itself
 			log_msg(1,
 					"Again with the /proc - why is this in your mountlist?");
 		} else if (is_this_device_mounted(mountlist->el[lino].device)) {
-			sprintf(tmp, _("%s is already mounted"),
+			asprintf(&tmp, _("%s is already mounted"),
 					mountlist->el[lino].device);
 			log_to_screen(tmp);
+			paranoid_free(tmp);
 		} else if (strcmp(mountlist->el[lino].mountpoint, "none")
 				   && strcmp(mountlist->el[lino].mountpoint, "lvm")
 				   && strcmp(mountlist->el[lino].mountpoint, "raid")
 				   && strcmp(mountlist->el[lino].mountpoint, "image")) {
-			sprintf(tmp, "Mounting %s", mountlist->el[lino].device);
+			asprintf(&tmp, "Mounting %s", mountlist->el[lino].device);
 			update_progress_form(tmp);
-			strcpy(format, mountlist->el[lino].format);
+			paranoid_free(tmp);
+
+			asprintf(&format, mountlist->el[lino].format);
 			if (!strcmp(format, "ext3")) {
-				strcpy(format, "ext2");
+				paranoid_free(format);
+				asprintf(&format, "ext2");
 			}
 			res = mount_device(mountlist->el[lino].device,
 							   mountlist->el[lino].mountpoint,
 							   format, writeable);
 			retval += res;
 			if (res) {
-				strcat(these_failed, mountlist->el[lino].device);
-				strcat(these_failed, " ");
+				if (these_failed != NULL) { /* not the first time */
+					asprintf(&tmp, "%s %s", these_failed, mountlist->el[lino].device);
+					paranoid_free(these_failed);
+					these_failed = tmp;
+				} else { /* The first time */
+					asprintf(&these_failed, "%s ", mountlist->el[lino].device);
+				}
 			}
+			paranoid_free(format);
 		}
 		g_current_progress++;
 	}
@@ -518,36 +448,37 @@ int mount_all_devices(struct mountlist_itself
 	if (retval) {
 		if (g_partition_table_locked_up > 0) {
 			log_to_screen
-				(_("fdisk's ioctl() call to refresh its copy of the partition table causes the kernel to"));
-			log_to_screen
-				(_("lock up the partition table. You might have to reboot and use Interactive Mode to"));
-			log_to_screen
-				(_("format and restore *without* partitioning first. Sorry for the inconvenience."));
+				(_
+				 ("fdisk's ioctl() call to refresh its copy of the partition table causes the kernel to"));
+			log_to_screen(_
+						  ("lock up the partition table. You might have to reboot and use Interactive Mode to"));
+			log_to_screen(_
+						  ("format and restore *without* partitioning first. Sorry for the inconvenience."));
 		}
-		sprintf(tmp, _("Could not mount devices %s- shall I abort?"),
+		asprintf(&tmp, _("Could not mount devices %s- shall I abort?"),
 				these_failed);
+		paranoid_free(these_failed);
+
 		if (!ask_me_yes_or_no(tmp)) {
 			retval = 0;
 			log_to_screen
-				(_("Continuing, although some devices failed to be mounted"));
+				(_
+				 ("Continuing, although some devices failed to be mounted"));
 			mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 		} else {
 			mvaddstr_and_log_it(g_currentY++, 74, _("Failed."));
 			log_to_screen
 				(_("Unable to mount some or all of your partitions."));
 		}
+		paranoid_free(tmp);
 	} else {
 		log_to_screen(_("All partitions were mounted OK."));
 		mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 	}
 	run_program_and_log_output("df -P -m", 3);
 	paranoid_free(mountlist);
-	paranoid_free(tmp);
-	paranoid_free(format);
-	paranoid_free(these_failed);
 	return (retval);
 }
-
  /**************************************************************************
   *END_MOUNT_ALL_DEVICES                                                   *
   **************************************************************************/
@@ -564,26 +495,23 @@ int mount_all_devices(struct mountlist_itself
  */
 int mount_cdrom(struct s_bkpinfo *bkpinfo)
 {
-	char *mount_cmd, *tmp;
+	char *mount_cmd = NULL;
+   	char *tmp = NULL;
 	int i, res;
 #ifdef __FreeBSD__
-	char mdd[32];
-	char *mddev = mdd;
+	char *mddev = NULL;
 #endif
 
-	malloc_string(mount_cmd);
 	assert(bkpinfo != NULL);
 
 	if (bkpinfo->backup_media_type == tape
 		|| bkpinfo->backup_media_type == udev) {
 		log_msg(8, "Tape/udev. Therefore, no need to mount CDROM.");
-		paranoid_free(mount_cmd);
 		return 0;
 	}
 
 	if (!run_program_and_log_output("mount | grep -F " MNT_CDROM, FALSE)) {
 		log_msg(2, "mount_cdrom() - CD already mounted. Fair enough.");
-		paranoid_free(mount_cmd);
 		return (0);
 	}
 
@@ -596,35 +524,44 @@ int mount_cdrom(struct s_bkpinfo *bkpinfo)
 			log_msg(1, "isodir is being set to %s", bkpinfo->isodir);
 		}
 #ifdef __FreeBSD__
-		sprintf(mount_cmd, "/mnt/isodir/%s/%s/%s-%d.iso", bkpinfo->isodir,
-				bkpinfo->nfs_remote_dir, bkpinfo->prefix, g_current_media_number);
+		asprintf(&mount_cmd, "/mnt/isodir/%s/%s/%s-%d.iso", bkpinfo->isodir,
+				bkpinfo->nfs_remote_dir, bkpinfo->prefix,
+				g_current_media_number);
 		mddev = make_vn(mount_cmd);
-		sprintf(mount_cmd, "mount_cd9660 -r %s " MNT_CDROM, mddev);
+		paranoid_free(mount_cmd);
+
+		asprintf(&mount_cmd, "mount_cd9660 -r %s " MNT_CDROM, mddev);
+		paranoid_free(mddev);
 #else
-		sprintf(mount_cmd, "mount %s/%s/%s-%d.iso -t iso9660 -o loop,ro %s",
-				bkpinfo->isodir, bkpinfo->nfs_remote_dir,
-				bkpinfo->prefix, g_current_media_number, MNT_CDROM);
+		asprintf(&mount_cmd,
+				"mount %s/%s/%s-%d.iso -t iso9660 -o loop,ro %s",
+				bkpinfo->isodir, bkpinfo->nfs_remote_dir, bkpinfo->prefix,
+				g_current_media_number, MNT_CDROM);
 #endif
 
 	} else if (bkpinfo->backup_media_type == iso) {
 #ifdef __FreeBSD__
-		sprintf(mount_cmd, "%s/%s-%d.iso", bkpinfo->isodir,
+		asprintf(&mount_cmd, "%s/%s-%d.iso", bkpinfo->isodir,
 				bkpinfo->prefix, g_current_media_number);
 		mddev = make_vn(mount_cmd);
-		sprintf(mount_cmd, "mount_cd9660 -r %s %s", mddev, MNT_CDROM);
+		paranoid_free(mount_cmd);
+
+		asprintf(&mount_cmd, "mount_cd9660 -r %s %s", mddev, MNT_CDROM);
+		paranoid_free(mddev);
 #else
-		sprintf(mount_cmd, "mount %s/%s-%d.iso -t iso9660 -o loop,ro %s",
-				bkpinfo->isodir, bkpinfo->prefix, g_current_media_number, MNT_CDROM);
+		asprintf(&mount_cmd, "mount %s/%s-%d.iso -t iso9660 -o loop,ro %s",
+				bkpinfo->isodir, bkpinfo->prefix, g_current_media_number,
+				MNT_CDROM);
 #endif
 	} else if (strstr(bkpinfo->media_device, "/dev/"))
 #ifdef __FreeBSD__
 	{
-		sprintf(mount_cmd, "mount_cd9660 -r %s %s", bkpinfo->media_device,
+		asprintf(&mount_cmd, "mount_cd9660 -r %s %s", bkpinfo->media_device,
 				MNT_CDROM);
 	}
 #else
 	{
-		sprintf(mount_cmd, "mount %s -t iso9660 -o ro %s",
+		asprintf(&mount_cmd, "mount %s -t iso9660 -o ro %s",
 				bkpinfo->media_device, MNT_CDROM);
 	}
 #endif
@@ -633,19 +570,17 @@ int mount_cdrom(struct s_bkpinfo *bkpinfo)
 		if (bkpinfo->disaster_recovery
 			&& does_file_exist("/tmp/CDROM-LIVES-HERE")) {
 			paranoid_free(bkpinfo->media_device);
-			asprintf(&tmp,
-				   last_line_of_file("/tmp/CDROM-LIVES-HERE"));
-			bkpinfo->media_device = tmp;
+			bkpinfo->media_device = last_line_of_file("/tmp/CDROM-LIVES-HERE");
 		} else {
 			paranoid_free(bkpinfo->media_device);
 			bkpinfo->media_device = find_cdrom_device(TRUE);
 		}
 
 #ifdef __FreeBSD__
-		sprintf(mount_cmd, "mount_cd9660 -r %s %s", bkpinfo->media_device,
+		asprintf(&mount_cmd, "mount_cd9660 -r %s %s", bkpinfo->media_device,
 				MNT_CDROM);
 #else
-		sprintf(mount_cmd, "mount %s -t iso9660 -o ro %s",
+		asprintf(&mount_cmd, "mount %s -t iso9660 -o ro %s",
 				bkpinfo->media_device, MNT_CDROM);
 #endif
 
@@ -661,19 +596,15 @@ int mount_cdrom(struct s_bkpinfo *bkpinfo)
 			run_program_and_log_output("sync", FALSE);
 		}
 	}
+	paranoid_free(mount_cmd);
+
 	if (res) {
 		log_msg(2, "Failed, despite %d attempts", i);
 	} else {
 		log_msg(2, "Mounted CD-ROM drive OK");
 	}
-	paranoid_free(mount_cmd);
 	return (res);
 }
-
-
-
-
-
 /**************************************************************************
  *END_MOUNT_CDROM                                                         *
  **************************************************************************/
@@ -691,63 +622,81 @@ int mount_device(char *device, char *mpt, char *format, bool writeable)
 {
 	int res = 0;
 
-  /** malloc **/
-	char *tmp, *command, *mountdir, *mountpoint, *additional_parameters;
+	char *tmp = NULL;
+   	char *command = NULL;
+   	char *mountdir = NULL;
+   	char *mountpoint = NULL;
+   	char *additional_parameters = NULL;
+   	char *p1 = NULL;
+   	char *p2 = NULL;
+   	char *p3 = NULL;
 
 	assert_string_is_neither_NULL_nor_zerolength(device);
 	assert_string_is_neither_NULL_nor_zerolength(mpt);
 	assert(format != NULL);
-	malloc_string(tmp);
-	malloc_string(command);
-	malloc_string(mountdir);
-	malloc_string(mountpoint);
-	malloc_string(additional_parameters);
 
 	if (!strcmp(mpt, "/1")) {
-		strcpy(mountpoint, "/");
+		asprintf(&mountpoint, "/");
 		log_msg(3, "Mommm! SME is being a dildo!");
 	} else {
-		strcpy(mountpoint, mpt);
+		asprintf(&mountpoint, mpt);
 	}
 
 	if (!strcmp(mountpoint, "lvm")) {
+		paranoid_free(mountpoint);
 		return (0);
 	}
 	if (!strcmp(mountpoint, "image")) {
+		paranoid_free(mountpoint);
 		return (0);
 	}
-	sprintf(tmp, "Mounting device %s   ", device);
+	asprintf(&tmp, "Mounting device %s   ", device);
 	log_msg(1, tmp);
+
 	if (writeable) {
-		strcpy(additional_parameters, "-o rw");
+		asprintf(&p1, "-o rw");
 	} else {
-		strcpy(additional_parameters, "-o ro");
+		asprintf(&p1, "-o ro");
 	}
 	if (find_home_of_exe("setfattr")) {
-		strcat(additional_parameters, ",user_xattr");
+		asprintf(&p2, ",user_xattr");
+	} else {
+		asprintf(&p2, "");
 	}
 	if (find_home_of_exe("setfacl")) {
-		strcat(additional_parameters, ",acl");
+		asprintf(&p3, ",acl");
+	} else {
+		asprintf(&p3, "");
 	}
+	asprintf(&additional_parameters, "%s%s%s", p1, p2, p3);
+	paranoid_free(p1);
+	paranoid_free(p2);
+	paranoid_free(p3);
 
 	if (!strcmp(mountpoint, "swap")) {
-		sprintf(command, "swapon %s", device);
+		asprintf(&command, "swapon %s", device);
 	} else {
 		if (!strcmp(mountpoint, "/")) {
-			strcpy(mountdir, MNT_RESTORING);
+			asprintf(&mountdir, MNT_RESTORING);
 		} else {
-			sprintf(mountdir, "%s%s", MNT_RESTORING, mountpoint);
+			asprintf(&mountdir, "%s%s", MNT_RESTORING, mountpoint);
 		}
-		sprintf(command, "mkdir -p %s", mountdir);
+		asprintf(&command, "mkdir -p %s", mountdir);
 		run_program_and_log_output(command, FALSE);
-		sprintf(command, "mount -t %s %s %s %s 2>> %s", format, device,
+		paranoid_free(command);
+
+		asprintf(&command, "mount -t %s %s %s %s 2>> %s", format, device,
 				additional_parameters, mountdir, MONDO_LOGFILE);
 		log_msg(2, "command='%s'", command);
 	}
+	paranoid_free(additional_parameters);
+
 	res = run_program_and_log_output(command, TRUE);
 	if (res && (strstr(command, "xattr") || strstr(command, "acl"))) {
 		log_msg(1, "Re-trying without the fancy extra parameters");
-		sprintf(command, "mount -t %s %s %s 2>> %s", format, device,
+		paranoid_free(command);
+
+		asprintf(&command, "mount -t %s %s %s 2>> %s", format, device,
 				mountdir, MONDO_LOGFILE);
 		res = run_program_and_log_output(command, TRUE);
 	}
@@ -759,7 +708,9 @@ int mount_device(char *device, char *mpt, char *format, bool writeable)
 			log_to_screen(tmp);
 		} else {
 			log_msg(2, "Retrying w/o the '-t' switch");
-			sprintf(command, "mount %s %s 2>> %s", device, mountdir,
+			paranoid_free(command);
+
+			asprintf(&command, "mount %s %s 2>> %s", device, mountdir,
 					MONDO_LOGFILE);
 			log_msg(2, "2nd command = '%s'", command);
 			res = run_program_and_log_output(command, TRUE);
@@ -771,25 +722,22 @@ int mount_device(char *device, char *mpt, char *format, bool writeable)
 			}
 		}
 	}
+	paranoid_free(tmp);
+	paranoid_free(command);
+	paranoid_free(mountdir);
+
 	if (res && !strcmp(mountpoint, "swap")) {
 		log_msg(2, "That's ok. It's just a swap partition.");
 		log_msg(2, "Non-fatal error. Returning 0.");
 		res = 0;
 	}
-
-	paranoid_free(tmp);
-	paranoid_free(command);
-	paranoid_free(mountdir);
 	paranoid_free(mountpoint);
-	paranoid_free(additional_parameters);
 
 	return (res);
 }
-
 /**************************************************************************
  *END_MOUNT_DEVICE                                                        *
  **************************************************************************/
-
 
 
 /**
@@ -818,12 +766,9 @@ void protect_against_braindead_sysadmins()
 	run_program_and_log_output("rm -f " MNT_RESTORING "/var/lock/subsys/*",
 							   TRUE);
 }
-
 /**************************************************************************
  *END_PROTECT_AGAINST_BRAINDEAD_SYSADMINS                                 *
  **************************************************************************/
-
-
 
 
 /**
@@ -835,29 +780,21 @@ void protect_against_braindead_sysadmins()
  */
 int read_cfg_file_into_bkpinfo(char *cfgf, struct s_bkpinfo *bkpinfo)
 {
-  /** add mallocs **/
-	char *value;
-	char *tmp;
-	char *command;
-	char *iso_mnt;
-	char *iso_path;
-	char *old_isodir;
-	char cfg_file[100];
+	char *value = NULL;
+	char *tmp = NULL;
+	char *command = NULL;
+	char *iso_mnt = NULL;
+	char *iso_path = NULL;
+	char *old_isodir = NULL;
+	char *cfg_file = NULL;
 	t_bkptype media_specified_by_user;
 
-	malloc_string(command);
-	malloc_string(iso_mnt);
-	malloc_string(iso_path);
-	malloc_string(old_isodir);
-	malloc_string(value);
-	malloc_string(tmp);
-//  assert_string_is_neither_NULL_nor_zerolength(cfg_file);
 	assert(bkpinfo != NULL);
 
 	if (!cfgf) {
-		strcpy(cfg_file, g_mondo_cfg_file);
+		cfg_file = g_mondo_cfg_file;
 	} else {
-		strcpy(cfg_file, cfgf);
+		cfg_file = cfgf;
 	}
 
 	media_specified_by_user = bkpinfo->backup_media_type;	// or 'none', if not specified
@@ -872,13 +809,7 @@ int read_cfg_file_into_bkpinfo(char *cfgf, struct s_bkpinfo *bkpinfo)
 		} else if (!strcmp(value, "dvd")) {
 			bkpinfo->backup_media_type = dvd;
 		} else if (!strcmp(value, "iso")) {
-/*
-	  if (am_I_in_disaster_recovery_mode()
-	  && !run_program_and_log_output("mount /dev/cdrom "MNT_CDROM, 1)
-	  && does_file_exist(MNT_CDROM"/archives/filelist.0"))
-*/
-
-// Patch by Conor Daly - 2004/07/12
+			// Patch by Conor Daly - 2004/07/12
 			bkpinfo->backup_media_type = iso;
 			if (am_I_in_disaster_recovery_mode()) {
 				/* Check to see if CD is already mounted before mounting it... */
@@ -895,17 +826,22 @@ int read_cfg_file_into_bkpinfo(char *cfgf, struct s_bkpinfo *bkpinfo)
 						("Re-jigging configuration AGAIN. CD-R, not ISO.");
 				}
 			}
+			paranoid_free(value);
+
 			if (read_cfg_var(cfg_file, "iso-prefix", value) == 0) {
-					strcpy(bkpinfo->prefix,value);
+				paranoid_free(bkpinfo->prefix);
+				bkpinfo->prefix = value;
 			} else {
-					strcpy(bkpinfo->prefix,STD_PREFIX);
+				paranoid_alloc(bkpinfo->prefix, STD_PREFIX);
 			}
 		} else if (!strcmp(value, "nfs")) {
 			bkpinfo->backup_media_type = nfs;
+			paranoid_free(value);
 			if (read_cfg_var(cfg_file, "iso-prefix", value) == 0) {
-					strcpy(bkpinfo->prefix,value);
+				paranoid_free(bkpinfo->prefix);
+				bkpinfo->prefix = value;
 			} else {
-					strcpy(bkpinfo->prefix,STD_PREFIX);
+				paranoid_alloc(bkpinfo->prefix, STD_PREFIX);
 			}
 		} else if (!strcmp(value, "tape")) {
 			bkpinfo->backup_media_type = tape;
@@ -917,6 +853,8 @@ int read_cfg_file_into_bkpinfo(char *cfgf, struct s_bkpinfo *bkpinfo)
 	} else {
 		fatal_error("backup-media-type not specified!");
 	}
+	paranoid_free(value);
+
 	if (bkpinfo->disaster_recovery) {
 		if (bkpinfo->backup_media_type == cdstream) {
 			paranoid_alloc(bkpinfo->media_device, "/dev/cdrom");
@@ -929,9 +867,12 @@ int read_cfg_file_into_bkpinfo(char *cfgf, struct s_bkpinfo *bkpinfo)
 			}
 			read_cfg_var(cfg_file, "media-size", value);
 			bkpinfo->media_size[1] = atol(value);
-			sprintf(tmp, "Backup medium is TAPE --- dev=%s",
+			paranoid_free(value);
+
+			asprintf(&tmp, "Backup medium is TAPE --- dev=%s",
 					bkpinfo->media_device);
 			log_msg(2, tmp);
+			paranoid_free(tmp);
 		} else {
 			paranoid_alloc(bkpinfo->media_device, "/dev/cdrom");
 			bkpinfo->media_size[0] = 1999 * 1024;	/* 650, probably, but we don't need this var anyway */
@@ -948,6 +889,7 @@ int read_cfg_file_into_bkpinfo(char *cfgf, struct s_bkpinfo *bkpinfo)
 		bkpinfo->use_star = TRUE;
 		log_msg(1, "Goody! ... bkpinfo->use_star is now true.");
 	}
+	paranoid_free(value);
 
 	if (0 == read_cfg_var(cfg_file, "internal-tape-block-size", value)) {
 		bkpinfo->internal_tape_block_size = atol(value);
@@ -959,29 +901,35 @@ int read_cfg_file_into_bkpinfo(char *cfgf, struct s_bkpinfo *bkpinfo)
 		log_msg(1, "Internal tape block size = default (%ld)",
 				DEFAULT_INTERNAL_TAPE_BLOCK_SIZE);
 	}
+	paranoid_free(value);
 
 	read_cfg_var(cfg_file, "use-lzo", value);
 	if (strstr(value, "yes")) {
 		bkpinfo->use_lzo = TRUE;
-		strcpy(bkpinfo->zip_exe, "lzop");
-		strcpy(bkpinfo->zip_suffix, "lzo");
+		paranoid_alloc(bkpinfo->zip_exe, "lzop");
+		paranoid_alloc(bkpinfo->zip_suffix, "lzo");
 	} else {
+		paranoid_free(value);
 		read_cfg_var(cfg_file, "use-comp", value);
 		if (strstr(value, "yes")) {
 			bkpinfo->use_lzo = FALSE;
-			strcpy(bkpinfo->zip_exe, "bzip2");
-			strcpy(bkpinfo->zip_suffix, "bz2");
+			paranoid_alloc(bkpinfo->zip_exe, "bzip2");
+			paranoid_alloc(bkpinfo->zip_suffix, "bz2");
 		} else {
-			bkpinfo->zip_exe[0] = bkpinfo->zip_suffix[0] = '\0';
+			// Just to be sure
+			bkpinfo->zip_exe = NULL;
+			bkpinfo->zip_suffix = NULL;
 		}
 	}
+	paranoid_free(value);
 
-	value[0] = '\0';
 	read_cfg_var(cfg_file, "differential", value);
 	if (!strcmp(value, "yes") || !strcmp(value, "1")) {
 		bkpinfo->differential = TRUE;
 	}
 	log_msg(2, "differential var = '%s'", value);
+	paranoid_free(value);
+
 	if (bkpinfo->differential) {
 		log_msg(2, "THIS IS A DIFFERENTIAL BACKUP");
 	} else {
@@ -989,13 +937,17 @@ int read_cfg_file_into_bkpinfo(char *cfgf, struct s_bkpinfo *bkpinfo)
 	}
 
 	read_cfg_var(g_mondo_cfg_file, "please-dont-eject", tmp);
-	if (tmp[0]
-		||
-		strstr(call_program_and_get_last_line_of_output
-			   ("cat /proc/cmdline"), "donteject")) {
+#ifdef __FreeBSD__
+	tmp1 = call_program_and_get_last_line_of_output("cat /tmp/cmdline");
+#else
+	tmp1 = call_program_and_get_last_line_of_output("cat /proc/cmdline");
+#endif
+	if ((tmp != NULL) || strstr(tmp1,"donteject")) {
 		bkpinfo->please_dont_eject = TRUE;
 		log_msg(2, "Ok, I shan't eject when restoring! Groovy.");
 	}
+	paranoid_free(tmp);
+	paranoid_free(tmp1);
 
 	if (bkpinfo->backup_media_type == nfs) {
 		if (!cfgf) {
@@ -1017,47 +969,62 @@ int read_cfg_file_into_bkpinfo(char *cfgf, struct s_bkpinfo *bkpinfo)
 		 * to correctly mount iso-dev and set a sensible
 		 * isodir in disaster recovery mode
 		 */
-		strcpy(old_isodir, bkpinfo->isodir);
+		old_isodir = bkpinfo->isodir;
 		read_cfg_var(g_mondo_cfg_file, "iso-mnt", iso_mnt);
 		read_cfg_var(g_mondo_cfg_file, "isodir", iso_path);
-		sprintf(bkpinfo->isodir, "%s%s", iso_mnt, iso_path);
-		if (!bkpinfo->isodir[0]) {
-			strcpy(bkpinfo->isodir, old_isodir);
+		if (iso_mnt && iso_path) {
+			asprintf(&bkpinfo->isodir, "%s%s", iso_mnt, iso_path);
+		} else {
+			bkpinfo->isodir = old_isodir;
 		}
+		paranoid_free(iso_mnt);
+		paranoid_free(iso_path);
+
 		if (!bkpinfo->disaster_recovery) {
 			if (strcmp(old_isodir, bkpinfo->isodir)) {
 				log_it
 					("user nominated isodir differs from archive, keeping user's choice: %s %s\n",
 					 old_isodir, bkpinfo->isodir);
-				strcpy(bkpinfo->isodir, old_isodir);
+				if (bkpinfo->isodir != old_isodir) {
+					paranoid_free(old_isodir);
+				}
+			} else {
+				paranoid_free(old_isodir);
 			}
 		}
+
 		read_cfg_var(g_mondo_cfg_file, "iso-dev", g_isodir_device);
-		log_msg(2, "isodir=%s; iso-dev=%s", bkpinfo->isodir,
-				g_isodir_device);
+		log_msg(2, "isodir=%s; iso-dev=%s", bkpinfo->isodir, g_isodir_device);
 		if (bkpinfo->disaster_recovery) {
 			if (is_this_device_mounted(g_isodir_device)) {
 				log_msg(2, "NB: isodir is already mounted");
 				/* Find out where it's mounted */
-				sprintf(command,
+				asprintf(&command,
 						"mount | grep -w %s | tail -n1 | cut -d' ' -f3",
 						g_isodir_device);
 				log_it("command = %s", command);
-				log_it("res of it = %s",
-					   call_program_and_get_last_line_of_output(command));
-				sprintf(iso_mnt, "%s",
-						call_program_and_get_last_line_of_output(command));
+				tmp = call_program_and_get_last_line_of_output(command);
+				log_it("res of it = %s", tmp);
+				iso_mnt = tmp;
+				paranoid_free(command);
 			} else {
-				sprintf(iso_mnt, "/tmp/isodir");
-				sprintf(tmp, "mkdir -p %s", iso_mnt);
+				asprintf(&iso_mnt, "/tmp/isodir");
+				asprintf(&tmp, "mkdir -p %s", iso_mnt);
 				run_program_and_log_output(tmp, 5);
-				sprintf(tmp, "mount %s %s", g_isodir_device, iso_mnt);
+				paranoid_free(tmp);
+
+				asprintf(&tmp, "mount %s %s", g_isodir_device, iso_mnt);
 				if (run_program_and_log_output(tmp, 3)) {
 					log_msg(1,
 							"Unable to mount isodir. Perhaps this is really a CD backup?");
 					bkpinfo->backup_media_type = cdr;
 					paranoid_alloc(bkpinfo->media_device, "/dev/cdrom");
-					bkpinfo->isodir[0] = iso_mnt[0] = iso_path[0] = '\0';
+					paranoid_free(bkpinfo->isodir);
+					paranoid_free(iso_mnt);
+					paranoid_free(iso_path);
+					asprintf(&iso_mnt, "");
+					asprintf(&iso_path, "");
+
 					if (mount_cdrom(bkpinfo)) {
 						fatal_error
 							("Unable to mount isodir. Failed to mount CD-ROM as well.");
@@ -1066,11 +1033,15 @@ int read_cfg_file_into_bkpinfo(char *cfgf, struct s_bkpinfo *bkpinfo)
 								"You backed up to disk, then burned some CDs. Naughty monkey!");
 					}
 				}
+				paranoid_free(tmp);
 			}
 			/* bkpinfo->isodir should now be the true path to prefix-1.iso etc... */
 			if (bkpinfo->backup_media_type == iso) {
-				sprintf(bkpinfo->isodir, "%s%s", iso_mnt, iso_path);
+				paranoid_free(bkpinfo->isodir);
+				asprintf(&bkpinfo->isodir, "%s%s", iso_mnt, iso_path);
 			}
+			paranoid_free(iso_mnt);
+			paranoid_free(iso_path);
 		}
 	}
 
@@ -1079,8 +1050,7 @@ int read_cfg_file_into_bkpinfo(char *cfgf, struct s_bkpinfo *bkpinfo)
 			if (bkpinfo->backup_media_type != media_specified_by_user) {
 				log_msg(2,
 						"bkpinfo->backup_media_type != media_specified_by_user, so I'd better ask :)");
-				interactively_obtain_media_parameters_from_user(bkpinfo,
-																FALSE);
+				interactively_obtain_media_parameters_from_user(bkpinfo, FALSE);
 				media_specified_by_user = bkpinfo->backup_media_type;
 				get_cfg_file_from_archive(bkpinfo);
 /*
@@ -1092,21 +1062,11 @@ int read_cfg_file_into_bkpinfo(char *cfgf, struct s_bkpinfo *bkpinfo)
 		bkpinfo->backup_media_type = media_specified_by_user;
 	}
 	g_backup_media_type = bkpinfo->backup_media_type;
-	paranoid_free(value);
-	paranoid_free(tmp);
-	paranoid_free(command);
-	paranoid_free(iso_mnt);
-	paranoid_free(iso_path);
-	paranoid_free(old_isodir);
 	return (0);
-
 }
-
 /**************************************************************************
  *END_READ_CFG_FILE_INTO_BKPINFO                                          *
  **************************************************************************/
-
-
 
 
 /**
@@ -1124,14 +1084,13 @@ s_node *process_filelist_and_biggielist(struct s_bkpinfo *bkpinfo)
 {
 	struct s_node *filelist;
 
-  /** add mallocs**/
-	char *command;
-	char *tmp;
+	char *command = NULL;
+	char *tmp = NULL;
 	int res = 0;
+	size_t n = 0;
 	pid_t pid;
 
 	assert(bkpinfo != NULL);
-	malloc_string(command);
 	malloc_string(tmp);
 
 	if (does_file_exist(g_filelist_full)
@@ -1149,7 +1108,7 @@ s_node *process_filelist_and_biggielist(struct s_bkpinfo *bkpinfo)
 		unlink("/" FILELIST_FULL_STUB);
 		unlink("/tmp/i-want-my-lvm");
 		if (IS_THIS_A_STREAMING_BACKUP(bkpinfo->backup_media_type)) {
-			sprintf(command,
+			asprintf(&command,
 					"tar -zxf %s %s %s %s %s %s",
 					bkpinfo->media_device,
 					MOUNTLIST_FNAME_STUB,
@@ -1158,6 +1117,7 @@ s_node *process_filelist_and_biggielist(struct s_bkpinfo *bkpinfo)
 					"tmp/i-want-my-lvm", MONDO_CFG_FILE_STUB);
 			log_msg(1, "tarcommand = %s", command);
 			run_program_and_log_output(command, 1);
+			paranoid_free(command);
 		} else {
 			log_msg(2,
 					"Calling insist_on_this_cd_number; bkpinfo->isodir=%s",
@@ -1165,7 +1125,7 @@ s_node *process_filelist_and_biggielist(struct s_bkpinfo *bkpinfo)
 			insist_on_this_cd_number(bkpinfo, 1);
 			log_msg(2, "Back from iotcn");
 			run_program_and_log_output("mount", 1);
-			sprintf(command,
+			asprintf(&command,
 					"tar -zxf %s/images/all.tar.gz %s %s %s %s %s",
 					MNT_CDROM,
 					MOUNTLIST_FNAME_STUB,
@@ -1175,7 +1135,8 @@ s_node *process_filelist_and_biggielist(struct s_bkpinfo *bkpinfo)
 
 			log_msg(1, "tarcommand = %s", command);
 			run_program_and_log_output(command, 1);
-//    popup_and_OK("Press ENTER to continue");
+			paranoid_free(command);
+
 			if (!does_file_exist(BIGGIELIST_TXT_STUB)) {
 				fatal_error
 					("all.tar.gz did not include tmp/biggielist.txt");
@@ -1185,31 +1146,37 @@ s_node *process_filelist_and_biggielist(struct s_bkpinfo *bkpinfo)
 					("all.tar.gz did not include tmp/filelist.full.gz");
 			}
 		}
-		sprintf(command, "cp -f %s %s", MONDO_CFG_FILE_STUB,
+		asprintf(&command, "cp -f %s %s", MONDO_CFG_FILE_STUB,
 				g_mondo_cfg_file);
 		run_program_and_log_output(command, FALSE);
+		paranoid_free(command);
 
-		sprintf(command, "cp -f %s/%s %s", bkpinfo->tmpdir,
+		asprintf(&command, "cp -f %s/%s %s", bkpinfo->tmpdir,
 				BIGGIELIST_TXT_STUB, g_biggielist_txt);
 		log_msg(1, "command = %s", command);
 		paranoid_system(command);
-		sprintf(command, "ln -sf %s/%s %s", bkpinfo->tmpdir,
+		paranoid_free(command);
+
+		asprintf(&command, "ln -sf %s/%s %s", bkpinfo->tmpdir,
 				FILELIST_FULL_STUB, g_filelist_full);
 		log_msg(1, "command = %s", command);
 		paranoid_system(command);
+		paranoid_free(command);
 	}
 
 	if (am_I_in_disaster_recovery_mode()
 		&&
-		ask_me_yes_or_no(_("Do you want to retrieve the mountlist as well?")))
+		ask_me_yes_or_no(_
+						 ("Do you want to retrieve the mountlist as well?")))
 	{
-//      sprintf(command, "cp -f tmp/mountlist.txt /tmp");
-		sprintf(command, "ln -sf %s/%s /tmp", MOUNTLIST_FNAME_STUB,
+		asprintf(&command, "ln -sf %s/%s /tmp", MOUNTLIST_FNAME_STUB,
 				bkpinfo->tmpdir);
 		paranoid_system(command);
+		paranoid_free(command);
 	}
 
 	chdir(tmp);
+	paranoid_free(tmp);
 
 	if (!does_file_exist(g_biggielist_txt)) {
 		log_msg(1, "Warning - %s not found", g_biggielist_txt);
@@ -1229,12 +1196,14 @@ s_node *process_filelist_and_biggielist(struct s_bkpinfo *bkpinfo)
 	case 0:
 		log_to_screen(("Pre-processing filelist"));
 		if (!does_file_exist(g_biggielist_txt)) {
-			sprintf(command, "> %s", g_biggielist_txt);
+			asprintf(&command, "> %s", g_biggielist_txt);
 			paranoid_system(command);
+			paranoid_free(command);
 		}
-		sprintf(command, "grep  -x \"/dev/.*\" %s > %s",
+		asprintf(&command, "grep  -x \"/dev/.*\" %s > %s",
 				g_biggielist_txt, g_filelist_imagedevs);
 		paranoid_system(command);
+		paranoid_free(command);
 		exit(0);
 		break;
 
@@ -1253,13 +1222,14 @@ s_node *process_filelist_and_biggielist(struct s_bkpinfo *bkpinfo)
 	unlink(g_filelist_full);
 	if (g_text_mode) {
 		printf(_("Restore which directory? --> "));
-		fgets(tmp, sizeof(tmp), stdin);
+		getline(&tmp, &n, stdin);
 		toggle_path_selection(filelist, tmp, TRUE);
 		if (strlen(tmp) == 0) {
 			res = 1;
 		} else {
 			res = 0;
 		}
+		paranoid_free(tmp);
 	} else {
 		res = edit_filelist(filelist);
 	}
@@ -1281,17 +1251,11 @@ s_node *process_filelist_and_biggielist(struct s_bkpinfo *bkpinfo)
 		add_list_of_files_to_filelist(filelist, g_imagedevs_restthese,
 									  TRUE);
 	}
-
-	paranoid_free(command);
-	paranoid_free(tmp);
 	return (filelist);
 }
-
 /**************************************************************************
  *END_ PROCESS_FILELIST_AND_BIGGIELIST                                    *
  **************************************************************************/
-
-
 
 
 /**
@@ -1303,20 +1267,14 @@ s_node *process_filelist_and_biggielist(struct s_bkpinfo *bkpinfo)
  */
 int backup_crucial_file(char *path_root, char *filename)
 {
-	char *tmp;
-	char *command;
-	int res;
+	char *command = NULL;
+	int res = 0;
 
-	malloc_string(tmp);
-	malloc_string(command);
 	assert(path_root != NULL);
 	assert_string_is_neither_NULL_nor_zerolength(filename);
 
-	sprintf(tmp, "%s/%s", path_root, filename);
-	sprintf(command, "cp -f %s %s.pristine", tmp, tmp);
-
+	asprintf(&command, "cp -f %s/%s %s/%s.pristine", path_root, filename,path_root, filename);
 	res = run_program_and_log_output(command, 5);
-	paranoid_free(tmp);
 	paranoid_free(command);
 	return (res);
 }
@@ -1333,23 +1291,21 @@ int run_boot_loader(bool offer_to_hack_scripts)
 	int res;
 	int retval = 0;
 
-  /** malloc *******/
-	char *device;
-	char *tmp;
-	char *name;
+	char *device = NULL;
+	char *tmp = NULL;
+	char *name = NULL;
 
-	malloc_string(device);
-	malloc_string(tmp);
-	malloc_string(name);
 	backup_crucial_file(MNT_RESTORING, "/etc/fstab");
 	backup_crucial_file(MNT_RESTORING, "/etc/grub.conf");
 	backup_crucial_file(MNT_RESTORING, "/etc/lilo.conf");
 	backup_crucial_file(MNT_RESTORING, "/etc/elilo.conf");
 	read_cfg_var(g_mondo_cfg_file, "bootloader.device", device);
 	read_cfg_var(g_mondo_cfg_file, "bootloader.name", name);
-	sprintf(tmp, "run_boot_loader: device='%s', name='%s'", device, name);
+	asprintf(&tmp, "run_boot_loader: device='%s', name='%s'", device, name);
 	log_msg(2, tmp);
-	system("sync");
+	paranoid_free(tmp);
+
+	sync();
 	if (!strcmp(name, "LILO")) {
 		res = run_lilo(offer_to_hack_scripts);
 	} else if (!strcmp(name, "ELILO")) {
@@ -1370,61 +1326,65 @@ int run_boot_loader(bool offer_to_hack_scripts)
 	}
 #ifdef __FreeBSD__
 	else if (!strcmp(name, "BOOT0")) {
-		sprintf(tmp, "boot0cfg -B %s", device);
+		asprintf(&tmp, "boot0cfg -B %s", device);
 		res = run_program_and_log_output(tmp, FALSE);
+		paranoid_free(tmp);
 	} else {
-		sprintf(tmp, "ls /dev | grep -xq %ss[1-4].*", device);
+		asprintf(&tmp, "ls /dev | grep -xq %ss[1-4].*", device);
 		if (!system(tmp)) {
-			sprintf(tmp, MNT_RESTORING "/sbin/fdisk -B %s", device);
+			paranoid_free(tmp);
+			asprintf(&tmp, MNT_RESTORING "/sbin/fdisk -B %s", device);
 			res = run_program_and_log_output(tmp, 3);
 		} else {
 			log_msg(1,
 					"I'm not running any boot loader. You have a DD boot drive. It's already loaded up.");
 		}
+		paranoid_free(tmp);
 	}
 #else
 	else {
 		log_to_screen
-			(_("Unable to determine type of boot loader. Defaulting to LILO."));
+			(_
+			 ("Unable to determine type of boot loader. Defaulting to LILO."));
 		res = run_lilo(offer_to_hack_scripts);
 	}
 #endif
+	paranoid_free(device);
+	paranoid_free(name);
+
 	retval += res;
 	if (res) {
 		log_to_screen(_("Your boot loader returned an error"));
 	} else {
 		log_to_screen(_("Your boot loader ran OK"));
 	}
-	paranoid_free(device);
-	paranoid_free(tmp);
-	paranoid_free(name);
 	return (retval);
 }
-
 /**************************************************************************
  *END_ RUN_BOOT_LOADER                                                    *
  **************************************************************************/
 
 
-
 /**
  * Attempt to find the user's editor.
  * @return The editor found ("vi" if none could be found).
- * @note The returned string points to static storage that will be overwritten with each call.
+ * @note The returned string points to malloced storage that needs to be freed by caller
  */
 char *find_my_editor(void)
 {
-	static char output[MAX_STR_LEN];
+	char *output = NULL;
+
+	/* BERLIOS: This should use $EDITOR + conf file rather first */
 	if (find_home_of_exe("pico")) {
-		strcpy(output, "pico");
+		asprintf(&output, "pico");
 	} else if (find_home_of_exe("nano")) {
-		strcpy(output, "nano");
+		asprintf(&output, "nano");
 	} else if (find_home_of_exe("e3em")) {
-		strcpy(output, "e3em");
+		asprintf(&output, "e3em");
 	} else if (find_home_of_exe("e3vi")) {
-		strcpy(output, "e3vi");
+		asprintf(&output, "e3vi");
 	} else {
-		strcpy(output, "vi");
+		asprintf(&output, "vi");
 	}
 	if (!find_home_of_exe(output)) {
 		log_msg(2, " (find_my_editor) --- warning - %s not found", output);
@@ -1441,54 +1401,34 @@ char *find_my_editor(void)
  */
 int run_grub(bool offer_to_run_stabgrub, char *bd)
 {
-  /** malloc **/
-	char *command;
-	char *boot_device;
-	char *rootdev;
-	char *rootdrive;
-	char *conffile;
-	char *tmp;
-	char *editor;
+	char *command = NULL;
+	char *tmp = NULL;
+	char *editor = NULL;
 
-	int res;
-	int done;
+	int res = 0;
+	int done = 0;
 
-	malloc_string(command);
-	malloc_string(boot_device);
-	malloc_string(tmp);
-	malloc_string(editor);
-	malloc_string(rootdev);
-	malloc_string(rootdrive);
-	malloc_string(conffile);
 	assert_string_is_neither_NULL_nor_zerolength(bd);
-	strcpy(editor, "vi");		// find_my_editor() );
-	strcpy(boot_device, bd);
 
-	if (!run_program_and_log_output("which grub-MR", FALSE)) {
-		log_msg(1, "Yay! grub-MR found...");
-		sprintf(command, "grub-MR %s /tmp/mountlist.txt", boot_device);
-		log_msg(1, "command = %s", command);
-	} else {
-		sprintf(command, "chroot " MNT_RESTORING " grub-install %s",
-				boot_device);
-		log_msg(1, "WARNING - grub-MR not found; using grub-install");
-	}
 	if (offer_to_run_stabgrub
 		&& ask_me_yes_or_no(_("Did you change the mountlist?")))
 		/* interactive mode */
 	{
 		mvaddstr_and_log_it(g_currentY,
 							0,
-							_("Modifying fstab and grub.conf, and running GRUB...                             "));
+							_
+							("Modifying fstab and grub.conf, and running GRUB...                             "));
 		for (done = FALSE; !done;) {
 			popup_and_get_string(_("Boot device"),
-								 _("Please confirm/enter the boot device. If in doubt, try /dev/hda"),
-								 boot_device, MAX_STR_LEN / 4);
-			sprintf(command, "stabgrub-me %s", boot_device);
+								 _("Please confirm/enter the boot device. If in doubt, try /dev/hda"), bd);
+			asprintf(&command, "stabgrub-me %s", bd);
 			res = run_program_and_log_output(command, 1);
+			paranoid_free(command);
+
 			if (res) {
 				popup_and_OK
-					(_("GRUB installation failed. Please install manually using 'grub-install' or similar command. You are now chroot()'ed to your restored system. Please type 'exit' when you are done."));
+					(_
+					 ("GRUB installation failed. Please install manually using 'grub-install' or similar command. You are now chroot()'ed to your restored system. Please type 'exit' when you are done."));
 				newtSuspend();
 				system("chroot " MNT_RESTORING);
 				newtResume();
@@ -1500,25 +1440,43 @@ int run_grub(bool offer_to_run_stabgrub, char *bd)
 			if (!g_text_mode) {
 				newtSuspend();
 			}
-			sprintf(tmp, "%s " MNT_RESTORING "/etc/fstab", editor);
+			editor = find_my_editor();
+			asprintf(&tmp, "%s " MNT_RESTORING "/etc/fstab", editor);
 			paranoid_system(tmp);
-			sprintf(tmp, "%s " MNT_RESTORING "/etc/grub.conf", editor);
+			paranoid_free(tmp);
+
+			asprintf(&tmp, "%s " MNT_RESTORING "/etc/grub.conf", editor);
+			paranoid_free(editor);
+
 			paranoid_system(tmp);
+			paranoid_free(tmp);
+
 			if (!g_text_mode) {
 				newtResume();
 			}
 		}
-	} else
+	} else {
 		/* nuke mode */
-	{
+		if (!run_program_and_log_output("which grub-MR", FALSE)) {
+			log_msg(1, "Yay! grub-MR found...");
+			asprintf(&command, "grub-MR %s /tmp/mountlist.txt", bd);
+			log_msg(1, "command = %s", command);
+		} else {
+			asprintf(&command, "chroot " MNT_RESTORING " grub-install %s", bd);
+			log_msg(1, "WARNING - grub-MR not found; using grub-install");
+		}
 		mvaddstr_and_log_it(g_currentY,
 							0,
-							_("Running GRUB...                                                 "));
+							_
+							("Running GRUB...                                                 "));
 		iamhere(command);
 		res = run_program_and_log_output(command, 1);
+		paranoid_free(command);
+
 		if (res) {
 			popup_and_OK
-				(_("Because of bugs in GRUB's own installer, GRUB was not installed properly. Please install the boot loader manually now, using this chroot()'ed shell prompt. Type 'exit' when you have finished."));
+				(_
+				 ("Because of bugs in GRUB's own installer, GRUB was not installed properly. Please install the boot loader manually now, using this chroot()'ed shell prompt. Type 'exit' when you have finished."));
 			newtSuspend();
 			system("chroot " MNT_RESTORING);
 			newtResume();
@@ -1528,7 +1486,8 @@ int run_grub(bool offer_to_run_stabgrub, char *bd)
 	if (res) {
 		mvaddstr_and_log_it(g_currentY++, 74, _("Failed."));
 		log_to_screen
-			(_("GRUB ran w/error(s). See /tmp/mondo-restore.log for more info."));
+			(_
+			 ("GRUB ran w/error(s). See /tmp/mondo-restore.log for more info."));
 		log_msg(1, "Type:-");
 		log_msg(1, "    mount-me");
 		log_msg(1, "    chroot " MNT_RESTORING);
@@ -1541,17 +1500,8 @@ int run_grub(bool offer_to_run_stabgrub, char *bd)
 	} else {
 		mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 	}
-	paranoid_free(rootdev);
-	paranoid_free(rootdrive);
-	paranoid_free(conffile);
-	paranoid_free(command);
-	paranoid_free(boot_device);
-	paranoid_free(tmp);
-	paranoid_free(editor);
-
 	return (res);
 }
-
 /**************************************************************************
  *END_RUN_GRUB                                                            *
  **************************************************************************/
@@ -1564,18 +1514,13 @@ int run_grub(bool offer_to_run_stabgrub, char *bd)
  */
 int run_elilo(bool offer_to_run_stabelilo)
 {
-  /** malloc **/
-	char *command;
-	char *tmp;
-	char *editor;
+	char *command = NULL;
+	char *tmp = NULL;
+	char *editor = NULL;
 
-	int res;
-	int done;
+	int res = 0;
+	int done = 0;
 
-	malloc_string(command);
-	malloc_string(tmp);
-	malloc_string(editor);
-	strcpy(editor, find_my_editor());
 	if (offer_to_run_stabelilo
 		&& ask_me_yes_or_no(_("Did you change the mountlist?")))
 
@@ -1583,21 +1528,31 @@ int run_elilo(bool offer_to_run_stabelilo)
 	{
 		mvaddstr_and_log_it(g_currentY,
 							0,
-							_("Modifying fstab and elilo.conf...                             "));
-		sprintf(command, "stabelilo-me");
+							_
+							("Modifying fstab and elilo.conf...                             "));
+		asprintf(&command, "stabelilo-me");
 		res = run_program_and_log_output(command, 3);
+		paranoid_free(command);
+
 		if (res) {
 			popup_and_OK
-				(_("You will now edit fstab and elilo.conf, to make sure they match your new mountlist."));
+				(_
+				 ("You will now edit fstab and elilo.conf, to make sure they match your new mountlist."));
 			for (done = FALSE; !done;) {
 				if (!g_text_mode) {
 					newtSuspend();
 				}
-				sprintf(tmp, "%s " MNT_RESTORING "/etc/fstab", editor);
+				editor = find_my_editor();
+				asprintf(&tmp, "%s " MNT_RESTORING "/etc/fstab", editor);
 				paranoid_system(tmp);
-				sprintf(tmp, "%s " MNT_RESTORING "/etc/elilo.conf",
-						editor);
+				paranoid_free(tmp);
+
+				asprintf(&tmp, "%s " MNT_RESTORING "/etc/elilo.conf", editor);
+				paranoid_free(editor);
+
 				paranoid_system(tmp);
+				paranoid_free(tmp);
+
 				if (!g_text_mode) {
 					newtResume();
 				}
@@ -1615,12 +1570,8 @@ int run_elilo(bool offer_to_run_stabelilo)
 	{
 		res = TRUE;
 	}
-	paranoid_free(command);
-	paranoid_free(tmp);
-	paranoid_free(editor);
 	return (res);
 }
-
 /**************************************************************************
  *END_RUN_ELILO                                                            *
  **************************************************************************/
@@ -1634,44 +1585,49 @@ int run_elilo(bool offer_to_run_stabelilo)
 int run_lilo(bool offer_to_run_stablilo)
 {
   /** malloc **/
-	char *command;
-	char *tmp;
-	char *editor;
+	char *command = NULL;
+	char *tmp = NULL;
+	char *editor = NULL;
 
-	int res;
-	int done;
+	int res = 0;
+	int done = 0;
 	bool run_lilo_M = FALSE;
-	malloc_string(command);
-	malloc_string(tmp);
-	malloc_string(editor);
 
 	if (!run_program_and_log_output
 		("grep \"boot.*=.*/dev/md\" " MNT_RESTORING "/etc/lilo.conf", 1)) {
 		run_lilo_M = TRUE;
 	}
 
-	strcpy(editor, find_my_editor());
 	if (offer_to_run_stablilo
-		&& ask_me_yes_or_no(_("Did you change the mountlist?")))
-
+		&& ask_me_yes_or_no(_("Did you change the mountlist?"))) {
 		/* interactive mode */
-	{
 		mvaddstr_and_log_it(g_currentY,
 							0,
-							_("Modifying fstab and lilo.conf, and running LILO...                             "));
-		sprintf(command, "stablilo-me");
+							_
+							("Modifying fstab and lilo.conf, and running LILO...                             "));
+		asprintf(&command, "stablilo-me");
 		res = run_program_and_log_output(command, 3);
+		paranoid_free(command);
+
 		if (res) {
 			popup_and_OK
-				(_("You will now edit fstab and lilo.conf, to make sure they match your new mountlist."));
+				(_
+				 ("You will now edit fstab and lilo.conf, to make sure they match your new mountlist."));
 			for (done = FALSE; !done;) {
 				if (!g_text_mode) {
 					newtSuspend();
 				}
-				sprintf(tmp, "%s " MNT_RESTORING "/etc/fstab", editor);
+				editor = find_my_editor();
+				asprintf(&tmp, "%s " MNT_RESTORING "/etc/fstab", editor);
 				paranoid_system(tmp);
-				sprintf(tmp, "%s " MNT_RESTORING "/etc/lilo.conf", editor);
+				paranoid_free(tmp);
+
+				asprintf(&tmp, "%s " MNT_RESTORING "/etc/lilo.conf", editor);
+				paranoid_free(editor);
+
 				paranoid_system(tmp);
+				paranoid_free(tmp);
+
 				if (!g_text_mode) {
 					newtResume();
 				}
@@ -1698,12 +1654,12 @@ int run_lilo(bool offer_to_run_stablilo)
 		} else {
 			log_to_screen(_("lilo.conf and fstab were modified OK"));
 		}
-	} else
+	} else {
 		/* nuke mode */
-	{
 		mvaddstr_and_log_it(g_currentY,
 							0,
-							_("Running LILO...                                                 "));
+							_
+							("Running LILO...                                                 "));
 		res =
 			run_program_and_log_output("chroot " MNT_RESTORING " lilo -L",
 									   3);
@@ -1715,7 +1671,8 @@ int run_lilo(bool offer_to_run_stablilo)
 		if (res) {
 			mvaddstr_and_log_it(g_currentY++, 74, _("Failed."));
 			log_to_screen
-				(_("Failed to re-jig fstab and/or lilo. Edit/run manually, please."));
+				(_
+				 ("Failed to re-jig fstab and/or lilo. Edit/run manually, please."));
 		} else {
 			mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 		}
@@ -1726,9 +1683,6 @@ int run_lilo(bool offer_to_run_stablilo)
 		run_program_and_log_output("chroot " MNT_RESTORING
 								   " lilo -M /dev/sda", 3);
 	}
-	paranoid_free(command);
-	paranoid_free(tmp);
-	paranoid_free(editor);
 	return (res);
 }
 
@@ -1745,82 +1699,75 @@ int run_lilo(bool offer_to_run_stablilo)
  */
 int run_raw_mbr(bool offer_to_hack_scripts, char *bd)
 {
-  /** malloc **/
-	char *command;
-	char *boot_device;
-	char *tmp;
-	char *editor;
-	int res;
-	int done;
+	char *command = NULL;
+	char *tmp = NULL;
+	char *editor = NULL;
+	int res = 0;
+	int done = 0;
 
-	malloc_string(command);
-	malloc_string(boot_device);
-	malloc_string(tmp);
-	malloc_string(editor);
 	assert_string_is_neither_NULL_nor_zerolength(bd);
 
-	strcpy(editor, find_my_editor());
-	strcpy(boot_device, bd);
-	sprintf(command, "raw-MR %s /tmp/mountlist.txt", boot_device);
-	log_msg(2, "run_raw_mbr() --- command='%s'", command);
-
 	if (offer_to_hack_scripts
-		&& ask_me_yes_or_no(_("Did you change the mountlist?")))
+		&& ask_me_yes_or_no(_("Did you change the mountlist?"))) {
 		/* interactive mode */
-	{
 		mvaddstr_and_log_it(g_currentY, 0,
-							_("Modifying fstab and restoring MBR...                           "));
+							_
+							("Modifying fstab and restoring MBR...                           "));
 		for (done = FALSE; !done;) {
 			if (!run_program_and_log_output("which vi", FALSE)) {
 				popup_and_OK(_("You will now edit fstab"));
 				if (!g_text_mode) {
 					newtSuspend();
 				}
-				sprintf(tmp, "%s " MNT_RESTORING "/etc/fstab", editor);
+				editor = find_my_editor();
+				asprintf(&tmp, "%s " MNT_RESTORING "/etc/fstab", editor);
+				paranoid_free(editor);
+
 				paranoid_system(tmp);
+				paranoid_free(tmp);
+
 				if (!g_text_mode) {
 					newtResume();
 				}
 //              newtCls();
 			}
 			popup_and_get_string(_("Boot device"),
-								 _("Please confirm/enter the boot device. If in doubt, try /dev/hda"),
-								 boot_device, MAX_STR_LEN / 4);
-			sprintf(command, "stabraw-me %s", boot_device);
+								 _
+								 ("Please confirm/enter the boot device. If in doubt, try /dev/hda"), bd);
+			asprintf(&command, "stabraw-me %s", bd);
 			res = run_program_and_log_output(command, 3);
+			paranoid_free(command);
+
 			if (res) {
-				done = ask_me_yes_or_no(_("Modifications failed. Re-try?"));
+				done =
+					ask_me_yes_or_no(_("Modifications failed. Re-try?"));
 			} else {
 				done = TRUE;
 			}
 		}
-	} else
+	} else {
 		/* nuke mode */
-	{
 		mvaddstr_and_log_it(g_currentY, 0,
-							_("Restoring MBR...                                               "));
+							_
+							("Restoring MBR...                                               "));
+		asprintf(&command, "raw-MR %s /tmp/mountlist.txt", bd);
+		log_msg(2, "run_raw_mbr() --- command='%s'", command);
 		res = run_program_and_log_output(command, 3);
+		paranoid_free(command);
 	}
 	if (res) {
 		mvaddstr_and_log_it(g_currentY++, 74, _("Failed."));
 		log_to_screen
-			(_("MBR+fstab processed w/error(s). See /tmp/mondo-restore.log for more info."));
+			(_
+			 ("MBR+fstab processed w/error(s). See /tmp/mondo-restore.log for more info."));
 	} else {
 		mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 	}
-	paranoid_free(command);
-	paranoid_free(boot_device);
-	paranoid_free(tmp);
-	paranoid_free(editor);
 	return (res);
 }
-
 /**************************************************************************
  *END_RUN_RAW_MBR                                                         *
  **************************************************************************/
-
-
-
 
 
 /**
@@ -1857,38 +1804,23 @@ void set_signals(int on)
  */
 void setup_MR_global_filenames(struct s_bkpinfo *bkpinfo)
 {
-	char *temppath;
-
 	assert(bkpinfo != NULL);
 
-	malloc_string(g_biggielist_txt);
-	malloc_string(g_filelist_full);
-	malloc_string(g_filelist_imagedevs);
-	malloc_string(g_imagedevs_restthese);
-	malloc_string(g_mondo_cfg_file);
-	malloc_string(g_mountlist_fname);
 	malloc_string(g_tmpfs_mountpt);
-	malloc_string(g_isodir_device);
-	malloc_string(g_isodir_format);
 
-	temppath = bkpinfo->tmpdir;
-
-	sprintf(g_biggielist_txt, "%s/%s", temppath, BIGGIELIST_TXT_STUB);
-	sprintf(g_filelist_full, "%s/%s", temppath, FILELIST_FULL_STUB);
-	sprintf(g_filelist_imagedevs, "%s/tmp/filelist.imagedevs", temppath);
-//  sprintf(g_imagedevs_pot, "%s/tmp/imagedevs.pot", temppath);
-	sprintf(g_imagedevs_restthese, "%s/tmp/imagedevs.restore-these",
-			temppath);
+	asprintf(&g_biggielist_txt, "%s/%s",bkpinfo->tmpdir , BIGGIELIST_TXT_STUB);
+	asprintf(&g_filelist_full, "%s/%s", bkpinfo->tmpdir, FILELIST_FULL_STUB);
+	asprintf(&g_filelist_imagedevs, "%s/tmp/filelist.imagedevs", bkpinfo->tmpdir);
+	asprintf(&g_imagedevs_restthese, "%s/tmp/imagedevs.restore-these",
+			bkpinfo->tmpdir);
 	if (bkpinfo->disaster_recovery) {
-		sprintf(g_mondo_cfg_file, "/%s", MONDO_CFG_FILE_STUB);
-		sprintf(g_mountlist_fname, "/%s", MOUNTLIST_FNAME_STUB);
+		asprintf(&g_mondo_cfg_file, "/%s", MONDO_CFG_FILE_STUB);
+		asprintf(&g_mountlist_fname, "/%s", MOUNTLIST_FNAME_STUB);
 	} else {
-		sprintf(g_mondo_cfg_file, "%s/%s", temppath, MONDO_CFG_FILE_STUB);
-		sprintf(g_mountlist_fname, "%s/%s", temppath,
-				MOUNTLIST_FNAME_STUB);
+		asprintf(&g_mondo_cfg_file, "%s/%s", bkpinfo->tmpdir, MONDO_CFG_FILE_STUB);
+		asprintf(&g_mountlist_fname, "%s/%s", bkpinfo->tmpdir, MOUNTLIST_FNAME_STUB);
 	}
 }
-
 /**************************************************************************
  *END_SET_GLOBAL_FILENAME                                                 *
  **************************************************************************/
@@ -1904,12 +1836,11 @@ void streamline_changes_file(char *output_file, char *input_file)
 {
 	FILE *fin;
 	FILE *fout;
-  /** malloc **/
-	char *incoming;
+	char *incoming = NULL;
+	size_t n = 0;
 
 	assert_string_is_neither_NULL_nor_zerolength(output_file);
 	assert_string_is_neither_NULL_nor_zerolength(input_file);
-	malloc_string(incoming);
 
 	if (!(fin = fopen(input_file, "r"))) {
 		log_OS_error(input_file);
@@ -1918,8 +1849,8 @@ void streamline_changes_file(char *output_file, char *input_file)
 	if (!(fout = fopen(output_file, "w"))) {
 		fatal_error("cannot open output_file");
 	}
-	for (fgets(incoming, MAX_STR_LEN - 1, fin); !feof(fin);
-		 fgets(incoming, MAX_STR_LEN - 1, fin)) {
+	for (getline(&incoming, &n, fin); !feof(fin);
+		 getline(&incoming, &n, fin)) {
 		if (strncmp(incoming, "etc/adjtime", 11)
 			&& strncmp(incoming, "etc/mtab", 8)
 			&& strncmp(incoming, "tmp/", 4)
@@ -1929,11 +1860,10 @@ void streamline_changes_file(char *output_file, char *input_file)
 			&& strncmp(incoming, "var/", 4))
 			fprintf(fout, "%s", incoming);	/* don't need \n here, for some reason.. */
 	}
+	paranoid_free(incoming);
 	paranoid_fclose(fout);
 	paranoid_fclose(fin);
-	paranoid_free(incoming);
 }
-
 /**************************************************************************
  *END_STREAMLINE_CHANGES_FILE                                             *
  **************************************************************************/
@@ -1946,10 +1876,10 @@ void streamline_changes_file(char *output_file, char *input_file)
 void terminate_daemon(int sig)
 {
 	log_to_screen
-		(_("Mondorestore is terminating in response to a signal from the OS"));
+		(_
+		 ("Mondorestore is terminating in response to a signal from the OS"));
 	paranoid_MR_finish(254);
 }
-
 /**************************************************************************
  *END_TERMINATE_DAEMON                                                    *
  **************************************************************************/
@@ -1961,33 +1891,28 @@ void terminate_daemon(int sig)
 void twenty_seconds_til_yikes()
 {
 	int i;
-	/* MALLOC * */
-	char *tmp;
+	char *tmp = NULL;
 
-	malloc_string(tmp);
 	if (does_file_exist("/tmp/NOPAUSE")) {
 		return;
 	}
 	open_progress_form(_("CAUTION"),
-					   _("Be advised: I am about to ERASE your hard disk(s)!"),
+					   _
+					   ("Be advised: I am about to ERASE your hard disk(s)!"),
 					   _("You may press Ctrl+Alt+Del to abort safely."),
 					   "", 20);
 	for (i = 0; i < 20; i++) {
 		g_current_progress = i;
-		sprintf(tmp, _("You have %d seconds left to abort."), 20 - i);
+		asprintf(&tmp, _("You have %d seconds left to abort."), 20 - i);
 		update_progress_form(tmp);
+		paranoid_free(tmp);
 		sleep(1);
 	}
 	close_progress_form();
-	paranoid_free(tmp);
 }
-
 /**************************************************************************
  *END_TWENTY_SECONDS_TIL_YIKES                                            *
  **************************************************************************/
-
-
-
 
 
 /**
@@ -2000,11 +1925,9 @@ void termination_in_progress(int sig)
 	usleep(1000);
 	pthread_exit(0);
 }
-
 /**************************************************************************
  *END_TERMINATION_IN_PROGRESS                                             *
  **************************************************************************/
-
 
 
 /**
@@ -2016,12 +1939,14 @@ int unmount_all_devices(struct mountlist_itself
 						*p_external_copy_of_mountlist)
 {
 	struct mountlist_itself *mountlist;
-	int retval = 0, lino, res = 0, i;
-	char *command;
-	char *tmp;
+	int retval = 0;
+   	int	lino = 0;
+   	int	res = 0;
+   	int	i = 0;
+	char *command = NULL;
+	char *tmp = NULL;
+	char *tmp1 = NULL;
 
-	malloc_string(command);
-	malloc_string(tmp);
 	assert(p_external_copy_of_mountlist != NULL);
 
 	mountlist = malloc(sizeof(struct mountlist_itself));
@@ -2033,7 +1958,8 @@ int unmount_all_devices(struct mountlist_itself
 	mvaddstr_and_log_it(g_currentY, 0, _("Unmounting devices      "));
 	open_progress_form(_("Unmounting devices"),
 					   _("Unmounting all devices that were mounted,"),
-					   _("in preparation for the post-restoration reboot."),
+					   _
+					   ("in preparation for the post-restoration reboot."),
 					   "", mountlist->entries);
 	chdir("/");
 	for (i = 0;
@@ -2046,7 +1972,7 @@ int unmount_all_devices(struct mountlist_itself
 		log_msg(2, "Waiting for buffer() to finish");
 	}
 
-	paranoid_system("sync");
+	sync();
 
 	if (run_program_and_log_output
 		("cp -f /tmp/mondo-restore.log " MNT_RESTORING "/tmp/", FALSE)) {
@@ -2066,36 +1992,44 @@ int unmount_all_devices(struct mountlist_itself
 		if (!strcmp(mountlist->el[lino].mountpoint, "lvm")) {
 			continue;
 		}
-		sprintf(tmp, _("Unmounting device %s  "), mountlist->el[lino].device);
+		asprintf(&tmp, _("Unmounting device %s  "),
+				mountlist->el[lino].device);
 
 		update_progress_form(tmp);
+
 		if (is_this_device_mounted(mountlist->el[lino].device)) {
 			if (!strcmp(mountlist->el[lino].mountpoint, "swap")) {
-				sprintf(command, "swapoff %s", mountlist->el[lino].device);
+				asprintf(&command, "swapoff %s", mountlist->el[lino].device);
 			} else {
 				if (!strcmp(mountlist->el[lino].mountpoint, "/1")) {
-					sprintf(command, "umount %s/", MNT_RESTORING);
+					asprintf(&command, "umount %s/", MNT_RESTORING);
 					log_msg(3,
 							"Well, I know a certain kitty-kitty who'll be sleeping with Mommy tonight...");
 				} else {
-					sprintf(command, "umount " MNT_RESTORING "%s",
+					asprintf(&command, "umount " MNT_RESTORING "%s",
 							mountlist->el[lino].mountpoint);
 				}
 			}
 			log_msg(10, "The 'umount' command is '%s'", command);
 			res = run_program_and_log_output(command, 3);
+			paranoid_free(command);
 		} else {
-			strcat(tmp, _("...not mounted anyway :-) OK"));
+			asprintf(&tmp1, "%s%s", tmp, _("...not mounted anyway :-) OK"));
+			paranoid_free(tmp);
+			tmp = tmp1;
 			res = 0;
 		}
 		g_current_progress++;
 		if (res) {
-			strcat(tmp, _("...Failed"));
+			asprintf(&tmp1, "%s%s", tmp, _("...Failed"));
+			paranoid_free(tmp);
+			tmp = tmp1;
 			retval++;
 			log_to_screen(tmp);
 		} else {
 			log_msg(2, tmp);
 		}
+		paranoid_free(tmp);
 	}
 	close_progress_form();
 	if (retval) {
@@ -2109,15 +2043,11 @@ int unmount_all_devices(struct mountlist_itself
 		log_to_screen(_("All partitions were unmounted OK."));
 	}
 	free(mountlist);
-	paranoid_free(command);
-	paranoid_free(tmp);
 	return (retval);
 }
-
 /**************************************************************************
  *END_UNMOUNT_ALL_DEVICES                                                 *
  **************************************************************************/
-
 
 
 /**
@@ -2128,15 +2058,13 @@ int unmount_all_devices(struct mountlist_itself
  */
 int extract_cfg_file_and_mountlist_from_tape_dev(char *dev)
 {
-	char *command;
+	char *command = NULL;
 	int res = 0;
-	// BCO: below 32KB seems to block at least on RHAS 2.1 and MDK 10.0
+	// BERLIOS: below 32KB seems to block at least on RHAS 2.1 and MDK 10.0
 	long tape_block_size = 32768;
 
-	malloc_string(command);
-
 	// tar -zxvf-
-	sprintf(command,
+	asprintf(&command,
 			"dd if=%s bs=%ld count=%ld 2> /dev/null | tar -zx %s %s %s %s %s",
 			dev,
 			tape_block_size,
@@ -2145,13 +2073,13 @@ int extract_cfg_file_and_mountlist_from_tape_dev(char *dev)
 			BIGGIELIST_TXT_STUB, FILELIST_FULL_STUB, "tmp/i-want-my-lvm");
 	log_msg(2, "command = '%s'", command);
 	res = run_program_and_log_output(command, -1);
+	paranoid_free(command);
+
 	if (res != 0 && does_file_exist(MONDO_CFG_FILE_STUB)) {
 		res = 0;
 	}
-	paranoid_free(command);
 	return (res);
 }
-
 
 
 /**
@@ -2165,68 +2093,64 @@ int extract_cfg_file_and_mountlist_from_tape_dev(char *dev)
 int get_cfg_file_from_archive(struct s_bkpinfo *bkpinfo)
 {
 	int retval = 0;
-
-   /** malloc *****/
-	char *device;
-	char *command;
-	char *cfg_file;
-	char *mounted_cfgf_path;
-	char *tmp;
-	char *sav;
-	char *mountpt;
-	char *ramdisk_fname;
-	char *mountlist_file;
-	int res;
+	char *device = NULL;
+	char *command = NULL;
+	char *cfg_file = NULL;
+	char *mounted_cfgf_path = NULL;
+	char *tmp = NULL;
+	char *tmp1 = NULL;
+	char *sav = NULL;
+	char *mountpt = NULL;
+	char *ramdisk_fname = NULL;
+	char *mountlist_file = NULL;
+	int res = 0;
 
 	bool try_plan_B;
 
 	assert(bkpinfo != NULL);
-	malloc_string(cfg_file);
-	malloc_string(mounted_cfgf_path);
-	malloc_string(mountpt);
-	malloc_string(ramdisk_fname);
-	malloc_string(mountlist_file);
-	malloc_string(device);
-	malloc_string(command);
-	malloc_string(tmp);
 	log_msg(2, "gcffa --- starting");
 	log_to_screen(_("I'm thinking..."));
-	sprintf(mountpt, "%s/mount.bootdisk", bkpinfo->tmpdir);
-	device[0] = '\0';
+	asprintf(&mountpt, "%s/mount.bootdisk", bkpinfo->tmpdir);
 	chdir(bkpinfo->tmpdir);
-	strcpy(cfg_file, MONDO_CFG_FILE_STUB);
-	unlink(cfg_file);			// cfg_file[] is missing the '/' at the start, FYI, by intent
+	// MONDO_CFG_FILE_STUB is missing the '/' at the start, FYI, by intent
+	unlink(MONDO_CFG_FILE_STUB);
+
 	unlink(FILELIST_FULL_STUB);
 	unlink(BIGGIELIST_TXT_STUB);
 	unlink("tmp/i-want-my-lvm");
-	sprintf(command, "mkdir -p %s", mountpt);
+	asprintf(&command, "mkdir -p %s", mountpt);
 	run_program_and_log_output(command, FALSE);
+	paranoid_free(command);
 
-//   unlink( "tmp/mondo-restore.cfg" ); // superfluous, surely?
-
-	sprintf(cfg_file, "%s/%s", bkpinfo->tmpdir, MONDO_CFG_FILE_STUB);
-	sprintf(mountlist_file, "%s/%s", bkpinfo->tmpdir,
+	asprintf(&cfg_file, "%s/%s", bkpinfo->tmpdir, MONDO_CFG_FILE_STUB);
+	asprintf(&mountlist_file, "%s/%s", bkpinfo->tmpdir,
 			MOUNTLIST_FNAME_STUB);
-	//   make_hole_for_file( cfg_file );
-	//   make_hole_for_file( mountlist_file);
 	log_msg(2, "mountpt = %s; cfg_file=%s", mountpt, cfg_file);
 
 	/* Floppy? */
-	sprintf(tmp, "mkdir -p %s", mountpt);
+	asprintf(&tmp, "mkdir -p %s", mountpt);
 	run_program_and_log_output(tmp, FALSE);
-	sprintf(tmp, "mkdir -p %s/tmp", bkpinfo->tmpdir);
-	run_program_and_log_output(tmp, FALSE);
+	paranoid_free(tmp);
 
-	sprintf(command, "mount /dev/fd0u1722 %s", mountpt);
-	sprintf(tmp,
+	asprintf(&tmp, "mkdir -p %s/tmp", bkpinfo->tmpdir);
+	run_program_and_log_output(tmp, FALSE);
+	paranoid_free(tmp);
+
+	asprintf(&command, "mount /dev/fd0u1722 %s", mountpt);
+	asprintf(&tmp,
 			"(sleep 15; kill `ps ax | grep \"%s\" | cut -d' ' -f1` 2> /dev/null) &",
 			command);
 	log_msg(1, "tmp = '%s'", tmp);
 	system(tmp);
+	paranoid_free(tmp);
+
 	res = run_program_and_log_output(command, FALSE);
+	paranoid_free(command);
+
 	if (res) {
-		sprintf(command, "mount /dev/fd0H1440 %s", mountpt);
+		asprintf(&command, "mount /dev/fd0H1440 %s", mountpt);
 		res = run_program_and_log_output(command, FALSE);
+		paranoid_free(command);
 	}
 	if (res) {
 		try_plan_B = TRUE;
@@ -2236,9 +2160,10 @@ int get_cfg_file_from_archive(struct s_bkpinfo *bkpinfo)
 				"Mounted floppy OK but I don't trust it because the archives might contain more up-to-date config file than the floppy does.");
 // NB: If busybox does not support 'mount -o loop' then Plan A WILL NOT WORK.
 		log_msg(2, "Processing floppy (plan A?)");
-		sprintf(ramdisk_fname, "%s/mindi.rdz", mountpt);
+		asprintf(&ramdisk_fname, "%s/mindi.rdz", mountpt);
 		if (!does_file_exist(ramdisk_fname)) {
-			sprintf(ramdisk_fname, "%s/initrd.img", mountpt);
+			paranoid_free(ramdisk_fname);
+			asprintf(&ramdisk_fname, "%s/initrd.img", mountpt);
 		}
 		if (!does_file_exist(ramdisk_fname)) {
 			log_msg(2,
@@ -2249,9 +2174,12 @@ int get_cfg_file_from_archive(struct s_bkpinfo *bkpinfo)
 			log_msg(2,
 					"Warning - failed to extract config file from ramdisk. I think this boot disk is mangled.");
 		}
-		sprintf(command, "umount %s", mountpt);
+		asprintf(&command, "umount %s", mountpt);
 		run_program_and_log_output(command, 5);
+		paranoid_free(command);
+
 		unlink(ramdisk_fname);
+		paranoid_free(ramdisk_fname);
 	}
 	if (!does_file_exist(cfg_file)) {
 		log_msg(2, "gcffa --- we don't have cfg file yet.");
@@ -2276,11 +2204,12 @@ int get_cfg_file_from_archive(struct s_bkpinfo *bkpinfo)
 			chdir(bkpinfo->tmpdir);
 			run_program_and_log_output("mkdir -p tmp", FALSE);
 
-			if (strlen(bkpinfo->media_device) == 0) {
-				paranoid_alloc(bkpinfo->media_device, "/dev/st0");
-				log_msg(2, "media_device is blank; assuming %s", bkpinfo->media_device);
+			if (bkpinfo->media_device == NULL) {
+				asprintf(&bkpinfo->media_device, "/dev/st0");
+				log_msg(2, "media_device is blank; assuming %s",
+						bkpinfo->media_device);
 			}
-			asprintf(&sav,bkpinfo->media_device);
+			asprintf(&sav, bkpinfo->media_device);
 			if (extract_cfg_file_and_mountlist_from_tape_dev
 				(bkpinfo->media_device)) {
 				paranoid_alloc(bkpinfo->media_device, "/dev/st0");
@@ -2302,35 +2231,43 @@ int get_cfg_file_from_archive(struct s_bkpinfo *bkpinfo)
 			paranoid_free(sav);
 
 			if (!does_file_exist("tmp/mondo-restore.cfg")) {
-				log_to_screen(_("Cannot find config info on tape/CD/floppy"));
+				log_to_screen(_
+							  ("Cannot find config info on tape/CD/floppy"));
 				return (1);
 			}
 		} else {
 			log_msg(2,
 					"gcffa --- looking at mounted CD for mindi-boot.2880.img");
-			sprintf(command,
+			/* BERLIOS : Useless ?
+			asprintf(&command,
 					"mount " MNT_CDROM
 					"/images/mindi-boot.2880.img -o loop %s", mountpt);
-			sprintf(mounted_cfgf_path, "%s/%s", mountpt, cfg_file);
+					*/
+			asprintf(&mounted_cfgf_path, "%s/%s", mountpt, cfg_file);
 			if (!does_file_exist(mounted_cfgf_path)) {
 				log_msg(2,
 						"gcffa --- Plan C, a.k.a. untarring some file from all.tar.gz");
-				sprintf(command, "tar -zxvf " MNT_CDROM "/images/all.tar.gz %s %s %s %s %s", MOUNTLIST_FNAME_STUB, MONDO_CFG_FILE_STUB, BIGGIELIST_TXT_STUB, FILELIST_FULL_STUB, "tmp/i-want-my-lvm");	// add -b TAPE_BLOCK_SIZE if you _really_ think it's necessary
+				asprintf(&command, "tar -zxvf " MNT_CDROM "/images/all.tar.gz %s %s %s %s %s", MOUNTLIST_FNAME_STUB, MONDO_CFG_FILE_STUB, BIGGIELIST_TXT_STUB, FILELIST_FULL_STUB, "tmp/i-want-my-lvm");	// add -b TAPE_BLOCK_SIZE if you _really_ think it's necessary
 				run_program_and_log_output(command, TRUE);
+				paranoid_free(command);
+
 				if (!does_file_exist(MONDO_CFG_FILE_STUB)) {
 					fatal_error
 						("Please reinsert the disk/CD and try again.");
 				}
 			}
+			paranoid_free(mounted_cfgf_path);
 		}
 	}
+	paranoid_free(mountpt);
+
 	if (does_file_exist(MONDO_CFG_FILE_STUB)) {
 		log_msg(1, "gcffa --- great! We've got the config file");
-		sprintf(tmp, "%s/%s",
-				call_program_and_get_last_line_of_output("pwd"),
-				MONDO_CFG_FILE_STUB);
-		sprintf(command, "cp -f %s %s", tmp, cfg_file);
+		tmp1 = call_program_and_get_last_line_of_output("pwd");
+		asprintf(&tmp, "%s/%s", tmp1,MONDO_CFG_FILE_STUB);
+		asprintf(&command, "cp -f %s %s", tmp, cfg_file);
 		iamhere(command);
+
 		if (strcmp(tmp, cfg_file)
 			&& run_program_and_log_output(command, 1)) {
 			log_msg(1,
@@ -2339,51 +2276,40 @@ int get_cfg_file_from_archive(struct s_bkpinfo *bkpinfo)
 		} else {
 			log_msg(1, "... and I moved it successfully to %s", cfg_file);
 		}
-		sprintf(command, "cp -f %s/%s %s",
-				call_program_and_get_last_line_of_output("pwd"),
+		paranoid_free(command);
+
+		asprintf(&command, "cp -f %s/%s %s",tmp1,
 				MOUNTLIST_FNAME_STUB, mountlist_file);
+		paranoid_free(tmp1);
+
 		iamhere(command);
 		if (strcmp(tmp, cfg_file)
 			&& run_program_and_log_output(command, 1)) {
 			log_msg(1, "Failed to get mountlist");
 		} else {
 			log_msg(1, "Got mountlist too");
-			sprintf(command, "cp -f %s %s", mountlist_file,
+			paranoid_free(command);
+			asprintf(&command, "cp -f %s %s", mountlist_file,
 					g_mountlist_fname);
 			if (run_program_and_log_output(command, 1)) {
 				log_msg(1, "Failed to copy mountlist to /tmp");
 			} else {
 				log_msg(1, "Copied mountlist to /tmp as well OK");
-				sprintf(command, "cp -f tmp/i-want-my-lvm /tmp/");
+				paranoid_free(command);
+				asprintf(&command, "cp -f tmp/i-want-my-lvm /tmp/");
 				run_program_and_log_output(command, 1);
-/*	      sprintf(command, "grep \" lvm \" %s", g_mountlist_fname);
-	      if (!run_program_and_log_output(command, 5) && !does_file_exist("/tmp/i-want-my-lvm"))
-	        {
-		  log_msg(1, "Warning. You want LVM but I don't have i-want-my-lvm. FIXME.");
-		}
-              else if (run_program_and_log_output(command,5) && does_file_exist("/tmp/i-want-my-lvm"))
-                {
-		  log_msg(1, "Warning. You don't want LVM but i-want-my-lvm exists. I'll delete it. Cool.");
-	          do_my_funky_lvm_stuff(TRUE, FALSE); // ...after I stop any LVMs :)
-		  stop_raid_device("/dev/md0");
-		  stop_raid_device("/dev/md1");
-		  stop_raid_device("/dev/md2");
-		  unlink("/tmp/i-want-my-lvm");
-		}
- 	      else if (!run_program_and_log_output(command,5) && does_file_exist("/tmp/i-want-my-lvm"))
-	        {
-		  log_msg(1, "You had better pray that i-want-my-lvm patches your mountlist. FIXME.");
-		}
-*/
 			}
 		}
+		paranoid_free(command);
+		paranoid_free(tmp);
 	}
 	run_program_and_log_output("umount " MNT_CDROM, FALSE);
 	if (!does_file_exist(cfg_file)) {
 		iamhere(cfg_file);
 		log_msg(1, "%s not found", cfg_file);
 		log_to_screen
-			(_("Oh dear. Unable to recover configuration file from boot disk"));
+			(_
+			 ("Oh dear. Unable to recover configuration file from boot disk"));
 		return (1);
 	}
 
@@ -2393,66 +2319,49 @@ int get_cfg_file_from_archive(struct s_bkpinfo *bkpinfo)
 	}
 /* start SAH */
 	else {
-		sprintf(command, "cp -f %s %s/%s", MOUNTLIST_FNAME_STUB,
+		asprintf(&command, "cp -f %s %s/%s", MOUNTLIST_FNAME_STUB,
 				bkpinfo->tmpdir, MOUNTLIST_FNAME_STUB);
 		run_program_and_log_output(command, FALSE);
+		paranoid_free(command);
 	}
-/*--commented out by SAH
-  sprintf( command, "cp -f %s %s/%s", cfg_file, bkpinfo->tmpdir, MONDO_CFG_FILE_STUB );
-  run_program_and_log_output( command, FALSE );
-  sprintf( command, "cp -f %s %s/%s", mountlist_file, bkpinfo->tmpdir, MOUNTLIST_FNAME_STUB );
-  run_program_and_log_output( command, FALSE );
-*/
 /* end SAH */
 
-	sprintf(command, "cp -f %s /%s", cfg_file, MONDO_CFG_FILE_STUB);
-	run_program_and_log_output(command, FALSE);
-	sprintf(command, "cp -f %s /%s", mountlist_file, MOUNTLIST_FNAME_STUB);
-	run_program_and_log_output(command, FALSE);
-	sprintf(command, "cp -f etc/raidtab /etc/");
-	run_program_and_log_output(command, FALSE);
-	sprintf(command, "cp -f tmp/i-want-my-lvm /tmp/");
-	run_program_and_log_output(command, FALSE);
-	g_backup_media_type = bkpinfo->backup_media_type;
-	paranoid_free(device);
-	paranoid_free(command);
-	paranoid_free(tmp);
+	asprintf(&command, "cp -f %s /%s", cfg_file, MONDO_CFG_FILE_STUB);
 	paranoid_free(cfg_file);
-	paranoid_free(mounted_cfgf_path);
-	paranoid_free(mountpt);
-	paranoid_free(ramdisk_fname);
+
+	run_program_and_log_output(command, FALSE);
+	paranoid_free(command);
+
+	asprintf(&command, "cp -f %s /%s", mountlist_file, MOUNTLIST_FNAME_STUB);
 	paranoid_free(mountlist_file);
+
+	run_program_and_log_output(command, FALSE);
+	paranoid_free(command);
+
+	asprintf(&command, "cp -f etc/raidtab /etc/");
+	run_program_and_log_output(command, FALSE);
+	paranoid_free(command);
+
+	asprintf(&command, "cp -f tmp/i-want-my-lvm /tmp/");
+	run_program_and_log_output(command, FALSE);
+	paranoid_free(command);
+
+	g_backup_media_type = bkpinfo->backup_media_type;
 	return (retval);
 }
-
 /**************************************************************************
  *END_GET_CFG_FILE_FROM_ARCHIVE                                           *
  **************************************************************************/
-
 /* @} - end restoreUtilityGroup */
-
-
-/***************************************************************************
- * F@                                                                      *
- * () -- Hugo Rabson                                  *
- *                                                                         *
- * Purpose:                                                                *
- *                                                                         *
- * Called by:                                                              *
- * Params:    -                      -                                     *
- * Returns:   0=success; nonzero=failure                                   *
- ***************************************************************************/
-
 
 
 void wait_until_software_raids_are_prepped(char *mdstat_file,
 										   int wait_for_percentage)
 {
-	struct raidlist_itself *raidlist;
-	int unfinished_mdstat_devices = 9999, i;
-	char *screen_message;
+	struct raidlist_itself *raidlist = NULL;
+	int unfinished_mdstat_devices = 9999, i = 0;
+	char *screen_message = NULL;
 
-	malloc_string(screen_message);
 	raidlist = malloc(sizeof(struct raidlist_itself));
 
 	assert(wait_for_percentage <= 100);
@@ -2460,22 +2369,27 @@ void wait_until_software_raids_are_prepped(char *mdstat_file,
 	while (unfinished_mdstat_devices > 0) {
 		if (parse_mdstat(raidlist, "/dev/")) {
 			log_to_screen("Sorry, cannot read %s", MDSTAT_FILE);
-			log_msg(1,"Sorry, cannot read %s", MDSTAT_FILE);
+			log_msg(1, "Sorry, cannot read %s", MDSTAT_FILE);
 			return;
 		}
-		for (unfinished_mdstat_devices = i = 0; i <= raidlist->entries; i++) {
+		for (unfinished_mdstat_devices = i = 0; i <= raidlist->entries;
+			 i++) {
 			if (raidlist->el[i].progress < wait_for_percentage) {
 				unfinished_mdstat_devices++;
-				log_msg(1,"Sync'ing %s (i=%d)", raidlist->el[i].raid_device, i);
-				sprintf(screen_message, "Sync'ing %s",
+				log_msg(1, "Sync'ing %s (i=%d)",
+						raidlist->el[i].raid_device, i);
+				asprintf(&screen_message, "Sync'ing %s",
 						raidlist->el[i].raid_device);
 				open_evalcall_form(screen_message);
+				paranoid_free(screen_message);
+
 				if (raidlist->el[i].progress == -1)	// delayed while another partition inits
 				{
 					continue;
 				}
 				while (raidlist->el[i].progress < wait_for_percentage) {
-					log_msg(1,"Percentage sync'ed: %d", raidlist->el[i].progress);
+					log_msg(1, "Percentage sync'ed: %d",
+							raidlist->el[i].progress);
 					update_evalcall_form(raidlist->el[i].progress);
 					sleep(2);
 					// FIXME: Prefix '/dev/' should really be dynamic!
@@ -2487,6 +2401,5 @@ void wait_until_software_raids_are_prepped(char *mdstat_file,
 			}
 		}
 	}
-	paranoid_free(screen_message);
 	paranoid_free(raidlist);
 }

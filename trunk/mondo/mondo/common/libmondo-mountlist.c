@@ -59,8 +59,9 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 	int foundsome = FALSE;
 
 	/*@ buffers ******************************************************** */
-	char *tmp;
-	char *device;
+	char *tmp = NULL;
+	char *tmp1 = NULL;
+	char *device = NULL;
 	// BERLIOS : useless ? char *mountpoint;
 
 	/*@ long *********************************************************** */
@@ -68,10 +69,9 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 	long amount_allocated = 0;
 
 	/*@ pointers ******************************************************* */
-	char *part_table_fmt;
+	char *part_table_fmt = NULL;
 
 	/*@ initialize ***************************************************** */
-	flaws_str[0] = '\0';
 	prev_part_no = 0;
 	// BERLIOS: tmp[0] = '\0';
 
@@ -80,9 +80,10 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 
 	if (physical_drive_size < 0) {
 		asprintf(&tmp, " %s does not exist.", drive);
-		strcat(flaws_str, tmp);
+		flaws_str = tmp;
 	} else {
 		asprintf(&tmp, "%s is %ld MB", drive, physical_drive_size);
+		flaws_str = NULL;
 	}
 	log_it(tmp);
 	paranoid_free(tmp);
@@ -107,7 +108,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 			if (curr_part_no > 'h') {
 				asprintf(&tmp, " Can only have up to 'h' in disklabel.");
 				log_it(tmp);
-				strcat(flaws_str, tmp);
+				if (flaws_str) {
+					asprintf(&tmp1, "%s%s",flaws_str, tmp);
+				} else {
+					asprintf(&tmp1, "%s", tmp);
+				}
+				paranoid_free(flaws_str);
+				flaws_str = tmp1;
 				paranoid_free(tmp);
 				res++;
 			}
@@ -123,7 +130,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 						 device);
 				if (!strstr(flaws_str, tmp)) {
 					log_it(tmp);
-					strcat(flaws_str, tmp);
+					if (flaws_str) {
+						asprintf(&tmp1, "%s%s",flaws_str, tmp);
+					} else {
+						asprintf(&tmp1, "%s", tmp);
+					}
+					paranoid_free(flaws_str);
+					flaws_str = tmp1;
 					res++;
 				}
 				paranoid_free(tmp);
@@ -133,7 +146,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 				&& strcmp(mountlist->el[pos].mountpoint, "lvm")) {
 				asprintf(&tmp, " %s is tiny!", device);
 				log_it(tmp);
-				strcat(flaws_str, tmp);
+				if (flaws_str) {
+					asprintf(&tmp1, "%s%s",flaws_str, tmp);
+				} else {
+					asprintf(&tmp1, "%s", tmp);
+				}
+				paranoid_free(flaws_str);
+				flaws_str = tmp1;
 				paranoid_free(tmp);
 				res++;
 			}
@@ -146,7 +165,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 				&& mountlist->el[pos].mountpoint[0] != '/') {
 				asprintf(&tmp, " %s has a weird mountpoint.", device);
 				log_it(tmp);
-				strcat(flaws_str, tmp);
+				if (flaws_str) {
+					asprintf(&tmp1, "%s%s",flaws_str, tmp);
+				} else {
+					asprintf(&tmp1, "%s", tmp);
+				}
+				paranoid_free(flaws_str);
+				flaws_str = tmp1;
 				paranoid_free(tmp);
 				res++;
 			}
@@ -154,7 +179,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 			if (!is_this_a_valid_disk_format(mountlist->el[pos].format)) {
 				asprintf(&tmp, " %s has unsupported format %s.", device, mountlist->el[pos].format);
 				log_it(tmp);
-				strcat(flaws_str, tmp);
+				if (flaws_str) {
+					asprintf(&tmp1, "%s%s",flaws_str, tmp);
+				} else {
+					asprintf(&tmp1, "%s", tmp);
+				}
+				paranoid_free(flaws_str);
+				flaws_str = tmp1;
 				paranoid_free(tmp);
 				res++;
 			}
@@ -178,8 +209,15 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 		paranoid_free(device);
 
 		if (((pos >= 0) || npos) && foundsome) {
-			sprintf(flaws_str + strlen(flaws_str),
-					" %s has both DD and PC-style partitions.", drive);
+			asprintf(&tmp, " %s has both DD and PC-style partitions.", drive);
+			if (flaws_str) {
+				asprintf(&tmp1, "%s%s",flaws_str, tmp);
+			} else {
+				asprintf(&tmp1, "%s", tmp);
+			}
+			paranoid_free(flaws_str);
+			flaws_str = tmp1;
+			paranoid_free(tmp);
 			return ++res;		// fatal error
 		}
 		// BERLIOS : useless ? asprintf(&mountpoint, mountlist->el[pos].mountpoint);
@@ -190,7 +228,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 				if (prev_part_no == 0) {
 					asprintf(&tmp, " Gap prior to %s.", device);
 					log_it(tmp);
-					strcat(flaws_str, tmp);
+					if (flaws_str) {
+						asprintf(&tmp1, "%s%s",flaws_str, tmp);
+					} else {
+						asprintf(&tmp1, "%s", tmp);
+					}
+					paranoid_free(flaws_str);
+					flaws_str = tmp1;
 					paranoid_free(tmp);
 					res++;
 				} else if (curr_part_no > 5
@@ -198,7 +242,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 					asprintf(&tmp, " Gap between %ss%d and %d.", drive,
 							 prev_part_no, curr_part_no);
 					log_it(tmp);
-					strcat(flaws_str, tmp);
+					if (flaws_str) {
+						asprintf(&tmp1, "%s%s",flaws_str, tmp);
+					} else {
+						asprintf(&tmp1, "%s", tmp);
+					}
+					paranoid_free(flaws_str);
+					flaws_str = tmp1;
 					paranoid_free(tmp);
 					res++;
 				}
@@ -210,7 +260,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 				&& (strcmp(part_table_fmt, "MBR") == 0)) {
 				asprintf(&tmp, " Partition %ss4 is occupied.", drive);
 				log_it(tmp);
-				strcat(flaws_str, tmp);
+				if (flaws_str) {
+					asprintf(&tmp1, "%s%s",flaws_str, tmp);
+				} else {
+					asprintf(&tmp1, "%s", tmp);
+				}
+				paranoid_free(flaws_str);
+				flaws_str = tmp1;
 				paranoid_free(tmp);
 				res++;
 			}
@@ -226,7 +282,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 						 device);
 				if (!strstr(flaws_str, tmp)) {
 					log_it(tmp);
-					strcat(flaws_str, tmp);
+					if (flaws_str) {
+						asprintf(&tmp1, "%s%s",flaws_str, tmp);
+					} else {
+						asprintf(&tmp1, "%s", tmp);
+					}
+					paranoid_free(flaws_str);
+					flaws_str = tmp1;
 					res++;
 				}
 				paranoid_free(tmp);
@@ -236,7 +298,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 				&& strcmp(mountlist->el[pos].mountpoint, "lvm")) {
 				asprintf(&tmp, " %s is tiny!", device);
 				log_it(tmp);
-				strcat(flaws_str, tmp);
+				if (flaws_str) {
+					asprintf(&tmp1, "%s%s",flaws_str, tmp);
+				} else {
+					asprintf(&tmp1, "%s", tmp);
+				}
+				paranoid_free(flaws_str);
+				flaws_str = tmp1;
 				paranoid_free(tmp);
 				res++;
 			}
@@ -249,7 +317,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 				&& mountlist->el[pos].mountpoint[0] != '/') {
 				asprintf(&tmp, " %s has a weird mountpoint.", device);
 				log_it(tmp);
-				strcat(flaws_str, tmp);
+				if (flaws_str) {
+					asprintf(&tmp1, "%s%s",flaws_str, tmp);
+				} else {
+					asprintf(&tmp1, "%s", tmp);
+				}
+				paranoid_free(flaws_str);
+				flaws_str = tmp1;
 				paranoid_free(tmp);
 				res++;
 			}
@@ -257,7 +331,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 			if (!is_this_a_valid_disk_format(mountlist->el[pos].format)) {
 				asprintf(&tmp, " %s has unsupported format %s.", device, mountlist->el[pos].format);
 				log_it(tmp);
-				strcat(flaws_str, tmp);
+				if (flaws_str) {
+					asprintf(&tmp1, "%s%s",flaws_str, tmp);
+				} else {
+					asprintf(&tmp1, "%s", tmp);
+				}
+				paranoid_free(flaws_str);
+				flaws_str = tmp1;
 				paranoid_free(tmp);
 				res++;
 			}
@@ -277,7 +357,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 					asprintf(&tmp,
 							 " Can only have up to 'h' in disklabel.");
 					log_it(tmp);
-					strcat(flaws_str, tmp);
+					if (flaws_str) {
+						asprintf(&tmp1, "%s%s",flaws_str, tmp);
+					} else {
+						asprintf(&tmp1, "%s", tmp);
+					}
+					paranoid_free(flaws_str);
+					flaws_str = tmp1;
 					paranoid_free(tmp);
 					res++;
 				}
@@ -293,7 +379,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 							 number_to_text(device_copies), device);
 					if (!strstr(flaws_str, tmp)) {
 						log_it(tmp);
-						strcat(flaws_str, tmp);
+						if (flaws_str) {
+							asprintf(&tmp1, "%s%s",flaws_str, tmp);
+						} else {
+							asprintf(&tmp1, "%s", tmp);
+						}
+						paranoid_free(flaws_str);
+						flaws_str = tmp1;
 						res++;
 					}
 					paranoid_free(tmp);
@@ -303,7 +395,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 					&& strcmp(mountlist->el[pos].mountpoint, "lvm")) {
 					asprintf(&tmp, " %s is tiny!", device);
 					log_it(tmp);
-					strcat(flaws_str, tmp);
+					if (flaws_str) {
+						asprintf(&tmp1, "%s%s",flaws_str, tmp);
+					} else {
+						asprintf(&tmp1, "%s", tmp);
+					}
+					paranoid_free(flaws_str);
+					flaws_str = tmp1;
 					paranoid_free(tmp);
 					res++;
 				}
@@ -316,7 +414,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 					&& mountlist->el[pos].mountpoint[0] != '/') {
 					asprintf(&tmp, " %s has a weird mountpoint.", device);
 					log_it(tmp);
-					strcat(flaws_str, tmp);
+					if (flaws_str) {
+						asprintf(&tmp1, "%s%s",flaws_str, tmp);
+					} else {
+						asprintf(&tmp1, "%s", tmp);
+					}
+					paranoid_free(flaws_str);
+					flaws_str = tmp1;
 					paranoid_free(tmp);
 					res++;
 				}
@@ -325,7 +429,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 					(mountlist->el[pos].format)) {
 					asprintf(&tmp, " %s has unsupported format %s.", device, mountlist->el[pos].format);
 					log_it(tmp);
-					strcat(flaws_str, tmp);
+					if (flaws_str) {
+						asprintf(&tmp1, "%s%s",flaws_str, tmp);
+					} else {
+						asprintf(&tmp1, "%s", tmp);
+					}
+					paranoid_free(flaws_str);
+					flaws_str = tmp1;
 					paranoid_free(tmp);
 					res++;
 				}
@@ -346,14 +456,26 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 		asprintf(&tmp, " %ld MB over-allocated on %s.",
 				 amount_allocated - physical_drive_size, drive);
 		log_it(tmp);
-		strcat(flaws_str, tmp);
+		if (flaws_str) {
+			asprintf(&tmp1, "%s%s",flaws_str, tmp);
+		} else {
+			asprintf(&tmp1, "%s", tmp);
+		}
+		paranoid_free(flaws_str);
+		flaws_str = tmp1;
 		paranoid_free(tmp);
 		res++;
 	} else if (amount_allocated < physical_drive_size - 1) {	/* NOT AN ERROR, JUST A WARNING :-) */
 		asprintf(&tmp, " %ld MB unallocated on %s.",
 				 physical_drive_size - amount_allocated, drive);
 		log_it(tmp);
-		strcat(flaws_str, tmp);
+		if (flaws_str) {
+			asprintf(&tmp1, "%s%s",flaws_str, tmp);
+		} else {
+			asprintf(&tmp1, "%s", tmp);
+		}
+		paranoid_free(flaws_str);
+		flaws_str = tmp1;
 		paranoid_free(tmp);
 	}
 	if (res) {
@@ -390,9 +512,8 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 	/*@ initialize ***************************************************** */
 	assert_string_is_neither_NULL_nor_zerolength(drive);
 	assert(mountlist != NULL);
-	assert(flaws_str != NULL);
+	flaws_str = NULL;
 
-	flaws_str[0] = '\0';
 	prev_part_no = 0;
 	// BERLIOS : useless ? tmp[0] = '\0';
 
@@ -401,7 +522,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 
 	if (physical_drive_size < 0) {
 		asprintf(&tmp, " %s does not exist.", drive);
-		strcat(flaws_str, tmp);
+		if (flaws_str) {
+			asprintf(&tmp1, "%s%s",flaws_str, tmp);
+		} else {
+			asprintf(&tmp1, "%s", tmp);
+		}
+		paranoid_free(flaws_str);
+		flaws_str = tmp1;
 		res++;
 		log_msg(1, tmp);
 		paranoid_free(tmp);
@@ -420,7 +547,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 		}
 		if (physical_drive_size < 0) {
 			asprintf(&tmp, " %s refers to non-existent hardware.", device);
-			strcat(flaws_str, tmp);
+			if (flaws_str) {
+				asprintf(&tmp1, "%s%s",flaws_str, tmp);
+			} else {
+				asprintf(&tmp1, "%s", tmp);
+			}
+			paranoid_free(flaws_str);
+			flaws_str = tmp1;
 			res++;
 			paranoid_free(tmp);
 			continue;
@@ -431,7 +564,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 			if (prev_part_no == 0) {
 				asprintf(&tmp, " Gap prior to %s.", device);
 				log_it(tmp);
-				strcat(flaws_str, tmp);
+				if (flaws_str) {
+					asprintf(&tmp1, "%s%s",flaws_str, tmp);
+				} else {
+					asprintf(&tmp1, "%s", tmp);
+				}
+				paranoid_free(flaws_str);
+				flaws_str = tmp1;
 				paranoid_free(tmp);
 				res++;
 			} else if (curr_part_no > 5
@@ -439,7 +578,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 				asprintf(&tmp, " Gap between %s%d and %d.", drive,
 						 prev_part_no, curr_part_no);
 				log_it(tmp);
-				strcat(flaws_str, tmp);
+				if (flaws_str) {
+					asprintf(&tmp1, "%s%s",flaws_str, tmp);
+				} else {
+					asprintf(&tmp1, "%s", tmp);
+				}
+				paranoid_free(flaws_str);
+				flaws_str = tmp1;
 				paranoid_free(tmp);
 				res++;
 			}
@@ -451,7 +596,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 			&& (strcmp(part_table_fmt, "MBR") == 0)) {
 			asprintf(&tmp, " Partition %s4 is occupied.", drive);
 			log_it(tmp);
-			strcat(flaws_str, tmp);
+			if (flaws_str) {
+				asprintf(&tmp1, "%s%s",flaws_str, tmp);
+			} else {
+				asprintf(&tmp1, "%s", tmp);
+			}
+			paranoid_free(flaws_str);
+			flaws_str = tmp1;
 			paranoid_free(tmp);
 			res++;
 		}
@@ -469,7 +620,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 					 device);
 			if (!strstr(flaws_str, tmp)) {
 				log_it(tmp);
-				strcat(flaws_str, tmp);
+				if (flaws_str) {
+					asprintf(&tmp1, "%s%s",flaws_str, tmp);
+				} else {
+					asprintf(&tmp1, "%s", tmp);
+				}
+				paranoid_free(flaws_str);
+				flaws_str = tmp1;
 				res++;
 			}
 			paranoid_free(tmp);
@@ -479,7 +636,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 			&& strcmp(mountlist->el[pos].mountpoint, "lvm")) {
 			asprintf(&tmp, " %s is tiny!", device);
 			log_it(tmp);
-			strcat(flaws_str, tmp);
+			if (flaws_str) {
+				asprintf(&tmp1, "%s%s",flaws_str, tmp);
+			} else {
+				asprintf(&tmp1, "%s", tmp);
+			}
+			paranoid_free(flaws_str);
+			flaws_str = tmp1;
 			paranoid_free(tmp);
 			res++;
 		}
@@ -491,7 +654,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 			&& mountlist->el[pos].mountpoint[0] != '/') {
 			asprintf(&tmp, " %s has a weird mountpoint.", device);
 			log_it(tmp);
-			strcat(flaws_str, tmp);
+			if (flaws_str) {
+				asprintf(&tmp1, "%s%s",flaws_str, tmp);
+			} else {
+				asprintf(&tmp1, "%s", tmp);
+			}
+			paranoid_free(flaws_str);
+			flaws_str = tmp1;
 			paranoid_free(tmp);
 			res++;
 		}
@@ -499,7 +668,13 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 		if (!is_this_a_valid_disk_format(mountlist->el[pos].format)) {
 			asprintf(&tmp, " %s has unsupported format %s.", device, mountlist->el[pos].format);
 			log_it(tmp);
-			strcat(flaws_str, tmp);
+			if (flaws_str) {
+				asprintf(&tmp1, "%s%s",flaws_str, tmp);
+			} else {
+				asprintf(&tmp1, "%s", tmp);
+			}
+			paranoid_free(flaws_str);
+			flaws_str = tmp1;
 			paranoid_free(tmp);
 			res++;
 		}
@@ -514,14 +689,26 @@ int evaluate_drive_within_mountlist(struct mountlist_itself *mountlist,
 		asprintf(&tmp, " %ld MB over-allocated on %s.",
 				 amount_allocated - physical_drive_size, drive);
 		log_it(tmp);
-		strcat(flaws_str, tmp);
+		if (flaws_str) {
+			asprintf(&tmp1, "%s%s",flaws_str, tmp);
+		} else {
+			asprintf(&tmp1, "%s", tmp);
+		}
+		paranoid_free(flaws_str);
+		flaws_str = tmp1;
 		paranoid_free(tmp);
 		res++;
 	} else if (amount_allocated < physical_drive_size - 1) {	/* NOT AN ERROR, JUST A WARNING :-) */
 		asprintf(&tmp, " %ld MB unallocated on %s.",
 				 physical_drive_size - amount_allocated, drive);
 		log_it(tmp);
-		strcat(flaws_str, tmp);
+		if (flaws_str) {
+			asprintf(&tmp1, "%s%s",flaws_str, tmp);
+		} else {
+			asprintf(&tmp1, "%s", tmp);
+		}
+		paranoid_free(flaws_str);
+		flaws_str = tmp1;
 		paranoid_free(tmp);
 	}
 
@@ -581,8 +768,7 @@ evaluate_mountlist(struct mountlist_itself *mountlist, char *flaws_str_A,
 					 drivelist->el[i].device);
 			log_it(tmp);
 		} else {
-			asprintf(&tmp, " ");
-			// BERLIOS : tmp was NOT initialized ???
+			// This function allocates tmp
 			if (!evaluate_drive_within_mountlist
 				(mountlist, drivelist->el[i].device, tmp)) {
 				res++;
@@ -594,9 +780,6 @@ evaluate_mountlist(struct mountlist_itself *mountlist, char *flaws_str_A,
 		flaws_str = tmp1;
 	}
 	res += look_for_duplicate_mountpoints(mountlist, flaws_str);
-/*  res+=look_for_weird_formats(mountlist,flaws_str); .. not necessary, now that we can check to see
- which formarts are actually _supported_ by the kernel */
-	/* log_it(flaws_str); */
 	return (spread_flaws_across_three_lines
 			(flaws_str, flaws_str_A, flaws_str_B, flaws_str_C, res));
 }
@@ -649,11 +832,13 @@ look_for_duplicate_mountpoints(struct mountlist_itself *mountlist,
 	int last_copy = 0;
 
 	/*@ buffetr ********************************************************* */
-	char *curr_mountpoint;
-	char *tmp;
+	char *curr_mountpoint = NULL;
+	char *tmp = NULL;
+	char *tmp1 = NULL;
 
 	assert(mountlist != NULL);
 	assert(flaws_str != NULL);
+
 	for (currline = 0; currline < mountlist->entries; currline++) {
 		asprintf(&curr_mountpoint, mountlist->el[currline].mountpoint);
 		for (i = 0, copies = 0, last_copy = -1; i < mountlist->entries;
@@ -669,62 +854,14 @@ look_for_duplicate_mountpoints(struct mountlist_itself *mountlist,
 			&& strcmp(curr_mountpoint, "raid")) {
 			asprintf(&tmp, " %s %s's.", number_to_text(copies),
 					 curr_mountpoint);
-			strcat(flaws_str, tmp);
 			log_it(tmp);
+			asprintf(&tmp1, "%s%s",flaws_str, tmp);
+			paranoid_free(flaws_str);
+			flaws_str = tmp1;
 			paranoid_free(tmp);
 			res++;
 		}
 		paranoid_free(curr_mountpoint);
-	}
-	return (res);
-}
-
-
-/**
- * Look for strange formats. Does not respect /proc/filesystems.
- * @param mountlist The mountlist to check.
- * @param flaws_str The flaws string to append the results to.
- * @return The number of weird formats found, or 0 for success.
- * @bug Seems orphaned; please remove.
- */
-int
-look_for_weird_formats(struct mountlist_itself *mountlist, char *flaws_str)
-{
-
-	/*@ int ************************************************************* */
-	int i = 0;
-	int res = 0;
-
-	/*@ buffers ********************************************************* */
-	char *tmp;
-	char *format_sz;
-
-	assert(mountlist != NULL);
-	assert(flaws_str != NULL);
-
-	for (i = 0; i < mountlist->entries; i++) {
-		asprintf(&format_sz, " %s ", mountlist->el[i].format);
-		if (!strstr(SANE_FORMATS, format_sz)
-			&& strcmp(mountlist->el[i].mountpoint, "image") != 0) {
-			asprintf(&tmp, " %s has unknown format.",
-					 mountlist->el[i].device);
-			log_it(tmp);
-			strcat(flaws_str, tmp);
-			paranoid_free(tmp);
-			res++;
-		} else if ((!strcmp(mountlist->el[i].format, "swap")
-					&& strcmp(mountlist->el[i].mountpoint, "swap")
-					&& strcmp(mountlist->el[i].mountpoint, "none"))
-				   || (strcmp(mountlist->el[i].format, "swap")
-					   && !strcmp(mountlist->el[i].mountpoint, "swap")
-					   && !strcmp(mountlist->el[i].mountpoint, "none"))) {
-			asprintf(&tmp, " %s is half-swap.", mountlist->el[i].device);
-			log_it(tmp);
-			strcat(flaws_str, tmp);
-			paranoid_free(tmp);
-			res++;
-		}
-		paranoid_free(format_sz);
 	}
 	return (res);
 }

@@ -1,6 +1,6 @@
 /***************************************************************************
  * $Id$
-*/
+**/
 
 
 /**
@@ -10,17 +10,11 @@
 
 #ifdef __FreeBSD__
 #define OSSWAP(linux,fbsd) fbsd
-//#include <libgen.h>
 #else
 #define OSSWAP(linux,fbsd) linux
 #endif
 
 #include "mondo-rstr-newt.h"
-
-//static char cvsid[] = "$Id$";
-
-extern char err_log_lines[NOOF_ERR_LINES][MAX_STR_LEN];
-
 
 /**
  * @defgroup restoreGuiDisklist Disklist GUI
@@ -56,7 +50,7 @@ add_disklist_entry(struct list_of_disks *disklist, char *raid_device,
 				   struct mountlist_itself *unallocated_raid_partitions)
 {
 	/** buffers ***********************************************************/
-	char *tmp;
+	char *tmp = NULL;
 
 	/** newt **************************************************************/
 	newtComponent myForm;
@@ -81,7 +75,8 @@ add_disklist_entry(struct list_of_disks *disklist, char *raid_device,
 	assert(unallocated_raid_partitions != NULL);
 
 	newtPushHelpLine
-		(_("   Add one of the following unallocated RAID partitions to this RAID device."));
+		(_
+		 ("   Add one of the following unallocated RAID partitions to this RAID device."));
 	asprintf(&tmp, "%-26s %s", _("Device"), _("Size"));
 	headerMsg = newtLabel(1, 1, tmp);
 	paranoid_free(tmp);
@@ -156,18 +151,15 @@ add_mountlist_entry(struct mountlist_itself *mountlist,
 	newtComponent deviceComp;
 	newtComponent formatComp;
 
-	/** buffers **********************************************************/
-	char *drive_to_add;
-	char *mountpoint_str;
+	char *drive_to_add = NULL;
+	char *mountpoint_str = NULL;
 	char *size_str = NULL;
-	char *device_str;
-	char *format_str;
-
-	/** pointers *********************************************************/
-	char *mountpoint_here;
-	char *size_here;
-	char *device_here;
-	char *format_here;
+	char *device_str = NULL;
+	char *format_str = NULL;
+	char *mountpoint_here = NULL;
+	char *size_here = NULL;
+	char *device_here = NULL;
+	char *format_here = NULL;
 
 	assert(mountlist != NULL);
 	assert(raidlist != NULL);
@@ -197,7 +189,8 @@ add_mountlist_entry(struct mountlist_itself *mountlist,
 	bOK = newtButton(5, 6, _("  OK  "));
 	bCancel = newtButton(17, 6, _("Cancel"));
 	newtPushHelpLine
-		(_("To add an entry to the mountlist, please fill in these fields and then hit 'OK'"));
+		(_
+		 ("To add an entry to the mountlist, please fill in these fields and then hit 'OK'"));
 	myForm = newtForm(NULL, NULL, 0);
 	newtFormAddComponents(myForm, deviceComp, mountpointComp, sizeComp,
 						  formatComp, label0, label1, label2, label3, bOK,
@@ -228,7 +221,8 @@ add_mountlist_entry(struct mountlist_itself *mountlist,
 			}
 			if (size_of_specific_device_in_mountlist(mountlist, device_str)
 				>= 0) {
-				popup_and_OK(_("Can't add this - you've got one already!"));
+				popup_and_OK(_
+							 ("Can't add this - you've got one already!"));
 				b_res = NULL;
 			}
 		}
@@ -285,22 +279,23 @@ void add_varslist_entry(struct raid_device_record *raidrec)
 	assert(raidrec != NULL);
 
 	if (popup_and_get_string
-		("Add variable", _("Enter the name of the variable to add"), sz_out,
-		 MAX_STR_LEN)) {
-		strip_spaces(sz_out);
+		("Add variable", _("Enter the name of the variable to add"),
+		 sz_out)) {
 		items = raidrec->additional_vars.entries;
 		for (i = 0;
 			 i < items
 			 && strcmp(raidrec->additional_vars.el[i].label, sz_out); i++);
 		if (i < items) {
 			popup_and_OK
-				(_("No need to add that variable. It is already listed here."));
+				(_
+				 ("No need to add that variable. It is already listed here."));
 		} else {
 			strcpy(raidrec->additional_vars.el[items].label, sz_out);
 			edit_varslist_entry(raidrec, items);
 			raidrec->additional_vars.entries = ++items;
 		}
 	}
+	paranoid_free(sz_out);
 }
 #endif
 
@@ -321,33 +316,27 @@ calculate_raid_device_size(struct mountlist_itself *mountlist,
 	/** FreeBSD-specific version of calculate_raid_device_size() **/
 
 	/** structures ********************************************************/
-	struct vinum_volume *raidrec;
+	struct vinum_volume *raidrec = NULL;
 
-	/** int ***************************************************************/
 	int i = 0, j = 0;
 	int noof_partitions = 0;
 
-	/** long **************************************************************/
 	long total_size = 0;
 	long plex_size = 0;
 	long smallest_partition = 999999999;
 	long smallest_plex = 999999999;
 	long sp = 0;
 
-	/** buffers ***********************************************************/
-	char *tmp;
-	char *devname;
-
-
-
+	char *tmp = NULL;
+	char *devname = NULL;
 
 	for (i = 0;
 		 i < raidlist->entries
 		 && strcmp(raidlist->el[i].volname, basename(raid_device)); i++);
 	if (i == raidlist->entries) {
 		asprintf(&tmp,
-				"Cannot calc size of raid device %s - cannot find it in raidlist",
-				raid_device);
+				 "Cannot calc size of raid device %s - cannot find it in raidlist",
+				 raid_device);
 		log_it(tmp);
 		paranoid_free(tmp);
 		return (0);				// Isn't this more sensible than 999999999? If the raid dev !exists,
@@ -410,8 +399,8 @@ calculate_raid_device_size(struct mountlist_itself *mountlist,
 		smallest_partition = 999999999;
 	}
 
-	asprintf(&tmp, "I have calculated %s's real size to be %ld", raid_device,
-			(long) smallest_plex);
+	asprintf(&tmp, "I have calculated %s's real size to be %ld",
+			 raid_device, (long) smallest_plex);
 	log_it(tmp);
 	paranoid_free(tmp);
 	return (smallest_plex);
@@ -419,7 +408,7 @@ calculate_raid_device_size(struct mountlist_itself *mountlist,
 	/** Linux-specific version of calculate_raid_device_size() **/
 
 	/** structures ********************************************************/
-	struct raid_device_record *raidrec;
+	struct raid_device_record *raidrec = NULL;
 
 	/** int ***************************************************************/
 	int i = 0;
@@ -431,7 +420,7 @@ calculate_raid_device_size(struct mountlist_itself *mountlist,
 	long sp = 0;
 
 	/** buffers ***********************************************************/
-	char *tmp;
+	char *tmp = NULL;
 
 	assert(mountlist != NULL);
 	assert(raidlist != NULL);
@@ -442,8 +431,8 @@ calculate_raid_device_size(struct mountlist_itself *mountlist,
 		 && strcmp(raidlist->el[i].raid_device, raid_device); i++);
 	if (i == raidlist->entries) {
 		asprintf(&tmp,
-				"Cannot calc size of raid device %s - cannot find it in raidlist",
-				raid_device);
+				 "Cannot calc size of raid device %s - cannot find it in raidlist",
+				 raid_device);
 		log_it(tmp);
 		paranoid_free(tmp);
 		return (999999999);
@@ -468,14 +457,13 @@ calculate_raid_device_size(struct mountlist_itself *mountlist,
 		}
 		total_size = smallest_partition * (noof_partitions - 1);
 	}
-	asprintf(&tmp, "I have calculated %s's real size to be %ld", raid_device,
-			(long) total_size);
+	asprintf(&tmp, "I have calculated %s's real size to be %ld",
+			 raid_device, (long) total_size);
 	log_it(tmp);
 	paranoid_free(tmp);
 	return (total_size);
 #endif
 }
-
 
 
 /**
@@ -494,12 +482,13 @@ choose_raid_level(struct OSSWAP (raid_device_record, vinum_plex) * raidrec)
 	int out = 0;
 
 	/** buffers ***********************************************************/
-	char *tmp;
-	char *prompt;
-	char *sz;
+	char *tmp = NULL;
+	char *prompt = NULL;
+	char *sz = NULL;
 
 	asprintf(&prompt,
-			_("Please enter the RAID level you want. (concat, striped, raid5)"));
+			 _
+			 ("Please enter the RAID level you want. (concat, striped, raid5)"));
 	if (raidrec->raidlevel == -1) {
 		asprintf(&tmp, "concat");
 	} else if (raidrec->raidlevel == 0) {
@@ -508,17 +497,18 @@ choose_raid_level(struct OSSWAP (raid_device_record, vinum_plex) * raidrec)
 		asprintf(&tmp, "raid%i", raidrec->raidlevel);
 	}
 	for (out = 999; out == 999;) {
-		res = popup_and_get_string("Specify RAID level", prompt, tmp, 10);
+		res = popup_and_get_string("Specify RAID level", prompt, tmp);
 		if (!res) {
 			return;
 		}
-		strip_spaces(tmp);
+		/* BERLIOS: Useless ??? 
 		if (tmp[0] == '[' && tmp[strlen(tmp) - 1] == ']') {
 			asprintf(&sz, tmp);
 			strncpy(tmp, sz + 1, strlen(sz) - 2);
 			tmp[strlen(sz) - 2] = '\0';
 			paranoid_free(sz);
 		}
+		*/
 		if (!strcmp(tmp, "concat")) {
 			out = -1;
 		} else if (!strcmp(tmp, "striped")) {
@@ -543,20 +533,21 @@ choose_raid_level(struct OSSWAP (raid_device_record, vinum_plex) * raidrec)
 	raidrec->raidlevel = out;
 #else
 	/** buffers ***********************************************************/
-	char *tmp;
-	char personalities[MAX_STR_LEN];
-	char *prompt;
-	char *sz;
+	char *tmp = NULL;
+	char *personalities = NULL;
+	char *prompt = NULL;
+	char *sz = NULL;
 	int out = 0, res = 0;
 
 
 	assert(raidrec != NULL);
 	system
 		("grep Pers /proc/mdstat > /tmp/raid-personalities.txt 2> /dev/null");
-	strcpy(personalities,
-		   last_line_of_file("/tmp/raid-personalities.txt"));
+	personalities = last_line_of_file("/tmp/raid-personalities.txt"));
 	asprintf(&prompt, _("Please enter the RAID level you want. %s"),
-			personalities);
+			 personalities);
+	paranoid_free(personalities);
+
 	if (raidrec->raid_level == -1) {
 		asprintf(&tmp, "linear");
 	} else {
@@ -565,17 +556,21 @@ choose_raid_level(struct OSSWAP (raid_device_record, vinum_plex) * raidrec)
 	for (out = 999;
 		 out != -1 && out != 0 && out != 1 && out != 4 && out != 5
 		 && out != 10;) {
-		res = popup_and_get_string(_("Specify RAID level"), prompt, tmp, 10);
+		res =
+			popup_and_get_string(_("Specify RAID level"), prompt, tmp);
 		if (!res) {
 			return;
 		}
-		strip_spaces(tmp);
+		/* BERLIOS: Useless ???
 		if (tmp[0] == '[' && tmp[strlen(tmp) - 1] == ']') {
 			asprintf(&sz, tmp);
-			strncpy(tmp, sz + 1, strlen(sz) - 2);
+			paranoid_free(tmp);
+
+			asprintf(&tmp, sz + 1);
 			tmp[strlen(sz) - 2] = '\0';
 			paranoid_free(sz);
 		}
+		*/
 		if (!strcmp(tmp, "linear")) {
 			out = -1;
 		} else if (!strncmp(tmp, "raid", 4)) {
@@ -584,18 +579,19 @@ choose_raid_level(struct OSSWAP (raid_device_record, vinum_plex) * raidrec)
 			out = atoi(tmp);
 		}
 		log_it(tmp);
-		paranoid_free(tmp);
 		if (is_this_raid_personality_registered(out)) {
 			log_it
 				("Groovy. You've picked a RAID personality which is registered.");
 		} else {
 			if (ask_me_yes_or_no
-				(_("You have chosen a RAID personality which is not registered with the kernel. Make another selection?")))
+				(_
+				 ("You have chosen a RAID personality which is not registered with the kernel. Make another selection?")))
 			{
 				out = 999;
 			}
 		}
 	}
+	paranoid_free(tmp);
 	paranoid_free(prompt);
 	raidrec->raid_level = out;
 #endif
@@ -621,7 +617,7 @@ del_partns_listed_in_disklist(struct mountlist_itself *mountlist,
 	int pos = 0;
 
 	/** buffers ***********************************************************/
-	char *tmp;
+	char *tmp = NULL;
 
 	assert(mountlist != NULL);
 	assert(raidlist != NULL);
@@ -633,11 +629,8 @@ del_partns_listed_in_disklist(struct mountlist_itself *mountlist,
 			 && strcmp(mountlist->el[pos].device, disklist->el[i].device);
 			 pos++);
 		if (pos < mountlist->entries) {
-			asprintf(&tmp,
-					"Deleting partition %s cos it was part of a now-defunct RAID",
-					mountlist->el[pos].device);
-			log_it(tmp);
-			paranoid_free(tmp);
+			log_it("Deleting partition %s cos it was part of a now-defunct RAID",
+					 mountlist->el[pos].device);
 			memcpy((void *) &mountlist->el[pos],
 				   (void *) &mountlist->el[mountlist->entries - 1],
 				   sizeof(struct mountlist_line));
@@ -664,13 +657,13 @@ delete_disklist_entry(struct list_of_disks *disklist, char *raid_device,
 	int pos = 0;
 
 	/** buffers ***********************************************************/
-	char *tmp;
+	char *tmp = NULL;
 
 	assert(disklist != NULL);
 	assert_string_is_neither_NULL_nor_zerolength(raid_device);
 
 	asprintf(&tmp, _("Delete %s from RAID device %s - are you sure?"),
-			disklist->el[currline].device, raid_device);
+			 disklist->el[currline].device, raid_device);
 	if (!ask_me_yes_or_no(tmp)) {
 		paranoid_free(tmp);
 		return;
@@ -704,8 +697,8 @@ delete_mountlist_entry(struct mountlist_itself *mountlist,
 	int pos = 0;
 
 	/** buffers ***********************************************************/
-	char *tmp;
-	char *device;
+	char *tmp = NULL;
+	char *device = NULL;
 
 	assert(mountlist != NULL);
 	assert(raidlist != NULL);
@@ -717,15 +710,16 @@ delete_mountlist_entry(struct mountlist_itself *mountlist,
 												  mountlist->el[currline].
 												  device);
 	if (pos >= 0) {
-		asprintf(&tmp, _("Cannot delete %s: it is in use by RAID device %s"),
-				mountlist->el[currline].device,
-				raidlist->el[pos].OSSWAP(raid_device, volname));
+		asprintf(&tmp,
+				 _("Cannot delete %s: it is in use by RAID device %s"),
+				 mountlist->el[currline].device,
+				 raidlist->el[pos].OSSWAP(raid_device, volname));
 		popup_and_OK(tmp);
 		paranoid_free(tmp);
 		return;
 	}
 	asprintf(&tmp, _("Delete %s - are you sure?"),
-			mountlist->el[currline].device);
+			 mountlist->el[currline].device);
 	if (!ask_me_yes_or_no(tmp)) {
 		paranoid_free(tmp);
 		return;
@@ -739,11 +733,11 @@ delete_mountlist_entry(struct mountlist_itself *mountlist,
 			 currline < mountlist->entries
 			 && strcmp(mountlist->el[currline].device, device);
 			 currline++);
-		if (currline == mountlist->entries) {
-			log_it("Dev is gone. I can't delete it. Ho-hum");
-			paranoid_free(device);
-			return;
-		}
+			if (currline == mountlist->entries) {
+				log_it("Dev is gone. I can't delete it. Ho-hum");
+				paranoid_free(device);
+				return;
+			}
 		paranoid_free(device);
 	}
 	memcpy((void *) &mountlist->el[currline],
@@ -774,7 +768,7 @@ delete_raidlist_entry(struct mountlist_itself *mountlist,
 	bool delete_partitions_too;
 
 	/** buffers ***********************************************************/
-	char *tmp;
+	char *tmp = NULL;
 
 	assert(mountlist != NULL);
 	assert(raidlist != NULL);
@@ -784,7 +778,8 @@ delete_raidlist_entry(struct mountlist_itself *mountlist,
 	if (i < 0) {
 		return;
 	}
-	asprintf(&tmp, _("Do you want me to delete %s's partitions, too?", device));
+	asprintf(&tmp,
+			 _("Do you want me to delete %s's partitions, too?"), device);
 	delete_partitions_too = ask_me_yes_or_no(tmp);
 	if (delete_partitions_too) {
 #ifdef __FreeBSD__
@@ -845,21 +840,21 @@ void delete_varslist_entry(struct raid_device_record *raidrec, int lino)
 {
 
 	/** buffers ************************************************************/
-	char *tmp;
+	char *tmp = NULL;
 
 	/** structures *********************************************************/
-	struct additional_raid_variables *av;
+	struct additional_raid_variables *av = NULL;
 
 	assert(raidrec != NULL);
 
 	av = &raidrec->additional_vars;
-	asprintf(&tmp, _("Delete %s - are you sure?", av->el[lino].label));
+	asprintf(&tmp, _("Delete %s - are you sure?"), av->el[lino].label);
 	if (ask_me_yes_or_no(tmp)) {
 		if (!strcmp(av->el[lino].label, "persistent-superblock")
 			|| !strcmp(av->el[lino].label, "chunk-size")) {
 			paranoid_free(tmp);
 			asprintf(&tmp, _("%s must not be deleted. It would be bad."),
-					av->el[lino].label);
+					 av->el[lino].label);
 			popup_and_OK(tmp);
 		} else {
 			memcpy((void *) &av->el[lino], (void *) &av->el[av->entries--],
@@ -890,11 +885,11 @@ redraw_filelist(struct s_node *filelist, void *keylist[ARBITRARY_MAXIMUM],
 	int i = 0;
 
 	/** structures *******************************************************/
-	struct s_node *node;
+	struct s_node *node = NULL;
 
 	/** buffers **********************************************************/
-	static char *current_filename;
-	char *tmp;
+	static char *current_filename = NULL;
+	char *tmp = NULL;
 
 	/** bool *************************************************************/
 	/*  void*dummyptr; */
@@ -904,7 +899,6 @@ redraw_filelist(struct s_node *filelist, void *keylist[ARBITRARY_MAXIMUM],
 	assert(filelist != NULL);
 	assert(keylist != NULL);
 	assert(listbox != NULL);
-
 
 	if (depth == 0) {
 		lines_in_flist_window = 0;
@@ -926,8 +920,9 @@ redraw_filelist(struct s_node *filelist, void *keylist[ARBITRARY_MAXIMUM],
 				if (!warned_already) {
 					warned_already = TRUE;
 					asprintf(&tmp,
-							_("Too many lines. Displaying first %d entries only. Close a directory to see more."),
-							ARBITRARY_MAXIMUM);
+							 _
+							 ("Too many lines. Displaying first %d entries only. Close a directory to see more."),
+							 ARBITRARY_MAXIMUM);
 					popup_and_OK(tmp);
 					paranoid_free(tmp);
 				}
@@ -963,10 +958,11 @@ redraw_filelist(struct s_node *filelist, void *keylist[ARBITRARY_MAXIMUM],
 /* write list to screen */
 		newtListboxClear(listbox);
 		for (i = 0; i < lines_in_flist_window; i++) {
-			asprintf(&tmp, "%c%c %-80s", (g_is_path_selected[i] ? '*' : ' '),
-					(g_is_path_expanded[i] ? '+' : '-'),
-					strip_path(g_strings_of_flist_window[i]));
-			// BERLIOS: this is dangerous now 
+			asprintf(&tmp, "%c%c %-80s",
+					 (g_is_path_selected[i] ? '*' : ' '),
+					 (g_is_path_expanded[i] ? '+' : '-'),
+					 strip_path(g_strings_of_flist_window[i]));
+			// BERLIOS: this is dangerous now  => Memory leak
 			if (strlen(tmp) > 71) {
 				tmp[70] = '\0';
 			}
@@ -1010,6 +1006,7 @@ char *strip_path(char *tmp)
 	if (slashcount > 0)
 		slashcount--;			/* Keep one slash 'cos Hugh does... */
 
+	/* BERLIOS: tmpnopath and prev not defined !! How can this compile ?? */
 	for (i = 0; i < slashcount; i++) {	/* Replace each dir with a space char */
 		tmpnopath[i] = ' ';
 	}
@@ -1061,9 +1058,6 @@ int edit_filelist(struct s_node *filelist)
 	void *curr_choice;
 	void *keylist[ARBITRARY_MAXIMUM];
 
-	/** buffers ***********************************************************/
-	char tmp[MAX_STR_LEN];
-
 	/** bool **************************************************************/
 	bool dummybool;
 
@@ -1073,7 +1067,8 @@ int edit_filelist(struct s_node *filelist)
 
 	log_to_screen(_("Editing filelist"));
 	newtPushHelpLine
-		(_("   Please edit the filelist to your satisfaction, then click OK or Cancel."));
+		(_
+		 ("   Please edit the filelist to your satisfaction, then click OK or Cancel."));
 	j = 4;
 	bLess = newtCompactButton(j, 17, _(" Less "));
 	bMore = newtCompactButton(j += 12, 17, _(" More "));
@@ -1110,9 +1105,8 @@ int edit_filelist(struct s_node *filelist)
 					("I don't know what this button does; assuming I am to toggle 1st entry");
 				indexno = 0;
 			}
-			sprintf(tmp, "You selected '%s'",
+			log_it("You selected '%s'",
 					g_strings_of_flist_window[indexno]);
-			log_it(tmp);
 			if (b_res == bMore) {
 				g_is_path_expanded[indexno] = TRUE;
 				toggle_path_expandability(filelist,
@@ -1203,22 +1197,18 @@ edit_mountlist_entry(struct mountlist_itself *mountlist,
 	newtComponent formatComp;
 	newtComponent b_raid = NULL;
 
-  /** buffers ***********************************************************/
-	char device_str[MAX_STR_LEN];
-	char mountpoint_str[MAX_STR_LEN];
-	char size_str[MAX_STR_LEN];
-	char format_str[MAX_STR_LEN];
-	char tmp[MAX_STR_LEN];
-	char device_used_to_be[MAX_STR_LEN];
-	char mountpt_used_to_be[MAX_STR_LEN];
+	char *device_str = NULL;
+	char *mountpoint_str = NULL;
+	char *size_str = NULL;
+	char *format_str = NULL;
+	char *tmp = NULL;
+	char *device_used_to_be = NULL;
+	char *mountpt_used_to_be = NULL;
+	char *device_here = NULL;
+	char *mountpoint_here = NULL;
+	char *size_here = NULL;
+	char *format_here = NULL;
 
-	/** pointers **********************************************************/
-	char *device_here;
-	char *mountpoint_here;
-	char *size_here;
-	char *format_here;
-
-	/** int ***************************************************************/
 	int j = 0;
 
 	assert(mountlist != NULL);
@@ -1228,12 +1218,13 @@ edit_mountlist_entry(struct mountlist_itself *mountlist,
 
 	memcpy((void *) &bkp_raidlist, (void *) raidlist,
 		   sizeof(struct raidlist_itself));
-	strcpy(device_str, mountlist->el[currline].device);
-	strcpy(device_used_to_be, mountlist->el[currline].device);
-	strcpy(mountpoint_str, mountlist->el[currline].mountpoint);
-	strcpy(mountpt_used_to_be, mountlist->el[currline].mountpoint);
-	strcpy(format_str, mountlist->el[currline].format);
-	sprintf(size_str, "%lld", mountlist->el[currline].size / 1024);
+	asprintf(&device_str, mountlist->el[currline].device);
+	asprintf(&device_used_to_be, mountlist->el[currline].device);
+	asprintf(&mountpoint_str, mountlist->el[currline].mountpoint);
+	asprintf(&mountpt_used_to_be, mountlist->el[currline].mountpoint);
+	asprintf(&format_str, mountlist->el[currline].format);
+	asprintf(&size_str, "%lld", mountlist->el[currline].size / 1024);
+
 	newtOpenWindow(20, 5, 48, 10, "Edit entry");
 	label0 = newtLabel(2, 1, _("Device:"));
 	label1 = newtLabel(2, 2, _("Mountpoint:"));
@@ -1241,34 +1232,50 @@ edit_mountlist_entry(struct mountlist_itself *mountlist,
 	label3 = newtLabel(2, 4, _("Format:    "));
 	deviceComp =
 		newtEntry(14, 1, device_str, 30, (void *) &device_here, 0);
+	paranoid_free(device_str);
+
 	mountpointComp =
 		newtEntry(14, 2, mountpoint_str, 30, (void *) &mountpoint_here, 0);
+	paranoid_free(mountpoint_str);
+
 	formatComp =
 		newtEntry(14, 4, format_str, 15, (void *) &format_here, 0);
+	paranoid_free(format_str);
+
 	if (strstr(mountlist->el[currline].device, RAID_DEVICE_STUB)
 		|| !strcmp(mountlist->el[currline].mountpoint, "image")) {
 		sizeComp = newtLabel(14, 3, size_str);
 	} else {
 		sizeComp = newtEntry(14, 3, size_str, 10, (void *) &size_here, 0);
 	}
+	paranoid_free(size_str);
+
 	bOK = newtButton(2, 6, _("  OK  "));
 	bCancel = newtButton(14, 6, _("Cancel"));
 	if (strstr(mountlist->el[currline].device, RAID_DEVICE_STUB)) {
 		b_raid = newtButton(26, 6, "RAID..");
 	}
 	newtPushHelpLine
-		(_("       Edit this partition's mountpoint, size and format; then click 'OK'."));
+		(_
+		 ("       Edit this partition's mountpoint, size and format; then click 'OK'."));
 	myForm = newtForm(NULL, NULL, 0);
 	newtFormAddComponents(myForm, deviceComp, mountpointComp, sizeComp,
 						  formatComp, label0, label1, label2, label3, bOK,
 						  bCancel, b_raid, NULL);
 	for (b_res = NULL; b_res != bOK && b_res != bCancel;) {
 		b_res = newtRunForm(myForm);
-		strcpy(device_str, device_here);
+
+		paranoid_free(device_str);
+		asprintf(&device_str, device_here);
 		strip_spaces(device_str);
-		strcpy(mountpoint_str, mountpoint_here);
+
+		paranoid_free(mountpoint_str);
+		asprintf(&mountpoint_str, mountpoint_here);
 		strip_spaces(mountpoint_str);
-		strcpy(format_str, format_here);
+
+		paranoid_free(format_str);
+		asprintf(&format_str, format_here);
+		paranoid_free(format_here);
 		strip_spaces(format_str);
 		if (b_res == bOK && strstr(device_str, RAID_DEVICE_STUB)
 			&& strstr(device_used_to_be, RAID_DEVICE_STUB)
@@ -1278,21 +1285,26 @@ edit_mountlist_entry(struct mountlist_itself *mountlist,
 			continue;
 		} else if (b_res == bOK && !strcmp(mountpoint_str, "image")
 				   && strcmp(mountpt_used_to_be, "image")) {
-			popup_and_OK(_("You can't change a regular device to an image."));
+			popup_and_OK(_
+						 ("You can't change a regular device to an image."));
 			b_res = NULL;
 			continue;
 		}
+		paranoid_free(mountpt_used_to_be);
+
 		if (!strstr(mountlist->el[currline].device, RAID_DEVICE_STUB)
 			&& strcmp(mountlist->el[currline].mountpoint, "image")) {
-			strcpy(size_str, size_here);
+			asprintf(&size_str, size_here);
 			strip_spaces(size_str);
 		} else {
-			sprintf(size_str, "%ld",
+			asprintf(&size_str, "%ld",
 					calculate_raid_device_size(mountlist, raidlist,
 											   mountlist->el[currline].
 											   device) / 1024);
 			newtLabelSetText(sizeComp, size_str);
 		}
+		paranoid_free(size_here);
+
 		/* do not let user click RAID button if user has changed device_str */
 		if (b_res == b_raid) {
 			if (strcmp(device_str, mountlist->el[currline].device)) {
@@ -1301,14 +1313,16 @@ edit_mountlist_entry(struct mountlist_itself *mountlist,
 				   when you try to map the changes over to the raidtab list, trust me
 				 */
 				popup_and_OK
-					(_("You cannot edit the RAID settings until you have OK'd your change to the device node."));
+					(_
+					 ("You cannot edit the RAID settings until you have OK'd your change to the device node."));
 			} else {
 				j = find_raid_device_in_raidlist(raidlist,
 												 mountlist->el[currline].
 												 device);
 				if (j < 0) {
 					sprintf(tmp,
-							_("/etc/raidtab does not have an entry for %s; please delete it and add it again"),
+							_
+							("/etc/raidtab does not have an entry for %s; please delete it and add it again"),
 							mountlist->el[currline].device);
 					popup_and_OK(tmp);
 				} else {
@@ -1319,6 +1333,9 @@ edit_mountlist_entry(struct mountlist_itself *mountlist,
 			}
 		}
 	}
+	paranoid_free(device_here);
+	paranoid_free(mountpoint_here);
+
 	newtFormDestroy(myForm);
 	newtPopHelpLine();
 	newtPopWindow();
@@ -1329,7 +1346,11 @@ edit_mountlist_entry(struct mountlist_itself *mountlist,
 	}
 	strcpy(mountlist->el[currline].device, device_str);
 	strcpy(mountlist->el[currline].mountpoint, mountpoint_str);
+	paranoid_free(mountpoint_str);
+
 	strcpy(mountlist->el[currline].format, format_str);
+	paranoid_free(format_str);
+
 	if (strstr(mountlist->el[currline].device, RAID_DEVICE_STUB)
 		|| !strcmp(mountlist->el[currline].mountpoint, "image")) {
 		mountlist->el[currline].size =
@@ -1338,6 +1359,8 @@ edit_mountlist_entry(struct mountlist_itself *mountlist,
 	} else {
 		mountlist->el[currline].size = atol(size_str) * 1024;
 	}
+	paranoid_free(size_str);
+
 	newtListboxSetEntry(listbox, (int) keylist[currline],
 						mountlist_entry_to_string(mountlist, currline));
 	/* if new /dev/md RAID device then do funky stuff */
@@ -1362,10 +1385,13 @@ edit_mountlist_entry(struct mountlist_itself *mountlist,
 #ifndef __FreeBSD__				/* It works fine under FBSD. */
 	else if (strcmp(device_used_to_be, device_str)) {
 		popup_and_OK
-			(_("You are renaming a RAID device as another RAID device. I don't like it but I'll allow it."));
+			(_
+			 ("You are renaming a RAID device as another RAID device. I don't like it but I'll allow it."));
 	}
 #endif
 	redraw_mountlist(mountlist, keylist, listbox);
+	paranoid_free(device_str);
+	paranoid_free(device_used_to_be);
 }
 
 
@@ -1424,6 +1450,7 @@ char *find_dev_entry_for_raid_device_name(struct raidlist_itself *raidlist,
 	return NULL;
 }
 
+
 void
 edit_raidlist_plex(struct mountlist_itself *mountlist,
 				   struct raidlist_itself *raidlist,
@@ -1454,7 +1481,7 @@ edit_raidlist_entry(struct mountlist_itself *mountlist,
 
 
 	/** buffers ***********************************************************/
-	char title_of_editraidForm_window[MAX_STR_LEN];
+	char *title_of_editraidForm_window;
 
 	/** newt **************************************************************/
 	newtComponent editraidForm;
@@ -1471,19 +1498,25 @@ edit_raidlist_entry(struct mountlist_itself *mountlist,
 	void *curr_choice;
 
 	int currline2 = 0;
+	char *pname = NULL;
+	char *raidlevel = NULL;
+	char *chunksize = NULL;
+	char *entry = NULL;
+	char *msg = NULL;
+	int i = 0;
+	char *headerstr = NULL;
 
 	log_it(_("Started edit_raidlist_entry"));
 	memcpy((void *) &bkp_raidrec, (void *) raidrec,
 		   sizeof(struct vinum_volume));
-	sprintf(title_of_editraidForm_window, _("Plexes on %s"),
+	asprintf(&title_of_editraidForm_window, _("Plexes on %s"),
 			raidrec->volname);
 	newtPushHelpLine(_("   Please select a plex to edit"));
 	newtOpenWindow(13, 5, 54, 15, title_of_editraidForm_window);
+	paranoid_free(title_of_editraidForm_window);
+
 	for (;;) {
-		int i;
-		char headerstr[MAX_STR_LEN];
-		snprintf(headerstr, MAX_STR_LEN, "%-14s %-8s  %11s  %8s",
-				 _("Plex"), _("Level",) _("Stripe Size"), _("Subdisks"));
+		asprintf(&headerstr, "%-14s %-8s  %11s  %8s", _("Plex"), _("Level",) _("Stripe Size"), _("Subdisks"));
 
 		bOK = newtCompactButton(2, 13, _("  OK  "));
 		bCancel = newtCompactButton(12, 13, _("Cancel"));
@@ -1494,40 +1527,44 @@ edit_raidlist_entry(struct mountlist_itself *mountlist,
 		plexesListbox =
 			newtListbox(2, 3, 9, NEWT_FLAG_SCROLL | NEWT_FLAG_RETURNEXIT);
 		plexesHeader = newtLabel(2, 2, headerstr);
+		paranoid_free(headerstr);
+
 		editraidForm = newtForm(NULL, NULL, 0);
 
 		newtListboxClear(plexesListbox);
 		for (i = 0; i < 10; ++i) {
 			keylist[i] = (void *) i;
 			if (i < raidrec->plexes) {
-				char pname[64], entry[MAX_STR_LEN], raidlevel[64],
-					chunksize[64];
 				switch (raidrec->plex[i].raidlevel) {
 				case -1:
-					strcpy(raidlevel, "concat");
+					asprintf(&raidlevel, "concat");
 					break;
 				case 0:
-					strcpy(raidlevel, "striped");
+					asprintf(&raidlevel, "striped");
 					break;
 				case 5:
-					strcpy(raidlevel, "raid5");
+					asprintf(&raidlevel, "raid5");
 					break;
 				default:
-					sprintf(raidlevel, "raid%i",
+					asprintf(&raidlevel, "raid%i",
 							raidrec->plex[i].raidlevel);
 					break;
 				}
 
 				if (raidrec->plex[i].raidlevel == -1) {
-					strcpy(chunksize, "N/A");
+					asprintf(&chunksize, "N/A");
 				} else {
-					sprintf(chunksize, "%dk", raidrec->plex[i].stripesize);
+					asprintf(&chunksize, "%dk", raidrec->plex[i].stripesize);
 				}
-				snprintf(pname, 64, "%s.p%i", raidrec->volname, i);
-				snprintf(entry, MAX_STR_LEN, "%-14s %-8s  %11s  %8d",
+				asprintf(&pname, "%s.p%i", raidrec->volname, i);
+				asprintf(&entry, "%-14s %-8s  %11s  %8d",
 						 pname, raidlevel, chunksize,
 						 raidrec->plex[i].subdisks);
+				paranoid_free(pname);
+				paranoid_free(chunksize);
+				paranoid_free(raidlevel);
 				newtListboxAppendEntry(plexesListbox, entry, keylist[i]);
+				paranoid_free(entry);
 			}
 		}
 
@@ -1548,8 +1585,7 @@ edit_raidlist_entry(struct mountlist_itself *mountlist,
 		}
 
 		if (b_res == bDelete) {
-			char msg[MAX_STR_LEN];
-			sprintf(msg, _("Are you sure you want to delete %s.p%i?"),
+			asprintf(&msg, _("Are you sure you want to delete %s.p%i?"),
 					raidrec->volname, currline2);
 			if (ask_me_yes_or_no(msg)) {
 				log_it(_("Deleting RAID plex"));
@@ -1558,6 +1594,7 @@ edit_raidlist_entry(struct mountlist_itself *mountlist,
 					   sizeof(struct vinum_plex));
 				raidrec->plexes--;
 			}
+			paranoid_free(msg);
 			continue;
 		}
 		if (b_res == bAdd) {
@@ -1580,16 +1617,16 @@ edit_raidlist_entry(struct mountlist_itself *mountlist,
 		calculate_raid_device_size(mountlist, raidlist, raidrec->volname);
 #else
 	/** structures ********************************************************/
-	struct raid_device_record *bkp_raidrec;
+	struct raid_device_record *bkp_raidrec = NULL;
 
 
 	/** buffers ***********************************************************/
-	char *title_of_editraidForm_window;
-	char *sz_raid_level;
-	char *sz_data_disks;
-	char *sz_spare_disks;
-	char *sz_parity_disks;
-	char *sz_failed_disks;
+	char *title_of_editraidForm_window = NULL;
+	char *sz_raid_level = NULL;
+	char *sz_data_disks = NULL;
+	char *sz_spare_disks = NULL;
+	char *sz_parity_disks = NULL;
+	char *sz_failed_disks = NULL;
 
 	/** newt **************************************************************/
 	newtComponent editraidForm;
@@ -1607,12 +1644,6 @@ edit_raidlist_entry(struct mountlist_itself *mountlist,
 	assert(raidlist != NULL);
 	assert(raidrec != NULL);
 
-	malloc_string(title_of_editraidForm_window);
-	malloc_string(sz_raid_level);
-	malloc_string(sz_data_disks);
-	malloc_string(sz_spare_disks);
-	malloc_string(sz_parity_disks);
-	malloc_string(sz_failed_disks);
 	if (!(bkp_raidrec = malloc(sizeof(struct raid_device_record)))) {
 		fatal_error("Cannot malloc space for raidrec");
 	}
@@ -1621,25 +1652,25 @@ edit_raidlist_entry(struct mountlist_itself *mountlist,
 
 	memcpy((void *) bkp_raidrec, (void *) raidrec,
 		   sizeof(struct raid_device_record));
-	sprintf(title_of_editraidForm_window, "%s", raidrec->raid_device);
+	asprintf(&title_of_editraidForm_window, _("Edit %s"), raidrec->raid_device);
 	log_msg(2, "Opening newt window");
 	newtOpenWindow(20, 5, 40, 14, title_of_editraidForm_window);
+	paranoid_free(title_of_editraidForm_window);
+
 	for (;;) {
 		log_msg(2, "Main loop");
-		sprintf(title_of_editraidForm_window, _("Edit %s"),
-				raidrec->raid_device);
-		strcpy(sz_raid_level,
+		asprintf(&sz_raid_level,
 			   turn_raid_level_number_to_string(raidrec->raid_level));
-		strcpy(sz_data_disks,
+		asprintf(&sz_data_disks,
 			   number_of_disks_as_string(raidrec->data_disks.entries,
 										 _("data")));
-		strcpy(sz_spare_disks,
+		asprintf(&sz_spare_disks,
 			   number_of_disks_as_string(raidrec->spare_disks.entries,
 										 _("spare")));
-		strcpy(sz_parity_disks,
+		asprintf(&sz_parity_disks,
 			   number_of_disks_as_string(raidrec->parity_disks.entries,
 										 _("parity")));
-		strcpy(sz_failed_disks,
+		asprintf(&sz_failed_disks,
 			   number_of_disks_as_string(raidrec->failed_disks.entries,
 										 _("failed")));
 		bSelectData = newtButton(1, 1, sz_data_disks);
@@ -1647,13 +1678,20 @@ edit_raidlist_entry(struct mountlist_itself *mountlist,
 		bSelectParity = newtButton(1, 5, sz_parity_disks);
 		bSelectFailed = newtButton(20, 5, sz_failed_disks);
 		bChangeRaid = newtButton(1, 9, sz_raid_level);
+		paranoid_free(sz_raid_level);
+		paranoid_free(sz_data_disks);
+		paranoid_free(sz_spare_disks);
+		paranoid_free(sz_parity_disks);
+		paranoid_free(sz_failed_disks);
+
 		bOK = newtButton(16 + (raidrec->raid_level == -1), 9, _("  OK  "));
 		bCancel = newtButton(28, 9, _("Cancel"));
 		bAdditional =
 			newtCompactButton(1, 13,
 							  _("Additional settings and information"));
 		newtPushHelpLine
-			(_("  Edit the RAID device's settings to your heart's content, then hit OK/Cancel."));
+			(_
+			 ("  Edit the RAID device's settings to your heart's content, then hit OK/Cancel."));
 		editraidForm = newtForm(NULL, NULL, 0);
 		newtFormAddComponents(editraidForm, bSelectData, bSelectParity,
 							  bChangeRaid, bSelectSpare, bSelectFailed,
@@ -1690,17 +1728,11 @@ edit_raidlist_entry(struct mountlist_itself *mountlist,
 	mountlist->el[currline].size =
 		calculate_raid_device_size(mountlist, raidlist,
 								   raidrec->raid_device);
-	paranoid_free(title_of_editraidForm_window);
-	paranoid_free(sz_raid_level);
-	paranoid_free(sz_data_disks);
-	paranoid_free(sz_spare_disks);
-	paranoid_free(sz_parity_disks);
-	paranoid_free(sz_failed_disks);
 	paranoid_free(bkp_raidrec);
 #endif
 }
-
 #ifdef __FreeBSD__
+
 
 /**
  * Edit the plex @p raidrec in @p raidlist.
@@ -1723,7 +1755,9 @@ edit_raidlist_plex(struct mountlist_itself *mountlist,
 
 
 	/** buffers ***********************************************************/
-	char title_of_editraidForm_window[MAX_STR_LEN];
+	char *title_of_editraidForm_window = NULL;
+	char *tmp = NULL;
+	char *entry = NULL;
 
 	/** newt **************************************************************/
 	newtComponent editraidForm;
@@ -1741,51 +1775,52 @@ edit_raidlist_plex(struct mountlist_itself *mountlist,
 	void *keylist[ARBITRARY_MAXIMUM];
 	void *curr_choice_a, *curr_choice_u;
 	int currline_a, currline_u;
+	int i;
 
-	struct mountlist_itself *unallocparts;
+	struct mountlist_itself *unallocparts = NULL;
 
+	/* BERLIOS: Check return value */
 	unallocparts = malloc(sizeof(struct mountlist_itself));
 
 	log_it("Started edit_raidlist_entry");
 	memcpy((void *) &bkp_raidrec, (void *) raidrec,
 		   sizeof(struct vinum_plex));
-	sprintf(title_of_editraidForm_window, "%s.p%i",
+	asprintf(&title_of_editraidForm_window, "%s.p%i",
 			raidlist->el[currline].volname, currline2);
 	newtPushHelpLine
-		(_("   Please select a subdisk to edit, or edit this plex's parameters"));
+		(_
+		 ("   Please select a subdisk to edit, or edit this plex's parameters"));
 	newtOpenWindow(13, 3, 54, 18, title_of_editraidForm_window);
+	paranoid_free(title_of_editraidForm_window);
+
 	for (;;) {
-		int i;
-		char headerstr[MAX_STR_LEN];
-		char tmp[64];
-		snprintf(headerstr, MAX_STR_LEN, "%-24s %s", _("Subdisk"), _("Device"));
-
-
 		switch (raidrec->raidlevel) {
 		case -1:
-			strcpy(tmp, "concat");
+			asprintf(&tmp, "concat");
 			break;
 		case 0:
-			strcpy(tmp, "striped");
+			asprintf(&tmp, "striped");
 			break;
 		case 5:
-			strcpy(tmp, "raid5");
+			asprintf(&tmp, "raid5");
 			break;
 		default:
-			sprintf(tmp, _("unknown (%i)"), raidrec->raidlevel);
+			asprintf(&tmp, _("unknown (%i)"), raidrec->raidlevel);
 			break;
 		}
 		bLevel = newtCompactButton(2, 2, _(" RAID level "));
 		sLevel = newtLabel(19, 2, tmp);
+		paranoid_free(tmp);
 
 		if (raidrec->raidlevel >= 0) {
-			sprintf(tmp, "%ik", raidrec->stripesize);
+			asprintf(&tmp, "%ik", raidrec->stripesize);
 			bStripeSize = newtCompactButton(2, 4, _(" Stripe size "));
 		} else {
-			strcpy(tmp, "N/A");
+			asprintf(&tmp, "N/A");
 			bStripeSize = newtLabel(2, 4, _("Stripe size:"));
 		}
 		sStripeSize = newtLabel(19, 4, tmp);
+		paranoid_free(tmp);
 
 		bOK = newtCompactButton(2, 16, _("  OK  "));
 		bCancel = newtCompactButton(12, 16, _("Cancel"));
@@ -1795,7 +1830,6 @@ edit_raidlist_plex(struct mountlist_itself *mountlist,
 
 
 		//  plexesListbox = newtListbox (2, 7, 9, NEWT_FLAG_SCROLL | NEWT_FLAG_RETURNEXIT);
-		//  plexesHeader  = newtLabel (2, 6, headerstr);
 		unallocListbox =
 			newtListbox(2, 7, 7, NEWT_FLAG_SCROLL | NEWT_FLAG_RETURNEXIT);
 		allocListbox =
@@ -1811,20 +1845,20 @@ edit_raidlist_plex(struct mountlist_itself *mountlist,
 		make_list_of_unallocated_raid_partitions(unallocparts, mountlist,
 												 raidlist);
 		for (i = 0; i < ARBITRARY_MAXIMUM; ++i) {
-			char entry[MAX_STR_LEN];
 			keylist[i] = (void *) i;
 			if (i < raidrec->subdisks) {
-				snprintf(entry, MAX_STR_LEN, "%-17s",
+				asprintf(&entry, "%-17s",
 						 find_dev_entry_for_raid_device_name(raidlist,
 															 raidrec->
 															 sd[i].
 															 which_device));
 				newtListboxAppendEntry(allocListbox, entry, keylist[i]);
+				paranoid_free(entry);
 			}
 			if (i < unallocparts->entries) {
-				snprintf(entry, MAX_STR_LEN, "%-17s",
-						 unallocparts->el[i].device);
+				asprintf(&entry, "%-17s", unallocparts->el[i].device);
 				newtListboxAppendEntry(unallocListbox, entry, keylist[i]);
+				paranoid_free(entry);
 			}
 		}
 
@@ -1874,13 +1908,13 @@ edit_raidlist_plex(struct mountlist_itself *mountlist,
 		if (b_res == bLevel) {
 			choose_raid_level(raidrec);
 		} else if (b_res == bStripeSize) {
-			char tmp[64];
-			sprintf(tmp, "%i", raidrec->stripesize);
+			asprintf(&tmp, "%i", raidrec->stripesize);
 			if (popup_and_get_string
 				(_("Stripe size"),
-				 _("Please enter the stripe size in kilobytes."), tmp, 20)) {
+				 _("Please enter the stripe size in kilobytes."), tmp)) {
 				raidrec->stripesize = atoi(tmp);
 			}
+			paranoid_free(tmp);
 		} else if ((b_res == bAlloc) || (b_res == unallocListbox)) {
 			if (currline_u <= unallocparts->entries)
 				add_raid_subdisk(raidlist, raidrec,
@@ -1921,27 +1955,26 @@ void edit_varslist_entry(struct raid_device_record *raidrec, int lino)
 {
 
 	/** buffers ***********************************************************/
-	char header[MAX_STR_LEN];
-	char comment[MAX_STR_LEN];
-	char sz_out[MAX_STR_LEN];
+	char *header = NULL;
+	char *comment = NULL;
+	char *sz_out = NULL;
 
 	assert(raidrec != 0);
 	assert(lino >= 0);
 
-	strcpy(sz_out, raidrec->additional_vars.el[lino].value);
-	sprintf(header, _("Edit %s"), raidrec->additional_vars.el[lino].label);
-	sprintf(comment, _("Please set %s's value (currently '%s')"),
+	asprintf(&sz_out, raidrec->additional_vars.el[lino].value);
+	asprintf(&header, _("Edit %s"), raidrec->additional_vars.el[lino].label);
+	asprintf(&comment, _("Please set %s's value (currently '%s')"),
 			raidrec->additional_vars.el[lino].label, sz_out);
-	if (popup_and_get_string(header, comment, sz_out, MAX_STR_LEN)) {
-		strip_spaces(sz_out);
+	if (popup_and_get_string(header, comment, sz_out)) {
 		strcpy(raidrec->additional_vars.el[lino].value, sz_out);
 	}
+	paranoid_free(header);
+	paranoid_free(comment);
+	paranoid_free(sz_out);
 }
-
-
-/* I'm not racist against white people. I just don't like people who think Liberia is near Spain.       - Hugo, 09/01/2001 */
-
 #endif
+
 
 /**
  * Edit the mountlist using Newt.
@@ -1971,7 +2004,7 @@ edit_mountlist_in_newt(char *mountlist_fname,
 	newtComponent bReload;
 
 	/** ???? *************************************************************/
-	void *curr_choice;
+	void *curr_choice = NULL;
 	void *keylist[ARBITRARY_MAXIMUM];
 
 	/** int **************************************************************/
@@ -1980,23 +2013,24 @@ edit_mountlist_in_newt(char *mountlist_fname,
 	int finished = FALSE;
 
 	/** buffers **********************************************************/
-	char tmp[MAX_STR_LEN];
-	char flaws_str_A[MAX_STR_LEN];
-	char flaws_str_B[MAX_STR_LEN];
-	char flaws_str_C[MAX_STR_LEN];
+	char *tmp = NULL;
+	char *flaws_str_A = NULL;
+	char *flaws_str_B = NULL;
+	char *flaws_str_C = NULL;
 
 	assert(mountlist != NULL);
 	assert(raidlist != NULL);
 
-	strcpy(flaws_str_A, "xxxxxxxxx");
-	strcpy(flaws_str_B, "xxxxxxxxx");
-	strcpy(flaws_str_C, "xxxxxxxxx");
+	asprintf(&flaws_str_A, "xxxxxxxxx");
+	asprintf(&flaws_str_B, "xxxxxxxxx");
+	asprintf(&flaws_str_C, "xxxxxxxxx");
 	if (mountlist->entries > ARBITRARY_MAXIMUM) {
 		log_to_screen(_("Arbitrary limits suck, man!"));
 		finish(1);
 	}
 	newtPushHelpLine
-		(_("   Please edit the mountlist to your satisfaction, then click OK or Cancel."));
+		(_
+		 ("   Please edit the mountlist to your satisfaction, then click OK or Cancel."));
 	i = 4;
 	bAdd = newtCompactButton(i, 17, _(" Add "));
 	bEdit = newtCompactButton(i += 11, 17, _(" Edit "));
@@ -2004,8 +2038,8 @@ edit_mountlist_in_newt(char *mountlist_fname,
 	bReload = newtCompactButton(i += 12, 17, _("Reload"));
 	bCancel = newtCompactButton(i += 12, 17, _("Cancel"));
 	bOK = newtCompactButton(i += 12, 17, _("  OK  "));
-	sprintf(tmp, "%-24s %-24s %-8s  %s", _("Device"), _("Mountpoint"), _("Format"),
-			_("Size (MB)"));
+	asprintf(&tmp, "%-24s %-24s %-8s  %s", _("Device"), _("Mountpoint"),
+			_("Format"), _("Size (MB)"));
 	headerMsg = newtLabel(2, 1, tmp);
 	flawsLabelA = newtLabel(2, 13, flaws_str_A);
 	flawsLabelB = newtLabel(2, 14, flaws_str_B);
@@ -2025,6 +2059,7 @@ edit_mountlist_in_newt(char *mountlist_fname,
 		newtLabelSetText(flawsLabelB, flaws_str_B);
 		newtLabelSetText(flawsLabelC, flaws_str_C);
 		b_res = newtRunForm(myForm);
+		/* BERLIOS: This needs to be re-written */
 		if (b_res == bOK) {
 			if (!evaluate_mountlist
 				(mountlist, flaws_str_A, flaws_str_B, flaws_str_C)) {
@@ -2034,20 +2069,13 @@ edit_mountlist_in_newt(char *mountlist_fname,
 			} else {
 				finished =
 					ask_me_yes_or_no
-					(_("Are you sure you want to save your mountlist and continue? (No changes will be made to your partition table at this time.)"));
+					(_
+					 ("Are you sure you want to save your mountlist and continue? (No changes will be made to your partition table at this time.)"));
 			}
 		} else if (b_res == bCancel) {
 			finished = TRUE;
 		} else if (b_res == bReload) {
 			if (ask_me_yes_or_no(_("Reload original mountlist?"))) {
-/*
-This would be really dumb. RAIDTAB_FNAME is #define'd.   --- Hugo, 2003/04/24
-	      if (!RAIDTAB_FNAME[0])
-		{
-                  strcpy(RAIDTAB_FNAME, "/etc/raidtab");
- 		  log_it("Warning - raidtab_fname is blank. Assuming %s", g_raidtab_fname);
-		}
-*/
 				load_mountlist(mountlist, mountlist_fname);
 				load_raidtab_into_raidlist(raidlist, RAIDTAB_FNAME);
 				redraw_mountlist(mountlist, keylist, partitionsListbox);
@@ -2075,11 +2103,15 @@ This would be really dumb. RAIDTAB_FNAME is #define'd.   --- Hugo, 2003/04/24
 											 keylist);
 					} else {
 						popup_and_OK
-							(_("Please add an entry. Then press ENTER to edit it."));
+							(_
+							 ("Please add an entry. Then press ENTER to edit it."));
 					}
 				}
 			}
 		}
+		paranoid_free(flaws_str_A);
+		paranoid_free(flaws_str_B);
+		paranoid_free(flaws_str_C);
 	}
 	newtFormDestroy(myForm);
 	newtPopWindow();
@@ -2094,7 +2126,6 @@ This would be really dumb. RAIDTAB_FNAME is #define'd.   --- Hugo, 2003/04/24
 }
 
 
-
 /**
  * Edit the mountlist.
  * @param mountlist The mountlist to edit.
@@ -2106,7 +2137,6 @@ edit_mountlist(char *mountlist_fname, struct mountlist_itself *mountlist,
 			   struct raidlist_itself *raidlist)
 {
 	int res = 0;
-//  char tmp[MAX_STR_LEN];
 
 	iamhere("entering eml");
 
@@ -2120,8 +2150,6 @@ edit_mountlist(char *mountlist_fname, struct mountlist_itself *mountlist,
 	iamhere("leaving eml");
 	return (res);
 }
-
-
 
 
 #ifndef __FreeBSD__
@@ -2148,10 +2176,10 @@ void edit_raidrec_additional_vars(struct raid_device_record *raidrec)
 	newtComponent headerMsg;
 
 	/** ?? ***************************************************************/
-	void *keylist[ARBITRARY_MAXIMUM], *curr_choice;
+	void *keylist[ARBITRARY_MAXIMUM], *curr_choice = NULL;
 
 	/** buffers **********************************************************/
-	char title_of_window[MAX_STR_LEN];
+	char *title_of_window = NULL;
 
 	/** int **************************************************************/
 	int i = 0;
@@ -2162,10 +2190,12 @@ void edit_raidrec_additional_vars(struct raid_device_record *raidrec)
 
 	memcpy((void *) &bkp_raidrec, (void *) raidrec,
 		   sizeof(struct raid_device_record));
-	sprintf(title_of_window, "Additional variables");
+	asprintf(&title_of_window, "Additional variables");
 	newtPushHelpLine
-		(_("  Edit the additional fields to your heart's content, then click OK or Cancel."));
-	headerMsg = newtLabel(1, 1, _("Label                            Value"));
+		(_
+		 ("  Edit the additional fields to your heart's content, then click OK or Cancel."));
+	headerMsg =
+		newtLabel(1, 1, _("Label                            Value"));
 	varsListbox =
 		newtListbox(1, 2, 6, NEWT_FLAG_SCROLL | NEWT_FLAG_RETURNEXIT);
 	i = 1;
@@ -2175,6 +2205,8 @@ void edit_raidrec_additional_vars(struct raid_device_record *raidrec)
 	bOK = newtCompactButton(i += 9, 9, _("  OK  "));
 	bCancel = newtCompactButton(i += 9, 9, _("Cancel"));
 	newtOpenWindow(17, 7, 46, 10, title_of_window);
+	paranoid_free(title_of_window);
+
 	myForm = newtForm(NULL, NULL, 0);
 	newtFormAddComponents(myForm, headerMsg, varsListbox, bAdd, bEdit,
 						  bDelete, bOK, bCancel, NULL);
@@ -2246,7 +2278,6 @@ int find_next_free_index_in_disklist(struct list_of_disks *disklist)
 }
 
 
-
 /**
  * Locate @p device in @p raidlist.
  * @param raidlist The raidlist ot search in.
@@ -2258,13 +2289,10 @@ int
 find_raid_device_in_raidlist(struct raidlist_itself *raidlist,
 							 char *device)
 {
-
 	/** int ***************************************************************/
 	int i = 0;
 #ifdef __FreeBSD__
-	char vdev[64];
-#else
-// Linux
+	char *vdev = NULL;
 #endif
 
 	assert(raidlist != NULL);
@@ -2272,9 +2300,12 @@ find_raid_device_in_raidlist(struct raidlist_itself *raidlist,
 
 #ifdef __FreeBSD__
 	for (i = 0; i < raidlist->entries; i++) {
-		sprintf(vdev, "/dev/vinum/%s", raidlist->el[i].volname);
-		if (!strcmp(device, vdev))
+		asprintf(&vdev, "/dev/vinum/%s", raidlist->el[i].volname);
+		if (!strcmp(device, vdev)) {
+			paranoid_free(vdev);
 			break;
+		}
+		paranoid_free(vdev);
 	}
 #else
 
@@ -2304,42 +2335,40 @@ get_isodir_info(char *isodir_device, char *isodir_format,
 
 	/** initialize ********************************************************/
 
-	assert(isodir_device != NULL);
-	assert(isodir_format != NULL);
-	assert(isodir_path != NULL);
-
-	log_it("%d - AAA - isodir_path = %s", isodir_path);
-	isodir_format[0] = '\0';
-	if (isodir_device[0] == '\0') {
-		strcpy(isodir_device, "/dev/");
+	// %d no var ???
+	// log_it("%d - AAA - isodir_path = %s", isodir_path);
+	if (isodir_device == NULL) {
+		asprintf(&isodir_device, "/dev/");
 	}
-	if (isodir_path[0] == '\0') {
-		strcpy(isodir_path, "/");
+	if (isodir_path == NULL) {
+		asprintf(&isodir_path, "/");
 	}
 	if (does_file_exist("/tmp/NFS-SERVER-PATH")) {
-		strcpy(isodir_device, last_line_of_file("/tmp/NFS-SERVER-MOUNT"));
-		strcpy(isodir_format, "nfs");
-		strcpy(isodir_path, last_line_of_file("/tmp/NFS-SERVER-PATH"));
+		paranoid_free(isodir_device);
+		isodir_device = last_line_of_file("/tmp/NFS-SERVER-MOUNT");
+		asprintf(&isodir_format, "nfs");
+		paranoid_free(isodir_path);
+		isodir_path = last_line_of_file("/tmp/NFS-SERVER-PATH");
 	}
 	if (nuke_me_please) {
 		return (TRUE);
 	}
 
 	if (popup_and_get_string
-		(_("ISO Mode - device"), _("On what device do the ISO files live?"),
-		 isodir_device, MAX_STR_LEN / 4)) {
+		(_("ISO Mode - device"),
+		 _("On what device do the ISO files live?"), isodir_device)) {
 		if (popup_and_get_string
 			(_("ISO Mode - format"),
-			 _("What is the disk format of the device? (Hit ENTER if you don't know.)"),
-			 isodir_format, 16)) {
+			 _
+			 ("What is the disk format of the device? (Hit ENTER if you don't know.)"),
+			 isodir_format)) {
 			if (popup_and_get_string
 				(_("ISO Mode - path"),
-				 _("At what path on this device can the ISO files be found?"),
-				 isodir_path, MAX_STR_LEN / 4)) {
-				strip_spaces(isodir_device);
-				strip_spaces(isodir_format);
-				strip_spaces(isodir_path);
-				log_it("%d - BBB - isodir_path = %s", isodir_path);
+				 _
+				 ("At what path on this device can the ISO files be found?"),
+				 isodir_path)) {
+				// Same pb:
+				// log_it("%d - BBB - isodir_path = %s", isodir_path);
 				return (TRUE);
 			}
 		}
@@ -2361,7 +2390,6 @@ initiate_new_raidlist_entry(struct raidlist_itself *raidlist,
 							struct mountlist_itself *mountlist,
 							int currline, char *device)
 {
-
 	/** structure *********************************************************/
 	struct OSSWAP (raid_device_record, vinum_volume) * raidrec;
 
@@ -2414,8 +2442,8 @@ void insert_essential_additionalvars(struct raid_device_record *raidrec)
 									   raidrec->chunk_size);
 	raidrec->additional_vars.entries = items;
 }
-
 #endif
+
 
 /**
  * Dummy function that proves that we can get to the point where Mondo is run.
@@ -2432,7 +2460,8 @@ void nuke_mode_dummy()
 
 
 	newtPushHelpLine
-		(_("This is where I nuke your hard drives. Mhahahahaha. No-one can stop Mojo Jojo!"));
+		(_
+		 ("This is where I nuke your hard drives. Mhahahahaha. No-one can stop Mojo Jojo!"));
 	newtOpenWindow(24, 3, 32, 13, _("Nuking"));
 	b1 = newtButton(7, 1, _("Slowly"));
 	b2 = newtButton(7, 5, _("Medium"));
@@ -2444,7 +2473,6 @@ void nuke_mode_dummy()
 	newtPopWindow();
 	newtPopHelpLine();
 }
-
 
 
 /**
@@ -2511,8 +2539,6 @@ redraw_mountlist(struct mountlist_itself *mountlist,
 }
 
 
-
-
 /**
  * Redraw the list of unallocated RAID partitions.
  * @param unallocated_raid_partitions The mountlist containing unallocated RAID partitions.
@@ -2530,7 +2556,7 @@ void redraw_unallocpartnslist(struct mountlist_itself
 	int i = 0;
 
 	/** buffers **********************************************************/
-	char tmp[MAX_STR_LEN];
+	char *tmp = NULL;
 
 	assert(unallocated_raid_partitions != NULL);
 	assert(keylist != NULL);
@@ -2541,12 +2567,14 @@ void redraw_unallocpartnslist(struct mountlist_itself
 		keylist[i] = (void *) i;
 	}
 	for (i = 0; i < unallocated_raid_partitions->entries; i++) {
-		sprintf(tmp, "%-22s %8lld",
+		asprintf(&tmp, "%-22s %8lld",
 				unallocated_raid_partitions->el[i].device,
 				unallocated_raid_partitions->el[i].size / 1024);
 		newtListboxAppendEntry(listbox, tmp, keylist[i]);
+		paranoid_free(tmp);
 	}
 }
+
 
 #ifndef __FreeBSD__
 /**
@@ -2564,7 +2592,7 @@ redraw_varslist(struct additional_raid_variables *additional_vars,
 	int i = 0;
 
 	/** buffers *********************************************************/
-	char tmp[MAX_STR_LEN];
+	char *tmp;
 
 	assert(additional_vars != NULL);
 	assert(keylist != NULL);
@@ -2576,9 +2604,10 @@ redraw_varslist(struct additional_raid_variables *additional_vars,
 		keylist[i] = (void *) i;
 	}
 	for (i = 0; i < additional_vars->entries; i++) {
-		sprintf(tmp, "%-32s %-8s", additional_vars->el[i].label,
+		asprintf(&tmp, "%-32s %-8s", additional_vars->el[i].label,
 				additional_vars->el[i].value);
 		newtListboxAppendEntry(listbox, tmp, keylist[i]);
+		paranoid_free(tmp);
 	}
 }
 
@@ -2621,6 +2650,7 @@ int read_variableINT_and_remove_from_raidvars(struct
 }
 #endif
 
+
 /**
  * Change all RAID devices to use @p new_dev instead of @p old_dev.
  * @param raidlist The raidlist to make the changes in.
@@ -2634,7 +2664,7 @@ void rejig_partition_name_in_raidlist_if_necessary(struct raidlist_itself
 												   char *new_dev)
 {
 	/** buffers ********************************************************/
-	char tmp[MAX_STR_LEN];
+	char *tmp;
 
 	/** int ************************************************************/
 	int pos = 0;
@@ -2646,9 +2676,10 @@ void rejig_partition_name_in_raidlist_if_necessary(struct raidlist_itself
 
 	pos = which_raid_device_is_using_this_partition(raidlist, old_dev);
 	if (pos < 0) {
-		sprintf(tmp, "No need to rejig %s in raidlist: it's not listed.",
+		asprintf(&tmp, "No need to rejig %s in raidlist: it's not listed.",
 				old_dev);
 		log_it(tmp);
+		paranoid_free(tmp);
 	} else {
 		if ((j =
 			 where_in_drivelist_is_drive(&raidlist->
@@ -2680,10 +2711,11 @@ void rejig_partition_name_in_raidlist_if_necessary(struct raidlist_itself
 		}
 #endif
 		else {
-			sprintf(tmp,
+			asprintf(&tmp,
 					"%s is supposed to be listed in this raid dev but it's not...",
 					old_dev);
 			log_it(tmp);
+			paranoid_free(tmp);
 		}
 	}
 }
@@ -2717,6 +2749,7 @@ void remove_essential_additionalvars(struct raid_device_record *raidrec)
 	res = read_variableINT_and_remove_from_raidvars(raidrec, "block-size");
 }
 
+
 /**
  * Select the RAID disks to use in @p raidrec.
  * @param mountlist_dontedit The mountlist (will not be edited).
@@ -2733,15 +2766,13 @@ select_raid_disks(struct mountlist_itself *mountlist_dontedit,
 				  char *description_of_list,
 				  struct list_of_disks *disklist)
 {
-	void *curr_choice;
-
-	/** ??? ***************************************************************/
+	void *curr_choice = NULL;
 
 	/** structures ********************************************************/
-	struct raidlist_itself *bkp_raidlist;
-	struct raid_device_record *bkp_raidrec;
-	struct list_of_disks *bkp_disklist;
-	struct mountlist_itself *unallocated_raid_partitions;
+	struct raidlist_itself *bkp_raidlist = NULL;
+	struct raid_device_record *bkp_raidrec = NULL;
+	struct list_of_disks *bkp_disklist = NULL;
+	struct mountlist_itself *unallocated_raid_partitions = NULL;
 
 	/** newt **************************************************************/
 	newtComponent myForm = NULL;
@@ -2755,11 +2786,11 @@ select_raid_disks(struct mountlist_itself *mountlist_dontedit,
 
 	/** buffers **********************************************************/
 	void *keylist[ARBITRARY_MAXIMUM];
-	char *tmp;
-	char *help_text;
-	char *title_of_window;
-	char *sz_res;
-	char *header_text;
+	char *tmp = NULL;
+	char *help_text = NULL;
+	char *title_of_window = NULL;
+	char *sz_res = NULL;
+	char *header_text = NULL;
 
   /** int **************************************************************/
 	int i = 0;
@@ -2772,11 +2803,6 @@ select_raid_disks(struct mountlist_itself *mountlist_dontedit,
 	assert(disklist != NULL);
 
 	iamhere("malloc'ing");
-	malloc_string(tmp);
-	malloc_string(help_text);
-	malloc_string(title_of_window);
-	malloc_string(sz_res);
-	malloc_string(header_text);
 	if (!(bkp_raidrec = malloc(sizeof(struct raid_device_record)))) {
 		fatal_error("Cannot malloc space for raidrec");
 	}
@@ -2800,11 +2826,13 @@ select_raid_disks(struct mountlist_itself *mountlist_dontedit,
 		   sizeof(struct list_of_disks));
 
 	iamhere("Post-malloc");
-	strcpy(help_text,
-		   _("   Edit this RAID device's list of partitions. Choose OK or Cancel when done."));
-	sprintf(header_text, "%-24s    %s", _("Device"), _("Index"));
-	sprintf(title_of_window, _("%s contains..."), raidrec->raid_device);
+	asprintf(&help_text,
+		   _
+		   ("   Edit this RAID device's list of partitions. Choose OK or Cancel when done."));
+	asprintf(&header_text, "%-24s    %s", _("Device"), _("Index"));
+	asprintf(&title_of_window, _("%s contains..."), raidrec->raid_device);
 	newtPushHelpLine(help_text);
+	paranoid_free(help_text);
 	for (b_res = (newtComponent) 12345; b_res != bOK && b_res != bCancel;) {
 		headerMsg = newtLabel(1, 1, header_text);
 		partitionsListbox =
@@ -2843,13 +2871,16 @@ select_raid_disks(struct mountlist_itself *mountlist_dontedit,
 						 raidlist);
 					if (unallocated_raid_partitions->entries <= 0) {
 						popup_and_OK
-							(_("There are no unallocated partitions marked for RAID."));
+							(_
+							 ("There are no unallocated partitions marked for RAID."));
 					} else {
 						log_it
-							(_("Done. The user may add one or more of the above to RAID device"));
+							(_
+							 ("Done. The user may add one or more of the above to RAID device"));
 						add_disklist_entry(disklist, raidrec->raid_device,
 										   unallocated_raid_partitions);
-						log_it(_("I have finished adding a disklist entry."));
+						log_it(_
+							   ("I have finished adding a disklist entry."));
 						redraw_disklist(disklist, keylist,
 										partitionsListbox);
 					}
@@ -2858,13 +2889,16 @@ select_raid_disks(struct mountlist_itself *mountlist_dontedit,
 										  currline);
 					redraw_disklist(disklist, keylist, partitionsListbox);
 				} else {
-					sprintf(tmp, _("%s's index is %d. What should it be?"),
+					asprintf(&tmp, _("%s's index is %d. What should it be?"),
 							raidrec->raid_device,
 							disklist->el[currline].index);
-					sprintf(sz_res, "%d", disklist->el[currline].index);
-					if (popup_and_get_string(_("Set index"), tmp, sz_res, 10)) {
+					asprintf(&sz_res, "%d", disklist->el[currline].index);
+					if (popup_and_get_string
+						(_("Set index"), tmp, sz_res)) {
 						disklist->el[currline].index = atoi(sz_res);
 					}
+					paranoid_free(tmp);
+					paranoid_free(sz_res);
 					redraw_disklist(disklist, keylist, partitionsListbox);
 				}
 			}
@@ -2872,6 +2906,9 @@ select_raid_disks(struct mountlist_itself *mountlist_dontedit,
 		newtFormDestroy(myForm);
 		newtPopWindow();
 	}
+	paranoid_free(title_of_window);
+	paranoid_free(header_text);
+
 	newtPopHelpLine();
 	if (b_res == bCancel) {
 		memcpy((void *) raidlist, (void *) bkp_raidlist,
@@ -2881,18 +2918,12 @@ select_raid_disks(struct mountlist_itself *mountlist_dontedit,
 		memcpy((void *) disklist, (void *) bkp_disklist,
 			   sizeof(struct list_of_disks));
 	}
-	paranoid_free(tmp);
-	paranoid_free(help_text);
-	paranoid_free(title_of_window);
-	paranoid_free(sz_res);
-	paranoid_free(header_text);
 	paranoid_free(bkp_raidrec);
 	paranoid_free(bkp_disklist);
 	paranoid_free(bkp_raidlist);
 	paranoid_free(unallocated_raid_partitions);
 }
 #endif
-
 
 
 /**
@@ -2905,7 +2936,8 @@ char which_restore_mode()
 
   /** char *************************************************************/
 	char output = '\0';
-	char tmp[MAX_STR_LEN];
+	char *tmp = NULL;
+	size_t n = 0;
 
   /** newt *************************************************************/
 
@@ -2919,14 +2951,17 @@ char which_restore_mode()
 	if (g_text_mode) {
 		for (output = 'z'; !strchr("AICE", output); output = tmp[0]) {
 			printf
-				(_("Which mode - (A)utomatic, (I)nteractive, \n(C)ompare only, or (E)xit to shell?\n--> "));
-			fgets(tmp, MAX_STR_LEN - 1, stdin);
+				(_
+				 ("Which mode - (A)utomatic, (I)nteractive, \n(C)ompare only, or (E)xit to shell?\n--> "));
+			getline(&tmp, &n, stdin);
 		}
+		paranoid_free(tmp);
 		return (output);
 	}
 
 	newtPushHelpLine
-		(_("   Do you want to 'nuke' your system, restore interactively, or just compare?"));
+		(_
+		 ("   Do you want to 'nuke' your system, restore interactively, or just compare?"));
 	newtOpenWindow(24, 3, 32, 17, _("How should I restore?"));
 	b1 = newtButton(7, 1, _("Automatically"));
 	b2 = newtButton(7, 5, _("Interactively"));

@@ -5,6 +5,8 @@
  * Functions for verifying backups (booted from hard drive, not CD).
  */
 
+#include <unistd.h>
+
 #include "my-stuff.h"
 #include "mondostructures.h"
 #include "libmondo-verify.h"
@@ -58,7 +60,7 @@ generate_list_of_changed_files(char *changedfiles_fname,
 	assert_string_is_neither_NULL_nor_zerolength(stderr_fname);
 
 	asprintf(&afio_found_changes, "%s.afio", ignorefiles_fname);
-	paranoid_system("sync");
+	sync();
 
 /*  sprintf (command,
 	   "grep \"afio: \" %s | awk '{j=substr($0,8); i=index(j,\": \");printf \"/%%s\\n\",substr(j,1,i-2);}' | sort -u | grep -v \"incheckentry.*xwait\" | grep -vx \"/afio:.*\" | grep -vx \"/dev/.*\" > %s",
@@ -192,34 +194,30 @@ int verify_afioballs_on_CD(struct s_bkpinfo *bkpinfo, char *mountpoint)
 int verify_all_slices_on_CD(struct s_bkpinfo *bkpinfo, char *mtpt)
 {
 
-	/*@ buffer ********************************************************** */
-	char *tmp;
-	char *mountpoint;
-//  char ca, cb;
-	char *command;
-	char *sz_exe;
+	char *tmp = NULL;
+	char *tmp1 = NULL;
+	char *tmp2 = NULL;
+	char *mountpoint = NULL;
+	char *command = NULL;
+	char *sz_exe = NULL;
 	static char *bufblkA = NULL;
 	static char *bufblkB = NULL;
 	const long maxbufsize = 65536L;
-	long currsizA = 0;
-	long currsizB = 0;
-	long j;
-
-	/*@ long ************************************************************ */
-	long bigfile_num = 0;
+	long currsizA = 0L;
+	long currsizB = 0L;
+	long j = 0L;
+	long bigfile_num = 0L;
 	long slice_num = -1;
-	int res;
+	int res = 0;
 
 	static FILE *forig = NULL;
 	static struct s_filename_and_lstat_info biggiestruct;
 	static long last_bigfile_num = -1;
 	static long last_slice_num = -1;
-	FILE *pin;
-	FILE *fin;
+	FILE *pin = NULL;
+	FILE *fin = NULL;
 	int retval = 0;
-//  long long outlen;
 
-	malloc_string(sz_exe);
 	if (!bufblkA) {
 		if (!(bufblkA = malloc(maxbufsize))) {
 			fatal_error("Cannot malloc bufblkA");
@@ -250,6 +248,7 @@ int verify_all_slices_on_CD(struct s_bkpinfo *bkpinfo, char *mtpt)
 			 g_current_media_number);
 	open_evalcall_form(tmp);
 	paranoid_free(tmp);
+
 	iamhere("after vsbf");
 	asprintf(&mountpoint, "%s/archives", mtpt);
 	if (last_bigfile_num == -1) {
@@ -262,20 +261,15 @@ int verify_all_slices_on_CD(struct s_bkpinfo *bkpinfo, char *mtpt)
 		bigfile_num = last_bigfile_num;
 		slice_num = last_slice_num + 1;
 	}
-	while (does_file_exist
-		   (slice_fname
-			(bigfile_num, slice_num, mountpoint, bkpinfo->zip_suffix))
-		   ||
-		   does_file_exist(slice_fname
-						   (bigfile_num, slice_num, mountpoint, ""))) {
-// handle slices until end of CD
+
+	tmp = slice_fname(bigfile_num, slice_num, mountpoint, bkpinfo->zip_suffix);
+	tmp1 = slice_fname(bigfile_num, slice_num, mountpoint, "");
+	while (does_file_exist(tmp) || does_file_exist(tmp1)) {
+		// handle slices until end of CD
 		if (slice_num == 0) {
 			log_msg(2, "ISO=%d  bigfile=%ld --START--",
 					g_current_media_number, bigfile_num);
-			if (!
-				(fin =
-				 fopen(slice_fname(bigfile_num, slice_num, mountpoint, ""),
-					   "r"))) {
+			if (!(fin = fopen(tmp1,"r"))) {
 				log_msg(2, "Cannot open bigfile's info file");
 			} else {
 				if (fread
@@ -285,18 +279,17 @@ int verify_all_slices_on_CD(struct s_bkpinfo *bkpinfo, char *mtpt)
 				}
 				paranoid_fclose(fin);
 			}
-			asprintf(&tmp, "%s/%s", bkpinfo->restore_path,
+			asprintf(&tmp2, "%s/%s", bkpinfo->restore_path,
 					 biggiestruct.filename);
-			log_msg(2, "Opening biggiefile #%ld - '%s'", bigfile_num, tmp);
-			if (!(forig = fopen(tmp, "r"))) {
+			log_msg(2, "Opening biggiefile #%ld - '%s'", bigfile_num, tmp2);
+			if (!(forig = fopen(tmp2, "r"))) {
 				log_msg(2, "Failed to open bigfile. Darn.");
 				retval++;
 			}
-			paranoid_free(tmp);
+			paranoid_free(tmp2);
 
 			slice_num++;
-		} else if (does_file_exist
-				   (slice_fname(bigfile_num, slice_num, mountpoint, ""))) {
+		} else if (does_file_exist(tmp1)) {
 			log_msg(2, "ISO=%d  bigfile=%ld ---END---",
 					g_current_media_number, bigfile_num);
 			bigfile_num++;
@@ -306,14 +299,9 @@ int verify_all_slices_on_CD(struct s_bkpinfo *bkpinfo, char *mtpt)
 			log_msg(2, "ISO=%d  bigfile=%ld  slice=%ld  \r",
 					g_current_media_number, bigfile_num, slice_num);
 			if (bkpinfo->compression_level > 0) {
-				asprintf(&command, "%s -dc %s 2>> %s", sz_exe,
-						 slice_fname(bigfile_num, slice_num, mountpoint,
-									 bkpinfo->zip_suffix),
-						 MONDO_LOGFILE);
+				asprintf(&command, "%s -dc %s 2>> %s", sz_exe, tmp, MONDO_LOGFILE);
 			} else {
-				asprintf(&command, "cat %s",
-						 slice_fname(bigfile_num, slice_num, mountpoint,
-									 bkpinfo->zip_suffix));
+				asprintf(&command, "cat %s", tmp);
 			}
 			if ((pin = popen(command, "r"))) {
 				res = 0;
@@ -355,6 +343,8 @@ int verify_all_slices_on_CD(struct s_bkpinfo *bkpinfo, char *mtpt)
 			slice_num++;
 		}
 	}
+	paranoid_free(tmp);
+	paranoid_free(tmp1);
 	paranoid_free(mountpoint);
 	paranoid_free(sz_exe);
 
@@ -1071,7 +1061,7 @@ int verify_tape_backups(struct s_bkpinfo *bkpinfo)
 	retval += verify_biggiefiles_from_stream(bkpinfo);
 
 	/* find the final blocks */
-	paranoid_system("sync");
+	sync();
 	sleep(2);
 	closein_tape(bkpinfo);
 

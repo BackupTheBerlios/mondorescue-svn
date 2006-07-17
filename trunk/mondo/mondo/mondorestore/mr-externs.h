@@ -26,7 +26,8 @@ extern int do_my_funky_lvm_stuff(bool, bool);
 extern int edit_filelist(struct s_node *);
 extern int edit_mountlist(char *mountlist_fname, struct mountlist_itself *,
 						  struct raidlist_itself *);
-extern int format_everything(struct mountlist_itself *, bool, struct raidlist_itself *);
+extern int format_everything(struct mountlist_itself *, bool,
+							 struct raidlist_itself *);
 extern int format_device(char *, char *, struct raidlist_itself *);
 extern void finish(int);
 extern void free_filelist(struct s_node *);
@@ -58,7 +59,7 @@ extern int partition_device_with_parted(char *, int, int, char *, long);
 extern int partition_drive(struct mountlist_itself *, char *);
 extern int partition_everything(struct mountlist_itself *);
 extern void popup_and_OK(char *);
-extern bool popup_and_get_string(char *, char *, char *, int);
+extern bool popup_and_get_string(char *, char *, char *);
 extern void setup_newt_stuff(void);
 extern void reset_bkpinfo(struct s_bkpinfo *);
 extern int read_cfg_var(char *, char *, char *);

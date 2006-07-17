@@ -773,20 +773,19 @@ void add_plex_to_volume(struct vinum_volume *v, int raidlevel,
 char **get_next_vinum_conf_line(FILE * f, int *argc)
 {
 	int cnt = 0;
-	static char *argv[64];
+	char *argv[64];
 	char **ap;
-	char *line = (char *) malloc(MAX_STR_LEN);
-	if (!line)
-		errx(1,
-			 "unable to allocate %i bytes of memory for `char *line' at %s:%i",
-			 MAX_STR_LEN, __FILE__, __LINE__);
-	(void) fgets(line, MAX_STR_LEN, f);
+	char *line = NULL;
+	size_t = 0;
+	int lastpos = 0;
+
+	getline(&line, &n, f);
 	if (feof(f)) {
 		log_it("[GNVCL] Uh... I reached the EOF.");
-		return 0;
+		return NULL;
 	}
 
-	for (ap = argv; (*ap = strsep(&line, " \t")) != NULL;)
+	for (ap = argv; (*ap = mr_strtok(line, " \t", &lastpos)) != NULL;)
 		if (**ap != '\0') {
 			if (++ap >= &argv[64])
 				break;

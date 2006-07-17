@@ -12,9 +12,7 @@
 
 #define MAX_NEWT_COMMENT_LEN 200
 
-#if __cplusplus
-extern "C" {
-#endif
+#include <unistd.h>
 
 #include "my-stuff.h"
 #include "mondostructures.h"
@@ -110,7 +108,7 @@ extern "C" {
 
 		if (g_text_mode) {
 			while (1) {
-				system("sync");
+				sync();
 				printf
 					("---promptdialogYN---1--- %s\r\n---promptdialogYN---Q--- [yes] [no] ---\r\n--> ",
 					 prompt);
@@ -129,7 +127,7 @@ extern "C" {
 					paranoid_free(tmp);
 					return (FALSE);
 				} else {
-					system("sync");
+					sync();
 					printf
 						(_("Please enter either YES or NO (or yes or no, or y or n, or...)\n"));
 				}
@@ -155,7 +153,7 @@ extern "C" {
 
 		assert_string_is_neither_NULL_nor_zerolength(prompt);
 		if (g_text_mode) {
-			system("sync");
+			sync();
 			printf
 				("---promptdialogOKC---1--- %s\r\n---promptdialogOKC---Q--- [OK] [Cancel] ---\r\n--> ",
 				 prompt);
@@ -278,7 +276,7 @@ extern "C" {
 		log_msg(2, "I'm going to do some cleaning up now.");
 		paranoid_system("killall mindi 2> /dev/null");
 		kill_anything_like_this("/mondo/do-not");
-		kill_anything_like_this("tmp.mondo");
+		kill_anything_like_this("mondo.tmp");
 		kill_anything_like_this("ntfsclone");
 		sync();
 		asprintf(&tmp, "umount %s", g_tmpfs_mountpt);
@@ -290,7 +288,7 @@ extern "C" {
 		}
 		paranoid_free(tmp);
 
-		if (g_erase_tmpdir_and_scratchdir[0]) {
+		if (g_erase_tmpdir_and_scratchdir) {
 			run_program_and_log_output(g_erase_tmpdir_and_scratchdir, 5);
 		}
 
@@ -338,8 +336,7 @@ extern "C" {
  */
 	void
 	 finish(int signal) {
-		char *command;
-		malloc_string(command);
+		char *command = NULL;
 
 		/*  if (signal==0) { popup_and_OK("Please press <enter> to quit."); } */
 
@@ -348,7 +345,7 @@ extern "C" {
 		register_pid(0, "mondo");
 		chdir("/");
 		run_program_and_log_output("umount " MNT_CDROM, FALSE);
-		run_program_and_log_output("rm -Rf /mondo.scratch.* /tmp.mondo.*",
+		run_program_and_log_output("rm -Rf /mondo.scratch.* /mondo.tmp.*",
 								   FALSE);
 		if (g_erase_tmpdir_and_scratchdir) {
 			run_program_and_log_output(g_erase_tmpdir_and_scratchdir, 1);
@@ -393,14 +390,15 @@ extern "C" {
 	 log_file_end_to_screen(char *filename, char *grep_for_me) {
 
 		/*@ buffers ********************************************************** */
-		char *command;
-		char *tmp;
+		char *command = NULL;
+		char *tmp = NULL;
 
 		/*@ pointers ********************************************************* */
-		FILE *fin;
+		FILE *fin = NULL;
 
 		/*@ int ************************************************************** */
 		int i = 0;
+		size_t n = 0;
 
 		assert_string_is_neither_NULL_nor_zerolength(filename);
 		assert(grep_for_me != NULL);
@@ -419,15 +417,14 @@ extern "C" {
 			log_OS_error(command);
 		} else {
 			for (i = 0; i < g_noof_log_lines; i++) {
-				for (err_log_lines[i][0] = '\0';
-					 strlen(err_log_lines[i]) < 2 && !feof(fin);) {
-					(void) fgets(err_log_lines[i], MAX_NEWT_COMMENT_LEN,
-								 fin);
+				for (;
+					strlen(err_log_lines[i]) < 2 && !feof(fin);) {
+					getline(&(err_log_lines[i]), &n, fin);
 					strip_spaces(err_log_lines[i]);
 					if (!strncmp(err_log_lines[i], "root:", 5)) {
 						asprintf(&tmp, "%s", err_log_lines[i] + 6);
-						strcpy(err_log_lines[i], tmp);
-						paranoid_free(tmp);
+						paranoid_free(err_log_lines[i]);
+						err_log_lines[i] = tmp;
 					}
 					if (feof(fin)) {
 						break;
@@ -455,7 +452,7 @@ extern "C" {
 		va_list args;
 
 		/*@ buffers ********************************************************** */
-		char *output;
+		char *output = NULL;
 
 
 		va_start(args, fmt);
@@ -471,10 +468,9 @@ extern "C" {
 		}
 
 		if (err_log_lines) {
+			paranoid_free(&err_log_lines[0]);
 			for (i = 1; i < g_noof_log_lines; i++) {
-				strcpy(err_log_lines[i - 1],
-					   "                                                                                ");
-				strcpy(err_log_lines[i - 1], err_log_lines[i]);
+				err_log_lines[i - 1] = err_log_lines[i];
 			}
 		}
 		while (strlen(output) > 0 && output[strlen(output) - 1] < 32) {
@@ -486,16 +482,13 @@ extern "C" {
 			}
 		}
 		if (err_log_lines)
-			strcpy(err_log_lines[g_noof_log_lines - 1], output);
+			err_log_lines[g_noof_log_lines - 1] = output;
 		if (g_text_mode) {
 			printf("%s\n", output);
 		} else {
 			refresh_log_screen();
 		}
-		paranoid_free(output);
 	}
-
-
 
 
 /**
@@ -669,11 +662,9 @@ extern "C" {
  * @param title The title of the dialog box.
  * @param b The blurb (e.g. what you want the user to enter).
  * @param output The string to put the user's answer in. It has to be freed by the caller
- * @param maxsize The size in bytes allocated to @p output.
  * @return TRUE if the user pressed OK, FALSE if they pressed Cancel.
  */
-	bool popup_and_get_string(char *title, char *b, char *output,
-							  int maxsize) {
+	bool popup_and_get_string(char *title, char *b, char *output) {
 
 		/*@ newt ************************************************************ */
 		newtComponent myForm;
@@ -684,12 +675,12 @@ extern "C" {
 		newtComponent type_here;
 
 		/*@ pointers ********************************************************* */
-		char *entry_value;
+		char *entry_value = NULL;
 
 		/*@ buffers ********************************************************** */
-		char *blurb;
-		char *original_contents;
+		char *blurb = NULL;
 		size_t n = 0;
+		bool ret = TRUE;
 
 		assert_string_is_neither_NULL_nor_zerolength(title);
 		assert(b != NULL);
@@ -698,27 +689,22 @@ extern "C" {
 			printf
 				("---promptstring---1--- %s\r\n---promptstring---2--- %s\r\n---promptstring---Q---\r\n-->  ",
 				 title, b);
+			paranoid_free(output);
 			(void) getline(&output, &n, stdin);
 			if (output[strlen(output) - 1] == '\n')
 				output[strlen(output) - 1] = '\0';
-			return (TRUE);
+			return (ret);
 		}
 		asprintf(&blurb, b);
 		text = newtTextboxReflowed(2, 1, blurb, 48, 5, 5, 0);
-		original_contents = output;
 
 		type_here =
 			newtEntry(2, newtTextboxGetNumLines(text) + 2,
-					  original_contents, 50,
-#ifdef __cplusplus
-					  0, NEWT_FLAG_RETURNEXIT
-#else
-					  (void *) &entry_value, NEWT_FLAG_RETURNEXIT
-#endif
+					  output, 50,
+					  &entry_value, NEWT_FLAG_RETURNEXIT
 			);
 		b_1 = newtButton(6, newtTextboxGetNumLines(text) + 4, _("  OK  "));
 		b_2 = newtButton(18, newtTextboxGetNumLines(text) + 4, _("Cancel"));
-		//  newtOpenWindow (8, 5, 54, newtTextboxGetNumLines (text) + 9, title);
 		newtCenteredWindow(54, newtTextboxGetNumLines(text) + 9, title);
 		myForm = newtForm(NULL, NULL, 0);
 		newtFormAddComponents(myForm, text, type_here, b_1, b_2, NULL);
@@ -726,20 +712,19 @@ extern "C" {
 		//center_string(blurb, 80);
 		newtPushHelpLine(blurb);
 		paranoid_free(blurb);
+
 		b_res = newtRunForm(myForm);
-		output = entry_value;
 		newtPopHelpLine();
+		if (b_res == b_2) {
+			ret = FALSE;
+		} else {
+			// Copy entry_value before destroying the form
+			// clearing potentially output before
+			paranoid_alloc(output,entry_value);
+		}
 		newtFormDestroy(myForm);
 		newtPopWindow();
-		if (b_res == b_2) {
-			paranoid_free(output);
-			output = original_contents;
-			paranoid_free(original_contents);
-			return (FALSE);
-		} else {
-			paranoid_free(original_contents);
-			return (TRUE);
-		}
+		return(ret);
 	}
 
 
@@ -845,7 +830,7 @@ extern "C" {
 		}
 		newtRefresh();
 		for (i = g_noof_log_lines - 1; i >= 0; i--) {
-			err_log_lines[i][79] = '\0';
+			//BERLIOS : removed for now, Think it's useless : err_log_lines[i][79] = '\0';
 			newtDrawRootText(0, i + g_noof_rows - 1 - g_noof_log_lines,
 							 err_log_lines[i]);
 		}
@@ -883,14 +868,7 @@ extern "C" {
 		}
 
 		for (i = 0; i < g_noof_log_lines; i++) {
-			err_log_lines[i] = (char *) malloc(MAX_NEWT_COMMENT_LEN);
-			if (!err_log_lines[i]) {
-				fatal_error("Out of memory");
-			}
-		}
-
-		for (i = 0; i < g_noof_log_lines; i++) {
-			err_log_lines[i][0] = '\0';
+			err_log_lines[i] = NULL;
 		}
 	}
 
@@ -1572,11 +1550,6 @@ extern "C" {
 	}
 
 /* @} - end of guiGroup */
-
-
-#if __cplusplus
-}								/* extern "C" */
-#endif
 
 
 void wait_until_software_raids_are_prepped(char *mdstat_file,

@@ -1,4 +1,6 @@
-/* mondo-rstr-compare-EXT.h */
+/* 
+ * $Id$
+**/
 
 
 extern int compare_to_CD(struct s_bkpinfo *);

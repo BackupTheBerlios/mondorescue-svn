@@ -217,7 +217,7 @@ double get_kernel_version()
 	// JOSH - FIXME :)
 	d = 5.2;					// :-)
 #else
-	asprintf(&tmp, call_program_and_get_last_line_of_output("uname -r"));
+	tmp = call_program_and_get_last_line_of_output("uname -r");
 	p = strchr(tmp, '.');
 	if (p) {
 		p = strchr(++p, '.');
@@ -389,22 +389,19 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 	paranoid_free(command);
 	rdsiz_MB = PPCFG_RAMDISK_SIZE + g_tape_buffer_size_MB;
 #ifdef __FreeBSD__
-	asprintf(&tmp,
-			 call_program_and_get_last_line_of_output
-			 ("vmstat | tail -1 | tr -s ' ' | cut -d' ' -f6"));
+	tmp = call_program_and_get_last_line_of_output
+			 ("vmstat | tail -1 | tr -s ' ' | cut -d' ' -f6");
 	avm += atol(tmp);
 	paranoid_free(tmp);
-	asprintf(&tmp,
-			 call_program_and_get_last_line_of_output
-			 ("swapinfo | grep -v Device | tr -s ' ' | cut -d' ' -f4 | tr '\n' '+' | sed 's/+$//' | bc"));
+	tmp = call_program_and_get_last_line_of_output
+			 ("swapinfo | grep -v Device | tr -s ' ' | cut -d' ' -f4 | tr '\n' '+' | sed 's/+$//' | bc");
 	avm += atol(tmp);
 	paranoid_free(tmp);
 	asprintf(&command, "mdmfs -s %d%c md9 %s", rdsiz_MB, 'm',
 			 g_tmpfs_mountpt);
 #else
-	asprintf(&tmp,
-			 call_program_and_get_last_line_of_output
-			 ("free | grep \":\" | tr -s ' ' '\t' | cut -f2 | head -n1"));
+	tmp = call_program_and_get_last_line_of_output
+			 ("free | grep \":\" | tr -s ' ' '\t' | cut -f2 | head -n1");
 	avm += atol(tmp);
 	paranoid_free(tmp);
 	asprintf(&command, "mount /dev/shm -t tmpfs %s -o size=%d%c",
@@ -477,10 +474,12 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 
 		if (getenv ("SUDO_COMMAND")) {
 			asprintf(&command, "strings `which growisofs` | grep -c SUDO_COMMAND");
-			if (!strcmp(call_program_and_get_last_line_of_output(command), "1")) {
+			tmp = call_program_and_get_last_line_of_output(command);
+			if (!strcmp(tmp, "1")) {
 				popup_and_OK("Fatal Error: Can't write DVDs as sudo because growisofs doesn't support this - see the growisofs manpage for details.");
 				fatal_error("Can't write DVDs as sudo because growisofs doesn't support this - see the growisofs manpage for details.");
 			}		
+			paranoid_free(tmp);
 			paranoid_free(command);
 		}
 		log_msg(2, "call_make_iso (DVD res) is ... %s",
@@ -573,7 +572,7 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 		asprintf(&command, "df -P %s | tail -n1 | cut -d' ' -f1",
 				 bkpinfo->isodir);
 		log_it("command = %s", command);
-		asprintf(&tmp, call_program_and_get_last_line_of_output(command));
+		tmp = call_program_and_get_last_line_of_output(command);
 		paranoid_free(command);
 		log_it("res of it = %s", tmp);
 		asprintf(&tmp1, "%s/ISO-DEV", bkpinfo->tmpdir);
@@ -584,7 +583,7 @@ int post_param_configuration(struct s_bkpinfo *bkpinfo)
 				 tmp);
 		paranoid_free(tmp);
 		log_it("command = %s", command);
-		asprintf(&tmp, call_program_and_get_last_line_of_output(command));
+		tmp = call_program_and_get_last_line_of_output(command);
 		paranoid_free(command);
 		log_it("res of it = %s", tmp);
 
@@ -703,7 +702,8 @@ int pre_param_configuration(struct s_bkpinfo *bkpinfo)
 		log_it("Your distribution did not pass Mondo's sanity test.");
 	}
 	g_current_media_number = 1;
-	bkpinfo->postnuke_tarball[0] = bkpinfo->nfs_mount[0] = '\0';
+	bkpinfo->postnuke_tarball = NULL;
+	bkpinfo->nfs_mount = NULL;
 	return (res);
 }
 
@@ -716,52 +716,59 @@ int pre_param_configuration(struct s_bkpinfo *bkpinfo)
  */
 void reset_bkpinfo(struct s_bkpinfo *bkpinfo)
 {
-	int i;
+	int i = 0;
 
 	log_msg(1, "Hi");
+
 	assert(bkpinfo != NULL);
+	/* BERLIOS : Useless
 	memset((void *) bkpinfo, 0, sizeof(struct s_bkpinfo));
+	*/
+
 	bkpinfo->manual_cd_tray = FALSE;
 	bkpinfo->internal_tape_block_size = DEFAULT_INTERNAL_TAPE_BLOCK_SIZE;
-	paranoid_free(bkpinfo->media_device);
+	bkpinfo->boot_loader = '\0';
+
 	for (i = 0; i <= MAX_NOOF_MEDIA; i++) {
 		bkpinfo->media_size[i] = -1;
 	}
-	bkpinfo->boot_loader = '\0';
-	bkpinfo->boot_device[0] = '\0';
-	bkpinfo->zip_exe[0] = '\0';
-	bkpinfo->zip_suffix[0] = '\0';
-	bkpinfo->restore_path[0] = '\0';
+
+	paranoid_free(bkpinfo->media_device);
+	paranoid_free(bkpinfo->boot_device);
+	paranoid_free(bkpinfo->zip_exe);
+	paranoid_free(bkpinfo->zip_suffix);
+	paranoid_free(bkpinfo->restore_path);
 	bkpinfo->use_lzo = FALSE;
-	bkpinfo->do_not_compress_these[0] = '\0';
+	paranoid_free(bkpinfo->do_not_compress_these);
 	bkpinfo->verify_data = FALSE;
 	bkpinfo->backup_data = FALSE;
 	bkpinfo->restore_data = FALSE;
 	bkpinfo->disaster_recovery =
 		(am_I_in_disaster_recovery_mode()? TRUE : FALSE);
 	if (bkpinfo->disaster_recovery) {
-		strcpy(bkpinfo->isodir, "/");
+		paranoid_alloc(bkpinfo->isodir, "/");
 	} else {
-		strcpy(bkpinfo->isodir, "/var/cache/mondo/iso");
+		paranoid_alloc(bkpinfo->isodir, "/var/cache/mondo/iso");
 	}
-	strcpy(bkpinfo->prefix, STD_PREFIX);
+	paranoid_alloc(bkpinfo->prefix, STD_PREFIX);
 
-	bkpinfo->scratchdir[0] = '\0';
+	paranoid_free(bkpinfo->scratchdir);
 	bkpinfo->make_filelist = TRUE;	// unless -J supplied to mondoarchive
-	sprintf(bkpinfo->tmpdir, "/tmp/tmpfs/mondo.tmp.%d", (int) (random() % 32768));	// for mondorestore
+	paranoid_free(bkpinfo->tmpdir);
+	asprintf(&bkpinfo->tmpdir, "/tmp/tmpfs/mondo.tmp.%d", (int) (random() % 32768));	// for mondorestore
 	bkpinfo->optimal_set_size = 0;
 	bkpinfo->backup_media_type = none;
-	strcpy(bkpinfo->include_paths, "/");
-	bkpinfo->exclude_paths[0] = '\0';
-	bkpinfo->call_before_iso[0] = '\0';
-	bkpinfo->call_make_iso[0] = '\0';
-	bkpinfo->call_burn_iso[0] = '\0';
-	bkpinfo->call_after_iso[0] = '\0';
-	bkpinfo->image_devs[0] = '\0';
-	bkpinfo->postnuke_tarball[0] = '\0';
-	bkpinfo->kernel_path[0] = '\0';
-	bkpinfo->nfs_mount[0] = '\0';
-	bkpinfo->nfs_remote_dir[0] = '\0';
+	paranoid_alloc(bkpinfo->include_paths, "/");
+	paranoid_free(bkpinfo->exclude_paths);
+	paranoid_free(bkpinfo->call_before_iso);
+	paranoid_free(bkpinfo->call_make_iso);
+	paranoid_free(bkpinfo->call_burn_iso);
+	paranoid_free(bkpinfo->call_after_iso);
+	paranoid_free(bkpinfo->image_devs);
+	paranoid_free(bkpinfo->postnuke_tarball);
+	paranoid_free(bkpinfo->kernel_path);
+	paranoid_free(bkpinfo->nfs_mount);
+	paranoid_free(bkpinfo->nfs_remote_dir);
 	bkpinfo->wipe_media_first = FALSE;
 	bkpinfo->differential = FALSE;
 	bkpinfo->cdrw_speed = 0;
@@ -772,8 +779,6 @@ void reset_bkpinfo(struct s_bkpinfo *bkpinfo)
 }
 
 
-
-
 /**
  * Get the remaining free space (in MB) on @p partition.
  * @param partition The partition to check free space on (either a device or a mountpoint).
@@ -781,7 +786,8 @@ void reset_bkpinfo(struct s_bkpinfo *bkpinfo)
  */
 long free_space_on_given_partition(char *partition)
 {
-	char *command, *out_sz;
+	char *command = NULL;
+   	char *out_sz = NULL;
 	long res;
 
 	assert_string_is_neither_NULL_nor_zerolength(partition);
@@ -794,7 +800,7 @@ long free_space_on_given_partition(char *partition)
 
 	asprintf(&command, "df -m -P %s | tail -n1 | tr -s ' ' '\t' | cut -f4",
 			 partition);
-	asprintf(&out_sz, call_program_and_get_last_line_of_output(command));
+	out_sz = call_program_and_get_last_line_of_output(command);
 	paranoid_free(command);
 	if (strlen(out_sz) == 0) {
 		return (-1);
@@ -839,9 +845,8 @@ int some_basic_system_sanity_checks()
 		run_program_and_log_output
 			("ln -sf `which mkfs.msdos` /sbin/mkfs.vfat", FALSE);
 	}
-	asprintf(&tmp,
-			 call_program_and_get_last_line_of_output
-			 ("free | grep Mem | head -n1 | tr -s ' ' '\t' | cut -f2"));
+	tmp = call_program_and_get_last_line_of_output
+			 ("free | grep Mem | head -n1 | tr -s ' ' '\t' | cut -f2");
 	if (atol(tmp) < 35000) {
 		retval++;
 		log_to_screen(_("You must have at least 32MB of RAM to use Mondo."));
@@ -927,9 +932,7 @@ int some_basic_system_sanity_checks()
 	}
 	run_program_and_log_output
 		("umount `mount | grep cdr | cut -d' ' -f3 | tr '\n' ' '`", 5);
-	asprintf(&tmp,
-			 call_program_and_get_last_line_of_output
-			 ("mount | grep -E \"cdr(om|w)\""));
+	tmp = call_program_and_get_last_line_of_output("mount | grep -E \"cdr(om|w)\"");
 	if (strcmp("", tmp)) {
 		if (strstr(tmp, "autofs")) {
 			log_to_screen
@@ -1020,19 +1023,20 @@ int some_basic_system_sanity_checks()
 int read_cfg_var(char *config_file, char *label, char *value)
 {
 	/*@ buffer ****************************************************** */
-	char *command;
-	char *tmp;
+	char *command = NULL;
+	char *tmp = NULL;
 
 	/*@ end vars *************************************************** */
 
 	assert_string_is_neither_NULL_nor_zerolength(config_file);
 	assert_string_is_neither_NULL_nor_zerolength(label);
+
 	if (!does_file_exist(config_file)) {
 		asprintf(&tmp, "(read_cfg_var) Cannot find %s config file",
 				 config_file);
 		log_to_screen(tmp);
 		paranoid_free(tmp);
-		value[0] = '\0';
+		value = NULL;
 		return (1);
 	} else if (strstr(value, "/dev/") && strstr(value, "t0")
 			   && !strcmp(label, "media-dev")) {
@@ -1042,7 +1046,7 @@ int read_cfg_var(char *config_file, char *label, char *value)
 	} else {
 		asprintf(&command, "grep '%s .*' %s| cut -d' ' -f2,3,4,5",
 				label, config_file);
-		strcpy(value, call_program_and_get_last_line_of_output(command));
+		value = call_program_and_get_last_line_of_output(command);
 		paranoid_free(command);
 		if (strlen(value) == 0) {
 			return (1);
@@ -1051,7 +1055,6 @@ int read_cfg_var(char *config_file, char *label, char *value)
 		}
 	}
 }
-
 
 
 /**
@@ -1100,11 +1103,11 @@ void mount_boot_if_necessary()
 	asprintf(&command,
 			 "grep -v \":\" /etc/fstab | grep -vx \"#.*\" | grep -w \"/boot\" | tr -s ' ' '\t' | cut -f1 | head -n1");
 	log_msg(4, "Cool. Command = '%s'", command);
-	asprintf(&tmp, call_program_and_get_last_line_of_output(command));
+	tmp = call_program_and_get_last_line_of_output(command);
 	paranoid_free(command);
 
 	log_msg(4, "tmp = '%s'", tmp);
-	if (tmp[0]) {
+	if (tmp) {
 		log_it("/boot is at %s according to /etc/fstab", tmp);
 		if (strstr(tmp, "LABEL=")) {
 			if (!run_program_and_log_output("mount /boot", 5)) {
@@ -1198,9 +1201,8 @@ int write_cfg_var(char *config_file, char *label, char *value)
 		paranoid_free(tmp);
 		return (1);
 	}
-	asprintf(&tempfile,
-			 call_program_and_get_last_line_of_output
-			 ("mktemp -q /tmp/mojo-jojo.blah.XXXXXX"));
+	tempfile = call_program_and_get_last_line_of_output
+			 ("mktemp -q /tmp/mojo-jojo.blah.XXXXXX");
 	if (does_file_exist(config_file)) {
 		asprintf(&command, "grep -vx '%s .*' %s > %s",
 				label, config_file, tempfile);
@@ -1227,9 +1229,8 @@ void do_libmondo_global_strings_thing(int mal)
 {
 	if (mal) {
 		iamhere("Malloc'ing globals");
-		malloc_string(g_erase_tmpdir_and_scratchdir);
+		g_erase_tmpdir_and_scratchdir = NULL;
 		malloc_string(g_serial_string);
-		malloc_string(g_magicdev_command);
 	} else {
 		iamhere("Freeing globals");
 		paranoid_free(g_boot_mountpt);
@@ -1267,10 +1268,9 @@ void free_libmondo_global_strings(void)
  */
 void stop_magicdev_if_necessary()
 {
-	strcpy(g_magicdev_command,
-		   call_program_and_get_last_line_of_output
-		   ("ps ax | grep -w magicdev | grep -v grep | tr -s '\t' ' '| cut -d' ' -f6-99"));
-	if (g_magicdev_command[0]) {
+	g_magicdev_command = call_program_and_get_last_line_of_output
+		   ("ps ax | grep -w magicdev | grep -v grep | tr -s '\t' ' '| cut -d' ' -f6-99");
+	if (g_magicdev_command) {
 		log_msg(1, "g_magicdev_command = '%s'", g_magicdev_command);
 		paranoid_system("killall magicdev");
 	}
@@ -1282,9 +1282,9 @@ void stop_magicdev_if_necessary()
  */
 void restart_magicdev_if_necessary()
 {
-	char *tmp;
+	char *tmp = NULL;
 
-	if (g_magicdev_command && g_magicdev_command[0]) {
+	if (!g_magicdev_command) {
 		asprintf(&tmp, "%s &", g_magicdev_command);
 		paranoid_system(tmp);
 		paranoid_free(tmp);

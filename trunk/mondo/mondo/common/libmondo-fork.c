@@ -1,105 +1,6 @@
-/* libmondo-fork.c
-   $Id$
-
-- subroutines for handling forking/pthreads/etc.
-
-
-01/20/2006
-- replaced partimagehack with ntfsclone
-
-06/20/2004
-- create fifo /var/log/partimagehack-debug.log and empty it
-  to keep ramdisk from filling up
-
-04/13/2004
-- >= should be <= g_loglevel
-
-11/15/2003
-- changed a few []s to char*s
-  
-10/12
-- rewrote partimagehack handling (multiple fifos, chunks, etc.)
-
-10/11
-- partimagehack now has debug level of N (set in my-stuff.h)
-
-10/08
-- call to partimagehack when restoring will now log errors to /var/log/....log
-
-10/06
-- cleaned up logging a bit
-
-09/30
-- line 735 - missing char* cmd in sprintf()
-
-09/28
-- added run_external_binary_with_percentage_indicator()
-- rewritten eval_call_to_make_ISO()
-
-09/18
-- call mkstemp instead of mktemp
-
-09/13
-- major NTFS hackage
-
-09/12
-- paranoid_system("rm -f /tmp/ *PARTIMAGE*") before calling partimagehack
-
-09/11
-- forward-ported unbroken feed_*_partimage() subroutines
-  from early August 2003
-
-09/08
-- detect & use partimagehack if it exists
-
-09/05
-- finally finished partimagehack hack :)
-
-07/04
-- added subroutines to wrap around partimagehack
-
-04/27
-- don't echo (...res=%d...) at end of log_it()
-  unnecessarily
-- replace newtFinished() and newtInit() with
-  newtSuspend() and newtResume()
-
-04/24
-- added some assert()'s and log_OS_error()'s
-
-04/09
-- cleaned up run_program_and_log_output()
-
-04/07
-- cleaned up code a bit
-- let run_program_and_log_output() accept -1 (only log if _no error_)
-
-01/02/2003
-- in eval_call_to_make_ISO(), append output to MONDO_LOGFILE
-  instead of a temporary stderr text file
-
-12/10
-- patch by Heiko Schlittermann to handle % chars in issue.net
-
-11/18
-- if mkisofs in eval_call_to_make_ISO() returns an error then return it,
-  whether ISO was created or not
-
-10/30
-- if mkisofs in eval_call_to_make_ISO() returns an error then find out if
-  the output (ISO) file has been created; if it has then return 0 anyway
-
-08/01 - 09/30
-- run_program_and_log_output() now takes boolean operator to specify
-  whether it will log its activities in the event of _success_
-- system() now includes 2>/dev/null
-- enlarged some tmp[]'s
-- added run_program_and_log_to_screen() and run_program_and_log_output()
-
-07/24
-- created
-*/
-
+/* libmondo-fork.c - subroutines for handling forking/pthreads/etc.
+ * $Id$
+ */
 
 #include "my-stuff.h"
 #include "mondostructures.h"
@@ -108,9 +9,6 @@
 #include "newt-specific-EXT.h"
 #include "libmondo-files-EXT.h"
 #include "libmondo-tools-EXT.h"
-
-/*@unused@*/
-//static char cvsid[] = "$Id$";
 
 extern char *g_tmpfs_mountpt;
 extern t_bkptype g_backup_media_type;
@@ -122,39 +20,23 @@ pid_t g_buffer_pid = 0;
  * Call a program and retrieve its last line of output.
  * @param call The program to run.
  * @return The last line of its output.
- * @note The returned value points to static storage that will be overwritten with each call.
+ * @note The returned value should be freed by caller
  */
 char *call_program_and_get_last_line_of_output(char *call)
 {
-	/*@ buffers ***************************************************** */
-	static char *result = NULL;
-	char *tmp = NULL;
-
-	/*@ pointers **************************************************** */
-	FILE *fin;
-
+	char *result = NULL;
+	FILE *fin = NULL;
 	size_t n = 0;
 
-	/*@******************************************************************** */
-
 	assert_string_is_neither_NULL_nor_zerolength(call);
+
 	if ((fin = popen(call, "r"))) {
-		for (getline(&tmp, &n, fin); !feof(fin);
-			 getline(&tmp, &n, fin)) {
-			if (strlen(tmp) > 1) {
-				if (result != NULL) {
-					paranoid_free(result);
-				}
-				asprintf(&result, tmp);
-			}
-		}
+		for (getline(&result, &n, fin); !feof(fin); getline(&result, &n, fin));
 		paranoid_pclose(fin);
 	} else {
 		log_OS_error("Unable to popen call");
 	}
-	strip_spaces(result);
-	paranoid_free(tmp);
-	return (result);
+	return(result);
 }
 
 #define MONDO_POPMSG  _("Your PC will not retract the CD tray automatically. Please call mondoarchive with the -m (manual CD tray) flag.")
@@ -424,7 +306,7 @@ int run_program_and_log_to_screen(char *basic_call, char *what_i_am_doing)
 
 	if (!(fin = popen(command, "r"))) {
 		log_OS_error("Unable to popen-in command");
-		asprintf(&tmp, _("Failed utterly to call '%s'", command));
+		asprintf(&tmp, _("Failed utterly to call '%s'"), command);
 		log_to_screen(tmp);
 		paranoid_free(tmp);
 		paranoid_free(lockfile);
@@ -647,24 +529,19 @@ int feed_into_ntfsprog(char *input_device, char *output_fname)
 int run_external_binary_with_percentage_indicator_OLD(char *tt, char *cmd)
 {
 
-	/*@ int *************************************************************** */
 	int res = 0;
 	int percentage = 0;
 	int maxpc = 0;
 	int pcno = 0;
 	int last_pcno = 0;
 
-	/*@ buffers *********************************************************** */
-	char *command;
-	char *tempfile;
-	/*@ pointers ********************************************************** */
-	FILE *pin;
+	char *command = NULL;
+	char *tempfile = NULL;
+	FILE *pin = NULL;
 
 	assert_string_is_neither_NULL_nor_zerolength(cmd);
 
-	asprintf(&tempfile,
-		   call_program_and_get_last_line_of_output
-		   ("mktemp -q /tmp/mondo.XXXXXXXX"));
+	tempfile = call_program_and_get_last_line_of_output("mktemp -q /tmp/mondo.XXXXXXXX");
 	asprintf(&command, "%s >> %s 2>> %s; rm -f %s", cmd, tempfile, tempfile,
 			tempfile);
 	log_msg(3, command);

@@ -88,8 +88,6 @@ void welcome_to_mondoarchive()
 }
 
 
-extern char *g_magicdev_command;
-
 /**
  * Do whatever is necessary to insure a successful backup on the Linux distribution
  * of the day.
@@ -198,7 +196,7 @@ int main(int argc, char *argv[])
 	welcome_to_mondoarchive();
 	distro_specific_kludges_at_start_of_mondoarchive();
 	// BERLIOS : too early, bkpinfo is not initialized ??
-	//sprintf(g_erase_tmpdir_and_scratchdir, "rm -Rf %s %s", bkpinfo->tmpdir, bkpinfo->scratchdir);
+	//s-printf(g_erase_tmpdir_and_scratchdir, "rm -Rf %s %s", bkpinfo->tmpdir, bkpinfo->scratchdir);
 	g_kernel_version = get_kernel_version();
 
 	if (argc == 4 && !strcmp(argv[1], "getfattr")) {
@@ -395,14 +393,14 @@ int main(int argc, char *argv[])
 	run_program_and_log_output(tmp, TRUE);
 	paranoid_free(tmp);
 
-	sprintf(g_erase_tmpdir_and_scratchdir, "rm -Rf %s %s", bkpinfo->tmpdir,
+	asprintf(&g_erase_tmpdir_and_scratchdir, "rm -Rf %s %s", bkpinfo->tmpdir,
 			bkpinfo->scratchdir);
 	run_program_and_log_output(g_erase_tmpdir_and_scratchdir, TRUE);
 
 	run_program_and_log_output("mount", 2);
 
 	system("rm -f /var/cache/mondo-archive/last-backup.aborted");
-	system("rm -Rf /tmp.mondo.* /mondo.scratch.*");
+	system("rm -Rf /mondo.tmp* /mondo.scratch.*");
 	if (retval == 0) {
 		printf(_("Mondoarchive ran OK.\n"));
 	} else {

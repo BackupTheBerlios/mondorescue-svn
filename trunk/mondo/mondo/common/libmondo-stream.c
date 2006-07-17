@@ -9,6 +9,8 @@
  * Functions for writing data to/reading data from streams (tape, CD stream, etc.)
  */
 
+#include <unistd.h>
+
 #include "my-stuff.h"
 #include "mondostructures.h"
 #include "libmondo-devices.h"
@@ -22,8 +24,6 @@
 
 #define EXTRA_TAPE_CHECKSUMS
 
-/*@unused@*/
-//static char cvsid[] = "$Id$";
 extern bool g_sigpipe;
 extern int g_tape_buffer_size_MB;
 
@@ -118,7 +118,7 @@ int closein_tape(struct s_bkpinfo *bkpinfo)
 		(void) fread(blk, 1, 256 * 1024, g_tape_stream);
 	}
 	sleep(1);
-	paranoid_system("sync");
+	sync();
 	sleep(1);
 	paranoid_pclose(g_tape_stream);
 	log_it("closein_tape() -- leaving");
@@ -151,7 +151,7 @@ int closeout_tape(struct s_bkpinfo *bkpinfo)
 	blk = (char *) malloc(256 * 1024);
 
 	sleep(1);
-	paranoid_system("sync");
+	sync();
 	sleep(1);
 	log_it("closeout_tape() -- entering");
 	retval +=
@@ -212,13 +212,14 @@ bool mt_says_tape_exists(char *dev)
  */
 int find_tape_device_and_size(char *dev, char *siz)
 {
-	char *tmp;
-	char *command;
-	char *cdr_exe;
-	int res;
+	char *tmp = NULL;
+	char *tmp1 = NULL;
+	char *command = NULL;
+	char *cdr_exe = NULL;
+	int res = 0;
 
 	log_to_screen("I am looking for your tape streamer. Please wait.");
-	dev[0] = '\0';
+	dev = NULL;
 	siz = NULL;
 	if (find_home_of_exe("cdrecord")) {
 		asprintf(&cdr_exe, "cdrecord");
@@ -227,13 +228,13 @@ int find_tape_device_and_size(char *dev, char *siz)
 	}
 	asprintf(&command, "%s -scanbus 2> /dev/null | grep -i tape | wc -l",
 			 cdr_exe);
-	asprintf(&tmp, call_program_and_get_last_line_of_output(command));
+	tmp = call_program_and_get_last_line_of_output(command);
 	paranoid_free(command);
 
 	if (atoi(tmp) != 1) {
 		log_it
 			("Either too few or too many tape streamers for me to detect...");
-		strcpy(dev, VANILLA_SCSI_TAPE);
+		asprintf(&dev, VANILLA_SCSI_TAPE"0");
 		paranoid_free(tmp);
 		paranoid_free(cdr_exe);
 		return 1;
@@ -243,7 +244,7 @@ int find_tape_device_and_size(char *dev, char *siz)
 	asprintf(&command,
 			 "%s -scanbus 2> /dev/null | tr -s '\t' ' ' | grep \"[0-9]*,[0-9]*,[0-9]*\" | grep -v \"[0-9]*) \\*\" | grep -i TAPE | cut -d' ' -f2 | head -n1",
 			 cdr_exe);
-	asprintf(&tmp, call_program_and_get_last_line_of_output(command));
+	tmp = call_program_and_get_last_line_of_output(command);
 	paranoid_free(command);
 	if (strlen(tmp) < 2) {
 		log_it("Could not find tape device");
@@ -258,22 +259,26 @@ int find_tape_device_and_size(char *dev, char *siz)
 			 cdr_exe);
 	paranoid_free(cdr_exe);
 
-	asprintf(&tmp, call_program_and_get_last_line_of_output(command));
+	tmp = call_program_and_get_last_line_of_output(command);
 	paranoid_free(command);
-	strcpy(dev, VANILLA_SCSI_TAPE);
-	dev[strlen(dev) - 1] = '\0';
-	strcat(dev, tmp);			// e.g. '/dev/st0' becomes '/dev/stN'
+
+	asprintf(&dev, VANILLA_SCSI_TAPE"%s", tmp);
 	paranoid_free(tmp);
 
-	res = 0;
 	if (!mt_says_tape_exists(dev)) {
-		strcpy(dev, ALT_TAPE);
+		paranoid_free(dev); 
+
+		asprintf(&dev, ALT_TAPE"%s", tmp);
 		if (!mt_says_tape_exists(dev)) {
 			log_it("Cannot openin %s", dev);
-			strcpy(dev, "/dev/st0");
+			paranoid_free(dev); 
+
+			asprintf(&dev, VANILLA_SCSI_TAPE"0");
 			if (!mt_says_tape_exists(dev)) {
 				log_it("Cannot openin %s", dev);
-				strcpy(dev, "/dev/osst0");
+				paranoid_free(dev); 
+
+				asprintf(&dev, "/dev/osst0");
 				if (!mt_says_tape_exists(dev)) {
 					res++;
 				} else {
@@ -285,19 +290,22 @@ int find_tape_device_and_size(char *dev, char *siz)
 
 	log_it("At this point, dev = %s and res = %d", dev, res);
 
-	asprintf(&tmp, call_program_and_get_last_line_of_output("\
+	tmp = call_program_and_get_last_line_of_output("\
 cdrecord -scanbus 2> /dev/null | tr -s '\t' ' ' | \
 grep \"[0-9]*,[0-9]*,[0-9]*\" | grep -v \"[0-9]*) \\*\" | grep -i TAPE | \
-awk '{for(i=1; i<NF; i++) { if (index($i, \"GB\")>0) { print $i;};};};'"));
+awk '{for(i=1; i<NF; i++) { if (index($i, \"GB\")>0) { print $i;};};};'");
 
 	if (mt_says_tape_exists(dev)) {
 		res = 0;
 	} else {
 		log_it("Turning %s", dev);
 		paranoid_free(tmp);
-		asprintf(&tmp,
+		asprintf(&tmp1,
 				 (strrchr(dev, '/') != NULL) ? strrchr(dev, '/') : dev);
-		sprintf(dev, "/dev/os%s", tmp);
+		paranoid_free(dev);
+		asprintf(&dev, "/dev/os%s", tmp1);
+		paranoid_free(tmp1);
+
 		log_it("...into %s", dev);
 		if (mt_says_tape_exists(dev)) {
 			res = 0;
@@ -1227,9 +1235,9 @@ int start_to_read_from_next_tape(struct s_bkpinfo *bkpinfo)
 	/*@ end vars *************************************************** */
 
 	paranoid_pclose(g_tape_stream);
-	system("sync");
-	system("sync");
-	system("sync");
+	sync();
+	sync();
+	sync();
 	log_it("Next tape requested.");
 	insist_on_this_tape_number(g_current_media_number + 1);	// will increment it, too
 	log_it("Opening IN the next tape");
@@ -1268,9 +1276,9 @@ int start_to_write_to_next_tape(struct s_bkpinfo *bkpinfo)
 	char *command;
 
 	paranoid_pclose(g_tape_stream);
-	system("sync");
-	system("sync");
-	system("sync");
+	sync();
+	sync();
+	sync();
 	log_it("New tape requested.");
 	insist_on_this_tape_number(g_current_media_number + 1);	// will increment g_current_media, too
 	if (g_current_media_number > MAX_NOOF_MEDIA) {

@@ -1,6 +1,6 @@
-/* mondo-restore.h
+/* 
  * $Id$
- */
+**/
 
 /**************************************************************************
  * Prototypes:                                                            *
@@ -21,8 +21,6 @@ int iso_mode(struct s_bkpinfo *bkpinfo, struct mountlist_itself *mountlist,
 			 struct raidlist_itself *raidlist, bool nuke_me_please);
 int restore_mode(struct s_bkpinfo *, struct mountlist_itself *,
 				 struct raidlist_itself *);
-int restore_a_biggiefile_from_CD(struct s_bkpinfo *, long, struct s_node *,
-								 char *);
 int restore_a_biggiefile_from_stream(struct s_bkpinfo *, char *, long,
 									 char *, long long, struct s_node *,
 									 int, char *);

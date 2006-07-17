@@ -14,8 +14,7 @@ extern void open_progress_form(char *title, char *b1, char *b2, char *b3,
 extern void log_file_end_to_screen(char *filename, char *grep_for_me);
 extern void log_to_screen(const char *fmt, ...);
 extern void popup_and_OK(char *prompt);
-extern bool popup_and_get_string(char *title, char *b, char *output,
-								 int maxsize);
+extern bool popup_and_get_string(char *title, char *b, char *output);
 extern bool popup_with_buttons(char *p, char *button1, char *button2);
 extern void refresh_log_screen();
 extern void setup_newt_stuff();

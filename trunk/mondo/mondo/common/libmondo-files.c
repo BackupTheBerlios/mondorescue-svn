@@ -21,7 +21,7 @@
 /*@unused@*/
 //static char cvsid[] = "$Id$";
 
-extern char err_log_lines[NOOF_ERR_LINES][MAX_STR_LEN];
+extern char **err_log_lines;
 
 extern int g_currentY;
 extern char *g_mondo_home;
@@ -269,18 +269,17 @@ void exclude_nonexistent_files(char *inout)
  */
 int figure_out_kernel_path_interactively_if_necessary(char *kernel)
 {
-	char *tmp;
-	char *command;
+	char *tmp = NULL;
+	char *command = NULL;
 
-	if (!kernel[0]) {
-		strcpy(kernel,
-			   call_program_and_get_last_line_of_output
+	if (kernel == NULL) {
+		kernel = call_program_and_get_last_line_of_output
 			   ("mindi --findkernel 2> /dev/null"));
 	}
 	// If we didn't get anything back, check whether mindi raised a fatal error
-	if (!kernel[0]) {
+	if (kernel == NULL) {
 		asprintf(&command, "grep 'Fatal error' /var/log/mindi.log");
-		asprintf(&tmp, call_program_and_get_last_line_of_output(command));
+		tmp = call_program_and_get_last_line_of_output(command);
 		if (strlen(tmp) > 1) {
 			popup_and_OK(tmp);
 			fatal_error("Mindi gave a fatal error. Please check '/var/log/mindi.log'.");
@@ -288,8 +287,14 @@ int figure_out_kernel_path_interactively_if_necessary(char *kernel)
 		paranoid_free(command);
 		paranoid_free(tmp);
 	}
-	log_it("Calling Mindi with kernel path of '%s'", kernel);
-	while (!kernel[0]) {
+
+	if (kernel != NULL) {
+		log_it("Calling Mindi with kernel path of '%s'", kernel);
+	} else {
+		log_it("Calling Mindi without kernel, so asking one");
+	}
+
+	while (kernel == NULL) {
 		if (!ask_me_yes_or_no
 			(_("Kernel not found or invalid. Choose another?"))) {
 			return (1);
@@ -297,13 +302,11 @@ int figure_out_kernel_path_interactively_if_necessary(char *kernel)
 		if (!popup_and_get_string
 			(_("Kernel path"),
 			 _("What is the full path and filename of your kernel, please?"),
-			 kernel, MAX_STR_LEN / 4)) {
+			 kernel)) {
 			fatal_error
 				("Kernel not found. Please specify with the '-k' flag.");
 		}
-		asprintf(&tmp, "User says kernel is at %s", kernel);
-		log_it(tmp);
-		paranoid_free(tmp);
+		log_it("User says kernel is at %s", kernel);
 	}
 	return (0);
 }
@@ -321,20 +324,20 @@ int figure_out_kernel_path_interactively_if_necessary(char *kernel)
 char *find_home_of_exe(char *fname)
 {
 	/*@ buffers ********************* */
-	static char output[MAX_STR_LEN];
-	char *incoming;
-	char *command;
+	char *output = NULL;
+	char *incoming = NULL;
+	char *command = NULL;
 
 	/*@******************************* */
 
 	assert_string_is_neither_NULL_nor_zerolength(fname);
+
 	asprintf(&command, "which %s 2> /dev/null", fname);
-	asprintf(&incoming, call_program_and_get_last_line_of_output(command));
+	incoming = call_program_and_get_last_line_of_output(command);
 	paranoid_free(command);
 
-	if (incoming[0] == '\0') {
+	if (incoming == NULL) {
 		if (system("which file > /dev/null 2> /dev/null")) {
-			paranoid_free(incoming);
 			return (NULL);		// forget it :)
 		}
 		asprintf(&command,
@@ -342,34 +345,26 @@ char *find_home_of_exe(char *fname)
 				incoming);
 		paranoid_free(incoming);
 
-		asprintf(&incoming,
-			   call_program_and_get_last_line_of_output(command));
+		incoming = call_program_and_get_last_line_of_output(command);
 		paranoid_free(command);
 	}
-	if (incoming[0] == '\0')	// yes, it is == '\0' twice, not once :)
+	if (incoming == NULL)	// yes, it is == '\0' twice, not once :)
 	{
 		asprintf(&command, "dirname %s 2> /dev/null", incoming);
 		paranoid_free(incoming);
 
-		asprintf(&incoming,
-			   call_program_and_get_last_line_of_output(command));
+		incoming = call_program_and_get_last_line_of_output(command);
 		paranoid_free(command);
 	}
-	strcpy(output, incoming);
-	paranoid_free(incoming);
+	output = incoming;
 
-	if (output[0] != '\0' && does_file_exist(output)) {
-		log_msg(4, "find_home_of_exe () --- Found %s at %s", fname,
-				output);
+	if (output != NULL && does_file_exist(output)) {
+		log_msg(4, "find_home_of_exe () --- Found %s at %s", fname, output);
 	} else {
-		output[0] = '\0';
+		paranoid_free(output);
 		log_msg(4, "find_home_of_exe() --- Could not find %s", fname);
 	}
-	if (!output[0]) {
-		return (NULL);
-	} else {
-		return (output);
-	}
+	return (output);
 }
 
 
@@ -420,27 +415,21 @@ int get_trackno_from_logfile(char *logfile)
 int grab_percentage_from_last_line_of_file(char *filename)
 {
 
-	/*@ buffers ***************************************************** */
-	char *lastline;
-	char *command;
-	/*@ pointers **************************************************** */
-	char *p;
-
-	/*@ int's ******************************************************* */
+	char *lastline = NULL;
+	char *command = NULL;
+	char *p = NULL;
 	int i;
 
-	for (i = NOOF_ERR_LINES - 1;
+	for (i = g_noof_log_lines - 1;
 		 i >= 0 && !strstr(err_log_lines[i], "% Done")
 		 && !strstr(err_log_lines[i], "% done"); i--);
 	if (i < 0) {
 		asprintf(&command,
 				"tail -n3 %s | grep -Fi \"%c\" | tail -n1 | awk '{print $0;}'",
 				filename, '%');
-		asprintf(&lastline,
-			   call_program_and_get_last_line_of_output(command));
+		lastline = call_program_and_get_last_line_of_output(command);
 		paranoid_free(command);
-		if (!lastline[0]) {
-			paranoid_free(lastline);
+		if (!lastline) {
 			return (0);
 		}
 	} else {
@@ -476,12 +465,13 @@ int grab_percentage_from_last_line_of_file(char *filename)
 char *last_line_of_file(char *filename)
 {
 	/*@ buffers ***************************************************** */
-	static char output[MAX_STR_LEN];
-	static char *command;
-	static char *tmp;
+	char *output = NULL;
+	char *command = NULL;
+	char *tmp = NULL;
 
 	/*@ pointers **************************************************** */
 	FILE *fin;
+	size_t n = 0;
 
 	/*@ end vars **************************************************** */
 
@@ -490,15 +480,15 @@ char *last_line_of_file(char *filename)
 				filename);
 		log_it(tmp);
 		paranoid_free(tmp);
+		asprintf(&output, "");
 
-		output[0] = '\0';
 		return (output);
 	}
 	asprintf(&command, "tail -n1 %s", filename);
 	fin = popen(command, "r");
 	paranoid_free(command);
 
-	(void) fgets(output, MAX_STR_LEN, fin);
+	getline(&output, &n, fin);
 	paranoid_pclose(fin);
 	while (strlen(output) > 0 && output[strlen(output) - 1] < 32) {
 		output[strlen(output) - 1] = '\0';
@@ -692,15 +682,15 @@ void register_pid(pid_t pid, char *name_str)
  */
 long size_of_partition_in_mountlist_K(char *tmpdir, char *dev)
 {
-	char *command;
-	char *sz_res;
-	long file_len_K;
+	char *command = NULL;
+	char *sz_res = NULL;
+	long file_len_K = 0L;
 
 	asprintf(&command,
 			"grep '%s ' %s/mountlist.txt | head -n1 | awk '{print $4;}'",
 			dev, tmpdir);
 	log_it(command);
-	asprintf(&sz_res, call_program_and_get_last_line_of_output(command));
+	sz_res = call_program_and_get_last_line_of_output(command);
 	file_len_K = atol(sz_res);
 	log_msg(4, "%s --> %s --> %ld", command, sz_res, file_len_K);
 	paranoid_free(command);
@@ -716,16 +706,15 @@ long size_of_partition_in_mountlist_K(char *tmpdir, char *dev)
  */
 long size_of_all_biggiefiles_K(struct s_bkpinfo *bkpinfo)
 {
-	/*@ buffers ***************************************************** */
-	char *fname;
-	char *biggielist;
-	char *comment;
-	char *tmp;
-	char *command;
+	char *fname = NULL;
+	char *biggielist = NULL;
+	char *comment = NULL;
+	char *tmp = NULL;
+	char *command = NULL;
 
 	/*@ long ******************************************************** */
-	long scratchL = 0;
-	long file_len_K;
+	long scratchL = 0L;
+	long file_len_K = 0L;
 
 	/*@ pointers *************************************************** */
 	FILE *fin = NULL;
@@ -733,8 +722,6 @@ long size_of_all_biggiefiles_K(struct s_bkpinfo *bkpinfo)
 
 	/*@ end vars *************************************************** */
 
-	malloc_string(tmp);
-	malloc_string(command);
 	log_it("Calculating size of all biggiefiles (in total)");
 	asprintf(&biggielist, "%s/biggielist.txt", bkpinfo->tmpdir);
 	log_it("biggielist = %s", biggielist);
@@ -753,11 +740,14 @@ long size_of_all_biggiefiles_K(struct s_bkpinfo *bkpinfo)
 					if ( !find_home_of_exe("ntfsresize")) {
 						fatal_error("ntfsresize not found");
 					}
-					sprintf(command, "ntfsresize --force --info %s|grep '^You might resize at '|cut -d' ' -f5", fname);
+					asprintf(&command, "ntfsresize --force --info %s|grep '^You might resize at '|cut -d' ' -f5", fname);
 					log_it("command = %s", command);
-					strcpy (tmp, call_program_and_get_last_line_of_output(command));
+					tmp = call_program_and_get_last_line_of_output(command);
+					paranoid_free(command);
+
 					log_it("res of it = %s", tmp);
 					file_len_K = atoll(tmp) / 1024L;
+					paranoid_free(tmp);
 				} else {
 					file_len_K = get_phys_size_of_drive(fname) * 1024L;
 				}
@@ -786,8 +776,6 @@ long size_of_all_biggiefiles_K(struct s_bkpinfo *bkpinfo)
 	log_it("Closing...");
 	paranoid_fclose(fin);
 	log_it("Finished calculating total size of all biggiefiles");
-	paranoid_free(tmp);
-	paranoid_free(command);
 	return (scratchL);
 }
 
@@ -802,12 +790,12 @@ long long space_occupied_by_cd(char *mountpt)
 {
 	/*@ buffer ****************************************************** */
 	char *tmp = NULL;
-	char *command;
+	char *command = NULL;
 	long long llres;
 	size_t n = 0;
 	/*@ pointers **************************************************** */
-	char *p;
-	FILE *fin;
+	char *p = NULL;
+	FILE *fin = NULL;
 
 	/*@ end vars *************************************************** */
 
@@ -1024,9 +1012,8 @@ void copy_mondo_and_mindi_stuff_to_scratchdir(struct s_bkpinfo *bkpinfo)
 	}
 	paranoid_free(command);
 
-	asprintf(&tmp,
-		   call_program_and_get_last_line_of_output("which mondorestore"));
-	if (!tmp[0]) {
+	tmp = call_program_and_get_last_line_of_output("which mondorestore");
+	if (!tmp) {
 		fatal_error
 			("'which mondorestore' returned null. Where's your mondorestore? `which` can't find it. That's odd. Did you install mondorestore?");
 	}
@@ -1067,16 +1054,16 @@ void store_nfs_config(struct s_bkpinfo *bkpinfo)
 {
 
 	/*@ buffers ******** */
-	char *outfile;
-	char *nfs_dev;
-	char *nfs_mount;
-	char *nfs_client_ipaddr;
-	char *nfs_client_netmask;
-	char *nfs_client_broadcast;;
-	char *nfs_client_defgw;
-	char *nfs_server_ipaddr;
-	char *tmp;
-	char *command;
+	char *outfile = NULL;
+	char *nfs_dev = NULL;
+	char *nfs_mount = NULL;
+	char *nfs_client_ipaddr = NULL;
+	char *nfs_client_netmask = NULL;
+	char *nfs_client_broadcast = NULL;
+	char *nfs_client_defgw = NULL;
+	char *nfs_server_ipaddr = NULL;
+	char *tmp = NULL;
+	char *command = NULL;
 
 	/*@ pointers ***** */
 	char *p;
@@ -1098,29 +1085,27 @@ void store_nfs_config(struct s_bkpinfo *bkpinfo)
 	asprintf(&nfs_mount, p);
 	asprintf(&command,
 			"ifconfig | tr '\n' '#' | sed s/##// | tr '#' ' ' | tr '' '\n' | head -n1 | cut -d' ' -f1");
-	asprintf(&nfs_dev, call_program_and_get_last_line_of_output(command));
+	nfs_dev = call_program_and_get_last_line_of_output(command);
 	paranoid_free(command);
 
 	asprintf(&command,
 			"ifconfig | tr '\n' '#' | sed s/##// | tr '#' ' ' | tr '' '\\n' | head -n1 | tr -s '\t' ' ' | cut -d' ' -f7 | cut -d':' -f2");
-	asprintf(&nfs_client_ipaddr,
-		   call_program_and_get_last_line_of_output(command));
+	nfs_client_ipaddr = call_program_and_get_last_line_of_output(command);
 	paranoid_free(command);
 
 	asprintf(&command,
 			"ifconfig | tr '\n' '#' | sed s/##// | tr '#' ' ' | tr '' '\\n' | head -n1 | tr -s '\t' ' ' | cut -d' ' -f9 | cut -d':' -f2");
-	asprintf(&nfs_client_netmask,
-		   call_program_and_get_last_line_of_output(command));
+	nfs_client_netmask = call_program_and_get_last_line_of_output(command);
 	paranoid_free(command);
 
 	asprintf(&command,
 			"ifconfig | tr '\n' '#' | sed s/##// | tr '#' ' ' | tr '' '\\n' | head -n1 | tr -s '\t' ' ' | cut -d' ' -f8 | cut -d':' -f2");
-	strcpy(nfs_client_broadcast,
-		   call_program_and_get_last_line_of_output(command));
-	sprintf(command,
+	nfs_client_broadcast = call_program_and_get_last_line_of_output(command);
+	paranoid_free(command);
+
+	asprintf(&command,
 			"route -n | grep '^0.0.0.0' | awk '{print $2}'");
-	asprintf(&nfs_client_defgw,
-		   call_program_and_get_last_line_of_output(command));
+	nfs_client_defgw = call_program_and_get_last_line_of_output(command);
 	paranoid_free(command);
 
 	asprintf(&tmp,
@@ -1316,7 +1301,7 @@ bool is_this_file_compressed(char *filename)
 	}
 	paranoid_free(tmp);
 
-	asprintf(&do_not_compress_these, last_line_of_file(tmp));
+	do_not_compress_these = last_line_of_file(tmp);
 	for (p = do_not_compress_these; p != NULL; p++) {
 		asprintf(&tmp, p);
 		if (strchr(tmp, ' ')) {

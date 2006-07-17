@@ -12,7 +12,6 @@
 #include <signal.h>
 #endif
 #include <fcntl.h>
-#include <stdio.h>
 
 #include <errno.h>
 #include <sys/types.h>
@@ -84,7 +83,7 @@ FILE *open_device_via_buffer(char *device, char direction,
 	asprintf(&sz_dir, "%c", direction);
 	wise_upper_limit = (am_I_in_disaster_recovery_mode()? 8 : 32);
 	wise_lower_limit = 1;		// wise_upper_limit/2 + 1;
-	paranoid_system("sync");
+	sync();
 	for (bufsize = wise_upper_limit, res = -1;
 		 res != 0 && bufsize >= wise_lower_limit; bufsize--) {
 		asprintf(&tmp,
@@ -95,7 +94,7 @@ FILE *open_device_via_buffer(char *device, char direction,
 	}
 	if (!res) {
 		bufsize++;
-		asprintf(&tmp, _("Negotiated max buffer of %d MB ", bufsize));
+		asprintf(&tmp, _("Negotiated max buffer of %d MB "), bufsize);
 		log_to_screen(tmp);
 		paranoid_free(tmp);
 	} else {
@@ -159,15 +158,14 @@ void kill_buffer()
 	char *tmp;
 	char *command;
 
-	paranoid_system("sync");
+	sync();
 	asprintf(&command,
 			"ps wwax | grep -F \"%s\" | grep -Fv grep | awk '{print $1;}' | grep -v PID | tr -s '\n' ' ' | awk '{ print $1; }'",
 			g_sz_call_to_buffer);
 	paranoid_free(g_sz_call_to_buffer);
 	log_msg(2, "kill_buffer() --- command = %s", command);
 
-	asprintf(&tmp, "%s",
-			 call_program_and_get_last_line_of_output(command));
+	tmp = call_program_and_get_last_line_of_output(command);
 	paranoid_free(command);
 
 	asprintf(&command, "kill %s", tmp);
@@ -176,8 +174,8 @@ void kill_buffer()
 	if (strlen(tmp) > 0) {
 		run_program_and_log_output(command, TRUE);
 	}
-	paranoid_free(command);
 	paranoid_free(tmp);
+	paranoid_free(command);
 }
 
 

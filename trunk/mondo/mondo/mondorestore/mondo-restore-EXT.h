@@ -1,4 +1,6 @@
-/* mondo-restore-EXT.h */
+/* 
+ * $Id$
+**/
 
 #ifdef __FreeBSD__
 #define raid_device_record vinum_volume

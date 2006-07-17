@@ -144,7 +144,6 @@ extern void _mondo_assert_fail(const char *file, const char *function,
 #define	CRC_MTT	0x1021			///< Mask for crc-ccitt.
 
 #define SCREEN_LENGTH 25		///< The default size of the screen.
-#define NOOF_ERR_LINES 6		///< The number of lines of log output to keep at the bottom of the screen.
 #define ARBITRARY_MAXIMUM 2000	///< The maximum number of items showing at once in the mountlist or filelist editor.
 #define MAX_TAPECATALOG_ENTRIES 8192	///< The maximum number of entries in the tape catalog.
 #define MAX_STR_LEN 380			///< The maximum length of almost all @p char buffers in Mondo.
@@ -334,7 +333,7 @@ extern void _mondo_assert_fail(const char *file, const char *function,
 #define MNT_RESTORING "/mnt/RESTORING"
 
 /** @def VANILLA_SCSI_CDROM The first SCSI CD-ROM in the system (most likely to be the one to write to). */
-/** @def VANILLA_SCSI_TAPE  The first SCSI tape in the system (most likely to be the one towrite to. */
+/** @def VANILLA_SCSI_TAPE  The SCSI tape radical on the system (most likely to be the one towrite to. */
 /** @def DONT_KNOW_HOW_TO_EVALUATE_THIS_DEVICE_TYPE A string whose presence in a device name indicates the
  * inability to check this device for errors in the mountlist. */
 /** @def RAID_DEVICE_STUB The stub of a RAID device (set up RAID if we find it). */
@@ -344,20 +343,20 @@ extern void _mondo_assert_fail(const char *file, const char *function,
 /** @def CP_BIN The GNU @c cp binary to use. */
 #ifdef __FreeBSD__
 #define VANILLA_SCSI_CDROM	"/dev/cd0"
-#define VANILLA_SCSI_TAPE	"/dev/sa0"
+#define VANILLA_SCSI_TAPE	"/dev/sa"
 #define DONT_KNOW_HOW_TO_EVALUATE_THIS_DEVICE_TYPE	"/dev/vinum/"
 #define RAID_DEVICE_STUB	DONT_KNOW_HOW_TO_EVALUATE_THIS_DEVICE_TYPE
 #define SANE_FORMATS		"swap image msdosfs nfs ntfs raid lvm ffs ufs ext2fs"
-#define ALT_TAPE		"/dev/ast0"
+#define ALT_TAPE		"/dev/ast"
 #define MKE2FS_OR_NEWFS	"newfs"
 #define CP_BIN		"gcp"
 #else
 #define VANILLA_SCSI_CDROM	"/dev/scd0"
-#define VANILLA_SCSI_TAPE	"/dev/st0"
+#define VANILLA_SCSI_TAPE	"/dev/st"
 #define DONT_KNOW_HOW_TO_EVALUATE_THIS_DEVICE_TYPE	"/dev/md"
 #define RAID_DEVICE_STUB	DONT_KNOW_HOW_TO_EVALUATE_THIS_DEVICE_TYPE
 #define SANE_FORMATS		"swap image vfat ext2 ext3 xfs vfs jfs reiserfs dos minix coda nfs ntfs hpfs raid lvm cifs"
-#define ALT_TAPE		"/dev/ht0"
+#define ALT_TAPE		"/dev/ht"
 #define MKE2FS_OR_NEWFS	"mke2fs"
 #define CP_BIN		"cp"
 #endif

@@ -32,11 +32,11 @@ extern long long g_tape_posK;
  * @return @p partition. The caller has to free it.
  * @note If @p drive ends in a digit, then 'p' (on Linux) or 's' (on *BSD) is added before @p partno.
  */
-char *build_partition_name(char *partition, const char *drive, int partno)
+char *build_partition_name(const char *drive, int partno)
 {
 	char *p, *c;
+	char *partition;
 
-	assert(partition != NULL);
 	assert_string_is_neither_NULL_nor_zerolength(drive);
 	assert(partno >= 0);
 
@@ -536,16 +536,17 @@ char *slice_fname(long bigfileno, long sliceno, char *path, char *s)
 {
 
 	/*@ buffers **************************************************** */
-	char *output;
-	char *suffix;
+	char *output = NULL;
+	char *suffix = NULL;
 
 	/*@ end vars *************************************************** */
 
 	assert_string_is_neither_NULL_nor_zerolength(path);
-	if (s[0] != '\0') {
+
+	if (s != NULL) {
 		asprintf(&suffix, ".%s", s);
 	} else {
-		asprintf(&suffix, "%s", " ");
+		asprintf(&suffix, "%s", "");
 	}
 	asprintf(&output, "%s/slice-%07ld.%05ld.dat%s", path, bigfileno,
 			 sliceno, suffix);

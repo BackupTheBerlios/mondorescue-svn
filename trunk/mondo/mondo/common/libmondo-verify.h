@@ -41,7 +41,7 @@ extern void open_evalcall_form(char *);
 extern void open_progress_form(char *, char *, char *, char *, long);
 extern int openin_tape(struct s_bkpinfo *);
 extern void popup_and_OK(char *);
-extern bool popup_and_get_string(char *, char *, char *, int);
+extern bool popup_and_get_string(char *, char *, char *);
 extern int read_file_from_tape_to_file(struct s_bkpinfo *, char *,
 									   long long);
 extern int read_header_block_from_tape(long long *, char *, int *);
@@ -82,7 +82,6 @@ char *vfy_tball_fname(struct s_bkpinfo *, char *, int);
 extern FILE *g_tape_stream;
 extern long g_start_time, g_minimum_progress, g_maximum_progress,
 	g_current_progress, g_currentY;
-extern char err_log_lines[NOOF_ERR_LINES][MAX_STR_LEN];
 extern int g_current_media_number;
 
 extern void mvaddstr_and_log_it(int, int, char *);

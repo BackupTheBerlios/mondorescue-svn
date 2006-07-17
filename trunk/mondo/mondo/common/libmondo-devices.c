@@ -1,4 +1,5 @@
-/* $Id$
+/* 
+ * $Id$
  * Subroutines for handling devices
  */
 /**
@@ -18,6 +19,7 @@
 
 #include <sys/ioctl.h>
 #include <sys/types.h>
+#include <unistd.h>
 #ifdef __FreeBSD__
 #define DKTYPENAMES
 #define FSTYPENAMES
@@ -59,12 +61,10 @@ extern t_bkptype g_backup_media_type;	// set by main()
 void set_g_cdrom_and_g_dvd_to_bkpinfo_value(struct s_bkpinfo *bkpinfo)
 {
 	if (bkpinfo->media_device != NULL) {
-		paranoid_free(g_cdrom_drive_is_here);
-		asprintf(&g_cdrom_drive_is_here, bkpinfo->media_device);	// just in case
+		paranoid_alloc(g_cdrom_drive_is_here, bkpinfo->media_device);	// just in case
 	}
 	if (bkpinfo->media_device != NULL) {
-		paranoid_free(g_dvd_drive_is_here);
-		asprintf(&g_dvd_drive_is_here, bkpinfo->media_device);	// just in case
+		paranoid_alloc(g_dvd_drive_is_here, bkpinfo->media_device);	// just in case
 	}
 }
 
@@ -319,6 +319,7 @@ int does_partition_exist(const char *drive, int partno)
 	char *program;
 	char *incoming = NULL;
 	char *searchstr;
+	char *tmp;
 
 	/*@ ints ******************************************************* */
 	int res = 0;
@@ -331,8 +332,6 @@ int does_partition_exist(const char *drive, int partno)
 	/*@ end vars *************************************************** */
 	assert_string_is_neither_NULL_nor_zerolength(drive);
 	assert(partno >= 0 && partno < 999);
-
-	malloc_string(searchstr);
 
 #ifdef __FreeBSD__
 	// We assume here that this is running from mondorestore. (It is.)
@@ -352,10 +351,12 @@ int does_partition_exist(const char *drive, int partno)
 	}
 	paranoid_free(program);
 
-	(void) build_partition_name(searchstr, drive, partno);
-	strcat(searchstr, " ");
+	searchstr = build_partition_name(drive, partno);
+	asprintf(&tmp, "%s ", searchstr);
+	paranoid_free(searchstr);
+
 	for (res = 0; !res && getline(&incoming, &n, fin);) {
-		if (strstr(incoming, searchstr)) {
+		if (strstr(incoming, tmp)) {
 			res = 1;
 		}
 	}
@@ -364,7 +365,7 @@ int does_partition_exist(const char *drive, int partno)
 	if (pclose(fin)) {
 		log_OS_error("Cannot pclose fin");
 	}
-	paranoid_free(searchstr);
+	paranoid_free(tmp);
 	return (res);
 }
 
@@ -458,6 +459,7 @@ bool find_and_mount_actual_cd(struct s_bkpinfo *bkpinfo, char *mountpoint)
 		if (g_cdrom_drive_is_here != NULL) {
 			asprintf(&dev, g_cdrom_drive_is_here);
 		} else {
+			// find_cdrom_device allocates the string
 			dev = find_cdrom_device(FALSE);
 		}
 	}
@@ -467,9 +469,9 @@ bool find_and_mount_actual_cd(struct s_bkpinfo *bkpinfo, char *mountpoint)
 	}
 
 	if ((dev == NULL) || (! mount_CDROM_here(dev, mountpoint))) {
+		paranoid_free(dev);
 		if (!popup_and_get_string
-			(_("CD-ROM device"), _("Please enter your CD-ROM's /dev device"),
-			 dev, MAX_STR_LEN / 4)) {
+			(_("CD-ROM device"), _("Please enter your CD-ROM's /dev device"), dev)) {
 			res = FALSE;
 		} else {
 			res = mount_CDROM_here(dev, mountpoint);
@@ -555,10 +557,10 @@ char *find_cdrw_device(void)
 char *find_cdrom_device(bool try_to_mount)
 {
 	/*@ pointers **************************************************** */
-	FILE *fin;
-	char *p;
-	char *q;
-	char *r;
+	FILE *fin = NULL;
+	char *p = NULL;
+	char *q = NULL;
+	char *r = NULL;
 	char *output = NULL;
 	size_t n = 0;
 
@@ -567,14 +569,14 @@ char *find_cdrom_device(bool try_to_mount)
 
 	/*@ buffers ***************************************************** */
 	char *tmp = NULL;
-	char *cdr_exe;
+	char *cdr_exe = NULL;
 #ifndef __FreeBSD__
 	char *phrase_two = NULL;
 	char *dvd_last_resort = NULL;
 #endif
-	char *command;
-	char *mountpoint;
-	static char the_last_place_i_found_it[MAX_STR_LEN] = "";
+	char *command = NULL;
+	char *mountpoint = NULL;
+	static char *the_last_place_i_found_it = NULL;
 
 	/*@ end vars **************************************************** */
 
@@ -583,7 +585,7 @@ char *find_cdrom_device(bool try_to_mount)
 		log_msg(3, "Been there, done that. Returning %s", output);
 		return(output);
 	}
-	if (the_last_place_i_found_it[0] != '\0' && !try_to_mount) {
+	if ((the_last_place_i_found_it != NULL) && !try_to_mount) {
 		asprintf(&output, the_last_place_i_found_it);
 		log_msg(3,
 				"find_cdrom_device() --- returning last found location - '%s'",
@@ -833,7 +835,7 @@ char *find_cdrom_device(bool try_to_mount)
 			return(NULL);
 		}
 		log_msg(3, "(find_cdrom_device) --> '%s'", output);
-		strcpy(the_last_place_i_found_it, output);
+		asprintf(&the_last_place_i_found_it, output);
 		paranoid_free(g_cdrom_drive_is_here);
 		asprintf(&g_cdrom_drive_is_here, output);
 		return(output);
@@ -862,7 +864,7 @@ char *find_cdrom_device(bool try_to_mount)
 
 char *find_dvd_device()
 {
-	char *tmp;
+	char *tmp = NULL;
 	int retval = 0, devno = -1;
 	char *output = NULL; 
 
@@ -1007,13 +1009,14 @@ long get_phys_size_of_drive(char *drive)
  */
 bool is_this_a_valid_disk_format(char *format)
 {
-	char *good_formats;
-	char *command;
-	char *format_sz;
+	char *good_formats = NULL;
+	char *command = NULL;
+	char *tmp = NULL;
+	char *format_sz = NULL;
 
-	FILE *pin;
+	FILE *pin = NULL;
 	bool retval;
-	malloc_string(good_formats);
+	size_t n = 0;
 	assert_string_is_neither_NULL_nor_zerolength(format);
 
 	asprintf(&format_sz, "%s ", format);
@@ -1033,20 +1036,23 @@ bool is_this_a_valid_disk_format(char *format)
 		log_OS_error("Unable to read good formats");
 		retval = FALSE;
 	} else {
-		strcpy(good_formats, " ");
-		(void) fgets(good_formats + 1, MAX_STR_LEN, pin);
+		getline(&good_formats, &n , pin);
 		if (pclose(pin)) {
 			log_OS_error("Cannot pclose good formats");
 		}
 		strip_spaces(good_formats);
-		strcat(good_formats, " swap lvm raid ntfs 7 ");	// " ntfs 7 " -- um, cheating much? :)
+		// " ntfs 7 " -- um, cheating much? :)
+		asprintf(&tmp, " %s swap lvm raid ntfs 7 ",good_formats);
+		paranoid_free(good_formats);
+		good_formats = tmp;
+
 		if (strstr(good_formats, format_sz)) {
 			retval = TRUE;
 		} else {
 			retval = FALSE;
 		}
+		paranoid_free(good_formats);
 	}
-	paranoid_free(good_formats);
 	paranoid_free(format_sz);
 	return (retval);
 }
@@ -1140,7 +1146,7 @@ bool is_this_device_mounted(char *device_raw)
  */
 char *make_vn(char *fname)
 {
-	char *device;
+	char *device = NULL;
 	char *mddevice = NULL;
 	char *command = NULL;
 	int vndev = 2;
@@ -1223,8 +1229,8 @@ int kick_vn(char *dname)
 bool mount_CDROM_here(char *device, char *mountpoint)
 {
 	/*@ buffer ****************************************************** */
-	char *command;
-	int retval;
+	char *command = NULL;
+	int retval = 0;
 
 	assert_string_is_neither_NULL_nor_zerolength(device);
 	assert_string_is_neither_NULL_nor_zerolength(mountpoint);
@@ -1237,7 +1243,7 @@ bool mount_CDROM_here(char *device, char *mountpoint)
 	if (g_ISO_restore_mode) {
 
 #ifdef __FreeBSD__
-		char *dev;
+		char *dev = NULL;
 
 		dev = make_vn(device));
 		if (!dev) {
@@ -1360,7 +1366,7 @@ insist_on_this_cd_number(struct s_bkpinfo *bkpinfo, int cd_number_i_want)
 		paranoid_free(tmp);
 
 		while (what_number_cd_is_this(bkpinfo) != cd_number_i_want) {
-			paranoid_system("sync");
+			sync();
 			if (is_this_device_mounted(MNT_CDROM)) {
 				res =
 					run_program_and_log_output("umount " MNT_CDROM, FALSE);
@@ -1382,7 +1388,7 @@ insist_on_this_cd_number(struct s_bkpinfo *bkpinfo, int cd_number_i_want)
 			if (!bkpinfo->please_dont_eject) {
 				inject_device(bkpinfo->media_device);
 			}
-			paranoid_system("sync");
+			sync();
 		}
 		paranoid_free(request);
 
@@ -1409,13 +1415,15 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 // archiving_to_media is TRUE if I'm being called by mondoarchive
 // archiving_to_media is FALSE if I'm being called by mondorestore
 {
-	char *tmp;
+	char *tmp = NULL;
+	char *tmp1 = NULL;
+	char *tmp2 = NULL;
 	char *sz_size = NULL;
-	char *command;
-	char *comment;
+	char *command = NULL;
+	char *comment = NULL;
 	char *prompt = NULL;
-	int i;
-	FILE *fin;
+	int i = 0;
+	FILE *fin = NULL;
 
 	assert(bkpinfo != NULL);
 	bkpinfo->nonbootable_backup = FALSE;
@@ -1479,7 +1487,6 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 			asprintf(&comment, _("What speed is your %s (re)writer?"),
 					media_descriptor_string(bkpinfo->backup_media_type));
 			if (bkpinfo->backup_media_type == dvd) {
-				paranoid_free(bkpinfo->media_device);
 				bkpinfo->media_device = find_dvd_device();
 				asprintf(&tmp, "1");
 				asprintf(&sz_size, "%d", DEFAULT_DVD_DISK_SIZE);	// 4.7 salesman's GB = 4.482 real GB = 4582 MB
@@ -1491,7 +1498,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 				log_msg(1, "Setting to CD defaults");
 			}
 			if (bkpinfo->backup_media_type != dvd) {
-				if (!popup_and_get_string(_("Speed"), comment, tmp, 4)) {
+				if (!popup_and_get_string(_("Speed"), comment, tmp)) {
 					log_to_screen(_("User has chosen not to backup the PC"));
 					finish(1);
 				}
@@ -1505,7 +1512,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 					_("How much data (in Megabytes) will each %s store?"),
 					media_descriptor_string(bkpinfo->backup_media_type));
 
-			if (!popup_and_get_string("Size", comment, sz_size, 5)) {
+			if (!popup_and_get_string("Size", comment, sz_size)) {
 				log_to_screen(_("User has chosen not to backup the PC"));
 				finish(1);
 			}
@@ -1514,11 +1521,12 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 			for (i = 0; i <= MAX_NOOF_MEDIA; i++) {
 				bkpinfo->media_size[i] = atoi(sz_size);
 			}
+			paranoid_free(sz_size);
+
 			if (bkpinfo->media_size[0] <= 0) {
 				log_to_screen(_("User has chosen not to backup the PC"));
 				finish(1);
 			}
-			paranoid_free(sz_size);
 		}
 	case cdstream:
 		if (bkpinfo->disaster_recovery) {
@@ -1528,7 +1536,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 		} else if (bkpinfo->restore_data
 				   || bkpinfo->backup_media_type == dvd) {
 			if (bkpinfo->media_device == NULL) {
-				paranoid_alloc(bkpinfo->media_device, "/dev/cdrom");
+				asprintf(&bkpinfo->media_device, "/dev/cdrom");
 			}					// just for the heck of it :)
 			log_msg(1, "bkpinfo->media_device = %s",
 					bkpinfo->media_device);
@@ -1543,8 +1551,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 						media_descriptor_string(bkpinfo->
 												backup_media_type));
 				if (!popup_and_get_string
-					(_("Device?"), comment, bkpinfo->media_device,
-					 MAX_STR_LEN / 4)) {
+					(_("Device?"), comment, bkpinfo->media_device)) {
 					log_to_screen(_("User has chosen not to backup the PC"));
 					finish(1);
 				}
@@ -1554,7 +1561,6 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 					media_descriptor_string(bkpinfo->backup_media_type),
 					bkpinfo->media_device);
 		} else {
-			paranoid_free(bkpinfo->media_device);
 			bkpinfo->media_device = find_cdrw_device();
 			if (bkpinfo->media_device != NULL) {
 				asprintf(&tmp,
@@ -1570,13 +1576,11 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 				if (g_kernel_version < 2.6) {
 					i = popup_and_get_string(_("Device node?"),
 											 _("What is the SCSI node of your CD (re)writer, please?"),
-											 bkpinfo->media_device,
-											 MAX_STR_LEN / 4);
+											 bkpinfo->media_device);
 				} else {
 					i = popup_and_get_string(_("/dev entry?"),
 											 _("What is the /dev entry of your CD (re)writer, please?"),
-											 bkpinfo->media_device,
-											 MAX_STR_LEN / 4);
+											 bkpinfo->media_device);
 				}
 				if (!i) {
 					log_to_screen(_("User has chosen not to backup the PC"));
@@ -1601,7 +1605,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 		paranoid_free(bkpinfo->media_device);
 		if (find_tape_device_and_size(bkpinfo->media_device, sz_size)) {
 			log_msg(3, _("Ok, using vanilla scsi tape."));
-			paranoid_alloc(bkpinfo->media_device,VANILLA_SCSI_TAPE );
+			paranoid_alloc(bkpinfo->media_device,VANILLA_SCSI_TAPE"0" );
 			if ((fin = fopen(bkpinfo->media_device, "r"))) {
 				paranoid_fclose(fin);
 			} else {
@@ -1629,7 +1633,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 			if (!popup_and_get_string
 				(_("Device name?"),
 				 _("What is the /dev entry of your tape streamer?"),
-				 bkpinfo->media_device, MAX_STR_LEN / 4)) {
+				 bkpinfo->media_device)) {
 				log_to_screen(_("User has chosen not to backup the PC"));
 				finish(1);
 			}
@@ -1641,7 +1645,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 		}
 		paranoid_free(tmp);
 		log_msg(4, "sz_size = %s", sz_size);
-		sz_size[0] = '\0';
+		paranoid_free(sz_size);
 		bkpinfo->media_size[0] = 0;
 		log_msg(4, "media_size[0] = %ld", bkpinfo->media_size[0]);
 		if (bkpinfo->media_size[0] <= 0) {
@@ -1676,7 +1680,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 			if (!popup_and_get_string
 				(_("NFS dir."),
 				 _("Please enter path and directory where archives are stored remotely. (Mondo has taken a guess at the correct value. If it is incorrect, delete it and type the correct one.)"),
-				 bkpinfo->nfs_mount, MAX_STR_LEN / 4)) {
+				 bkpinfo->nfs_mount)) {
 				log_to_screen(_("User has chosen not to backup the PC"));
 				finish(1);
 			}
@@ -1700,7 +1704,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 
 			asprintf(&comment,
 					_("How much data (in Megabytes) will each media store?"));
-			if (!popup_and_get_string(_("Size"), comment, sz_size, 5)) {
+			if (!popup_and_get_string(_("Size"), comment, sz_size)) {
 				log_to_screen(_("User has chosen not to backup the PC"));
 				finish(1);
 			}
@@ -1717,7 +1721,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 			system("umount /tmp/isodir 2> /dev/null");
 			if (!popup_and_get_string
 				(_("NFS share"), _("Which remote NFS share should I mount?"),
-				 bkpinfo->nfs_mount, MAX_STR_LEN)) {
+				 bkpinfo->nfs_mount)) {
 				log_to_screen(_("User has chosen not to backup the PC"));
 				finish(1);
 			}
@@ -1741,46 +1745,35 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 				(_("Please mount that partition before you try to backup to or restore from it."));
 			finish(1);
 		}
-		asprintf(&tmp, bkpinfo->nfs_remote_dir);
 		if (!popup_and_get_string
-			(_("Directory"), _("Which directory within that mountpoint?"), tmp,
-			 MAX_STR_LEN)) {
+			(_("Directory"), _("Which directory within that mountpoint?"),bkpinfo->nfs_remote_dir)) {
 			log_to_screen(_("User has chosen not to backup the PC"));
 			finish(1);
 		}
-		strcpy(bkpinfo->nfs_remote_dir, tmp);
-		paranoid_free(tmp);
 
-		// check whether writable - we better remove surrounding spaces for this
-		strip_spaces(bkpinfo->nfs_remote_dir);
-		asprintf(&command, "echo hi > %s/%s/.dummy.txt", bkpinfo->isodir,
+		asprintf(&command, "echo hi > '%s/%s/.dummy.txt'", bkpinfo->isodir,
 				bkpinfo->nfs_remote_dir);
 		while (run_program_and_log_output(command, FALSE)) {
-			paranoid_free(tmp);
-			paranoid_free(prompt);
-			asprintf(&tmp, bkpinfo->nfs_remote_dir);
 			asprintf(&prompt,
 					 _("Directory '%s' under mountpoint '%s' does not exist or is not writable. You can fix this or change the directory and retry or cancel the backup."),
 					 bkpinfo->nfs_remote_dir, bkpinfo->isodir);
 			if (!popup_and_get_string
-				(_("Directory"), prompt, tmp, MAX_STR_LEN)) {
+				(_("Directory"), prompt, bkpinfo->nfs_remote_dir)) {
 				log_to_screen(_("User has chosen not to backup the PC"));
 				finish(1);
 			}
-			strcpy(bkpinfo->nfs_remote_dir, tmp);
-			// check whether writable - we better remove surrounding spaces for this */
-			strip_spaces(bkpinfo->nfs_remote_dir);
+			paranoid_free(prompt);
+
+			paranoid_free(command);
 			asprintf(&command, "echo hi > %s/%s/.dummy.txt",
 					 bkpinfo->isodir, bkpinfo->nfs_remote_dir);
 		}
 		paranoid_free(command);
-		paranoid_free(tmp);
-		paranoid_free(prompt);
 
 		if (!popup_and_get_string
 			(_("Prefix."),
 			 _("Please enter the prefix that will be prepended to your ISO filename.  Example: machine1 to obtain machine1-[1-9]*.iso files"),
-			bkpinfo->prefix, MAX_STR_LEN / 4)) {
+			bkpinfo->prefix)) {
 			log_to_screen(_("User has chosen not to backup the PC"));
 			finish(1);
 		}
@@ -1799,7 +1792,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 			if (!popup_and_get_string
 				(_("Storage dir."),
 				 _("Please enter the full path that contains your ISO images.  Example: /mnt/raid0_0"),
-				 bkpinfo->isodir, MAX_STR_LEN / 4)) {
+				 bkpinfo->isodir)) {
 				log_to_screen(_("User has chosen not to backup the PC"));
 				finish(1);
 			}
@@ -1811,8 +1804,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 				}
 				if (!popup_and_get_string
 					(_("ISO size."),
-					 _("Please enter how big you want each ISO image to be (in megabytes). This should be less than or equal to the size of the CD-R[W]'s or DVD's you plan to backup to."),
-					 sz_size, 16)) {
+					 _("Please enter how big you want each ISO image to be (in megabytes). This should be less than or equal to the size of the CD-R[W]'s or DVD's you plan to backup to."), sz_size)) {
 					log_to_screen(_("User has chosen not to backup the PC"));
 					finish(1);
 				}
@@ -1824,7 +1816,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 				if (!popup_and_get_string
 					(_("Prefix."),
 					 _("Please enter the prefix that will be prepended to your ISO filename.  Example: machine1 to obtain machine1-[1-9]*.iso files"),
-					 bkpinfo->prefix, MAX_STR_LEN / 4)) {
+					 bkpinfo->prefix)) {
 					log_to_screen("User has chosen not to backup the PC");
 					finish(1);
 				}
@@ -1843,12 +1835,10 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 	if (archiving_to_media) {
 
 #ifdef __FreeBSD__
-		strcpy(bkpinfo->boot_device,
-			   call_program_and_get_last_line_of_output
+		bkpinfo->boot_device = call_program_and_get_last_line_of_output
 			   ("mount | grep ' / ' | head -1 | cut -d' ' -f1 | sed 's/\\([0-9]\\).*/\\1/'"));
 #else
-		strcpy(bkpinfo->boot_device,
-			   call_program_and_get_last_line_of_output
+		bkpinfo->boot_device = call_program_and_get_last_line_of_output
 			   ("mount | grep ' / ' | head -1 | cut -d' ' -f1 | sed 's/[0-9].*//'"));
 #endif
 		i = which_boot_loader(bkpinfo->boot_device);
@@ -1859,7 +1849,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 			if (!popup_and_get_string
 				(_("Boot device"),
 				 _("What is your boot device? (e.g. /dev/ad0)"),
-				 bkpinfo->boot_device, MAX_STR_LEN / 4)) {
+				 bkpinfo->boot_device)) {
 				log_to_screen(_("User has chosen not to backup the PC"));
 				finish(1);
 			}
@@ -1868,7 +1858,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 			if (!popup_and_get_string
 				(_("Boot device"),
 				 _("What is your boot device? (e.g. /dev/hda)"),
-				 bkpinfo->boot_device, MAX_STR_LEN / 4)) {
+				 bkpinfo->boot_device)) {
 				log_to_screen(_("User has chosen not to backup the PC"));
 				finish(1);
 			}
@@ -1900,42 +1890,52 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 			}
 		}
 		bkpinfo->boot_loader = i;
-		strcpy(bkpinfo->include_paths, "/");
+		asprintf(&bkpinfo->include_paths, "/");
 		if (!popup_and_get_string
 			(_("Backup paths"),
 			 _("Please enter paths which you want me to backup. The default is '/' (i.e. everything)."),
-			 bkpinfo->include_paths, MAX_STR_LEN)) {
+			 bkpinfo->include_paths)) {
 			log_to_screen(_("User has chosen not to backup the PC"));
 			finish(1);
 		}
+
 		tmp = list_of_NFS_mounts_only();
 		if (strlen(tmp) > 2) {
-			if (bkpinfo->exclude_paths[0]) {
-				strcat(bkpinfo->exclude_paths, " ");
+			if (bkpinfo->exclude_paths != NULL) {
+				tmp1 = bkpinfo->exclude_paths;
+				asprintf(&bkpinfo->exclude_paths, "%s %s", tmp1, tmp);
+				paranoid_free(tmp1);
+			} else {
+				bkpinfo->exclude_paths = tmp;
 			}
-			strncpy(bkpinfo->exclude_paths, tmp, MAX_STR_LEN);
 		}
 		paranoid_free(tmp);
 // NTFS 
-		asprintf(&tmp,
-			   call_program_and_get_last_line_of_output
-			   ("parted2fdisk -l | grep -i ntfs | awk '{ print $1};' | tr -s '\\n' ' ' | awk '{ print $0};'"));
+		tmp = call_program_and_get_last_line_of_output
+			   ("parted2fdisk -l | grep -i ntfs | awk '{ print $1};' | tr -s '\\n' ' ' | awk '{ print $0};'");
 		if (strlen(tmp) > 2) {
 			if (!popup_and_get_string
 				(_("NTFS partitions"),
 				 _("Please enter/confirm the NTFS partitions you wish to backup as well."),
-				 tmp, MAX_STR_LEN / 4)) {
+				 tmp1)) {
 				log_to_screen(_("User has chosen not to backup the PC"));
 				finish(1);
 			}
-			strncpy(bkpinfo->image_devs, tmp, MAX_STR_LEN / 4);
+			if (bkpinfo->image_devs != NULL) {
+				tmp2 = bkpinfo->image_devs;
+				asprintf(&bkpinfo->image_devs, "%s %s", tmp2, tmp1);
+				paranoid_free(tmp2);
+			} else {
+				bkpinfo->image_devs = tmp1;
+			}
+			paranoid_free(tmp1);
 		}
 		paranoid_free(tmp);
 
 		if (!popup_and_get_string
 			(_("Exclude paths"),
 			 _("Please enter paths which you do NOT want to backup. Separate them with spaces. NB: /tmp and /proc are always excluded. :-) Just hit 'Enter' if you want to do a full system backup."),
-			 bkpinfo->exclude_paths, MAX_STR_LEN)) {
+			 bkpinfo->exclude_paths)) {
 			log_to_screen(_("User has chosen not to backup the PC"));
 			finish(1);
 		}
@@ -2004,25 +2004,18 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 /**
  * Get a space-separated list of NFS mounts.
  * @return The list created.
- * @note The return value points to static data that will be overwritten with each call.
+ * @note The return value should be freed by caller
  * @bug Even though we only want the mounts, the devices are still checked.
  */
 char *list_of_NFS_mounts_only(void)
 {
-	char *exclude_these_devices;
-	char *exclude_these_directories;
-	char *result_sz;
-
-	asprintf(&exclude_these_directories,
-		   call_program_and_get_last_line_of_output
+	return(call_program_and_get_last_line_of_output
 		   ("mount -t coda,ncpfs,nfs,smbfs,cifs | tr -s '\t' ' ' | cut -d' ' -f3 | tr -s '\n' ' ' | awk '{print $0;}'"));
+	/* BERLIOS : Useless
 	asprintf(&exclude_these_devices,
 		   call_program_and_get_last_line_of_output
 		   ("tr -s '\t' ' ' < /etc/fstab | grep -E '( (coda|ncpfs|nfs|smbfs|cifs) )' | cut -d' ' -f1 | tr -s '\n' ' ' | awk '{print $0;}'"));
-	asprintf(&result_sz, "%s", exclude_these_directories);
-	paranoid_free(exclude_these_devices);
-	paranoid_free(exclude_these_directories);
-	return (result_sz);
+		   */
 }
 
 
@@ -2059,18 +2052,19 @@ void make_fifo(char *store_name_here, char *stub)
  */
 void sensibly_set_tmpdir_and_scratchdir(struct s_bkpinfo *bkpinfo)
 {
-	char *tmp, *command, *sz;
+	char *tmp = NULL;
+   	char *command = NULL;
+   	char *sz = NULL;
+	int i = 0;
 
 	assert(bkpinfo != NULL);
 
 #ifdef __FreeBSD__
-	asprintf(&tmp,
-		   call_program_and_get_last_line_of_output
-		   ("df -m -P -t nonfs,msdosfs,ntfs,smbfs,smb,cifs | tr -s '\t' ' ' | grep -vE \"none|Filesystem\" | awk '{printf \"%s %s\\n\", $4, $6;}' | sort -n | tail -n1 | awk '{print $NF;}'"));
+	tmp = call_program_and_get_last_line_of_output
+		   ("df -m -P -t nonfs,msdosfs,ntfs,smbfs,smb,cifs | tr -s '\t' ' ' | grep -vE \"none|Filesystem\" | awk '{printf \"%s %s\\n\", $4, $6;}' | sort -n | tail -n1 | awk '{print $NF;}'");
 #else
-	asprintf(&tmp,
-		   call_program_and_get_last_line_of_output
-		   ("df -m -P -x nfs -x vfat -x ntfs -x smbfs -x smb -x cifs | sed 's/                  /devdev/' | tr -s '\t' ' ' | grep -vE \"none|Filesystem|/dev/shm\" | awk '{printf \"%s %s\\n\", $4, $6;}' | sort -n | tail -n1 | awk '{print $NF;}'"));
+	tmp = call_program_and_get_last_line_of_output
+		   ("df -m -P -x nfs -x vfat -x ntfs -x smbfs -x smb -x cifs | sed 's/                  /devdev/' | tr -s '\t' ' ' | grep -vE \"none|Filesystem|/dev/shm\" | awk '{printf \"%s %s\\n\", $4, $6;}' | sort -n | tail -n1 | awk '{print $NF;}'");
 #endif
 
 	if (tmp[0] != '/') {
@@ -2081,18 +2075,17 @@ void sensibly_set_tmpdir_and_scratchdir(struct s_bkpinfo *bkpinfo)
 	if (!tmp[0]) {
 		fatal_error("I couldn't figure out the tempdir!");
 	}
-	sprintf(bkpinfo->tmpdir, "%s/tmp.mondo.%d", tmp,
-			(int) (random() % 32768));
+	i = (int) (random() % 32768);
+	asprintf(&bkpinfo->tmpdir, "%s/mondo.tmp.%d", tmp, i);
 	log_it("bkpinfo->tmpdir is being set to %s", bkpinfo->tmpdir);
 
-	sprintf(bkpinfo->scratchdir, "%s/mondo.scratch.%d", tmp,
-			(int) (random() % 32768));
+	asprintf(&bkpinfo->scratchdir, "%s/mondo.scratch.%d", tmp, i);
 	log_it("bkpinfo->scratchdir is being set to %s", bkpinfo->scratchdir);
 
-	sprintf(g_erase_tmpdir_and_scratchdir, "rm -Rf %s %s", bkpinfo->tmpdir,
+	asprintf(&g_erase_tmpdir_and_scratchdir, "rm -Rf %s %s", bkpinfo->tmpdir,
 			bkpinfo->scratchdir);
 
-	asprintf(&command, "rm -Rf %s/tmp.mondo.* %s/mondo.scratch.*", tmp, tmp);
+	asprintf(&command, "rm -Rf %s/mondo.tmp.* %s/mondo.scratch.*", tmp, tmp);
 	paranoid_free(tmp);
 
 	paranoid_system(command);
@@ -2151,18 +2144,24 @@ bool set_dev_to_this_if_rx_OK(char *output, char *dev)
 int what_number_cd_is_this(struct s_bkpinfo *bkpinfo)
 {
 	int cd_number = -1;
-	char *mountdev;
-	char *tmp;
+	char *mountdev = NULL;
+	char *tmp = NULL;
+	char *tmp1 = NULL;
 
 	assert(bkpinfo != NULL);
 	if (g_ISO_restore_mode) {
 		asprintf(&tmp, "mount | grep iso9660 | awk '{print $3;}'");
 
-		asprintf(&mountdev, "%s/archives/THIS-CD-NUMBER", call_program_and_get_last_line_of_output(tmp));
+		tmp1 = call_program_and_get_last_line_of_output(tmp);
 		paranoid_free(tmp);
 
-		cd_number = atoi(last_line_of_file(mountdev));
+		asprintf(&mountdev, "%s/archives/THIS-CD-NUMBER", tmp1);
+		paranoid_free(tmp1);
+
+		tmp = last_line_of_file(mountdev);
+		cd_number = atoi(tmp);
 		paranoid_free(mountdev);
+		paranoid_free(tmp);
 
 		return (cd_number);
 	}
@@ -2175,8 +2174,9 @@ int what_number_cd_is_this(struct s_bkpinfo *bkpinfo)
 	if (!is_this_device_mounted(MNT_CDROM)) {
 		(void)mount_CDROM_here(bkpinfo->media_device, MNT_CDROM);
 	}
-	cd_number =
-		atoi(last_line_of_file(MNT_CDROM "/archives/THIS-CD-NUMBER"));
+	tmp = last_line_of_file(MNT_CDROM "/archives/THIS-CD-NUMBER");
+	cd_number = atoi(tmp);
+	paranoid_free(tmp);
 	return (cd_number);
 }
 
@@ -2190,26 +2190,23 @@ int what_number_cd_is_this(struct s_bkpinfo *bkpinfo)
  */
 char *where_is_root_mounted()
 {
-	/*@ buffers **************** */
 	char *tmp;
 
-
 #ifdef __FreeBSD__
-	asprintf(&tmp, call_program_and_get_last_line_of_output
-		   ("mount | grep \" on / \" | cut -d' ' -f1"));
+	tmp = call_program_and_get_last_line_of_output
+		   ("mount | grep \" on / \" | cut -d' ' -f1");
 #else
-	asprintf(&tmp, call_program_and_get_last_line_of_output
-		   ("mount | grep \" on / \" | cut -d' ' -f1 | sed s/[0-9]// | sed s/[0-9]//"));
+	tmp = call_program_and_get_last_line_of_output
+		   ("mount | grep \" on / \" | cut -d' ' -f1 | sed s/[0-9]// | sed s/[0-9]//");
 	if (strstr(tmp, "/dev/cciss/")) {
 		paranoid_free(tmp);
-		asprintf(&tmp, call_program_and_get_last_line_of_output
-			   ("mount | grep \" on / \" | cut -d' ' -f1 | cut -dp -f1"));
+		tmp = call_program_and_get_last_line_of_output
+			   ("mount | grep \" on / \" | cut -d' ' -f1 | cut -dp -f1");
 	}
 	if (strstr(tmp, "/dev/md")) {
 		paranoid_free(tmp);
-		asprintf(&tmp,
-			   call_program_and_get_last_line_of_output
-			   ("mount | grep \" on / \" | cut -d' ' -f1"));
+		tmp = call_program_and_get_last_line_of_output
+			   ("mount | grep \" on / \" | cut -d' ' -f1");
 	}
 #endif
 
@@ -2372,12 +2369,12 @@ int zero_out_a_device(char *device)
  */
 char *resolve_softlinks_to_get_to_actual_device_file(char *incoming)
 {
-	char *output;
-	char *command;
-	char *curr_fname;
-	char *scratch;
-	char *tmp;
-	char *p;
+	char *output = NULL;
+	char *command = NULL;
+	char *curr_fname = NULL;
+	char *scratch = NULL;
+	char *tmp = NULL;
+	char *p = NULL;
 
 	struct stat statbuf;
 	if (!does_file_exist(incoming)) {
@@ -2390,7 +2387,7 @@ char *resolve_softlinks_to_get_to_actual_device_file(char *incoming)
 		while (S_ISLNK(statbuf.st_mode)) {
 			log_msg(1, "curr_fname = %s", curr_fname);
 			asprintf(&command, "file %s", curr_fname);
-			asprintf(&tmp, call_program_and_get_last_line_of_output(command));
+			tmp = call_program_and_get_last_line_of_output(command);
 			paranoid_free(command);
 
 			for (p = tmp + strlen(tmp); p != tmp && *p != '`' && *p != ' ';
@@ -2399,8 +2396,7 @@ char *resolve_softlinks_to_get_to_actual_device_file(char *incoming)
 			asprintf(&scratch, p);
 			for (p = scratch; *p != '\0' && *p != '\''; p++);
 			*p = '\0';
-			log_msg(0, "curr_fname %s --> '%s' --> %s", curr_fname, tmp,
-					scratch);
+			log_msg(0, "curr_fname %s --> '%s' --> %s", curr_fname, tmp, scratch);
 			paranoid_free(tmp);
 
 			if (scratch[0] == '/') {
@@ -2438,10 +2434,10 @@ char *resolve_softlinks_to_get_to_actual_device_file(char *incoming)
  */
 char *which_partition_format(const char *drive)
 {
-	char *output;
-	char *tmp;
-	char *command;
-	char *fdisk;
+	char *output = NULL;
+	char *tmp = NULL;
+	char *command = NULL;
+	char *fdisk = NULL;
 
 	log_msg(0, "Looking for partition table format type");
 	asprintf(&fdisk, "/sbin/parted2fdisk");
@@ -2449,7 +2445,7 @@ char *which_partition_format(const char *drive)
 	asprintf(&command, "%s -l %s | grep 'EFI GPT'", fdisk, drive);
 	paranoid_free(fdisk);
 
-	asprintf(&tmp, call_program_and_get_last_line_of_output(command));
+	tmp = call_program_and_get_last_line_of_output(command);
 	paranoid_free(command);
 
 	if (strstr(tmp, "GPT") == NULL) {

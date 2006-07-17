@@ -27,11 +27,14 @@ echo " "
 cd $d
 
 # How many sprintf/strcat/strcpy vs asprintf are they
-for s in asprintf sprintf strcat strcpy fgets malloc_string MAX_STR_LEN goto; do
+for s in asprintf sprintf strcat strcpy strncpy fgets malloc malloc_string MAX_STR_LEN getcwd goto; do
 	echo "monodrescue $s usage : "
-	for i in `find . -name '*.c' -o -name '*.h' |  egrep -v '\.svn' | egrep -v '/\*' | xargs grep -r -c -w $s | egrep -v ":0$"`; do
+	tot=0
+	for i in `find . -name '*.c' -o -name '*.h' |  egrep -v '\.svn|/\*|monitas' | xargs grep -r -c -w $s | egrep -v ":0$"`; do
 			echo " === $i"
+			((tot=$tot+`echo $i | cut -d: -f2`))
 	done
+	echo "total $s usage : $tot"
 done
 
 echo " "

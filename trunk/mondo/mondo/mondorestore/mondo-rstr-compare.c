@@ -1,63 +1,11 @@
 /***************************************************************************
-       mondo-compare.c  -  compares mondoarchive data
-                             -------------------
-    begin                : Fri Apr 25 2003
-    copyright            : (C) 2000 by Hugo Rabson
-    email                : Hugo Rabson <hugorabson@msn.com>
-    cvsid                : $Id$
-***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
-
-/***************************************************************************
- *                         Change Log                                      *
- ***************************************************************************
-.
-
-
-
-10/21/2003
-- changed "/mnt/cdrom" to MNT_CDROM
-
-10/18
-- don't say unknown compressor if no compressor at all
-
-09/17
-- cleaned up logging & conversion-to-changed.txt
-- cleaned up compare_mode()
-
-09/16
-- fixed bad malloc(),free() pairs in compare_a_biggiefile()
-
-09/14
-- compare_mode() --- a couple of strings were the wrong way round,
-  e.g. changed.txt and changed.files
-
-05/05
-- exclude /dev/ * from list of changed files
-
-04/30
-- added textonly mode
-
-04/27
-- improved compare_mode() to allow for ISO/cd/crazy people
-
-04/25
-- first incarnation
-*/
+ * $Id$ - compares mondoarchive data
+**/
 
 
 #include "../common/my-stuff.h"
 #include "../common/mondostructures.h"
 #include "../common/libmondo.h"
-//#include "../../config.h"
 #include "mr-externs.h"
 #include "mondo-rstr-compare.h"
 #include "mondo-restore-EXT.h"
@@ -65,8 +13,6 @@
 #ifndef S_SPLINT_S
 #include <pthread.h>
 #endif
-
-//static char cvsid[] = "$Id$";
 
 void popup_changelist_from_file(char *);
 
@@ -88,136 +34,108 @@ int compare_a_biggiefile(struct s_bkpinfo *bkpinfo, long bigfileno)
 	FILE *fout;
 
   /** needs malloc *******/
-	char *checksum_ptr;
-	char *original_cksum_ptr;
-	char *bigfile_fname_ptr;
-	char *tmp_ptr;
-	char *command_ptr;
+	char *checksum = NULL;
+	char *original_cksum = NULL;
+	char *bigfile_fname = NULL;
+	char *tmp = NULL;
+	char *tmp1 = NULL;
+	char *command = NULL;
 
-	char *checksum, *original_cksum, *bigfile_fname, *tmp, *command;
-
-	char *p;
-	int i;
+	char *p = NULL;
+	int i = 0;
+	int n = 0;
 	int retval = 0;
 
 	struct s_filename_and_lstat_info biggiestruct;
 
-	malloc_string(checksum);
-	malloc_string(original_cksum);
-	malloc_string(bigfile_fname);
-	malloc_string(tmp);
-	malloc_string(command);
-	malloc_string(checksum_ptr);
-	malloc_string(original_cksum_ptr);
-	malloc_string(bigfile_fname_ptr);
-	malloc_string(command_ptr);
-	malloc_string(tmp_ptr);
-
-  /*********************************************************************
-   * allocate memory clear test                sab 16 feb 2003         *
-   *********************************************************************/
 	assert(bkpinfo != NULL);
-	memset(checksum_ptr, '\0', sizeof(checksum));
-	memset(original_cksum_ptr, '\0', sizeof(original_cksum));
-	memset(bigfile_fname_ptr, '\0', sizeof(bigfile_fname));
-	memset(tmp_ptr, '\0', sizeof(tmp));
-	memset(command_ptr, '\0', sizeof(command));
-  /** end **/
 
-	if (!does_file_exist(slice_fname(bigfileno, 0, ARCHIVES_PATH, ""))) {
+	tmp1 = slice_fname(bigfileno, 0, ARCHIVES_PATH, "");
+	if (!does_file_exist(tmp1)) {
 		if (does_file_exist(MNT_CDROM "/archives/NOT-THE-LAST")) {
 			insist_on_this_cd_number(bkpinfo, (++g_current_media_number));
 		} else {
-			sprintf(tmp_ptr,
-					"No CD's left. No biggiefiles left. No prob, Bob.");
-			log_msg(2, tmp_ptr);
+			log_msg(2, "No CD's left. No biggiefiles left. No problem.");
 			return (0);
 		}
 	}
-	if (!(fin = fopen(slice_fname(bigfileno, 0, ARCHIVES_PATH, ""), "r"))) {
-		sprintf(tmp_ptr,
-				_("Cannot open bigfile %ld (%s)'s info file"),
-				bigfileno + 1, bigfile_fname_ptr);
-		log_to_screen(tmp_ptr);
+	if (!(fin = fopen(tmp1, "r"))) {
+		asprintf(&tmp, _("Cannot open bigfile %ld (%s)'s info file"),
+				bigfileno + 1, tmp);
+		log_to_screen(tmp);
+		paranoid_free(tmp);
+		paranoid_free(tmp1);
 		return (1);
 	}
 	fread((void *) &biggiestruct, 1, sizeof(biggiestruct), fin);
 	paranoid_fclose(fin);
 
-	strcpy(checksum_ptr, biggiestruct.checksum);
-	strcpy(bigfile_fname_ptr, biggiestruct.filename);
+	asprintf(&checksum, biggiestruct.checksum);
+	asprintf(&bigfile_fname, biggiestruct.filename);
 
-	log_msg(2, "biggiestruct.filename = %s", biggiestruct.filename);
-	log_msg(2, "biggiestruct.checksum = %s", biggiestruct.checksum);
-
-	sprintf(tmp_ptr, _("Comparing %s"), bigfile_fname_ptr);
+	log_msg(2, "biggiestruct.filename = %s", bigfile_fname);
+	log_msg(2, "biggiestruct.checksum = %s", checksum);
 
 	if (!g_text_mode) {
-		newtDrawRootText(0, 22, tmp_ptr);
+		asprintf(&tmp, _("Comparing %s"), bigfile_fname);
+		newtDrawRootText(0, 22, tmp);
 		newtRefresh();
+		paranoid_free(tmp);
 	}
+	/* BERLIOS: Useless ?
 	if (!checksum[0]) {
 		log_msg(2, "Warning - %s has no checksum", bigfile_fname_ptr);
-	}
-	if (!strncmp(bigfile_fname_ptr, "/dev/", 5)) {
-		strcpy(original_cksum_ptr, "IGNORE");
+	} */
+	if (!strncmp(bigfile_fname, "/dev/", 5)) {
+		log_msg(2, _("Ignoring device %s"), bigfile_fname);
+		return(0);
 	} else {
-		sprintf(command_ptr,
+		asprintf(&command,
 				"md5sum \"%s%s\" > /tmp/md5sum.txt 2> /tmp/errors.txt",
-				MNT_RESTORING, bigfile_fname_ptr);
+				MNT_RESTORING, bigfile_fname);
 	}
-	log_msg(2, command_ptr);
-	paranoid_system
-		("cat /tmp/errors >> /tmp/mondo-restore.log 2> /dev/null");
-	if (system(command_ptr)) {
+	log_msg(2, command);
+	paranoid_system("cat /tmp/errors >> /tmp/mondo-restore.log 2> /dev/null");
+	if (system(command)) {
 		log_OS_error("Warning - command failed");
-		original_cksum[0] = '\0';
+		paranoid_free(command);
+		paranoid_free(bigfile_fname);
 		return (1);
 	} else {
+		paranoid_free(command);
 		if (!(fin = fopen("/tmp/md5sum.txt", "r"))) {
-			log_msg(2,
-					"Unable to open /tmp/md5sum.txt; can't get live checksum");
-			original_cksum[0] = '\0';
+			log_msg(2, "Unable to open /tmp/md5sum.txt; can't get live checksum");
+			paranoid_free(bigfile_fname);
 			return (1);
 		} else {
-			fgets(original_cksum_ptr, MAX_STR_LEN - 1, fin);
+			getline(&original_cksum, &n, fin);
 			paranoid_fclose(fin);
-			for (i = strlen(original_cksum_ptr);
+			for (i = strlen(original_cksum);
 				 i > 0 && original_cksum[i - 1] < 32; i--);
 			original_cksum[i] = '\0';
-			p = (char *) strchr(original_cksum_ptr, ' ');
+			p = (char *) strchr(original_cksum, ' ');
 			if (p) {
 				*p = '\0';
 			}
 		}
 	}
-	sprintf(tmp_ptr, "bigfile #%ld ('%s') ", bigfileno + 1,
-			bigfile_fname_ptr);
-	if (!strcmp(checksum_ptr, original_cksum_ptr) != 0) {
-		strcat(tmp_ptr, " ... OK");
+	if (!strcmp(checksum, original_cksum) != 0) {
+		log_msg(1, "bigfile #%ld ('%s') ... OK", bigfileno + 1, bigfile_fname);
 	} else {
-		strcat(tmp_ptr, "... changed");
+		log_msg(1, "bigfile #%ld ('%s') ... changed", bigfileno + 1, bigfile_fname);
 		retval++;
 	}
-	log_msg(1, tmp_ptr);
+	paranoid_free(original_cksum);
+	paranoid_free(checksum);
+
 	if (retval) {
 		if (!(fout = fopen("/tmp/changed.txt", "a"))) {
 			fatal_error("Cannot openout changed.txt");
 		}
-		fprintf(fout, "%s\n", bigfile_fname_ptr);
+		fprintf(fout, "%s\n", bigfile_fname);
 		paranoid_fclose(fout);
 	}
-
-	paranoid_free(original_cksum_ptr);
-	paranoid_free(original_cksum);
-	paranoid_free(bigfile_fname_ptr);
 	paranoid_free(bigfile_fname);
-	paranoid_free(checksum_ptr);
-	paranoid_free(checksum);
-	paranoid_free(command_ptr);
-	paranoid_free(command);
-	paranoid_free(tmp_ptr);
-	paranoid_free(tmp);
 
 	return (retval);
 }
@@ -237,7 +155,7 @@ int compare_all_biggiefiles(struct s_bkpinfo *bkpinfo)
 	int retval = 0;
 	int res;
 	long noof_biggiefiles, bigfileno = 0;
-	char tmp[MAX_STR_LEN];
+	char *tmp;
 
 	assert(bkpinfo != NULL);
 	log_msg(1, "Comparing biggiefiles");
@@ -253,21 +171,25 @@ int compare_all_biggiefiles(struct s_bkpinfo *bkpinfo)
 		return (0);
 	}
 	mvaddstr_and_log_it(g_currentY, 0,
-						_("Comparing large files                                                  "));
+						_
+						("Comparing large files                                                  "));
 	open_progress_form(_("Comparing large files"),
 					   _("I am now comparing the large files"),
 					   _("against the filesystem. Please wait."), "",
 					   noof_biggiefiles);
 	for (bigfileno = 0; bigfileno < noof_biggiefiles; bigfileno++) {
-		sprintf(tmp, "Comparing big file #%ld", bigfileno + 1);
+		asprintf(&tmp, "Comparing big file #%ld", bigfileno + 1);
 		log_msg(1, tmp);
 		update_progress_form(tmp);
+		paranoid_free(tmp);
 		res = compare_a_biggiefile(bkpinfo, bigfileno);
 		retval += res;
 		g_current_progress++;
 	}
 	close_progress_form();
+	/* BERLIOS: useless ?
 	return (0);
+	*/
 	if (retval) {
 		mvaddstr_and_log_it(g_currentY++, 74, _("Errors."));
 	} else {
@@ -298,54 +220,48 @@ int compare_a_tarball(char *tarball_fname, int current_tarball_number)
 	bool use_star;
 
   /***  needs malloc *********/
-	char *command, *tmp, *filelist_name, *logfile, *archiver_exe,
-		*compressor_exe;
-
-	malloc_string(command);
-	malloc_string(tmp);
-	malloc_string(filelist_name);
-	malloc_string(logfile);
-	malloc_string(archiver_exe);
-	malloc_string(compressor_exe);
+	char *command = NULL;
+	char *tmp = NULL;
+	char *filelist_name = NULL;
+	char *logfile = NULL;
+	char *archiver_exe = NULL;
+	char *compressor_exe = NULL;
 
 	use_star = (strstr(tarball_fname, ".star")) ? TRUE : FALSE;
 	assert_string_is_neither_NULL_nor_zerolength(tarball_fname);
-	sprintf(logfile, "/tmp/afio.log.%d", current_tarball_number);
-	sprintf(filelist_name, MNT_CDROM "/archives/filelist.%d",
+	asprintf(&filelist_name, MNT_CDROM "/archives/filelist.%d",
 			current_tarball_number);
 
 	noof_lines = count_lines_in_file(filelist_name);
+	paranoid_free(filelist_name);
 
 	if (strstr(tarball_fname, ".bz2")) {
-		strcpy(compressor_exe, "bzip2");
+		asprintf(&compressor_exe, "bzip2");
 	} else if (strstr(tarball_fname, ".lzo")) {
-		strcpy(compressor_exe, "lzop");
+		asprintf(&compressor_exe, "lzop");
 	} else {
-		compressor_exe[0] = '\0';
+		compressor_exe = NULL;
 	}
 
 	if (use_star) {
-		strcpy(archiver_exe, "star");
+		asprintf(&archiver_exe, "star -bz");
 	} else {
-		strcpy(archiver_exe, "afio");
+		asprintf(&archiver_exe, "afio");
 	}
 
-	if (compressor_exe[0]) {
-		strcpy(tmp, compressor_exe);
-		if (!find_home_of_exe(tmp)) {
+	if (compressor_exe != NULL) {
+		if (!find_home_of_exe(compressor_exe)) {
 			fatal_error("(compare_a_tarball) Compression program missing");
 		}
-		if (use_star)			// star
-		{
-			if (!strcmp(compressor_exe, "bzip2")) {
-				strcat(archiver_exe, " -bz");
-			} else {
+		if (use_star) {
+			if (strcmp(compressor_exe, "bzip2")) {
 				fatal_error
 					("(compare_a_tarball) Please use only bzip2 with star");
 			}
-		} else					// afio
-		{
+		} else {
+			asprintf(&tmp, compressor_exe);
 			sprintf(compressor_exe, "-P %s -Z", tmp);
+			paranoid_free(tmp);
 		}
 	}
 // star -diff H=star -bz file=....
@@ -355,25 +271,28 @@ int compare_a_tarball(char *tarball_fname, int current_tarball_number)
 #else
 #define BUFSIZE (1024L*1024L)/TAPE_BLOCK_SIZE
 #endif
+
+	asprintf(&logfile, "/tmp/afio.log.%d", current_tarball_number);
 	if (use_star)				// doesn't use compressor_exe
 	{
-		sprintf(command,
+		asprintf(&command,
 				"%s -diff H=star file=%s >> %s 2>> %s",
 				archiver_exe, tarball_fname, logfile, logfile);
 	} else {
-		sprintf(command,
+		asprintf(&command,
 				"%s -r -b %ld -M 16m -c %ld %s %s >> %s 2>> %s",
 				archiver_exe,
 				TAPE_BLOCK_SIZE,
 				BUFSIZE, compressor_exe, tarball_fname, logfile, logfile);
 	}
 #undef BUFSIZE
+	paranoid_free(archiver_exe);
+	paranoid_free(compressor_exe);
 
 	res = system(command);
 	retval += res;
 	if (res) {
 		log_OS_error(command);
-		sprintf(tmp, "Warning - afio returned error = %d", res);
 	}
 	if (length_of_file(logfile) > 5) {
 		sprintf(command,
@@ -384,22 +303,17 @@ int compare_a_tarball(char *tarball_fname, int current_tarball_number)
 	} else {
 		archiver_errors = 0;
 	}
-	sprintf(tmp, "%ld difference%c in fileset #%d          ",
-			archiver_errors, (archiver_errors != 1) ? 's' : ' ',
-			current_tarball_number);
+	paranoid_free(command);
+
 	if (archiver_errors) {
-		sprintf(tmp,
+		asprintf(&tmp,
 				"Differences found while processing fileset #%d       ",
 				current_tarball_number);
 		log_msg(1, tmp);
+		paranoid_free(tmp);
 	}
 	unlink(logfile);
-	paranoid_free(command);
-	paranoid_free(tmp);
-	paranoid_free(filelist_name);
 	paranoid_free(logfile);
-	malloc_string(archiver_exe);
-	malloc_string(compressor_exe);
 	return (retval);
 }
 
@@ -421,19 +335,19 @@ int compare_all_tarballs(struct s_bkpinfo *bkpinfo)
 
   /**  needs malloc **********/
 
-	char *tarball_fname, *progress_str, *tmp;
+	char *tarball_fname = NULL;
+	char *progress_str = NULL;
+	char *tmp = NULL;
 	long max_val;
-
-	malloc_string(tarball_fname);
-	malloc_string(progress_str);
-	malloc_string(tmp);
 
 	assert(bkpinfo != NULL);
 	mvaddstr_and_log_it(g_currentY, 0, _("Comparing archives"));
 	read_cfg_var(g_mondo_cfg_file, "last-filelist-number", tmp);
 
 	max_val = atol(tmp);
-	sprintf(progress_str, _("Comparing with %s #%d "),
+	paranoid_free(tmp);
+
+	asprintf(&progress_str, _("Comparing with %s #%d "),
 			media_descriptor_string(bkpinfo->backup_media_type),
 			g_current_media_number);
 
@@ -447,23 +361,27 @@ int compare_all_tarballs(struct s_bkpinfo *bkpinfo)
 	for (;;) {
 		insist_on_this_cd_number(bkpinfo, g_current_media_number);
 		update_progress_form(progress_str);
-		sprintf(tarball_fname,
+		asprintf(&tarball_fname,
 				MNT_CDROM "/archives/%d.afio.bz2", current_tarball_number);
 
 		if (!does_file_exist(tarball_fname)) {
-			sprintf(tarball_fname, MNT_CDROM "/archives/%d.afio.lzo",
+			paranoid_free(tarball_fname);
+			asprintf(&tarball_fname, MNT_CDROM "/archives/%d.afio.lzo",
 					current_tarball_number);
 		}
 		if (!does_file_exist(tarball_fname)) {
-			sprintf(tarball_fname, MNT_CDROM "/archives/%d.afio.",
+			paranoid_free(tarball_fname);
+			asprintf(&tarball_fname, MNT_CDROM "/archives/%d.afio.",
 					current_tarball_number);
 		}
 		if (!does_file_exist(tarball_fname)) {
-			sprintf(tarball_fname, MNT_CDROM "/archives/%d.star.bz2",
+			paranoid_free(tarball_fname);
+			asprintf(&tarball_fname, MNT_CDROM "/archives/%d.star.bz2",
 					current_tarball_number);
 		}
 		if (!does_file_exist(tarball_fname)) {
-			sprintf(tarball_fname, MNT_CDROM "/archives/%d.star.",
+			paranoid_free(tarball_fname);
+			asprintf(&tarball_fname, MNT_CDROM "/archives/%d.star.",
 					current_tarball_number);
 		}
 		if (!does_file_exist(tarball_fname)) {
@@ -472,30 +390,32 @@ int compare_all_tarballs(struct s_bkpinfo *bkpinfo)
 					   "/archives/slice* > /dev/null 2> /dev/null")
 				== 0) {
 				log_msg(2, "OK, I think I'm done with tarballs...");
+				paranoid_free(tarball_fname);
 				break;
 			}
 			log_msg(2, "OK, I think it's time for another CD...");
 			g_current_media_number++;
-			sprintf(progress_str, _("Comparing with %s #%d "),
+			paranoid_free(progress_str);
+			asprintf(&progress_str, _("Comparing with %s #%d "),
 					media_descriptor_string(bkpinfo->backup_media_type),
 					g_current_media_number);
 			log_to_screen(progress_str);
 		} else {
 			res = compare_a_tarball(tarball_fname, current_tarball_number);
+			paranoid_free(tarball_fname);
 
 			g_current_progress++;
 			current_tarball_number++;
 		}
 	}
+	paranoid_free(progress_str);
 	close_progress_form();
+
 	if (retval) {
 		mvaddstr_and_log_it(g_currentY++, 74, _("Errors."));
 	} else {
 		mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 	}
-	paranoid_free(tarball_fname);
-	paranoid_free(progress_str);
-	paranoid_free(tmp);
 	return (retval);
 }
 
@@ -518,22 +438,22 @@ int compare_all_tarballs(struct s_bkpinfo *bkpinfo)
 int compare_to_CD(struct s_bkpinfo *bkpinfo)
 {
   /** needs malloc *********/
-	char *tmp, *cwd, *new, *command;
+	char *tmp = NULL;
+	char *cwd = NULL;
+	char *new = NULL;
+	char *command = NULL;
 	int resA = 0;
 	int resB = 0;
 	long noof_changed_files;
 
-	malloc_string(tmp);
 	malloc_string(cwd);
 	malloc_string(new);
-	malloc_string(command);
 
 	assert(bkpinfo != NULL);
 
 	getcwd(cwd, MAX_STR_LEN - 1);
 	chdir(bkpinfo->restore_path);
 	getcwd(new, MAX_STR_LEN - 1);
-	sprintf(tmp, "new path is %s", new);
 	insist_on_this_cd_number(bkpinfo, g_current_media_number);
 	unlink("/tmp/changed.txt");
 
@@ -542,22 +462,24 @@ int compare_to_CD(struct s_bkpinfo *bkpinfo)
 	chdir(cwd);
 	noof_changed_files = count_lines_in_file("/tmp/changed.txt");
 	if (noof_changed_files) {
-		sprintf(tmp, _("%ld files do not match the backup            "),
+		asprintf(&tmp, _("%ld files do not match the backup            "),
 				noof_changed_files);
 		//      mvaddstr_and_log_it( g_currentY++, 0, tmp );
 		log_to_screen(tmp);
-		sprintf(command, "cat /tmp/changed.txt >> %s", MONDO_LOGFILE);
+		paranoid_free(tmp);
+
+		asprintf(&command, "cat /tmp/changed.txt >> %s", MONDO_LOGFILE);
 		paranoid_system(command);
+		paranoid_free(command);
 	} else {
-		sprintf(tmp, _("All files match the backup                     "));
+		asprintf(&tmp, _("All files match the backup                     "));
 		mvaddstr_and_log_it(g_currentY++, 0, tmp);
 		log_to_screen(tmp);
+		paranoid_free(tmp);
 	}
 
-	paranoid_free(tmp);
 	paranoid_free(cwd);
 	paranoid_free(new);
-	paranoid_free(command);
 
 	return (resA + resB);
 }
@@ -565,8 +487,6 @@ int compare_to_CD(struct s_bkpinfo *bkpinfo)
 /**************************************************************************
  *END_COMPARE_TO_CD                                                       *
  **************************************************************************/
-
-
 
 
 /**
@@ -587,8 +507,6 @@ compare_mode(struct s_bkpinfo *bkpinfo,
 	long q;
 	char *tmp;
 
-	malloc_string(tmp);
-
   /**************************************************************************
    * also deletes tmp/filelist.full & tmp/biggielist.txt _and_ tries to     *
    * restore them from start of tape, if available                          *
@@ -599,7 +517,8 @@ compare_mode(struct s_bkpinfo *bkpinfo,
 
 	while (get_cfg_file_from_archive(bkpinfo)) {
 		if (!ask_me_yes_or_no
-			(_("Failed to find config file/archives. Choose another source?")))
+			(_
+			 ("Failed to find config file/archives. Choose another source?")))
 		{
 			fatal_error("Unable to find config file/archives. Aborting.");
 		}
@@ -627,31 +546,36 @@ compare_mode(struct s_bkpinfo *bkpinfo,
 	if (retval) {
 		mvaddstr_and_log_it(g_currentY++,
 							0,
-							_("Warning - differences found during the compare phase"));
+							_
+							("Warning - differences found during the compare phase"));
 	}
 
 	retval += unmount_all_devices(mountlist);
 
 	if (count_lines_in_file("/tmp/changed.txt") > 0) {
 		mvaddstr_and_log_it(g_currentY++, 0,
-							_("Differences found while files were being compared."));
+							_
+							("Differences found while files were being compared."));
 		streamline_changes_file("/tmp/changed.files", "/tmp/changed.txt");
 		if (count_lines_in_file("/tmp/changed.files") <= 0) {
 			mvaddstr_and_log_it(g_currentY++, 0,
-								_("...but they were logfiles and temporary files. Your archives are fine."));
-			log_to_screen
-				(_("The differences were logfiles and temporary files. Your archives are fine."));
+								_
+								("...but they were logfiles and temporary files. Your archives are fine."));
+			log_to_screen(_
+						  ("The differences were logfiles and temporary files. Your archives are fine."));
 		} else {
 			q = count_lines_in_file("/tmp/changed.files");
-			sprintf(tmp, _("%ld significant difference%s found."), q,
+			asprintf(&tmp, _("%ld significant difference%s found."), q,
 					(q != 1) ? "s" : "");
 			mvaddstr_and_log_it(g_currentY++, 0, tmp);
 			log_to_screen(tmp);
+			paranoid_free(tmp);
 
-			strcpy(tmp,
+			asprintf(&tmp,
 				   _("Type 'less /tmp/changed.files' for a list of non-matching files"));
 			mvaddstr_and_log_it(g_currentY++, 0, tmp);
 			log_to_screen(tmp);
+			paranoid_free(tmp);
 
 			log_msg(2, "calling popup_changelist_from_file()");
 			popup_changelist_from_file("/tmp/changed.files");
@@ -659,16 +583,17 @@ compare_mode(struct s_bkpinfo *bkpinfo,
 		}
 	} else {
 		log_to_screen
-			(_("No significant differences were found. Your backup is perfect."));
+			(_
+			 ("No significant differences were found. Your backup is perfect."));
 	}
 	kill_petris();
-	paranoid_free(tmp);
 	return (retval);
 }
 
 /**************************************************************************
  *END_COMPARE_MODE                                                        *
  **************************************************************************/
+
 
 /**
  * Compare all data on a cdstream-based backup.
@@ -682,29 +607,30 @@ int compare_to_cdstream(struct s_bkpinfo *bkpinfo)
 {
 	int res;
 
-  /** needs malloc **/
-	char *dir, *command, *tmp;
+	char *dir = NULL;
+	char *command = NULL;
 
 	assert(bkpinfo != NULL);
+  /** needs malloc **/
 	malloc_string(dir);
-	malloc_string(command);
 	getcwd(dir, MAX_STR_LEN);
 	chdir(bkpinfo->restore_path);
 
-	sprintf(command, "cp -f /tmp/LAST-FILELIST-NUMBER %s/tmp",
+	asprintf(&command, "cp -f /tmp/LAST-FILELIST-NUMBER %s/tmp",
 			bkpinfo->restore_path);
 	run_program_and_log_output(command, FALSE);
+	paranoid_free(command);
 	mvaddstr_and_log_it(g_currentY,
 						0, _("Verifying archives against filesystem"));
 
 	if (bkpinfo->disaster_recovery
 		&& does_file_exist("/tmp/CDROM-LIVES-HERE")) {
-		asprintf(&tmp, 
-			   last_line_of_file("/tmp/CDROM-LIVES-HERE"));
 		paranoid_free(bkpinfo->media_device);
-		bkpinfo->media_device = tmp;
+		// last_line_of_file allocates the string
+		bkpinfo->media_device = last_line_of_file("/tmp/CDROM-LIVES-HERE");
 	} else {
 		paranoid_free(bkpinfo->media_device);
+		// find_cdrom_device allocates the string
 		bkpinfo->media_device = find_cdrom_device(FALSE);
 	}
 	res = verify_tape_backups(bkpinfo);
@@ -720,7 +646,6 @@ int compare_to_cdstream(struct s_bkpinfo *bkpinfo)
 
 	mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 	paranoid_free(dir);
-	paranoid_free(command);
 	return (res);
 }
 
@@ -743,17 +668,19 @@ int compare_to_cdstream(struct s_bkpinfo *bkpinfo)
 int compare_to_tape(struct s_bkpinfo *bkpinfo)
 {
 	int res;
-	char *dir, *command;
+	char *dir = NULL;
+	char *command = NULL;
 
 	assert(bkpinfo != NULL);
 	malloc_string(dir);
-	malloc_string(command);
 
 	getcwd(dir, MAX_STR_LEN);
 	chdir(bkpinfo->restore_path);
-	sprintf(command, "cp -f /tmp/LAST-FILELIST-NUMBER %s/tmp",
+	asprintf(&command, "cp -f /tmp/LAST-FILELIST-NUMBER %s/tmp",
 			bkpinfo->restore_path);
 	run_program_and_log_output(command, FALSE);
+	paranoid_free(command);
+
 	mvaddstr_and_log_it(g_currentY,
 						0, _("Verifying archives against filesystem"));
 	res = verify_tape_backups(bkpinfo);
@@ -764,7 +691,6 @@ int compare_to_tape(struct s_bkpinfo *bkpinfo)
 		mvaddstr_and_log_it(g_currentY++, 74, _("Done."));
 	}
 	paranoid_free(dir);
-	paranoid_free(command);
 	return (res);
 }
 

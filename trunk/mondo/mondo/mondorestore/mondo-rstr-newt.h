@@ -1,21 +1,6 @@
-/***************************************************************************
-                          mondo-rstr-newt.h  -  description
-                             -------------------
-    begin                : Sat Apr 20 2002
-    copyright            : (C) 2002 by Stan Benoit
-    email                : troff@nakedsoul.org
-    cvsid                : $Id$
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
-
+/*
+ * $Id$
+**/
 
 #include "../common/my-stuff.h"
 #include "../common/mondostructures.h"
@@ -71,25 +56,6 @@ extern long g_start_time, g_minimum_progress, g_maximum_progress,
 	g_current_progress, g_currentY;
 extern bool g_ISO_restore_mode;
 
-
-/* my global variables */
-
-//extern newtComponent g_progressForm, g_blurb1, g_blurb2, g_blurb3, g_label,
-//  g_timeline, g_percentline, g_scale;
-//extern char err_log_lines[NOOF_ERR_LINES][MAX_STR_LEN], g_blurb_str_1[MAX_STR_LEN] =
-//  "", g_blurb_str_2[MAX_STR_LEN] = "", g_blurb_str_3[MAX_STR_LEN] = "";
-//newtComponent g_isoform_main =
-//  NULL, g_isoform_header, g_isoform_scale, g_isoform_timeline,
-//  g_isoform_pcline;
-//long g_isoform_starttime;
-//int g_isoform_old_progress = -1;
-//char g_isoform_header_str[MAX_STR_LEN];
-//int g_mysterious_dot_counter;
-
-
-
-
-
 /* my subroutines */
 
 void add_disklist_entry(struct list_of_disks *, char *,
@@ -136,8 +102,6 @@ int edit_mountlist_in_newt(char *mountlist_fname,
 int edit_mountlist(char *mountlist_fname, struct mountlist_itself *,
 				   struct raidlist_itself *);
 void edit_raidrec_additional_vars(struct raid_device_record *);
-int evaluate_drive_within_mountlist(struct mountlist_itself *, char *,
-									char *);
 int evaluate_mountlist(struct mountlist_itself *, char *, char *, char *);
 int find_device_in_mountlist(struct mountlist_itself *, char *);
 int find_next_free_index_in_disklist(struct list_of_disks *);
@@ -150,7 +114,6 @@ bool is_this_raid_personality_registered(int);
 void log_file_end_to_screen(char *, char *);
 void log_to_screen(const char *fmt, ...);
 int look_for_duplicate_mountpoints(struct mountlist_itself *, char *);
-int look_for_weird_formats(struct mountlist_itself *, char *);
 void make_list_of_unallocated_raid_partitions(struct mountlist_itself *,
 											  struct mountlist_itself *,
 											  struct raidlist_itself *);
@@ -161,7 +124,7 @@ char *number_of_disks_as_string(int, char *);
 void open_evalcall_form(char *);
 void open_progress_form(char *, char *, char *, char *, long);
 void popup_and_OK(char *);
-bool popup_and_get_string(char *, char *, char *, int);
+bool popup_and_get_string(char *, char *, char *);
 bool popup_with_buttons(char *, char *, char *);
 void redraw_disklist(struct list_of_disks *, void *keylist[],
 					 newtComponent);
@@ -193,16 +156,8 @@ void write_variableINT_to_raid_var_line(struct raid_device_record *, int,
 int where_in_drivelist_is_drive(struct list_of_disks *, char *);
 char *strip_path(char *);
 
-
-
-
 /* -------------------------------------------------------------------- */
 
-
-
-
-char tmpnopath[MAX_STR_LEN + 2];
-char tmpprevpath[MAX_STR_LEN + 2];
 
 #ifdef __FreeBSD__
 #undef raid_device_record

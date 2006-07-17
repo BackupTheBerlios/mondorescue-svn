@@ -14,8 +14,6 @@
 #include <pthread.h>
 #endif
 
-//static char cvsid[] = "$Id$";
-
 extern int g_loglevel;
 extern bool g_text_mode;
 extern bool g_skip_floppies;	///< Whether to skip the creation of boot disks
@@ -118,7 +116,7 @@ handle_incoming_parameters(int argc, char *argv[],
 		}
 	}
 //    }
-	asprintf(&tmp, "rm -Rf %s/tmp.mondo.*", bkpinfo->tmpdir);
+	asprintf(&tmp, "rm -Rf %s/mondo.tmp.*", bkpinfo->tmpdir);
 	paranoid_system(tmp);
 	paranoid_free(tmp);
 
@@ -126,10 +124,12 @@ handle_incoming_parameters(int argc, char *argv[],
 	paranoid_system(tmp);
 	paranoid_free(tmp);
 
-	sprintf(bkpinfo->tmpdir + strlen(bkpinfo->tmpdir), "/tmp.mondo.%ld",
+	/* BERLIOS : Useless ???
+	s-printf(bkpinfo->tmpdir + strlen(bkpinfo->tmpdir), "/mondo.tmp.%ld",
 			random() % 32767);
-	sprintf(bkpinfo->scratchdir + strlen(bkpinfo->scratchdir),
+	s-printf(bkpinfo->scratchdir + strlen(bkpinfo->scratchdir),
 			"/mondo.scratch.%ld", random() % 32767);
+	*/
 
 	asprintf(&tmp, "mkdir -p %s/tmpfs", bkpinfo->tmpdir);
 	paranoid_system(tmp);
@@ -210,12 +210,12 @@ process_switches(struct s_bkpinfo *bkpinfo,
 
 	/*@ ints *** */
 	int i = 0;
+	int j = 0;
 	int retval = 0;
 	int percent = 0;
 
 	/*@ buffers ** */
 	char *tmp;
-	char *tmp2;
 	char *tmp1;
 	char *psz;
 	char *p;
@@ -494,8 +494,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		}
 		asprintf(&tmp, "mount | grep -x \"%s .*\" | cut -d' ' -f3",
 				bkpinfo->nfs_mount);
-		asprintf(&tmp2, call_program_and_get_last_line_of_output(tmp));
-		bkpinfo->isodir = tmp2;
+		bkpinfo->isodir = call_program_and_get_last_line_of_output(tmp);
 		paranoid_free(tmp);
 
 		if (strlen(bkpinfo->isodir) < 3) {
@@ -682,7 +681,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		if (g_kernel_version >= 2.6) {
 			if (popup_and_get_string
 				(_("Device"), _("Please specify the device"),
-				 bkpinfo->media_device, MAX_STR_LEN / 4)) {
+				 bkpinfo->media_device)) {
 				retval++;
 				log_to_screen(_("User opted to cancel."));
 			}
@@ -710,14 +709,15 @@ process_switches(struct s_bkpinfo *bkpinfo,
 			bkpinfo->compression_level = i - '0';
 		}						/* not '\0' but '0' */
 	}
+	j = (int) random() % 32768;
 	if (flag_set['S']) {
-		asprintf(&tmp, "%s/mondo.scratch.%ld", flag_val['S'],
-				random() % 32768);
+		asprintf(&tmp, "%s/mondo.scratch.%ld", flag_val['S'], j);
+		paranoid_free(bkpinfo->scratchdir);
 		bkpinfo->scratchdir = tmp;
 	}
 	if (flag_set['T']) {
-		asprintf(&tmp, "%s/tmp.mondo.%ld", flag_val['T'],
-				random() % 32768);
+		asprintf(&tmp, "%s/mondo.tmp.%ld", flag_val['T'], j);
+		paranoid_free(bkpinfo->tmpdir);
 		bkpinfo->tmpdir = tmp;
 		asprintf(&tmp, "touch %s/.foo.dat", flag_val['T']);
 		if (run_program_and_log_output(tmp, 1)) {
@@ -765,7 +765,7 @@ process_switches(struct s_bkpinfo *bkpinfo,
 		if (!strchr
 			(BOOT_LOADER_CHARS,
 			 (bkpinfo->boot_loader = flag_val['l'][0]))) {
-			log_msg(1, "%c? WTF is %c? I need G, L, E or R.",
+			log_msg(1, "%c? What is %c? I need G, L, E or R.",
 					bkpinfo->boot_loader, bkpinfo->boot_loader);
 			fatal_error
 				("Please specify GRUB, LILO, ELILO  or RAW with the -l switch");

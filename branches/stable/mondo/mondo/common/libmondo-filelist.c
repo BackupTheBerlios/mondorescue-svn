@@ -1524,12 +1524,12 @@ int open_and_list_dir(char *dir, char *sth, FILE * fout,
 #if linux
 		// 2.6 has /sys as a proc-type thing -- must be excluded
 		sprintf(tmp,
-				"find %s -maxdepth %d -path /proc -prune -o -path /sys -prune -o -path /dev/shm -prune -o -path /media/floppy -prune -o -type d -a -print > %s 2> /dev/null",
+				"find %s -maxdepth %d -fstype mvfs -prune -o -path /proc -prune -o -path /sys -prune -o -path /dev/shm -prune -o -path /media/floppy -prune -o -type d -a -print > %s 2> /dev/null",
 				dir, MAX_SKEL_DEPTH, g_skeleton_filelist);
 #else
 		// On BSD, for example, /sys is the kernel sources -- don't exclude
 		sprintf(tmp,
-				"find %s -maxdepth %d -path /proc -prune -o -type d -a -print > %s 2> /dev/null",
+				"find %s -maxdepth %d -fstype mvfs -prune -o -path /proc -prune -o -type d -a -print > %s 2> /dev/null",
 				dir, MAX_SKEL_DEPTH, g_skeleton_filelist);
 #endif
 		system(tmp);

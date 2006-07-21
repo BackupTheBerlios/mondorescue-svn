@@ -2432,10 +2432,10 @@ char *list_of_NFS_devices_and_mounts(void)
 	malloc_string(exclude_these_directories);
 	strcpy(exclude_these_directories,
 		   call_program_and_get_last_line_of_output
-		   ("mount -t coda,ncpfs,nfs,smbfs,cifs | tr -s '\t' ' ' | cut -d' ' -f3 | tr -s '\n' ' ' | awk '{print $0;}'"));
+		   ("mount -t coda,ncpfs,nfs,smbfs,cifs,mvfs | tr -s '\t' ' ' | cut -d' ' -f3 | tr -s '\n' ' ' | awk '{print $0;}'"));
 	strcpy(exclude_these_devices,
 		   call_program_and_get_last_line_of_output
-		   ("tr -s '\t' ' ' < /etc/fstab | grep -E '( (coda|ncpfs|nfs|smbfs|cifs) )' | cut -d' ' -f1 | tr -s '\n' ' ' | awk '{print $0;}'"));
+		   ("tr -s '\t' ' ' < /etc/fstab | grep -E '( (coda|ncpfs|nfs|smbfs|cifs|mvfs) )' | cut -d' ' -f1 | tr -s '\n' ' ' | awk '{print $0;}'"));
 	sprintf(result_sz, "%s %s", exclude_these_directories,
 			exclude_these_devices);
 	paranoid_free(exclude_these_devices);
@@ -2462,10 +2462,10 @@ char *list_of_NFS_mounts_only(void)
 	malloc_string(exclude_these_directories);
 	strcpy(exclude_these_directories,
 		   call_program_and_get_last_line_of_output
-		   ("mount -t coda,ncpfs,nfs,smbfs,cifs | tr -s '\t' ' ' | cut -d' ' -f3 | tr -s '\n' ' ' | awk '{print $0;}'"));
+		   ("mount -t coda,ncpfs,nfs,smbfs,cifs,mvfs | tr -s '\t' ' ' | cut -d' ' -f3 | tr -s '\n' ' ' | awk '{print $0;}'"));
 	strcpy(exclude_these_devices,
 		   call_program_and_get_last_line_of_output
-		   ("tr -s '\t' ' ' < /etc/fstab | grep -E '( (coda|ncpfs|nfs|smbfs|cifs) )' | cut -d' ' -f1 | tr -s '\n' ' ' | awk '{print $0;}'"));
+		   ("tr -s '\t' ' ' < /etc/fstab | grep -E '( (coda|ncpfs|nfs|smbfs|cifs|mvfs) )' | cut -d' ' -f1 | tr -s '\n' ' ' | awk '{print $0;}'"));
 	sprintf(result_sz, "%s", exclude_these_directories);
 	paranoid_free(exclude_these_devices);
 	paranoid_free(exclude_these_directories);
@@ -2524,11 +2524,11 @@ void sensibly_set_tmpdir_and_scratchdir(struct s_bkpinfo *bkpinfo)
 #ifdef __FreeBSD__
 	strcpy(tmp,
 		   call_program_and_get_last_line_of_output
-		   ("df -m -P -t nonfs,msdosfs,ntfs,smbfs,smb,cifs | tr -s '\t' ' ' | grep -vE \"none|Filesystem\" | awk '{printf \"%s %s\\n\", $4, $6;}' | sort -n | tail -n1 | awk '{print $NF;}'"));
+		   ("df -m -P -t nonfs,msdosfs,ntfs,smbfs,smb,cifs,mvfs | tr -s '\t' ' ' | grep -vE \"none|Filesystem\" | awk '{printf \"%s %s\\n\", $4, $6;}' | sort -n | tail -n1 | awk '{print $NF;}'"));
 #else
 	strcpy(tmp,
 		   call_program_and_get_last_line_of_output
-		   ("df -m -P -x nfs -x vfat -x ntfs -x smbfs -x smb -x cifs | sed 's/                  /devdev/' | tr -s '\t' ' ' | grep -vE \"none|Filesystem|/dev/shm\" | awk '{printf \"%s %s\\n\", $4, $6;}' | sort -n | tail -n1 | awk '{print $NF;}'"));
+		   ("df -m -P -x nfs -x vfat -x ntfs -x smbfs -x smb -x cifs -x mvfs | sed 's/                  /devdev/' | tr -s '\t' ' ' | grep -vE \"none|Filesystem|/dev/shm\" | awk '{printf \"%s %s\\n\", $4, $6;}' | sort -n | tail -n1 | awk '{print $NF;}'"));
 #endif
 
 	if (tmp[0] != '/') {

@@ -468,7 +468,7 @@ int iso_fiddly_bits(struct s_bkpinfo *bkpinfo, bool nuke_me_please)
 		}
 		strcat(mount_isodir_command, " -o ro ");
 		strcat(mount_isodir_command, bkpinfo->isodir);
-		run_program_and_log_output("df -P -m", FALSE);
+		run_program_and_log_output("df -m", FALSE);
 		sprintf(tmp,
 				"The 'mount' command is '%s'. PLEASE report this command to be if you have problems, ok?",
 				mount_isodir_command);
@@ -652,7 +652,7 @@ int mount_all_devices(struct mountlist_itself
 		g_current_progress++;
 	}
 	close_progress_form();
-	run_program_and_log_output("df -P -m", TRUE);
+	run_program_and_log_output("df -m", TRUE);
 	if (retval) {
 		if (g_partition_table_locked_up > 0) {
 			log_to_screen
@@ -678,7 +678,7 @@ int mount_all_devices(struct mountlist_itself
 		log_to_screen("All partitions were mounted OK.");
 		mvaddstr_and_log_it(g_currentY++, 74, "Done.");
 	}
-	run_program_and_log_output("df -P -m", 3);
+	run_program_and_log_output("df -m", 3);
 	paranoid_free(mountlist);
 	paranoid_free(tmp);
 	paranoid_free(format);
@@ -947,7 +947,7 @@ void protect_against_braindead_sysadmins()
 	run_program_and_log_output("chmod 777 " MNT_RESTORING "/dev/null",
 							   FALSE);
 	run_program_and_log_output("cd " MNT_RESTORING
-							   "; for i in `ls home/`; do echo \"Moving $i's spurious files to $i/.disabled\"; mkdir $i/.disabled ; mv -f $i/.DCOP* $i/.MCOP* $i/.*authority $i/.kde/tmp* $i/.kde/socket* $i/.disabled/ ; done",
+							   "; for i in `ls home/`; do echo \"Moving $i's spurious files to $i/.disabled\"; mkdir \"$i\"/.disabled ; mv -f \"$i\"/.DCOP* \"$i\"/.MCOP* \"$i\"/.*authority \"$i\"/.kde/tmp* \"$i\"/.kde/socket* \"$i\"/.disabled/ ; done",
 							   TRUE);
 	run_program_and_log_output("rm -f " MNT_RESTORING "/var/run/*.pid",
 							   TRUE);
@@ -2167,7 +2167,7 @@ int unmount_all_devices(struct mountlist_itself
 		   sizeof(struct mountlist_itself));
 	sort_mountlist_by_mountpoint(mountlist, 0);
 
-	run_program_and_log_output("df -P -m", 3);
+	run_program_and_log_output("df -m", 3);
 	mvaddstr_and_log_it(g_currentY, 0, "Unmounting devices      ");
 	open_progress_form("Unmounting devices",
 					   "Unmounting all devices that were mounted,",

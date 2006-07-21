@@ -14,6 +14,7 @@ Url:		http://www.mondorescue.org
 Source:		SSS
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(id -u -n)
 Requires:	bzip2 >= 0.9, mkisofs, ncurses, binutils, gawk, dosfstools DDD
+OBS
 # Not on all systems
 #Conflicts:	bonnie++
 

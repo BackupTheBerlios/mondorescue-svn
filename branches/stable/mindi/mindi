@@ -1336,19 +1336,20 @@ absolute_partition old_partition_fmt current_lvolume
 	done
 	[ "$IMAGE_DEVS" != "" ] && all_partitions="`echo "$all_partitions $IMAGE_DEVS" | tr ' ' '\n' | sort -u | tr '\n ' ' '`"
 	printf "        %-15s %-15s %-15s %-15s\n" DEVICE MOUNTPOINT FORMAT "SIZE (MB)"
+	useless_dev="/dev/floppy /dev/fd0h1440 /dev/fd0H1440 /dev/cdrom /dev/cdrom/cdrom /dev/cdrom/cdrom1 /dev/cdrom/cdrom2 /dev/cdrom0 /dev/cdrom1 /dev/cdrom2 /dev/cdrom3 /dev/cdrw /dev/scd /dev/ram :/ /dev/sr0 /dev/sr1 /dev/cdrom1"
 	for c_p in $all_partitions ; do
 #        echo "c_p = $c_p" > /dev/stderr
-		[ "`echo "/dev/floppy /dev/fd0h1440 /dev/fd0H1440 /dev/cdrom /dev/cdrom/cdrom /dev/cdrom/cdrom1 /dev/cdrom/cdrom2 /dev/cdrom0 /dev/cdrom1 /dev/cdrom2 /dev/cdrom3 /dev/cdrw" | grep -F "$c_p"`" != "" ] || [ "`echo "$c_p" | grep -F "/dev/scd"`" != "" ] || [ "`echo "$c_p" | grep -F "/dev/ram"`" != "" ] || [ "`echo "$c_p" | grep ":"`" != "" ] || [ "`echo "$c_p" | grep -F ":/"`" != "" ] && continue
-		[ "`echo "/dev/scd0 /dev/scd1 /dev/sr0 /dev/sr1 /dev/cdrom /dev/cdrom1" | grep -F "$c_p"`" ] && continue
+		[ "`echo "$useless_dev" | grep -F "$c_p"`" != "" ] || [ "`echo "$c_p" | grep ":"`" != "" ] && continue
 		[ "`echo "$c_p" | grep -x "/dev/cdroms.*"`" ] && continue
 		if [ -h "$c_p" ] && [ "`echo "$c_p" | grep -F "/dev/hd"`" = "" ] && [ "`echo "$c_p" | grep -F "/dev/sd"`" = "" ] && [ "`echo "$c_p" | grep -F "/dev/md"`" = "" ] ; then
 			current_partition=`ResolveSoftlink $c_p`
 			[ "`echo "$current_partition" | grep -F "/dev/mapper"`" != "" ] && current_partition="$c_p"
-			[ "`echo "/dev/scd0 /dev/scd1 /dev/sr0 /dev/sr1 /dev/cdrom /dev/cdrom1" | grep -F "$current_partition"`" ] && continue
+			[ "`echo "$useless_dev" | grep -F "$current_partition"`" ] && continue
 		else
 			current_partition="$c_p"
 		fi
 		[ "$c_p" = "none" ] && continue
+		redhat_label=""
 		absolute_partition=`ResolveSoftlink $c_p`
 		partition_mountpt=`tr -s '\t' ' ' < $MY_FSTAB | /bin/grep -w "$current_partition" | /bin/grep -vx " *#.*" | $AWK '{print $2}' | head -n1`
 
@@ -1359,18 +1360,18 @@ absolute_partition old_partition_fmt current_lvolume
 			redhat_label=`echo "$current_partition" | /bin/cut -d'=' -f2`
 			actual_dev=""
 	
-		# 1st try : blkid, the good way
-		if [ -x "/sbin/blkid" ]; then
-			actual_dev=`/sbin/blkid | /bin/grep "$current_partition" | /bin/cut -d':' -f1`
-		fi
-
-		# 2nd try, which works on a standard partition (ext2/3), but not on swap
-		if [ "x$actual_dev" = "x" ]; then
-			actual_dev=`/bin/mount -l | /bin/grep "\[$redhat_label\]" | /bin/cut -d' ' -f1`
-		fi
-
-		# 3rd try, with vol_id (which works with swap)
-		if [ "x$actual_dev" = "x" -a -x "/sbin/vol_id" ]; then
+			# 1st try : blkid, the good way
+			if [ -x "/sbin/blkid" ]; then
+				actual_dev=`/sbin/blkid | /bin/grep "$current_partition" | /bin/cut -d':' -f1`
+			fi
+	
+			# 2nd try, which works on a standard partition (ext2/3), but not on swap
+			if [ "x$actual_dev" = "x" ]; then
+				actual_dev=`/bin/mount -l | /bin/grep "\[$redhat_label\]" | /bin/cut -d' ' -f1`
+			fi
+	
+			# 3rd try, with vol_id (which works with swap)
+			if [ "x$actual_dev" = "x" -a -x "/sbin/vol_id" ]; then
 				list_swaps=`cat /proc/swaps | /bin/grep "/dev/" | /bin/awk '{ print $1 }' `
 				for dev_swap in $list_swaps ; do
 					dev_exists=`/sbin/vol_id $dev_swap | /bin/grep "$redhat_label"`
@@ -1379,26 +1380,26 @@ absolute_partition old_partition_fmt current_lvolume
 						break;
 					fi
 				done
-		fi
+			fi
 
-		# 4th try : pre-formated LABEL. Format is : LABEL=SWAP-mydevice. e.g. : LABEL=SWAP-hda5
-		if [ "x$actual_dev" = "x" -a  _"`echo $current_partition | /bin/grep -i 'LABEL=SWAP'`" != _"" ]; then
+			# 4th try : pre-formated LABEL. Format is : LABEL=SWAP-mydevice. e.g. : LABEL=SWAP-hda5
+			if [ "x$actual_dev" = "x" -a  _"`echo $current_partition | /bin/grep -i 'LABEL=SWAP'`" != _"" ]; then
 				try_dev="`echo "$redhat_label" | /bin/cut -d '-' -f2`"
 				present_dev="`/bin/cat /proc/swaps | /bin/grep -w /dev/$try_dev`"
 				if [ "x$present_dev" != "x" ] ; then
 					actual_dev="/dev/$try_dev"
 				fi
-		fi
+			fi
 
-		# Check if one of all those tries has known success
-		if [ "x$actual_dev" != "x" ]; then
+			# Check if one of all those tries has known success
+			if [ "x$actual_dev" != "x" ]; then
 				current_partition=$actual_dev
+			else
+				Die "Your system uses a labelled swap partition, but you lack the tool to support it.\nPlease replace swap labels with their correct devices in /etc/fstab or install blkid|vol_id\n"
+			fi
 		else
-			Die "Your system uses a labelled swap partition, but you lack the tool to support it.\nPlease replace swap labels with their correct devices in /etc/fstab\n"
+			str_to_find_fmt_with=$current_partition
 		fi
-	else
-		str_to_find_fmt_with=$current_partition
-	fi
 
 	partition_format=`$AWK '$1 == "'"$str_to_find_fmt_with"'" {print $3}' $MY_FSTAB`
 	# Some distributions such as Debian do not put /dev/<VG>/<LV> in fstab

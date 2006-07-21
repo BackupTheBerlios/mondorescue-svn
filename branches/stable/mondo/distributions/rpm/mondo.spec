@@ -6,7 +6,7 @@
 %define tag		TTT
 # if mandriva official build (rpm --with is_official)
 %{?is_official:%define rel %{mkrel} %{mrel}}%{!?is_official:%define rel %{mrel}}
-%define addreq	mindi >= 1.0.7, bzip2 >= 0.9, afio, mkisofs, binutils, newt >= 0.50, slang >= 1.4.1 DDD
+%define addreq	mindi >= 1.0.7, bzip2 >= 0.9, afio, mkisofs, binutils, newt >= 0.50, DDD
 
 Summary:	A program which a Linux user can utilize to create a rescue/restore CD/tape
 Summary(fr):	Un programme pour les utilisateurs de Linux pour créer un CD/tape de sauvegarde/restauration
@@ -21,7 +21,7 @@ Group:		GRP
 Url:		http://www.mondorescue.org
 Source:		SSS
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(id -u -n)
-BuildRequires:	newt-devel >= 0.50, slang-devel >= 1.4.1, gcc
+BuildRequires:	newt-devel >= 0.50, gcc
 OBS
 %ifarch ia64
 Requires:	%{addreq}, elilo, parted

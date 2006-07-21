@@ -1961,7 +1961,7 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 			}
 			if (bkpinfo->media_device[0]) {
 				sprintf(tmp,
-						"I think I've found your %s burner at SCSI node %s; am I right on the money?",
+						"I think I've found your %s burner at SCSI node %s; am I right on the money? (Say no if you have an IDE burner and you are running a 2.6 kernel. Instead, specify the IDE burner's /dev address at the next screen.)",
 						media_descriptor_string(bkpinfo->
 												backup_media_type),
 						bkpinfo->media_device);

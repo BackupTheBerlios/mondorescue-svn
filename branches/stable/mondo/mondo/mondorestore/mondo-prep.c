@@ -413,8 +413,7 @@ int do_my_funky_lvm_stuff(bool just_erase_existing_volumes,
 	sleep(1);
 	sprintf(command,
 			"for i in `%s | grep -i lvm | cut -d'\"' -f2` ; do %s -a n $i ; %s $i; echo \"Shutting down vg $i\" >> "
-			MONDO_LOGFILE "; done; %s -a n", vgscan_sz, vgchange_sz,
-			vgremove_sz, vgremove_sz);
+			MONDO_LOGFILE "; done", vgscan_sz, vgchange_sz, vgremove_sz);
 	run_program_and_log_output(command, 5);
 	if (just_erase_existing_volumes) {
 		paranoid_fclose(fin);

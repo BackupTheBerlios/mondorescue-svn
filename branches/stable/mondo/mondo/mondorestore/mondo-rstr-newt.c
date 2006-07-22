@@ -1363,13 +1363,14 @@ edit_mountlist_entry(struct mountlist_itself *mountlist,
 	strcpy(mountlist->el[currline].device, device_str);
 	strcpy(mountlist->el[currline].mountpoint, mountpoint_str);
 	strcpy(mountlist->el[currline].format, format_str);
-	if (strstr(mountlist->el[currline].device, RAID_DEVICE_STUB)
-		|| !strcmp(mountlist->el[currline].mountpoint, "image")) {
-		mountlist->el[currline].size =
-			calculate_raid_device_size(mountlist, raidlist,
+	if (strcmp(mountlist->el[currline].mountpoint, "image")) {
+		if (strstr(mountlist->el[currline].device, RAID_DEVICE_STUB)) {
+			mountlist->el[currline].size =
+				calculate_raid_device_size(mountlist, raidlist,
 									   mountlist->el[currline].device);
-	} else {
-		mountlist->el[currline].size = atol(size_str) * 1024;
+		} else {
+			mountlist->el[currline].size = atol(size_str) * 1024;
+		}
 	}
 	newtListboxSetEntry(listbox, (int) keylist[currline],
 						mountlist_entry_to_string(mountlist, currline));

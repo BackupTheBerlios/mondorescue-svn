@@ -2603,14 +2603,14 @@ void wait_until_software_raids_are_prepped(char *mdstat_file,
 		for (unfinished_mdstat_devices = i = 0; i <= raidlist->entries; i++) {
 			if (raidlist->el[i].progress < wait_for_percentage) {
 				unfinished_mdstat_devices++;
-				log_msg(1,"Sync'ing %s (i=%d)", raidlist->el[i].raid_device, i);
-				sprintf(screen_message, "Sync'ing %s",
-						raidlist->el[i].raid_device);
-				open_evalcall_form(screen_message);
 				if (raidlist->el[i].progress == -1)	// delayed while another partition inits
 				{
 					continue;
 				}
+				log_msg(1,"Sync'ing %s (i=%d)", raidlist->el[i].raid_device, i);
+				sprintf(screen_message, "Sync'ing %s",
+						raidlist->el[i].raid_device);
+				open_evalcall_form(screen_message);
 				while (raidlist->el[i].progress < wait_for_percentage) {
 					log_msg(1,"Percentage sync'ed: %d", raidlist->el[i].progress);
 					update_evalcall_form(raidlist->el[i].progress);

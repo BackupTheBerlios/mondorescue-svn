@@ -765,52 +765,51 @@ GenerateGiantDependencyList() {
 		incoming=`ReadLine`
 	done
 	if  [ "$incoming" = "LVMFILES:" ] ; then
-	incoming=`ReadLine`
-	lvmversion=""
+		incoming=`ReadLine`
+		lvmversion=""
 	while [ "$incoming" != "" ] ; do
 		if echo "$incoming" | grep -x " *#.*" &> /dev/null ; then
-#		echo "Skipping '$incoming'"
-		incoming=`ReadLine`
-		continue
+			incoming=`ReadLine`
+			continue
 		fi
 		filelist=`GenerateListForFile "$incoming"`
 		for tool in $filelist ; do
 		    lvmresolved=`ResolveSoftlink $tool`
 		    if [ "$tool" == "$lvmresolved" ]; then
-			echo "$tool" >> $tempfile
+				echo "$tool" >> $tempfile
 		    elif echo "$lvmresolved" | grep "lvmiopversion" &> /dev/null ; then
-		    if [ "$lvmversion" = "" ] ; then
-			lvmversion=`$lvmresolved`
-			echo "$lvmresolved" >> $tempfile
-		    fi
-		    toolstripped=`echo $tool | $AWK -F / '{print $NF;}'`
-		    if [ "$lvmversion" == "200" ]; then
-			# pvdata and lvmcreate_initrd don't exist in LVM2
-			case "$toolstripped" in
-			    "pvdata")
-				continue
-				;;
-			    "lvmcreate_initrd")
-				continue
-				;;
-			esac
-		    fi
-		    toolpath="/sbin/lvm-"$lvmversion"/"$toolstripped
-		    if [ -e "$toolpath" ] ; then
-			echo "$toolpath" >> $tempfile
-			echo "$tool" >> $tempfile
-		    else
-			toolpath="/lib/lvm-"$lvmversion"/"$toolstripped
-		    fi
-		    if [ -e "$toolpath" ] ; then
-			echo "$toolpath" >> $tempfile
-			echo "$tool" >> $tempfile
-		    else
-			echo "Where are your LVM-Tools? Couldn't find $tool"
-		    fi
-		else
-		    echo "$tool" >> $tempfile
-		fi
+		    	if [ "$lvmversion" = "" ] ; then
+					lvmversion=`$lvmresolved`
+					echo "$lvmresolved" >> $tempfile
+		    	fi
+		    	toolstripped=`echo $tool | $AWK -F / '{print $NF;}'`
+		    	if [ "$lvmversion" == "200" ]; then
+					# pvdata and lvmcreate_initrd don't exist in LVM2
+					case "$toolstripped" in
+			    	"pvdata")
+						continue
+						;;
+			    	"lvmcreate_initrd")
+						continue
+						;;
+					esac
+		    	fi
+		    	toolpath="/sbin/lvm-"$lvmversion"/"$toolstripped
+		    	if [ -e "$toolpath" ] ; then
+					echo "$toolpath" >> $tempfile
+					echo "$tool" >> $tempfile
+		    	else
+					toolpath="/lib/lvm-"$lvmversion"/"$toolstripped
+		    	fi
+		    	if [ -e "$toolpath" ] ; then
+					echo "$toolpath" >> $tempfile
+					echo "$tool" >> $tempfile
+		    	else
+					echo "Where are your LVM-Tools? Couldn't find $tool"
+		    	fi
+			else
+		    	echo "$tool" >> $tempfile
+			fi
 		done
 		progress=$(($progress+1))
 		echo -en "\r\t\t\t\t\t\t\t\t"

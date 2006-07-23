@@ -5,5 +5,5 @@ pkgdata_DATA   = do-not-compress-these autorun
 
 all:	all-am chmod
 
-chmod:	${DESTDIR}/${pkgdatadir}/autorun
-	chmod 755 ${DESTDIR}/${pkgdatadir}/autorun
+chmod:	autorun
+	chmod 755 autorun

@@ -82,7 +82,7 @@ while (<INPUT>) {
 	$n2date = &UnixDate($date,"%a, %d %b %Y %H:%M:%S %z");
 	#print "**$ndate**\n";
 	if ($dtype eq "rpm") {
-		print OUTPUT "* $ndate Bruno Cornec <bruno\@mondorescue.org> $ver\n";
+		print OUTPUT "* $ndate Bruno Cornec <bruno\@mondorescue.org> VVV-RRR\n";
 		print OUTPUT "- Updated to $ver\n";
 		}
 	if ($dtype eq "deb") {

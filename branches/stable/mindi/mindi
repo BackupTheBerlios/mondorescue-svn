@@ -1352,6 +1352,12 @@ absolute_partition old_partition_fmt current_lvolume
 		absolute_partition=`ResolveSoftlink $c_p`
 		partition_mountpt=`tr -s '\t' ' ' < $MY_FSTAB | /bin/grep -w "$current_partition" | /bin/grep -vx " *#.*" | $AWK '{print $2}' | head -n1`
 
+		# Detects noauto partitions not mounted and exclude them
+		partition_option=`tr -s '\t' ' ' < $MY_FSTAB | /bin/grep -w "$current_partition" | /bin/grep -vx " *#.*" | $AWK '{print $4}' | head -n1`
+		if [ "`echo "$partition_option" | grep -i noauto`" != "" ] && [ "`mount | grep -w "$partition_mountpt"`" =  "" ] ; then
+			continue
+		fi
+
 		# This part tries to retrieve the correct device from a LABEL line in /etc/fstab
 		# current_partition contains only first column of /etc/fstab
 		if [ "`echo "$current_partition" | /bin/grep -i "LABEL="`" != "" ]; then

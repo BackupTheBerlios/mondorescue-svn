@@ -7,5 +7,4 @@ define(`DDD', )dnl
 dnl GRP is replaced by the RPM group of apps
 define(`GRP', `Archiving/Backup')dnl
 dnl OBS is replaced with what is being obsoleted
-define(`OBS', `Obsoletes:	libmondo <= 2.06, mondo <= 2.06
-Provides:	libmondo')dnl
+define(`OBS', `Obsoletes:	libmondo')dnl

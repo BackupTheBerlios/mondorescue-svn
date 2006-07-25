@@ -7,4 +7,4 @@ define(`DDD', `, which, grep >= 2.5')dnl
 dnl GRP is replaced by the RPM group of apps
 define(`GRP', `Archiving/Backup')dnl
 dnl OBS is replaced with what is being obsoleted
-define(`OBS', `Obsoletes: mindi <= 1.06')dnl
+define(`OBS', `')dnl

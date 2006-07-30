@@ -3075,7 +3075,11 @@ slice_up_file_etc(struct s_bkpinfo *bkpinfo, struct s_mrconf *mrconf, char *bigg
 		paranoid_free(tmp);
 	} else {
 		file_to_openin = biggie_filename;
-		asprintf(&command, "md5sum '%s'", biggie_filename);
+		if (strchr(biggie_filename,'\'') != NULL) {
+			asprintf(&command, "md5sum \"%s\"", biggie_filename);
+		} else {
+			asprintf(&command, "md5sum '%s'", biggie_filename);
+		}
 		if (!(fin = popen(command, "r"))) {
 			log_OS_error("Unable to popen-in command");
 			paranoid_free(command);

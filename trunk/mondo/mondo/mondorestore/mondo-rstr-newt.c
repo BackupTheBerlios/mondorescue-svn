@@ -1356,8 +1356,9 @@ edit_mountlist_entry(struct mountlist_itself *mountlist,
 		mountlist->el[currline].size =
 			calculate_raid_device_size(mountlist, raidlist,
 									   mountlist->el[currline].device);
-	} else {
-		mountlist->el[currline].size = atol(size_str) * 1024;
+		} else {
+			mountlist->el[currline].size = atol(size_str) * 1024;
+		}
 	}
 	paranoid_free(size_str);
 

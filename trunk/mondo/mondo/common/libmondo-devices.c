@@ -1574,10 +1574,10 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 			bkpinfo->media_device = find_cdrw_device();
 			if (bkpinfo->media_device != NULL) {
 				asprintf(&tmp,
-						_("I think I've found your %s burner at SCSI node %s; am I right on the money?"),
+						_("I think I've found your %s burner at SCSI node %s; am I right on the money? (Say no if you have an IDE burner and you are running a 2.6 kernel. Instead, specify the IDE burner's /dev address at the next screen.)",
 						media_descriptor_string(bkpinfo->
 												backup_media_type),
-						bkpinfo->media_device);
+						bkpinfo->media_device));
 				if (!ask_me_yes_or_no(tmp)) {
 					paranoid_free(bkpinfo->media_device);
 				}
@@ -2020,11 +2020,11 @@ int interactively_obtain_media_parameters_from_user(struct s_bkpinfo
 char *list_of_NFS_mounts_only(void)
 {
 	return(call_program_and_get_last_line_of_output
-		   ("mount -t coda,ncpfs,nfs,smbfs,cifs | tr -s '\t' ' ' | cut -d' ' -f3 | tr -s '\n' ' ' | awk '{print $0;}'"));
+		   ("mount -t coda,ncpfs,nfs,smbfs,cifs,mvfs | tr -s '\t' ' ' | cut -d' ' -f3 | tr -s '\n' ' ' | awk '{print $0;}'"));
 	/* BERLIOS : Useless
 	asprintf(&exclude_these_devices,
 		   call_program_and_get_last_line_of_output
-		   ("tr -s '\t' ' ' < /etc/fstab | grep -E '( (coda|ncpfs|nfs|smbfs|cifs) )' | cut -d' ' -f1 | tr -s '\n' ' ' | awk '{print $0;}'"));
+		   ("tr -s '\t' ' ' < /etc/fstab | grep -E '( (coda|ncpfs|nfs|smbfs|cifs|mvfs) )' | cut -d' ' -f1 | tr -s '\n' ' ' | awk '{print $0;}'"));
 		   */
 }
 
@@ -2071,10 +2071,10 @@ void sensibly_set_tmpdir_and_scratchdir(struct s_bkpinfo *bkpinfo)
 
 #ifdef __FreeBSD__
 	tmp = call_program_and_get_last_line_of_output
-		   ("df -m -P -t nonfs,msdosfs,ntfs,smbfs,smb,cifs | tr -s '\t' ' ' | grep -vE \"none|Filesystem\" | awk '{printf \"%s %s\\n\", $4, $6;}' | sort -n | tail -n1 | awk '{print $NF;}'");
+		   ("df -m -P -t nonfs,msdosfs,ntfs,smbfs,smb,cifs,mvfs | tr -s '\t' ' ' | grep -vE \"none|Filesystem\" | awk '{printf \"%s %s\\n\", $4, $6;}' | sort -n | tail -n1 | awk '{print $NF;}'");
 #else
 	tmp = call_program_and_get_last_line_of_output
-		   ("df -m -P -x nfs -x vfat -x ntfs -x smbfs -x smb -x cifs | sed 's/                  /devdev/' | tr -s '\t' ' ' | grep -vE \"none|Filesystem|/dev/shm\" | awk '{printf \"%s %s\\n\", $4, $6;}' | sort -n | tail -n1 | awk '{print $NF;}'");
+		   ("df -m -P -x nfs -x vfat -x ntfs -x smbfs -x smb -x cifs -x mvfs | sed 's/                  /devdev/' | tr -s '\t' ' ' | grep -vE \"none|Filesystem|/dev/shm\" | awk '{printf \"%s %s\\n\", $4, $6;}' | sort -n | tail -n1 | awk '{print $NF;}'");
 #endif
 
 	if (tmp[0] != '/') {

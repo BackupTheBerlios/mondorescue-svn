@@ -7,4 +7,4 @@ define(`DDD', `, buffer, cdrecord')dnl
 dnl GRP is replaced by the RPM group of apps
 define(`GRP', `Productivity/Archiving/Backup')dnl
 dnl OBS is replaced vy what is being obsoleted
-define(`OBS', )dnl
+define(`OBS', `Obsoletes: mondo <= 2.06')dnl

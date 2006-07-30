@@ -258,7 +258,7 @@ echo "# $LVMCMD vgchange -an"
 for i in `ListAllPhysicalVolumes` ; do
 	echo "# echo y | $LVMCMD pvcreate -ff $i"
 done
-echo "# $LVMCMD vgscan; echo"
+echo "# $LVMCMD vgscan"
 echo ""
 echo "Create and activate the VG's (volume groups)."
 all_volume_groups=`ListAllVolumeGroups`

@@ -58,10 +58,10 @@ noof_blank_lines=0
 read line
 while [ "$line" != "" ] && [ "$noof_blank_lines" -le "5" ] ; do
     if [ "$line" = "" ] ; then
-	noof_blank_lines=$(($noof_blank_lines+1))
+		noof_blank_lines=$(($noof_blank_lines+1))
     else
-	noof_blank_lines=0
-	read_partition_line "$line"
+		noof_blank_lines=0
+		read_partition_line "$line"
     fi
     read line
 done

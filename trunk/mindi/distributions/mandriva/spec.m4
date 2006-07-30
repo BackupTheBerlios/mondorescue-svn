@@ -6,3 +6,5 @@ dnl DDD is replaced by the list of dependencies specific to that distro
 define(`DDD', `, which, grep >= 2.5')dnl
 dnl GRP is replaced by the RPM group of apps
 define(`GRP', `Archiving/Backup')dnl
+dnl OBS is replaced with what is being obsoleted
+define(`OBS', `')dnl

@@ -84,8 +84,10 @@ for p in $c; do
 		if [ $? != 0 ]; then 
 			cat $log
 			status=-1
+		else
+			egrep '^Wrote:' $log
+			rpmlint `egrep '^Wrote:' $log | cut -d: -f2`
 		fi
-		egrep '^Wrote:' $log
 		rm -rf ${TOPBUILDDIR}/BUILD/*
 		cd ..
 	elif [  _"$dtype" = _"ebuild" ]; then
